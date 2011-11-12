@@ -132,21 +132,29 @@ namespace FLaG.Data
         public void Save(XmlWriter writer)
         {
             writer.WriteStartElement("mfenced", Writer.mathmlNS);
-            writer.WriteAttributeString("open", Writer.mathmlNS, "{");
-            writer.WriteAttributeString("close", Writer.mathmlNS, "}");
+            writer.WriteAttributeString("open", "{");
+            writer.WriteAttributeString("close", "}");
+			
+			writer.WriteStartElement("mrow", Writer.mathmlNS);
 
-            writer.WriteStartElement("mrow", Writer.mathmlNS);
-
+            writer.WriteStartElement("mfenced", Writer.mathmlNS);
+			writer.WriteAttributeString("open", "");
+            writer.WriteAttributeString("close", "");
+			
             for (int i = 0; i < SetCollection.Count; i++)
+			{
+				writer.WriteStartElement("mrow", Writer.mathmlNS);				
                 SetCollection[i].Save(writer);
+				writer.WriteEndElement(); // mrow
+			}
 
-            writer.WriteEndElement(); // mrow
-
-            writer.WriteStartElement("mo", Writer.mathmlNS);
-            writer.WriteAttributeString("separator", "true");
+            writer.WriteEndElement(); // mfenced
+			
+			writer.WriteStartElement("mo", Writer.mathmlNS);
+            writer.WriteAttributeString("stretchy", "true");
             writer.WriteString("|");
-            writer.WriteEndElement(); // mo
-
+			writer.WriteEndElement(); // mo
+			
             writer.WriteStartElement("mrow", Writer.mathmlNS);
 
             // 8704 - для всех
@@ -162,18 +170,18 @@ namespace FLaG.Data
             {
                 writer.WriteStartElement("mrow",Writer.mathmlNS);
 
-                writer.WriteStartElement("mo", Writer.mathmlNS);
-                writer.WriteCharEntity(VariableCollection[i].Name);
-                writer.WriteEndElement(); // mo
-
                 writer.WriteStartElement("mi", Writer.mathmlNS);
+                writer.WriteCharEntity(VariableCollection[i].Name);
+                writer.WriteEndElement(); // mi
+
+                writer.WriteStartElement("mo", Writer.mathmlNS);
 
                 if (VariableCollection[i].Sign == SignEnum.MoreThanZero)
                     writer.WriteCharEntity('>');
                 else if (VariableCollection[i].Sign == SignEnum.MoreOrEqualZero)
                     writer.WriteCharEntity('≥');
 
-                writer.WriteEndElement(); // mi
+                writer.WriteEndElement(); // mo
 
                 writer.WriteStartElement("mn", Writer.mathmlNS);
                 writer.WriteValue(VariableCollection[i].Num);
@@ -189,12 +197,14 @@ namespace FLaG.Data
             writer.WriteStartElement("mrow", Writer.mathmlNS);
 
             writer.WriteStartElement("mfenced", Writer.mathmlNS);
+			writer.WriteAttributeString("open", "");
+            writer.WriteAttributeString("close", "");
 
             for (int i = 0; i < VariableCollection.Count; i++)
             {
-                writer.WriteStartElement("mo", Writer.mathmlNS);
+                writer.WriteStartElement("mi", Writer.mathmlNS);
                 writer.WriteCharEntity(VariableCollection[i].Name);
-                writer.WriteEndElement(); // mo
+                writer.WriteEndElement(); // mi
             }
 
             writer.WriteEndElement(); // mfenced
@@ -204,6 +214,8 @@ namespace FLaG.Data
             writer.WriteEndElement(); // mrow
 
             writer.WriteEndElement(); // mrow
+			
+			writer.WriteEndElement(); // mrow
 
             writer.WriteEndElement(); // mfenced
         }

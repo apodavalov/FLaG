@@ -52,7 +52,7 @@ namespace FLaG.Data
             {
                 if (i != 0)
                 {
-                    writer.WriteStartElement("mi", Writer.mathmlNS);
+                    writer.WriteStartElement("mo", Writer.mathmlNS);
                     // mul
                     writer.WriteCharEntity(times);
                     writer.WriteEndElement();
