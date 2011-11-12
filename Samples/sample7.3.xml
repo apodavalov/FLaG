@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lang xmlns="urn:inputlang">
+	<variables>
+		<variable name="k" sign=">=" num="0" />
+		<variable name="l" sign=">=" num="0" />
+		<variable name="m" sign=">=" num="0" />
+  </variables>
+	<sets>
+		<set>
+			<degree>
+				<base>
+					<degree>
+						<base>
+							<symbol>a</symbol>			
+						</base>
+						<exp>
+							<number>2</number>
+						</exp>
+					</degree>
+				</base>
+				<exp>
+					<vref>k</vref>
+				</exp>
+			</degree>		
+		</set>
+		<set>
+			<concat>
+				<degree>
+					<base>
+						<degree>
+							<base>
+								<symbol>b</symbol>			
+							</base>
+							<exp>
+								<vref>l</vref>								
+							</exp>
+						</degree>
+					</base>
+					<exp>
+						<number>2</number>
+					</exp>
+				</degree>
+				<degree>
+					<base>
+						<degree>
+							<base>
+								<symbol>c</symbol>			
+							</base>
+							<exp>
+								<number>2</number>
+							</exp>
+						</degree>
+					</base>
+					<exp>
+						<vref>m</vref>
+					</exp>
+				</degree>
+			</concat>
+		</set>
+	</sets>
+</lang>
