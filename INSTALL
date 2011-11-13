@@ -1,0 +1,8 @@
+sudo apt-get install mono
+sudo apt-get install monodevelop
+sudo apt-get install texlive-full
+
+Download and unzip package:
+    # wget http://citylan.dl.sourceforge.net/project/disser/disser/1.1.7/disser-1.1.7.zip
+Go to disser-1.1.7 and run:
+    # sudo env DESTDIR=/usr/share/texmf make install
