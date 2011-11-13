@@ -55,9 +55,20 @@ namespace FLaG.Output
 			
 		}
 		
-		public void WriteEscapedString(string s)
+		public void Write(string s, bool escape)
 		{
-			Write(EscapeForLaTeX(s));
+			if (escape)
+				Write(EscapeForLaTeX(s));
+			else
+				Write(s);			
+		}
+		
+		public void WriteLine(string s, bool escape)
+		{
+			if (escape)
+				WriteLine(EscapeForLaTeX(s));
+			else
+				WriteLine(s);
 		}
 		
 		public string EscapeForLaTeX(string s)
@@ -186,6 +197,7 @@ namespace FLaG.Output
 			WriteLine();
 			WriteLine(@"\newpage");
 			WriteLine(@"\tableofcontents");
+			WriteLine();
 			WriteLine(@"\newpage");
         }
 
@@ -193,40 +205,33 @@ namespace FLaG.Output
         {
             // TODO: реализовать шаг 1
         }
+		
+		public void Step2()
+		{
+			Write(@"\section{");
+			Write("Этап 2",true);
+			WriteLine(@"}");
+		}		
 
         public void Step2_1(Lang inputLang, Lang outputLang)
         {
-//            WriteStartElement("section", docBookNS);
-//            WriteAttributeString("id", xmlNS, "step-2-1");
-//
-//            WriteElementString("title", docBookNS, "Шаг 2.1");
-//            WriteStartElement("para", docBookNS);
-//            WriteString("Перед построением регулярной грамматики для регулярного ");
-//            WriteString("языка требуется, чтобы данный язык был определен с помощью ");
-//            WriteString("регулярного выражения, которое в свою очередь представляет ");
-//            WriteString("регулярное множество. Чтобы множество, определяющее исходный язык ");
-//            WriteElementString("emphasis", docBookNS, "L");
-//            WriteString(", было регулярным необходимо сделать следующие эквивалентные ");
-//            WriteString("преобразования:");
-//            WriteEndElement(); // para
-//
-//            WriteStartElement("math","math",mathmlNS);
-//			  WriteAttributeString("linebreakstyle","after");
-//
-//            WriteStartElement("mrow",mathmlNS);
-//            WriteElementString("mi",mathmlNS,"L");
-//            WriteElementString("mo", mathmlNS, "=");
-//            inputLang.Save(OutputWriter);
-//			  WriteStartElement("mo", mathmlNS);
-//			  WriteAttributeString("linebreak","newline");
-//			  WriteString("=");
-//			  WriteEndElement();
-//            outputLang.Save(OutputWriter);
-//            WriteEndElement(); // mrow
-//
-//            WriteEndElement(); // math
-//
-//            WriteEndElement(); // section
+			Write(@"\subsection{");
+			Write("Этап 2.1",true);
+			WriteLine(@"}");
+            WriteLine("Перед построением регулярной грамматики для регулярного", true);
+            WriteLine("языка требуется, чтобы данный язык был определен с помощью" , true);
+            WriteLine("регулярного выражения, которое в свою очередь представляет", true);			
+            WriteLine("регулярное множество. Чтобы множество, определяющее исходный язык", true);
+			Write(@"\emph{L}");
+            WriteLine(", было регулярным необходимо сделать следующие эквивалентные ", true);
+            WriteLine("преобразования:", true);			
+			WriteLine();
+			WriteLine(@"\begin{equation}");
+			WriteLine(@"L=");			
+			inputLang.Save(this);
+			WriteLine(@"= \\");	
+			outputLang.Save(this);
+			WriteLine(@"\end{equation}");
         }
 
         public void WriteEndDoc()

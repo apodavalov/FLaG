@@ -26,6 +26,7 @@ namespace FLaG
             {
                 writer.WriteStartDoc();
                 writer.Step1();
+				writer.Step2();
                 writer.Step2_1(lang,lang.ToRegularSet());
                 writer.WriteEndDoc();
             }
