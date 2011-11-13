@@ -80,11 +80,11 @@ namespace FLaG.Data
                 return 0;
         }
 
-        public override void Save(XmlWriter writer)
+        public override void Save(Writer writer)
         {
-            writer.WriteStartElement("mo", Writer.mathmlNS);
-            writer.WriteCharEntity(Name);
-            writer.WriteEndElement();
+//            writer.WriteStartElement("mo", Writer.mathmlNS);
+//            writer.WriteCharEntity(Name);
+//            writer.WriteEndElement();
         }
     }
 }

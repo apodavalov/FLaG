@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using FLaG.Data;
 using System.Xml;
 using FLaG.Output;
@@ -20,14 +21,8 @@ namespace FLaG
 			}
 			
             Lang lang = new Lang(args[0]);
-
-            XmlWriterSettings settings = new XmlWriterSettings();
-
-            settings.IndentChars = "\t";
-            settings.Indent = true;
-            settings.NamespaceHandling = NamespaceHandling.OmitDuplicates;
-            
-            using (Writer writer = new Writer(XmlWriter.Create(args[1], settings)))
+			
+			using (Writer writer = new Writer(args[1],false,new UTF8Encoding(false)))
             {
                 writer.WriteStartDoc();
                 writer.Step1();

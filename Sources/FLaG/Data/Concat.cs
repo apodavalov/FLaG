@@ -37,31 +37,31 @@ namespace FLaG.Data
             private set;
         }
 
-        public override void Save(XmlWriter writer)
+        public override void Save(Writer writer)
         {
-            char times;
-
-            if (EntityCollection.All<Entity>(x => x is Symbol))
-                // invisible
-                times = (char)8290;
-            else
-                // visible
-                times = (char)8901;
-
-            for (int i = 0; i < EntityCollection.Count; i++)
-            {
-                if (i != 0)
-                {
-                    writer.WriteStartElement("mo", Writer.mathmlNS);
-                    // mul
-                    writer.WriteCharEntity(times);
-                    writer.WriteEndElement();
-                }
-
-                writer.WriteStartElement("mrow", Writer.mathmlNS);
-                EntityCollection[i].Save(writer);
-                writer.WriteEndElement(); // mrow
-            }                      
+//            char times;
+//
+//            if (EntityCollection.All<Entity>(x => x is Symbol))
+//                // invisible
+//                times = (char)8290;
+//            else
+//                // visible
+//                times = (char)8901;
+//
+//            for (int i = 0; i < EntityCollection.Count; i++)
+//            {
+//                if (i != 0)
+//                {
+//                    writer.WriteStartElement("mo", Writer.mathmlNS);
+//                    // mul
+//                    writer.WriteCharEntity(times);
+//                    writer.WriteEndElement();
+//                }
+//
+//                writer.WriteStartElement("mrow", Writer.mathmlNS);
+//                EntityCollection[i].Save(writer);
+//                writer.WriteEndElement(); // mrow
+//            }                      
         }
 
         public override Entity ToRegularSet()

@@ -29,6 +29,6 @@ namespace FLaG.Data
             }
         }
 
-        public abstract void Save(XmlWriter writer);
+        public abstract void Save(Writer writer);
     }
 }

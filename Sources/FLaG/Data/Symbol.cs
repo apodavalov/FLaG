@@ -33,11 +33,11 @@ namespace FLaG.Data
             set;
         }
 
-        public override void Save(XmlWriter writer)
+        public override void Save(Writer writer)
         {
-            writer.WriteStartElement("mo", Writer.mathmlNS);
-            writer.WriteCharEntity(Value);
-            writer.WriteEndElement();
+//            writer.WriteStartElement("mo", Writer.mathmlNS);
+//            writer.WriteCharEntity(Value);
+//            writer.WriteEndElement();
         }
 
         public override Entity ToRegularSet()
