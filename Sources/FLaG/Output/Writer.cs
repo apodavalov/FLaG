@@ -62,8 +62,47 @@ namespace FLaG.Output
 		
 		public string EscapeForLaTeX(string s)
 		{
-			// TODO: escape
-			return s;
+			StringBuilder sb = new StringBuilder();
+			
+			foreach (char c in s)
+				switch (c)
+				{
+					case '#':
+						sb.Append(@"\#");
+						break;
+					case '$':
+						sb.Append(@"\$");
+						break;
+					case '%':
+						sb.Append(@"\%");
+						break;				
+					case '^':
+						sb.Append(@"\textasciicircum{}");
+						break;				
+					case '&':
+						sb.Append(@"\&");
+						break;				
+					case '_':
+						sb.Append(@"\_");
+						break;		
+					case '{':
+						sb.Append(@"\{");
+						break;					
+					case '}':
+						sb.Append(@"\}");
+						break;					
+					case '~':
+						sb.Append(@"\~{}");
+						break;					
+					case '\\':
+						sb.Append(@"\textbackslash{}");
+						break;									
+					default:
+						sb.Append(c);
+						break;
+				}
+			
+			return sb.ToString();
 		}
 		
         public void WriteStartDoc()
