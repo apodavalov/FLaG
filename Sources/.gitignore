@@ -2,6 +2,10 @@
 [Tt]humbs.db
 *.DS_Store
 
+#Monodevelop
+*.userprefs
+*.pidb
+
 #Visual Studio files
 *.[Oo]bj
 *.user
