@@ -35,9 +35,14 @@ namespace FLaG.Data
 
         public override void Save(Writer writer)
         {
-//            writer.WriteStartElement("mn", Writer.mathmlNS);
-//            writer.WriteValue(Value);
-//            writer.WriteEndElement();
+			if (Value < 0)
+			{
+				writer.Write("{");
+				writer.Write(Value);
+				writer.Write("}");
+			}
+			else
+				writer.Write(Value);
         }
     }
 }

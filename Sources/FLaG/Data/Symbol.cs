@@ -35,9 +35,7 @@ namespace FLaG.Data
 
         public override void Save(Writer writer)
         {
-//            writer.WriteStartElement("mo", Writer.mathmlNS);
-//            writer.WriteCharEntity(Value);
-//            writer.WriteEndElement();
+			writer.Write(Value);
         }
 
         public override Entity ToRegularSet()

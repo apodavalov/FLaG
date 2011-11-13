@@ -82,9 +82,7 @@ namespace FLaG.Data
 
         public override void Save(Writer writer)
         {
-//            writer.WriteStartElement("mo", Writer.mathmlNS);
-//            writer.WriteCharEntity(Name);
-//            writer.WriteEndElement();
+			writer.Write(Name);
         }
     }
 }

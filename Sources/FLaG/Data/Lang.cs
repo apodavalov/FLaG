@@ -131,93 +131,47 @@ namespace FLaG.Data
 
         public void Save(Writer writer)
         {
-//            writer.WriteStartElement("mfenced", Writer.mathmlNS);
-//            writer.WriteAttributeString("open", "{");
-//            writer.WriteAttributeString("close", "}");
-//			
-//			writer.WriteStartElement("mrow", Writer.mathmlNS);
-//
-//            writer.WriteStartElement("mfenced", Writer.mathmlNS);
-//			writer.WriteAttributeString("open", "");
-//            writer.WriteAttributeString("close", "");
-//			
-//            for (int i = 0; i < SetCollection.Count; i++)
-//			{
-//				writer.WriteStartElement("mrow", Writer.mathmlNS);				
-//                SetCollection[i].Save(writer);
-//				writer.WriteEndElement(); // mrow
-//			}
-//
-//            writer.WriteEndElement(); // mfenced
-//			
-//			writer.WriteStartElement("mo", Writer.mathmlNS);
-//            writer.WriteAttributeString("stretchy", "true");
-//            writer.WriteString("|");
-//			writer.WriteEndElement(); // mo
-//			
-//            writer.WriteStartElement("mrow", Writer.mathmlNS);
-//
-//            // 8704 - для всех
-//            writer.WriteStartElement("mo", Writer.mathmlNS);
-//            writer.WriteCharEntity((char)8704); 
-//            writer.WriteEndElement(); // mo
-//
-//            writer.WriteStartElement("mfenced", Writer.mathmlNS);
-//            writer.WriteAttributeString("open", "");
-//            writer.WriteAttributeString("close", "");
-//            
-//            for (int i = 0; i < VariableCollection.Count; i++)
-//            {
-//                writer.WriteStartElement("mrow",Writer.mathmlNS);
-//
-//                writer.WriteStartElement("mi", Writer.mathmlNS);
-//                writer.WriteCharEntity(VariableCollection[i].Name);
-//                writer.WriteEndElement(); // mi
-//
-//                writer.WriteStartElement("mo", Writer.mathmlNS);
-//
-//                if (VariableCollection[i].Sign == SignEnum.MoreThanZero)
-//                    writer.WriteCharEntity('>');
-//                else if (VariableCollection[i].Sign == SignEnum.MoreOrEqualZero)
-//                    writer.WriteCharEntity('≥');
-//
-//                writer.WriteEndElement(); // mo
-//
-//                writer.WriteStartElement("mn", Writer.mathmlNS);
-//                writer.WriteValue(VariableCollection[i].Num);
-//                writer.WriteEndElement(); // mn
-//
-//                writer.WriteEndElement(); // mrow
-//            }
-//
-//            writer.WriteEndElement(); // mfenced
-//
-//            writer.WriteElementString("mtext", Writer.mathmlNS, ", где ");
-//
-//            writer.WriteStartElement("mrow", Writer.mathmlNS);
-//
-//            writer.WriteStartElement("mfenced", Writer.mathmlNS);
-//			writer.WriteAttributeString("open", "");
-//            writer.WriteAttributeString("close", "");
-//
-//            for (int i = 0; i < VariableCollection.Count; i++)
-//            {
-//                writer.WriteStartElement("mi", Writer.mathmlNS);
-//                writer.WriteCharEntity(VariableCollection[i].Name);
-//                writer.WriteEndElement(); // mi
-//            }
-//
-//            writer.WriteEndElement(); // mfenced
-//
-//            writer.WriteElementString("mtext", Writer.mathmlNS, " " + (char)8212 + " целые");
-//
-//            writer.WriteEndElement(); // mrow
-//
-//            writer.WriteEndElement(); // mrow
-//			
-//			writer.WriteEndElement(); // mrow
-//
-//            writer.WriteEndElement(); // mfenced
+			writer.Write(@"\left\{");
+			
+            for (int i = 0; i < SetCollection.Count; i++)
+			{
+				if (i != 0)
+					writer.Write(',');
+                SetCollection[i].Save(writer);
+			}
+			
+			writer.Write("|");
+			
+			writer.Write(@" \forall ");
+			
+            for (int i = 0; i < VariableCollection.Count; i++)
+            {
+				if (i != 0)
+					writer.Write(',');
+				
+				writer.Write(VariableCollection[i].Name);
+
+                if (VariableCollection[i].Sign == SignEnum.MoreThanZero)
+                    writer.Write('>');
+                else if (VariableCollection[i].Sign == SignEnum.MoreOrEqualZero)
+                    writer.Write(@" \geq ");
+				
+				writer.Write(VariableCollection[i].Num);
+            }
+			
+			writer.Write(@",  \text{где} ");
+			
+            for (int i = 0; i < VariableCollection.Count; i++)
+            {
+				if (i != 0)
+					writer.Write(',');
+				
+				writer.Write(VariableCollection[i].Name);
+            }
+			
+			writer.Write(@"  \text{--- целые}");
+			
+			writer.Write(@"\right\}");
         }
     }
 }

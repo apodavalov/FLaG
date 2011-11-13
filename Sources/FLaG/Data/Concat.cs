@@ -39,29 +39,26 @@ namespace FLaG.Data
 
         public override void Save(Writer writer)
         {
-//            char times;
-//
-//            if (EntityCollection.All<Entity>(x => x is Symbol))
-//                // invisible
-//                times = (char)8290;
-//            else
-//                // visible
-//                times = (char)8901;
-//
-//            for (int i = 0; i < EntityCollection.Count; i++)
-//            {
-//                if (i != 0)
-//                {
-//                    writer.WriteStartElement("mo", Writer.mathmlNS);
-//                    // mul
-//                    writer.WriteCharEntity(times);
-//                    writer.WriteEndElement();
-//                }
-//
-//                writer.WriteStartElement("mrow", Writer.mathmlNS);
-//                EntityCollection[i].Save(writer);
-//                writer.WriteEndElement(); // mrow
-//            }                      
+            string times;
+			
+			writer.Write("{");
+
+            if (EntityCollection.All<Entity>(x => x is Symbol))
+                // invisible
+                times = " ";
+            else
+                // visible
+                times = @" \cdot ";
+
+            for (int i = 0; i < EntityCollection.Count; i++)
+            {
+                if (i != 0)
+					writer.Write(times);
+
+                EntityCollection[i].Save(writer);
+            }                      
+			
+			writer.Write("}");
         }
 
         public override Entity ToRegularSet()

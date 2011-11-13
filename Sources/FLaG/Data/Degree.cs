@@ -78,29 +78,13 @@ namespace FLaG.Data
 
         public override void Save(Writer writer)
         {
-//            writer.WriteStartElement("msup", Writer.mathmlNS);
-//
-//            writer.WriteStartElement("mrow", Writer.mathmlNS);
-//
-//            writer.WriteStartElement("mfenced", Writer.mathmlNS);
-//            writer.WriteAttributeString("open", "{");
-//            writer.WriteAttributeString("close", "}");
-//
-//            writer.WriteStartElement("mrow",Writer.mathmlNS);
-//
-//            Base.Save(writer);
-//
-//            writer.WriteEndElement(); // mrow
-//
-//            writer.WriteEndElement(); // mfenced
-//
-//            writer.WriteEndElement(); // mrow
-//
-//            writer.WriteStartElement("mrow", Writer.mathmlNS);
-//            Exp.Save(writer);
-//            writer.WriteEndElement(); // mrow
-//
-//            writer.WriteEndElement();
+			writer.Write("{");
+			writer.Write(@"\left\{");
+			Base.Save(writer);
+			writer.Write(@"\right\}");
+			writer.Write("^");
+            Exp.Save(writer);
+			writer.Write("}");
         }
     }
 }

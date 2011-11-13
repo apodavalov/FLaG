@@ -227,10 +227,13 @@ namespace FLaG.Output
             WriteLine("преобразования:", true);			
 			WriteLine();
 			WriteLine(@"\begin{equation}");
-			WriteLine(@"L=");			
+			WriteLine(@"\begin{split}");
+			Write(@"L &= ");			
 			inputLang.Save(this);
 			WriteLine(@"= \\");	
+			Write(@"&=");
 			outputLang.Save(this);
+			WriteLine(@"\end{split}");
 			WriteLine(@"\end{equation}");
         }
 
