@@ -15,4 +15,4 @@ tex: ./Output/sample7.3.tex
 pdf: ./Output/sample7.3.pdf
 
 clean:
-	rm -rf ./Output/
+	rm -rf ./Output/*
