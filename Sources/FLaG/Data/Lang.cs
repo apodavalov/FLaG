@@ -159,7 +159,7 @@ namespace FLaG.Data
 				writer.Write(VariableCollection[i].Num);
             }
 			
-			writer.Write(@",  \text{где} ");
+			writer.Write(@", \text{где } ");
 			
             for (int i = 0; i < VariableCollection.Count; i++)
             {
@@ -169,7 +169,7 @@ namespace FLaG.Data
 				writer.Write(VariableCollection[i].Name);
             }
 			
-			writer.Write(@"  \text{--- целые}");
+			writer.Write(@"  \text{ --- целые}");
 			
 			writer.Write(@"\right\}");
         }
