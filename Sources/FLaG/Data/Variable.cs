@@ -84,5 +84,10 @@ namespace FLaG.Data
         {
 			writer.Write(Name);
         }
+		
+		public override void SaveAsRegularExp(Writer writer)
+		{
+			throw new NotSupportedException();
+		}
     }
 }

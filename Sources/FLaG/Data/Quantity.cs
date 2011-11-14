@@ -28,7 +28,9 @@ namespace FLaG.Data
                     return null; // никогда не случится
             }
         }
-
+		
+		public abstract void SaveAsRegularExp(Writer writer);
+		
         public abstract void Save(Writer writer);
     }
 }

@@ -37,10 +37,20 @@ namespace FLaG.Data
         {
 			writer.Write(Value);
         }
+		
+		public override void SaveAsRegularExp(Writer writer)
+		{
+			writer.Write(Value);
+		}
 
         public override Entity ToRegularSet()
         {
             return this;
         }
+		
+		public override Entity ToRegularExp()
+		{
+			return this;
+		}
     }
 }

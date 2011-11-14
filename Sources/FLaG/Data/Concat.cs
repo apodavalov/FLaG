@@ -70,5 +70,36 @@ namespace FLaG.Data
 
             return c;
         }
+
+		public override Entity ToRegularExp ()
+		{
+			Concat c = new Concat();
+
+            foreach (Entity e in EntityCollection)
+                c.EntityCollection.Add(e.ToRegularExp());
+
+            return c;
+		}
+		
+		public override void SaveAsRegularExp(Writer writer)
+		{
+			writer.Write("{");
+			
+			if (EntityCollection.Count > 1)			
+				writer.Write(@"\left(");
+
+            for (int i = 0; i < EntityCollection.Count; i++)
+            {
+                if (i != 0)
+					writer.Write(@" \cdot ");
+
+                EntityCollection[i].SaveAsRegularExp(writer);
+            }                      
+			
+			if (EntityCollection.Count > 1)
+				writer.Write(@"\right)");
+			
+			writer.Write("}");
+		}		
     }
 }

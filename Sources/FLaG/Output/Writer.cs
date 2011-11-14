@@ -226,7 +226,7 @@ namespace FLaG.Output
             WriteLine(", было регулярным необходимо сделать следующие эквивалентные ", true);
             WriteLine("преобразования:", true);			
 			WriteLine();
-			WriteLine(@"\begin{equation}");
+			WriteLine(@"\begin{equation}\label{eq:s2b1}");
 			WriteLine(@"\begin{split}");
 			Write(@"L &= ");			
 			inputLang.Save(this);
@@ -236,6 +236,24 @@ namespace FLaG.Output
 			WriteLine(@"\end{split}");
 			WriteLine(@"\end{equation}");
         }
+		
+		public void Step2_2(Lang lang)
+		{
+			Write(@"\subsection{");
+			Write("Этап 2.2",true);
+			WriteLine(@"}");
+			Write("Для определения регулярного множества ");
+			Write(@"(\ref{eq:s2b1}) ");
+			WriteLine("используются регулярные выражения.", true);
+			Write("Представим язык ", true);
+			Write(@"\emph{L} ");
+			Write("с помощью регулярного выражения вида:", true);
+			WriteLine(@"\begin{equation}\label{eq:s2b2}");
+			Write("p = ");
+			lang.SaveAsRegularExp(this);
+			WriteLine();
+			WriteLine(@"\end{equation}");
+		}
 
         public void WriteEndDoc()
         {

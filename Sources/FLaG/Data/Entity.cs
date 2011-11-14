@@ -27,6 +27,10 @@ namespace FLaG.Data
         }
 
         public abstract Entity ToRegularSet();
+		
+		public abstract Entity ToRegularExp();
+		
+		public abstract void SaveAsRegularExp(Writer writer);
 
         public abstract void Save(Writer writer);       
     }

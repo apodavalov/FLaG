@@ -128,6 +128,26 @@ namespace FLaG.Data
 
             return l;
         }
+		
+		public Lang ToRegularExp()
+		{
+			Lang l = new Lang();		
+			
+			foreach (Entity e in SetCollection)
+				l.SetCollection.Add(e.ToRegularExp());
+			
+			return l;
+		}
+		
+		public void SaveAsRegularExp(Writer writer)
+		{
+			for (int i = 0; i < SetCollection.Count; i++)
+			{
+				if (i != 0)
+					writer.Write('+');
+                SetCollection[i].SaveAsRegularExp(writer);
+			}
+		}
 
         public void Save(Writer writer)
         {

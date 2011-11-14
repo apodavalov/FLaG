@@ -75,6 +75,48 @@ namespace FLaG.Data
                 return d;
             }
         }
+		
+		public override Entity ToRegularExp()
+		{
+			if (Exp is Variable)
+			{
+				Variable v = (Variable)Exp;
+				Concat c = new Concat();
+				Entity e = Base.ToRegularExp();
+				
+				if (v.Num == 1)				
+					c.EntityCollection.Add(e);		
+				else if (v.Num > 1)
+				{
+					Degree d = new Degree();
+					d.Base = e;
+					Number n = new Number();					
+					n.Value = v.Num;
+					d.Exp = n;
+					c.EntityCollection.Add(d);
+				}
+				
+				Repeat r = new Repeat();
+				r.AtLeastOne = v.Sign == SignEnum.MoreThanZero;
+				r.Entity = e;
+				
+				c.EntityCollection.Add(r);
+				
+				if (c.EntityCollection.Count == 1)
+					return c.EntityCollection[0];
+				else
+					return c;
+			}
+			else				
+			{
+				Degree d = new Degree();
+				d.Base = this.Base.ToRegularExp();
+				d.Exp = this.Exp;
+				
+				return d;
+			}
+			
+		}
 
         public override void Save(Writer writer)
         {
@@ -86,5 +128,22 @@ namespace FLaG.Data
             Exp.Save(writer);
 			writer.Write("}");
         }
+		
+		public override void SaveAsRegularExp(Writer writer)
+		{
+			writer.Write("{");
+			
+			if (Base is Symbol || Base is Concat)
+				Base.SaveAsRegularExp(writer);
+			else
+			{
+				writer.Write(@"\left(");
+				Base.SaveAsRegularExp(writer);
+				writer.Write(@"\right)");
+			}					
+			writer.Write("^");
+            Exp.SaveAsRegularExp(writer);
+			writer.Write("}");
+		}
     }
 }

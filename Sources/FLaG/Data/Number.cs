@@ -44,5 +44,10 @@ namespace FLaG.Data
 			else
 				writer.Write(Value);
         }
+		
+		public override void SaveAsRegularExp(Writer writer)
+        {
+			writer.Write(Value);
+        }
     }
 }
