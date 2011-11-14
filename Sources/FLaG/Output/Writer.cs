@@ -121,13 +121,12 @@ namespace FLaG.Output
 			WriteLine(@"\documentclass[a4paper,12pt]{article}");
 			WriteLine(@"\usepackage[a4paper, includefoot, left=3cm, right=1.5cm, " + 
 				"top=2cm, bottom=2cm, headsep=1cm, footskip=1cm]{geometry}");
-			WriteLine(@"\usepackage{amssymb,amsfonts,amsmath,cite,enumerate,float,indentfirst}");
-			WriteLine(@"\usepackage[T2A,T2D,T1]{fontenc}");			
+			WriteLine(@"\usepackage{mathtools, mathtext}");
+			WriteLine(@"\usepackage[T1,T2A]{fontenc}");			
 			WriteLine(@"\usepackage{ucs}");
 			WriteLine(@"\usepackage[utf8x]{inputenc}");
 			WriteLine(@"\usepackage[english, russian]{babel}");
 			WriteLine(@"\usepackage{cmap}");
-			WriteLine(@"\setcounter{tocdepth}{2}");
 			WriteLine(@"\makeatletter");
 			// Заменяем библиографию с квадратных скобок на точку
 			WriteLine(@"\renewcommand{\@biblabel}[1]{#1.}");				
@@ -147,9 +146,6 @@ namespace FLaG.Output
 			// Команда для вставки изображения
 			//WriteLine(@"\newcommand{\imgh}[3]{\begin{figure}[h]\center{\includegraphics[width=#1]{#2}}\caption{#3}\label{ris:#2}\end{figure}}");
 			WriteLine(@"\begin{document}");
-			WriteLine(@"\setcounter{secnumdepth}{-1}");
-			WriteLine(@"\newcounter{sectocnonumdepth}");
-			WriteLine(@"\setcounter{sectocnonumdepth}{2}");
 			WriteLine(@"\begin{titlepage}");
 			WriteLine(@"\newpage");
 			WriteLine();
@@ -196,6 +192,10 @@ namespace FLaG.Output
 			WriteLine(@"\end{titlepage}");
 			WriteLine();
 			WriteLine(@"\newpage");
+			WriteLine(@"\setcounter{tocdepth}{2}");
+			WriteLine(@"\setcounter{secnumdepth}{-1}");
+			WriteLine(@"\newcounter{sectocnonumdepth}");
+			WriteLine(@"\setcounter{sectocnonumdepth}{2}");
 			WriteLine(@"\tableofcontents");
 			WriteLine();
 			WriteLine(@"\newpage");
