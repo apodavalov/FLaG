@@ -101,5 +101,24 @@ namespace FLaG.Data
 			
 			writer.Write("}");
 		}		
+
+		public override int MarkDeepest(int val)
+		{
+			if (NumLabel != null)
+				return val;
+			
+			int oldval = val;
+			
+			foreach (Entity e in EntityCollection)
+				val = e.MarkDeepest(val);
+			
+			if (oldval == val)
+			{
+				NumLabel = val;
+				val++;
+			}
+			
+			return val;
+		}
     }
 }

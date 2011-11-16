@@ -12,6 +12,12 @@ namespace FLaG.Data
 {
     class Lang
     {
+		public int? NumLabel
+		{
+			get;
+			set;
+		}
+		
         public Lang()
         {
             VariableCollection = new List<Variable>();
@@ -137,6 +143,22 @@ namespace FLaG.Data
 				l.SetCollection.Add(e.ToRegularExp());
 			
 			return l;
+		}
+		
+		public void MarkDeepest()
+		{
+			int v = 1,oldv;
+
+			do
+			{
+				oldv = v;
+				
+				foreach (Entity e in SetCollection)
+					v = e.MarkDeepest(v);
+				
+			} while (oldv != v);
+			
+			NumLabel = v;
 		}
 		
 		public void SaveAsRegularExp(Writer writer)

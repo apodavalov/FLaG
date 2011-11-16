@@ -242,7 +242,7 @@ namespace FLaG.Output
 			Write(@"\subsection{");
 			Write("Этап 2.2",true);
 			WriteLine(@"}");
-			Write("Для определения регулярного множества ");
+			Write("Для определения регулярного множества ", true);
 			Write(@"(\ref{eq:s2b1}) ");
 			WriteLine("используются регулярные выражения.", true);
 			Write("Представим язык ", true);
@@ -253,6 +253,25 @@ namespace FLaG.Output
 			lang.SaveAsRegularExp(this);
 			WriteLine();
 			WriteLine(@"\end{equation}");
+		}
+		
+		public void Step2_3(Lang lang)
+		{
+			Write(@"\subsection{");
+			Write("Этап 2.3",true);
+			WriteLine(@"}");
+			Write("Построим праволинейную грамматику для выражения ",true);
+			Write(@"(\ref{eq:s2b2})");
+			WriteLine(@". Воспользуемся рекурсивным определением регулярного выражения ", true);
+			WriteLine(@"для построения последовательности праволинейных грамматик для каждого ", true);
+			WriteLine(@"элементарного регулярного выражения, входящих в состав выражения ", true);
+			Write(@"(\ref{eq:s2b2})");
+			WriteLine(@". Собственно последняя грамматика и будет являться искомой. Определим ", true);
+			WriteLine(@" совокупность выражений, входящих в состав ", true);
+			Write(@"(\ref{eq:s2b2})");
+			Write(@".");
+			lang.MarkDeepest();
+			
 		}
 
         public void WriteEndDoc()

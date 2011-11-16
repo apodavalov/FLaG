@@ -9,6 +9,12 @@ namespace FLaG.Data
 {
     abstract class Entity
     {
+		public int? NumLabel
+		{
+			get;
+			set;
+		}
+		
         public static Entity Load(XmlReader reader, List<Variable> variableCollection)
         {
             while (!reader.IsStartElement()) reader.Read();
@@ -25,6 +31,8 @@ namespace FLaG.Data
                     return null; // никогда не случится
             }
         }
+		
+		public abstract int MarkDeepest(int val);
 
         public abstract Entity ToRegularSet();
 		

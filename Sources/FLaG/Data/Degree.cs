@@ -145,5 +145,23 @@ namespace FLaG.Data
             Exp.SaveAsRegularExp(writer);
 			writer.Write("}");
 		}
+
+		public override int MarkDeepest(int val)
+		{
+			if (NumLabel != null)
+				return val;
+			
+			int oldval = val;
+			
+			val = Base.MarkDeepest(val);
+			
+			if (oldval == val)
+			{
+				NumLabel = val;
+				val++;
+			}
+			
+			return val;
+		}
     }
 }

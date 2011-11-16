@@ -52,5 +52,15 @@ namespace FLaG.Data
 		{
 			return this;
 		}
+
+		public override int MarkDeepest(int val)
+		{
+			if (NumLabel != null)
+				return val;
+			
+			NumLabel = val;
+			
+			return val+1;
+		}
     }
 }
