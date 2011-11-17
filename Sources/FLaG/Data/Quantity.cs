@@ -29,6 +29,8 @@ namespace FLaG.Data
             }
         }
 		
+		public abstract Quantity DeepClone();
+		
 		public abstract void SaveAsRegularExp(Writer writer);
 		
         public abstract void Save(Writer writer);

@@ -147,6 +147,9 @@ namespace FLaG.Data
 		
 		public void MarkDeepest()
 		{
+			if (NumLabel != null)
+				return;
+			
 			int v = 1,oldv;
 
 			do
@@ -157,17 +160,31 @@ namespace FLaG.Data
 					v = e.MarkDeepest(v);
 				
 			} while (oldv != v);
-			
+						
 			NumLabel = v;
 		}
 		
-		public void SaveAsRegularExp(Writer writer)
+		public void SaveAsRegularExp(Writer writer, bool full)
 		{
+			if (full)
+				writer.Write(@"{\underbrace");
+			
+			writer.Write("{");
+			
 			for (int i = 0; i < SetCollection.Count; i++)
 			{
 				if (i != 0)
 					writer.Write('+');
-                SetCollection[i].SaveAsRegularExp(writer);
+                SetCollection[i].SaveAsRegularExp(writer, full);
+			}
+			
+			writer.Write("}");
+			
+			if (full)
+			{
+				writer.Write(@"_\text{");
+				writer.Write(NumLabel);
+				writer.Write(@"}}");
 			}
 		}
 

@@ -14,6 +14,15 @@ namespace FLaG.Data
         {
 
         }
+		
+		public override Entity DeepClone()
+		{
+			Symbol s = new Symbol();
+			s.Value = Value;
+			s.NumLabel = NumLabel;
+			
+			return s;
+		}
 
         public Symbol(XmlReader reader, List<Variable> variableCollection)
             : this()
@@ -38,11 +47,21 @@ namespace FLaG.Data
 			writer.Write(Value);
         }
 		
-		public override void SaveAsRegularExp(Writer writer)
+		public override void SaveAsRegularExp(Writer writer, bool full)
 		{
+			if (full)
+				writer.Write(@"{\underbrace{");
+			
 			writer.Write(Value);
+			
+			if (full)
+			{
+				writer.Write(@"}_\text{");
+				writer.Write(NumLabel);
+				writer.Write(@"}}");
+			}
 		}
-
+		
         public override Entity ToRegularSet()
         {
             return this;

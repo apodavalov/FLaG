@@ -16,6 +16,17 @@ namespace FLaG.Data
 			get;
 			set;
 		}
+		
+		public override Entity DeepClone()
+		{
+			Repeat r = new Repeat();
+			
+			r.AtLeastOne = AtLeastOne;
+			r.Entity = Entity.DeepClone();
+			r.NumLabel = NumLabel;
+			
+			return r;
+		}
 
 		public override void Save(Writer writer)
 		{
@@ -32,16 +43,19 @@ namespace FLaG.Data
 			throw new NotSupportedException();
 		}
 		
-		public override void SaveAsRegularExp(Writer writer)
+		public override void SaveAsRegularExp(Writer writer, bool full)
 		{
+			if (full)
+				writer.Write(@"{\underbrace");
+			
 			writer.Write("{");
 			
 			if (Entity is Symbol || Entity is Concat)
-				Entity.SaveAsRegularExp(writer);
+				Entity.SaveAsRegularExp(writer,full);
 			else
 			{
 				writer.Write(@"\left(");
-				Entity.SaveAsRegularExp(writer);
+				Entity.SaveAsRegularExp(writer,full);
 				writer.Write(@"\right)");
 			}					
 			
@@ -51,8 +65,15 @@ namespace FLaG.Data
 			else
 				writer.Write(@"\ast ");
 			writer.Write("}");
+			
+			if (full)
+			{
+				writer.Write(@"_\text{");
+				writer.Write(NumLabel);
+				writer.Write(@"}}");
+			}
 		}
-
+	
 		public override int MarkDeepest(int val)
 		{
 			if (NumLabel != null)

@@ -14,6 +14,18 @@ namespace FLaG.Data
         {
             EntityCollection = new List<Entity>();
         }
+		
+		public override Entity DeepClone()
+		{
+			Concat c = new Concat();
+			
+			foreach (Entity e in EntityCollection)
+				c.EntityCollection.Add(e.DeepClone());
+			
+			c.NumLabel = NumLabel;
+			
+			return c;
+		}
 
         public Concat(XmlReader reader, List<Variable> variableCollection) 
             : this()
@@ -80,9 +92,12 @@ namespace FLaG.Data
 
             return c;
 		}
-		
-		public override void SaveAsRegularExp(Writer writer)
+	
+		public override void SaveAsRegularExp(Writer writer, bool full)
 		{
+			if (full)
+				writer.Write(@"{\underbrace");
+			
 			writer.Write("{");
 			
 			if (EntityCollection.Count > 1)			
@@ -93,14 +108,21 @@ namespace FLaG.Data
                 if (i != 0)
 					writer.Write(@" \cdot ");
 
-                EntityCollection[i].SaveAsRegularExp(writer);
+                EntityCollection[i].SaveAsRegularExp(writer,full);
             }                      
 			
 			if (EntityCollection.Count > 1)
 				writer.Write(@"\right)");
 			
 			writer.Write("}");
-		}		
+			
+			if (full)
+			{
+				writer.Write(@"_\text{");
+				writer.Write(NumLabel);
+				writer.Write(@"}}");
+			}
+		}
 
 		public override int MarkDeepest(int val)
 		{

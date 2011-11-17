@@ -15,6 +15,8 @@ namespace FLaG.Data
 			set;
 		}
 		
+		public abstract Entity DeepClone();
+		
         public static Entity Load(XmlReader reader, List<Variable> variableCollection)
         {
             while (!reader.IsStartElement()) reader.Read();
@@ -38,7 +40,7 @@ namespace FLaG.Data
 		
 		public abstract Entity ToRegularExp();
 		
-		public abstract void SaveAsRegularExp(Writer writer);
+		public abstract void SaveAsRegularExp(Writer writer, bool full);
 
         public abstract void Save(Writer writer);       
     }

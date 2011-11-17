@@ -14,6 +14,18 @@ namespace FLaG.Data
         {
 
         }
+		
+		public override Entity DeepClone()
+		{
+			Degree d = new Degree();
+			
+			d.Base = Base.DeepClone();
+			d.Exp = Exp.DeepClone();
+			
+			d.NumLabel = NumLabel;
+			
+			return d;
+		}
 
         public Degree(XmlReader reader, List<Variable> variableCollection) 
             : this()
@@ -63,7 +75,7 @@ namespace FLaG.Data
                 Number n = (Number)Exp;
 
                 for (int i = 0; i < n.Value; i++)
-                    c.EntityCollection.Add(s);
+                    c.EntityCollection.Add(s.DeepClone());
 
                 return c;
             }
@@ -84,7 +96,9 @@ namespace FLaG.Data
 				Concat c = new Concat();
 				Entity e = Base.ToRegularExp();
 				
-				if (v.Num == 1)				
+				bool needClone = true;
+				
+				if (v.Num == 1)		
 					c.EntityCollection.Add(e);		
 				else if (v.Num > 1)
 				{
@@ -95,10 +109,12 @@ namespace FLaG.Data
 					d.Exp = n;
 					c.EntityCollection.Add(d);
 				}
+				else
+					needClone = false;
 				
 				Repeat r = new Repeat();
 				r.AtLeastOne = v.Sign == SignEnum.MoreThanZero;
-				r.Entity = e;
+				r.Entity = needClone ? e.DeepClone() : e;
 				
 				c.EntityCollection.Add(r);
 				
@@ -128,22 +144,32 @@ namespace FLaG.Data
             Exp.Save(writer);
 			writer.Write("}");
         }
-		
-		public override void SaveAsRegularExp(Writer writer)
+	
+		public override void SaveAsRegularExp(Writer writer, bool full)
 		{
+			if (full)
+				writer.Write(@"{\underbrace");
+			
 			writer.Write("{");
 			
 			if (Base is Symbol || Base is Concat)
-				Base.SaveAsRegularExp(writer);
+				Base.SaveAsRegularExp(writer,full);
 			else
 			{
 				writer.Write(@"\left(");
-				Base.SaveAsRegularExp(writer);
+				Base.SaveAsRegularExp(writer,full);
 				writer.Write(@"\right)");
 			}					
 			writer.Write("^");
             Exp.SaveAsRegularExp(writer);
 			writer.Write("}");
+			
+			if (full)
+			{
+				writer.Write(@"_\text{");
+				writer.Write(NumLabel);
+				writer.Write(@"}}");
+			}
 		}
 
 		public override int MarkDeepest(int val)

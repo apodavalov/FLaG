@@ -250,7 +250,7 @@ namespace FLaG.Output
 			Write("с помощью регулярного выражения вида:", true);
 			WriteLine(@"\begin{equation}\label{eq:s2b2}");
 			Write("p = ");
-			lang.SaveAsRegularExp(this);
+			lang.SaveAsRegularExp(this,false);
 			WriteLine();
 			WriteLine(@"\end{equation}");
 		}
@@ -270,8 +270,9 @@ namespace FLaG.Output
 			WriteLine(@" совокупность выражений, входящих в состав ", true);
 			Write(@"(\ref{eq:s2b2})");
 			Write(@".");
-			lang.MarkDeepest();
-			
+			WriteLine(@"\begin{equation}\label{eq:s2b3}");			
+			lang.SaveAsRegularExp(this,true);
+			WriteLine(@"\end{equation}");
 		}
 
         public void WriteEndDoc()

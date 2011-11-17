@@ -14,6 +14,17 @@ namespace FLaG.Data
         {
 
         }
+		
+		public override Quantity DeepClone()
+		{
+			Variable v = new Variable();
+			
+			v.Name = Name;
+			v.Num = Num;
+			v.Sign = Sign;
+			
+			return v;
+		}
 
         public Variable(XmlReader reader) 
             : this()
