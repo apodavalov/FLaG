@@ -15,6 +15,25 @@ namespace FLaG.Data
             EntityCollection = new List<Entity>();
         }
 		
+		public override Symbol[] CollectAlphabet()
+		{
+			List<Symbol> symbols = new List<Symbol>();
+			
+			foreach (Entity e in EntityCollection)
+			{
+				Symbol[] smbs = e.CollectAlphabet();
+				foreach (Symbol s in smbs)
+				{
+					int index = symbols.BinarySearch(s);
+					
+					if (index < 0)
+						symbols.Insert(~index,s);
+				}
+			}
+			
+			return symbols.ToArray();
+		}
+		
 		public override Entity DeepClone()
 		{
 			Concat c = new Concat();

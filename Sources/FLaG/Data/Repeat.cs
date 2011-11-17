@@ -17,6 +17,11 @@ namespace FLaG.Data
 			set;
 		}
 		
+		public override Symbol[] CollectAlphabet()
+		{
+			return Entity.CollectAlphabet();	
+		}
+		
 		public override Entity DeepClone()
 		{
 			Repeat r = new Repeat();

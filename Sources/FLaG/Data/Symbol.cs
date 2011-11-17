@@ -7,13 +7,18 @@ using FLaG.Output;
 
 namespace FLaG.Data
 {
-    class Symbol : Entity
+    class Symbol : Entity, IComparable<Symbol>
     {
         public Symbol()
             : base()
         {
 
         }
+		
+		public override Symbol[] CollectAlphabet()
+		{
+			return new Symbol[1] {this};
+		}
 		
 		public override Entity DeepClone()
 		{
@@ -80,6 +85,11 @@ namespace FLaG.Data
 			NumLabel = val;
 			
 			return val+1;
+		}
+
+		public int CompareTo(Symbol other)
+		{
+			return Value.CompareTo(other.Value);
 		}
     }
 }

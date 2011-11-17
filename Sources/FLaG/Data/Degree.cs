@@ -15,6 +15,11 @@ namespace FLaG.Data
 
         }
 		
+		public override Symbol[] CollectAlphabet()
+		{
+			return Base.CollectAlphabet();
+		}
+		
 		public override Entity DeepClone()
 		{
 			Degree d = new Degree();

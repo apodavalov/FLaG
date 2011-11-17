@@ -164,6 +164,25 @@ namespace FLaG.Data
 			NumLabel = v;
 		}
 		
+		public Symbol[] CollectAlphabet()
+		{
+			List<Symbol> symbols = new List<Symbol>();
+			
+			foreach (Entity e in SetCollection)
+			{
+				Symbol[] smbs = e.CollectAlphabet();
+				foreach (Symbol s in smbs)
+				{
+					int index = symbols.BinarySearch(s);
+					
+					if (index < 0)
+						symbols.Insert(~index,s);
+				}
+			}
+			
+			return symbols.ToArray();
+		}
+		
 		public void SaveAsRegularExp(Writer writer, bool full)
 		{
 			if (full)
@@ -186,6 +205,25 @@ namespace FLaG.Data
 				writer.Write(NumLabel);
 				writer.Write(@"}}");
 			}
+		}
+		
+		public void SaveAlphabet(Writer writer)
+		{
+			Symbol[] symbols = CollectAlphabet();
+			
+			writer.Write(@"\Sigma=");
+			
+			writer.Write("{",true);
+			
+			for (int i = 0; i < symbols.Length; i++)			
+			{
+				if (i != 0)
+					writer.Write(",",true);
+				
+				symbols[i].Save(writer);
+			}
+				
+			writer.Write("}",true);
 		}
 
         public void Save(Writer writer)

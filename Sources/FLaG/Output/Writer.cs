@@ -271,8 +271,15 @@ namespace FLaG.Output
 			Write(@"(\ref{eq:s2b2})");
 			Write(@".");
 			WriteLine(@"\begin{equation}\label{eq:s2b3}");			
-			lang.SaveAsRegularExp(this,true);
+			lang.SaveAsRegularExp(this,true);		
+			WriteLine();
 			WriteLine(@"\end{equation}");
+			WriteLine();
+			WriteLine(@"Построим леволинейные и праволинейные грамматики для указанных выражений.",true);
+			WriteLine(@"Для всех грамматик алфавит будет представлять множество вида ",true);
+			WriteLine(@"\begin{math}");
+			lang.SaveAlphabet(this);
+			WriteLine(@"\end{math}.");
 		}
 
         public void WriteEndDoc()
