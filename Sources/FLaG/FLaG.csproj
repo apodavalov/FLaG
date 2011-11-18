@@ -57,6 +57,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data\Variable.cs" />
     <Compile Include="Data\Repeat.cs" />
+    <Compile Include="Data\Alter.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Schema\lang.xsd">
