@@ -10,8 +10,14 @@ using FLaG.Output;
 
 namespace FLaG.Data
 {
-    class Lang : Entity
+    class Lang
     {
+		public int? NumLabel
+		{
+			get;
+			set;
+		}
+		
         public Lang()
         {
             VariableCollection = new List<Variable>();
@@ -118,7 +124,7 @@ namespace FLaG.Data
             private set;
         }
 
-        public override Entity ToRegularSet()
+        public Lang ToRegularSet()
         {
             Lang l = new Lang();
             l.VariableCollection.AddRange(VariableCollection);
@@ -129,7 +135,7 @@ namespace FLaG.Data
             return l;
         }
 		
-		public override Entity ToRegularExp()
+		public Lang ToRegularExp()
 		{
 			Lang l = new Lang();		
 			
@@ -137,11 +143,6 @@ namespace FLaG.Data
 				l.SetCollection.Add(e.ToRegularExp());
 			
 			return l;
-		}
-		
-		public override int MarkDeepest (int val)
-		{
-			 throw new NotSupportedException();
 		}
 		
 		public void MarkDeepest()
@@ -163,7 +164,7 @@ namespace FLaG.Data
 			NumLabel = v;
 		}
 		
-		public override Symbol[] CollectAlphabet()
+		public Symbol[] CollectAlphabet()
 		{
 			List<Symbol> symbols = new List<Symbol>();
 			
@@ -182,7 +183,7 @@ namespace FLaG.Data
 			return symbols.ToArray();
 		}
 		
-		public override void SaveAsRegularExp(Writer writer, bool full)
+		public void SaveAsRegularExp(Writer writer, bool full)
 		{
 			if (full)
 				writer.Write(@"{\underbrace");
@@ -225,7 +226,7 @@ namespace FLaG.Data
 			writer.Write("}",true);
 		}
 
-        public override void Save(Writer writer)
+        public void Save(Writer writer)
         {
 			writer.Write(@"\left\{");
 			
@@ -269,10 +270,5 @@ namespace FLaG.Data
 			
 			writer.Write(@"\right\}");
         }
-
-		public override Entity DeepClone ()
-		{
-			throw new NotSupportedException();
-		}
     }
 }
