@@ -31,7 +31,7 @@ namespace FLaG
                 writer.Step2_1(lang, regular);
 				Lang regularExp = regular.ToRegularExp();
 				writer.Step2_2(regularExp);
-				regularExp.MarkDeepest();
+				List<Entity> entities = regularExp.MarkDeepest();
 				writer.Step2_3(regularExp);
                 writer.WriteEndDoc();
             }

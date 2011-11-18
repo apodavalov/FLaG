@@ -111,7 +111,7 @@ namespace FLaG.Data
 			}			
 		}
 
-		public override int MarkDeepest(int val)
+		public override int MarkDeepest(int val, List<Entity> list)
 		{
 			if (NumLabel != null)
 				return val;
@@ -119,10 +119,11 @@ namespace FLaG.Data
 			int oldval = val;
 			
 			foreach (Entity e in EntityCollection)
-				val = e.MarkDeepest(val);
+				val = e.MarkDeepest(val, list);
 			
 			if (oldval == val)
 			{
+				list.Add(this);
 				NumLabel = val;
 				val++;
 			}

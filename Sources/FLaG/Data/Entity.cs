@@ -36,7 +36,7 @@ namespace FLaG.Data
 		
 		public abstract Symbol[] CollectAlphabet();
 		
-		public abstract int MarkDeepest(int val);
+		public abstract int MarkDeepest(int val, List<Entity> list);
 
         public abstract Entity ToRegularSet();
 		

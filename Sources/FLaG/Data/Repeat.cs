@@ -1,5 +1,6 @@
 using System;
 using FLaG.Output;
+using System.Collections.Generic;
 
 namespace FLaG.Data
 {
@@ -79,17 +80,18 @@ namespace FLaG.Data
 			}
 		}
 	
-		public override int MarkDeepest(int val)
+		public override int MarkDeepest(int val, List<Entity> list)
 		{
 			if (NumLabel != null)
 				return val;
 			
 			int oldval = val;
 			
-			val = Entity.MarkDeepest(val);
+			val = Entity.MarkDeepest(val,list);
 			
 			if (oldval == val)
 			{
+				list.Add(this);
 				NumLabel = val;
 				val++;
 			}

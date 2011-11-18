@@ -77,11 +77,12 @@ namespace FLaG.Data
 			return this;
 		}
 
-		public override int MarkDeepest(int val)
+		public override int MarkDeepest(int val, List<Entity> list)
 		{
 			if (NumLabel != null)
 				return val;
 			
+			list.Add(this);
 			NumLabel = val;
 			
 			return val+1;

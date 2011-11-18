@@ -145,10 +145,12 @@ namespace FLaG.Data
 			return l;
 		}
 		
-		public void MarkDeepest()
+		public List<Entity> MarkDeepest()
 		{
+			List<Entity> list = new List<Entity>();
+			
 			if (NumLabel != null)
-				return;
+				return list;
 			
 			int v = 1,oldv;
 
@@ -157,11 +159,22 @@ namespace FLaG.Data
 				oldv = v;
 				
 				foreach (Entity e in SetCollection)
-					v = e.MarkDeepest(v);
+					v = e.MarkDeepest(v, list);
 				
 			} while (oldv != v);
 						
 			NumLabel = v;
+			
+			Alter alter = new Alter();
+			
+			alter.NumLabel = NumLabel;
+			
+			foreach (Entity e in SetCollection)
+				alter.EntityCollection.Add(e);
+			
+			list.Add(alter);
+			
+			return list;
 		}
 		
 		public Symbol[] CollectAlphabet()
