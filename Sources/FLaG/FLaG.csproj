@@ -58,6 +58,12 @@
     <Compile Include="Data\Variable.cs" />
     <Compile Include="Data\Repeat.cs" />
     <Compile Include="Data\Alter.cs" />
+    <Compile Include="Data\Grammar\Grammar.cs" />
+    <Compile Include="Data\Grammar\Rule.cs" />
+    <Compile Include="Data\Grammar\Symbol.cs" />
+    <Compile Include="Data\Grammar\Terminal.cs" />
+    <Compile Include="Data\Grammar\Unterminal.cs" />
+    <Compile Include="Data\Grammar\Chain.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Schema\lang.xsd">
@@ -79,4 +85,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Data\Grammar\" />
+  </ItemGroup>
 </Project>
