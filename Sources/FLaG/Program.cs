@@ -27,9 +27,9 @@ namespace FLaG
                 writer.WriteStartDoc();
                 writer.Step1();
 				writer.Step2();
-				Lang regular = lang.ToRegularSet();
+				Lang regular = (Lang)lang.ToRegularSet();
                 writer.Step2_1(lang, regular);
-				Lang regularExp = regular.ToRegularExp();
+				Lang regularExp = (Lang)regular.ToRegularExp();
 				writer.Step2_2(regularExp);
 				regularExp.MarkDeepest();
 				writer.Step2_3(regularExp);
