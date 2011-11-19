@@ -50,7 +50,15 @@ namespace FLaG.Data.Grammars
 		
 		public void SaveUnterminals(Writer writer)
 		{
+			Unterminal[] unterminals = Unterminals;
 			
+			for (int i = 0; i < unterminals.Length; i++)
+			{
+				if (i != 0)		
+					writer.Write(",");
+				
+				unterminals[i].Save(writer, IsLeft);
+			}
 		}
 		
 		public void SaveRules(Writer writer)

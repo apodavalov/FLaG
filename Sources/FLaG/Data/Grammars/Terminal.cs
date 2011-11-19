@@ -1,4 +1,5 @@
 using System;
+using FLaG.Output;
 
 namespace FLaG.Data.Grammars
 {
@@ -8,6 +9,11 @@ namespace FLaG.Data.Grammars
 		{
 			get;
 			set;
+		}
+
+		public override void Save(Writer writer, bool isLeft)
+		{
+			writer.Write(Value.ToString(),true);
 		}
 	}
 }

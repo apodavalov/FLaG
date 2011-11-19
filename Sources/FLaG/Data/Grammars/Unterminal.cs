@@ -1,4 +1,5 @@
 using System;
+using FLaG.Output;
 
 namespace FLaG.Data.Grammars
 {
@@ -8,6 +9,21 @@ namespace FLaG.Data.Grammars
 		{
 			get;
 			set;
+		}
+
+		public override void Save(Writer writer, bool isLeft)
+		{
+			writer.Write(@"{");
+			writer.Write(@"{");
+			writer.Write("S", true);
+			writer.Write("_");
+			writer.Write(Number);
+			writer.Write(@"}");
+			if (isLeft)
+				writer.Write("'");
+			else
+				writer.Write("''");
+			writer.Write(@"}");
 		}
 	}
 }
