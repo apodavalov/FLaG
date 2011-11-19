@@ -257,6 +257,7 @@ namespace FLaG.Output
 		
 		public void Step2_3(Lang lang)
 		{
+			List<Entity> entities = lang.MarkDeepest();
 			Write(@"\subsection{");
 			Write("Этап 2.3",true);
 			WriteLine(@"}");
@@ -280,6 +281,35 @@ namespace FLaG.Output
 			WriteLine(@"\begin{math}");
 			lang.SaveAlphabet(this);
 			WriteLine(@"\end{math}.");
+			
+			// Вычисляем грамматики для языка.
+			// Все данные для вычисления грамматик в необходимом порядке очередности
+			// Находятся в entities			
+			
+			WriteLine(@"\begin{enumerate}");
+			
+			// Создаем леволинейные грамматики
+			for (int i = 0; i < entities.Count; i++)					
+				entities[i].GenerateGrammar(i,this,true);
+			
+			WriteLine(@"\end{enumerate}");
+			
+			// TODO: запомнить последнюю (entities.Count - 1) грамматику (левосторонняя)
+			
+			// Уничтожаем сформированные грамматики 
+			for (int i = 0; i < entities.Count; i++)
+				entities[i].Grammar = null;
+			
+						
+			WriteLine(@"\begin{enumerate}");
+			
+			// Создаем праволиненые грамматики
+			for (int i = 0; i < entities.Count; i++)					
+				entities[i].GenerateGrammar(i,this,false);	
+			
+			WriteLine(@"\end{enumerate}");
+			
+			// TODO: запомнить последнюю (entities.Count - 1) грамматику (правосторонняя)
 		}
 
         public void WriteEndDoc()

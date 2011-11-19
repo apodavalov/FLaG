@@ -195,5 +195,10 @@ namespace FLaG.Data
 			
 			return val;
 		}
+		
+		public override void GenerateGrammar(int number, Writer writer, bool isLeft)
+		{
+			throw new NotImplementedException ();
+		}
     }
 }

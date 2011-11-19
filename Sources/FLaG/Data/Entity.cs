@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using FLaG.Output;
+using FLaG.Data.Grammars;
 
 namespace FLaG.Data
 {
@@ -14,6 +15,14 @@ namespace FLaG.Data
 			get;
 			set;
 		}
+		
+		public Grammar Grammar
+		{
+			get;
+			set;
+		}
+		
+		public abstract void GenerateGrammar(int number, Writer writer, bool isLeft);
 		
 		public abstract Entity DeepClone();
 		

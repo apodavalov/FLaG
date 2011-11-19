@@ -92,5 +92,10 @@ namespace FLaG.Data
 		{
 			return Value.CompareTo(other.Value);
 		}
+		
+		public override void GenerateGrammar(int number, Writer writer, bool isLeft)
+		{
+			throw new NotImplementedException();
+		}
     }
 }
