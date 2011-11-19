@@ -155,7 +155,7 @@ namespace FLaG.Output
 			WriteLine(@"\newpage");
 			WriteLine();
 			WriteLine(@"\begin{center}");
-			WriteLine(@"Казанский научно-исследовательский технический универстит им.\,А.\,Н.~Туполева");
+			WriteLine(@"Казанский научно-исследовательский технический университет им.\,А.\,Н.~Туполева");
 			WriteLine(@"\end{center}");
 			WriteLine();
 			WriteLine(@"\vspace{8em}");
