@@ -63,7 +63,13 @@ namespace FLaG.Data.Grammars
 		
 		public void SaveRules(Writer writer)
 		{
-			
+			for (int i = 0; i < Rules.Count; i++)
+			{
+				if (i != 0)		
+					writer.Write(",");
+				
+				Rules[i].Save(writer, IsLeft);
+			}
 		}
 		
 		private void SaveLetter(char Letter, Writer writer)

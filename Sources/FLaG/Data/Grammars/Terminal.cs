@@ -13,7 +13,9 @@ namespace FLaG.Data.Grammars
 
 		public override void Save(Writer writer, bool isLeft)
 		{
+			writer.Write("{");
 			writer.Write(Value.ToString(),true);
+			writer.Write("}");
 		}
 	}
 }
