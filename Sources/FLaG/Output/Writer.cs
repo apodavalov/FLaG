@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using FLaG.Data;
+using FLaG.Data.Grammars;
 
 namespace FLaG.Output
 {
@@ -14,6 +15,8 @@ namespace FLaG.Output
         public static string mathmlNS = "http://www.w3.org/1998/Math/MathML";
 		
 		private Lang lang;
+		private Grammar LeftSidedGrammar;
+		private Grammar RightSidedGrammar;
 		
 		public Writer(Stream stream, Lang lang) 
 			: base(stream)
@@ -298,7 +301,8 @@ namespace FLaG.Output
 			
 			WriteLine(@"\end{enumerate}");
 			
-			// TODO: запомнить последнюю (entities.Count - 1) грамматику (левосторонняя)
+			// FIXME: А если нет ни одной?
+			LeftSidedGrammar = entities[entities.Count - 1].Grammar;
 			
 			// Уничтожаем сформированные грамматики 
 			for (int i = 0; i < entities.Count; i++)
@@ -313,7 +317,8 @@ namespace FLaG.Output
 			
 			WriteLine(@"\end{enumerate}");
 			
-			// TODO: запомнить последнюю (entities.Count - 1) грамматику (правосторонняя)
+			// FIXME: А если нет ни одной?
+			RightSidedGrammar = entities[entities.Count - 1].Grammar;
 		}
 
         private void WriteEndDoc()
