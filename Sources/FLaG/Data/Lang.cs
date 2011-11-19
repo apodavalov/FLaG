@@ -250,7 +250,7 @@ namespace FLaG.Data
                 SetCollection[i].Save(writer);
 			}
 			
-			writer.Write("|");
+			writer.Write(@"\mid ");
 			
 			writer.Write(@" \forall ");
 			
