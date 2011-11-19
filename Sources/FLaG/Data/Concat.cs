@@ -157,13 +157,16 @@ namespace FLaG.Data
 			{
 				list.Add(this);
 				NumLabel = val;
-				val++;
+				if (EntityCollection.Count < 3)
+					val++;
+				else
+					val+=EntityCollection.Count - 1;
 			}
 			
 			return val;
 		}
 		
-		public override void GenerateGrammar (int number, Writer writer, bool isLeft)
+		public override void GenerateGrammar (Writer writer, bool isLeft)
 		{
 			
 		}

@@ -297,7 +297,7 @@ namespace FLaG.Output
 			
 			// Создаем леволинейные грамматики
 			for (int i = 0; i < entities.Count; i++)					
-				entities[i].GenerateGrammar(i+1,this,true);
+				entities[i].GenerateGrammar(this,true);
 			
 			WriteLine(@"\end{enumerate}");
 			
@@ -312,7 +312,7 @@ namespace FLaG.Output
 			
 			// Создаем праволиненые грамматики
 			for (int i = 0; i < entities.Count; i++)					
-				entities[i].GenerateGrammar(i+1,this,false);	
+				entities[i].GenerateGrammar(this,false);	
 			
 			WriteLine(@"\end{enumerate}");
 			

@@ -94,18 +94,17 @@ namespace FLaG.Data
 			return Value.CompareTo(other.Value);
 		}
 		
-		public override void GenerateGrammar(int number, Writer writer, bool isLeft)
+		public override void GenerateGrammar(Writer writer, bool isLeft)
 		{
 			Grammar = new Grammar();
 			
-			Grammar.Number = number;
-			
+			Grammar.Number = NumLabel.Value;			
 			Grammar.IsLeft = isLeft;
 			
 			Rule rule = new Rule();
 			
 			Unterminal unterminal = new Unterminal();
-			unterminal.Number = number;			
+			unterminal.Number = Grammar.Number;			
 			
 			rule.Prerequisite = unterminal;
 			
