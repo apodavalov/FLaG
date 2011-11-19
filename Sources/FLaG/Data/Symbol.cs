@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using FLaG.Output;
+using FLaG.Data.Grammars;
 
 namespace FLaG.Data
 {
@@ -95,7 +96,66 @@ namespace FLaG.Data
 		
 		public override void GenerateGrammar(int number, Writer writer, bool isLeft)
 		{
-			throw new NotImplementedException();
+			Grammar = new Grammar();
+			
+			Grammar.Number = number;
+			
+			Grammar.IsLeft = isLeft;
+			
+			Rule rule = new Rule();
+			
+			Unterminal unterminal = new Unterminal();
+			unterminal.Number = number;			
+			
+			rule.Prerequisite = unterminal;
+			
+			Terminal terminal = new Terminal();
+			terminal.Value = Value;
+			
+			Chain chain = new Chain();
+			chain.Symbols.Add(terminal);
+			
+			rule.Chains.Add(chain);
+			
+			Grammar.Rules.Add(rule);
+			
+			writer.Write(@"\item ");
+			writer.Write("Для выражения вида " ,true);
+			writer.Write(@"\emph{");
+			writer.Write(Value.ToString(),true);
+			writer.Write(@"} ");
+			writer.WriteLine(" построим грамматику ", true);
+			writer.WriteLine(@"\begin{math}");
+			Grammar.SaveCortege(writer);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@", где");
+			writer.WriteLine(@"\begin{math}");
+			Grammar.SaveN(writer);
+			writer.Write("=");
+			writer.Write(@"\left\{");
+			Grammar.SaveUnterminals(writer);			
+			writer.WriteLine(@"\right\}");			
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество нетерминальных символов грамматики ",true);
+			writer.WriteLine(@"\begin{math}");
+			Grammar.SaveG(writer);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(",");
+			writer.WriteLine(@"\begin{math}");
+			Grammar.SaveP(writer);
+			writer.Write("=");
+			writer.Write(@"\left\{");
+			Grammar.SaveRules(writer);			
+			writer.WriteLine(@"\right\}");			
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество правил вывода для данной грамматики,",true);
+			writer.WriteLine(@"\begin{math}");
+			Grammar.SaveS(writer);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- целевой символ грамматики.",true);
 		}
     }
 }

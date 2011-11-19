@@ -137,15 +137,15 @@ namespace FLaG.Output
 			WriteLine(@"\renewcommand{\@biblabel}[1]{#1.}");				
 			WriteLine(@"\makeatother");
 			// Меняем везде перечисления на цифра.цифра
-			WriteLine(@"\renewcommand{\theenumi}{\arabic{enumi}}");				
+			WriteLine(@"\renewcommand{\theenumi}{\arabic{enumi}.}");				
 			// Меняем везде перечисления на цифра.цифра
-			WriteLine(@"\renewcommand{\labelenumi}{\arabic{enumi}} ");			
+			WriteLine(@"\renewcommand{\labelenumi}{\arabic{enumi}.} ");			
 			// Меняем везде перечисления на цифра.цифра
-			WriteLine(@"\renewcommand{\theenumii}{.\arabic{enumii}}");				
+			WriteLine(@"\renewcommand{\theenumii}{.\arabic{enumii}.}");				
 			// Меняем везде перечисления на цифра.цифра
 			WriteLine(@"\renewcommand{\labelenumii}{\arabic{enumi}.\arabic{enumii}.}");				
 			// Меняем везде перечисления на цифра.цифра
-			WriteLine(@"\renewcommand{\theenumiii}{.\arabic{enumiii}}");
+			WriteLine(@"\renewcommand{\theenumiii}{.\arabic{enumiii}.}");
 			// Меняем везде перечисления на цифра.цифра
 			WriteLine(@"\renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}.}");
 			// Команда для вставки изображения
@@ -297,7 +297,7 @@ namespace FLaG.Output
 			
 			// Создаем леволинейные грамматики
 			for (int i = 0; i < entities.Count; i++)					
-				entities[i].GenerateGrammar(i,this,true);
+				entities[i].GenerateGrammar(i+1,this,true);
 			
 			WriteLine(@"\end{enumerate}");
 			
@@ -306,14 +306,13 @@ namespace FLaG.Output
 			
 			// Уничтожаем сформированные грамматики 
 			for (int i = 0; i < entities.Count; i++)
-				entities[i].Grammar = null;
-			
+				entities[i].Grammar = null;			
 						
 			WriteLine(@"\begin{enumerate}");
 			
 			// Создаем праволиненые грамматики
 			for (int i = 0; i < entities.Count; i++)					
-				entities[i].GenerateGrammar(i,this,false);	
+				entities[i].GenerateGrammar(i+1,this,false);	
 			
 			WriteLine(@"\end{enumerate}");
 			
