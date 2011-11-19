@@ -13,46 +13,48 @@ namespace FLaG.Output
         public static string xmlNS = "http://www.w3.org/XML/1998/namespace";
         public static string mathmlNS = "http://www.w3.org/1998/Math/MathML";
 		
-		public Writer(Stream stream) 
+		private Lang lang;
+		
+		public Writer(Stream stream, Lang lang) 
 			: base(stream)
 		{
-			
+			this.lang = lang;
 		}
 		
-		public Writer(Stream stream, Encoding encoding) 
+		public Writer(Stream stream, Encoding encoding, Lang lang) 
 			: base(stream, encoding)
 		{
-			
+			this.lang = lang;
 		}
 		
-		public Writer(Stream stream, Encoding encoding, int bufferSize) 
+		public Writer(Stream stream, Encoding encoding, int bufferSize, Lang lang) 
 			: base(stream, encoding, bufferSize)
 		{
-			
+			this.lang = lang;
 		}
 		
-		public Writer(string path) 
+		public Writer(string path, Lang lang) 
 			: base(path)
 		{
-			
+			this.lang = lang;
 		}
 	
-		public Writer(string path, bool append) 
+		public Writer(string path, bool append, Lang lang) 
 			: base(path, append)
 		{
-			
+			this.lang = lang;
 		}
 		
-		public Writer(string path, bool append, Encoding encoding) 
+		public Writer(string path, bool append, Encoding encoding, Lang lang) 
 			: base(path, append, encoding)
 		{
-			
+			this.lang = lang;
 		}
 		
-		public Writer(string path, bool append, Encoding encoding, int bufferSize) 
+		public Writer(string path, bool append, Encoding encoding, int bufferSize, Lang lang) 
 			: base(path, append, encoding, bufferSize)
 		{
-			
+			this.lang = lang;
 		}
 		
 		public void Write(string s, bool escape)
@@ -71,7 +73,7 @@ namespace FLaG.Output
 				WriteLine(s);
 		}
 		
-		public string EscapeForLaTeX(string s)
+		private string EscapeForLaTeX(string s)
 		{
 			StringBuilder sb = new StringBuilder();
 			
@@ -116,7 +118,7 @@ namespace FLaG.Output
 			return sb.ToString();
 		}
 		
-        public void WriteStartDoc()
+        private void WriteStartDoc()
         {			
 			WriteLine(@"\documentclass[a4paper,12pt]{article}");
 			WriteLine(@"\usepackage[a4paper, includefoot, left=3cm, right=1.5cm, " + 
@@ -206,14 +208,14 @@ namespace FLaG.Output
             // TODO: реализовать шаг 1
         }
 		
-		public void Step2()
+		private void Step2()
 		{
 			Write(@"\section{");
 			Write("Этап 2",true);
 			WriteLine(@"}");
 		}		
 
-        public void Step2_1(Lang inputLang, Lang outputLang)
+        private void Step2_1()
         {
 			Write(@"\subsection{");
 			Write("Этап 2.1",true);
@@ -229,15 +231,16 @@ namespace FLaG.Output
 			WriteLine(@"\begin{equation}\label{eq:s2b1}");
 			WriteLine(@"\begin{split}");
 			Write(@"L &= ");			
-			inputLang.Save(this);
+			lang.Save(this);
 			WriteLine(@"= \\");	
 			Write(@"&=");
-			outputLang.Save(this);
+			lang = lang.ToRegularSet();			
+			lang.Save(this);
 			WriteLine(@"\end{split}");
 			WriteLine(@"\end{equation}");
         }
 		
-		public void Step2_2(Lang lang)
+		private void Step2_2()
 		{
 			Write(@"\subsection{");
 			Write("Этап 2.2",true);
@@ -250,12 +253,13 @@ namespace FLaG.Output
 			Write("с помощью регулярного выражения вида:", true);
 			WriteLine(@"\begin{equation}\label{eq:s2b2}");
 			Write("p = ");
+			lang = lang.ToRegularExp();
 			lang.SaveAsRegularExp(this,false);
 			WriteLine();
 			WriteLine(@"\end{equation}");
 		}
 		
-		public void Step2_3(Lang lang)
+		private void Step2_3()
 		{
 			List<Entity> entities = lang.MarkDeepest();
 			Write(@"\subsection{");
@@ -312,9 +316,20 @@ namespace FLaG.Output
 			// TODO: запомнить последнюю (entities.Count - 1) грамматику (правосторонняя)
 		}
 
-        public void WriteEndDoc()
+        private void WriteEndDoc()
         {
 			WriteLine(@"\end{document}");
         }
+		
+		public void Out()
+		{
+        	WriteStartDoc();
+            Step1();
+			Step2();
+            Step2_1();
+			Step2_2();				
+			Step2_3();
+            WriteEndDoc();
+		}
     }
 }
