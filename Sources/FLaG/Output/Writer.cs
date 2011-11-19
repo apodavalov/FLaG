@@ -270,10 +270,10 @@ namespace FLaG.Output
 			WriteLine(@" совокупность выражений, входящих в состав ", true);
 			Write(@"(\ref{eq:s2b2})");
 			Write(@".");
-			WriteLine(@"\begin{equation}\label{eq:s2b3}");			
+			WriteLine(@"\begin{equation*}");			
 			lang.SaveAsRegularExp(this,true);		
 			WriteLine();
-			WriteLine(@"\end{equation}");
+			WriteLine(@"\end{equation*}");
 			WriteLine();
 			WriteLine(@"Построим леволинейные и праволинейные грамматики для указанных выражений.",true);
 			WriteLine(@"Для всех грамматик алфавит будет представлять множество вида ",true);
