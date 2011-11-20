@@ -364,11 +364,11 @@ namespace FLaG.Data
 		{
 			if (EntityCollection.Count == 0)
 			{
-				
+				// TODO: сделать обработку на всякий случай
 			}
 			else if (EntityCollection.Count == 1)
 			{
-				
+				// TODO: сделать обработку на всякий случай
 			}
 			else
 			{
