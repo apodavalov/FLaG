@@ -107,6 +107,152 @@ namespace FLaG.Data
 			Grammar.Number = NumLabel.Value;
 			Grammar.TargetSymbol = new Unterminal();
 			Grammar.TargetSymbol.Number = Grammar.Number;
+			
+			writer.WriteLine(@"\item");
+			writer.WriteLine("Для выражения" , true);
+			writer.WriteLine(@"\begin{math}");
+			SaveAsRegularExp(writer, false);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			writer.Write(@", которое является ", true);
+			if (AtLeastOne)
+				writer.Write("положительной ", true);
+			writer.WriteLine(@"итерацией выражения для которого построена грамматика",true);
+			writer.WriteLine(@"\begin{math}");
+			Entity.Grammar.SaveG(writer);			
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");			
+			writer.WriteLine(@", строим грамматику", true);
+			writer.WriteLine(@"\begin{math}");
+			Grammar.SaveCortege(writer);			
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			
+			writer.WriteLine(@", где", true);
+			writer.WriteLine(@"\begin{math}");
+			Grammar.SaveN(writer);
+			writer.WriteLine(@"=");
+			Entity.Grammar.SaveN(writer);
+			writer.WriteLine();
+			writer.WriteLine(@"\bigcup");
+			writer.WriteLine(@"\left\{");
+			Grammar.TargetSymbol.Save(writer,Grammar.IsLeft);
+			writer.WriteLine(@"\right\}");
+			writer.WriteLine(@"=");
+			
+			writer.WriteLine(@"\left\{");
+			Entity.Grammar.SaveUnterminals(writer);
+			writer.WriteLine(@"\right\}");
+			
+			writer.WriteLine(@"\bigcup ");
+			
+			writer.WriteLine(@"\left\{");
+			Grammar.TargetSymbol.Save(writer, isLeft);
+			writer.WriteLine(@"\right\}");
+			
+			List<Rule> onlyTerms,others;
+			
+			if (isLeft)
+			{
+				Entity.Grammar.SplitRules(out onlyTerms, out others);
+				
+				Grammar.Rules.AddRange(others);
+				
+				foreach (Rule rule in onlyTerms)
+				{
+					Rule r = new Rule();
+					
+					r.Prerequisite = rule.Prerequisite;
+					
+					foreach (Chain c in rule.Chains)
+					{
+						Chain newChain = c.DeepClone();						
+						newChain.Symbols.Insert(0,Grammar.TargetSymbol);
+						r.Chains.Add(newChain);
+						r.Chains.Add(c);
+					}
+					
+					Grammar.Rules.Add(r);
+				}
+			}
+			else
+			{
+				Entity.Grammar.SplitRules(out onlyTerms, out others);
+				
+				Grammar.Rules.AddRange(others);
+				
+				foreach (Rule rule in onlyTerms)
+				{
+					Rule r = new Rule();					
+					
+					r.Prerequisite = rule.Prerequisite;
+					
+					foreach (Chain c in rule.Chains)
+					{
+						Chain newChain = c.DeepClone();						
+						newChain.Symbols.Add(Grammar.TargetSymbol);
+						r.Chains.Add(newChain);
+						r.Chains.Add(c);
+					}
+					
+					Grammar.Rules.Add(r);
+				}
+			}
+			
+			Rule newRule = new Rule();
+			newRule.Prerequisite = Grammar.TargetSymbol;	
+			Chain nc = new Chain();
+			nc.Symbols.Add(Entity.Grammar.TargetSymbol);
+			newRule.Chains.Add(nc);
+			
+			if (!AtLeastOne)
+				newRule.Chains.Add(new Chain());
+			
+			Grammar.Rules.Add(newRule);
+			
+			writer.WriteLine(@"=");
+			writer.WriteLine(@"\left\{");
+			Grammar.SaveUnterminals(writer);
+			writer.WriteLine(@"\right\}");
+			writer.WriteLine(@"\end{math}");
+			
+			writer.WriteLine("--- множество нетермильнальных символов грамматики", true);
+			writer.WriteLine(@"\begin{math}");
+			Grammar.SaveG(writer);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			
+			writer.WriteLine(";",true);
+			
+			writer.WriteLine(@"\begin{math}");
+			Grammar.SaveP(writer);
+			writer.WriteLine(@"=");
+			writer.WriteLine(@"\left\{");
+			Grammar.Rules.RemoveAt(Grammar.Rules.Count - 1);
+			Grammar.SaveRules(writer);
+			writer.WriteLine(@"\right\}");
+			writer.WriteLine(@"\bigcup");
+			writer.WriteLine(@"\left\{");		
+			newRule.Save(writer,isLeft);
+			writer.WriteLine(@"\right\}");			
+			writer.WriteLine(@"=");
+			writer.WriteLine(@"\left\{");
+			Grammar.Rules.Add(newRule);
+			Grammar.SaveRules(writer);
+			writer.WriteLine(@"\right\}");							
+			writer.WriteLine(@"\end{math}");
+			
+			writer.WriteLine(@"--- множество правил вывода для данной грамматики; ",true);
+			
+			writer.WriteLine(@"\begin{math}");			
+			Grammar.TargetSymbol.Save(writer,isLeft);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- целевой символ грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			Grammar.SaveG(writer);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}.");
 		}
 	}
 }
