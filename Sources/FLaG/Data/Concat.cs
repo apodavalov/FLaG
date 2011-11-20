@@ -287,20 +287,20 @@ namespace FLaG.Data
 			grammar2.SaveN(writer);
 			writer.WriteLine(@"=");
 			
-			writer.WriteLine(@"\left\{");
+			writer.WriteLine(@"\{");
 			grammar1.SaveUnterminals(writer);
-			writer.WriteLine(@"\right\}");
+			writer.WriteLine(@"\}");
 			
 			writer.WriteLine(@"\bigcup ");
 			
-			writer.WriteLine(@"\left\{");
+			writer.WriteLine(@"\{");
 			grammar2.SaveUnterminals(writer);
-			writer.WriteLine(@"\right\}");
+			writer.WriteLine(@"\}");
 			
 			writer.WriteLine(@"=");
-			writer.WriteLine(@"\left\{");
+			writer.WriteLine(@"\{");
 			grammar.SaveUnterminals(writer);
-			writer.WriteLine(@"\right\}");
+			writer.WriteLine(@"\}");
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine("--- множество нетермильнальных символов грамматики", true);
 			writer.WriteLine(@"\begin{math}");
@@ -318,29 +318,29 @@ namespace FLaG.Data
 			{
 				grammar1.SaveP(writer);
 				writer.WriteLine(@"\bigcup");
-				writer.WriteLine(@"\left\{");
+				writer.WriteLine(@"\{");
 				grammar.SaveRules(writer);
 				writer.WriteLine();
-				writer.WriteLine(@"\right\}");
+				writer.WriteLine(@"\}");
 			}
 			else
 			{
 				grammar2.SaveP(writer);
 				writer.WriteLine(@"\bigcup ");
-				writer.WriteLine(@"\left\{");
+				writer.WriteLine(@"\{");
 				grammar.SaveRules(writer);
 				writer.WriteLine();
-				writer.WriteLine(@"\right\}");				
+				writer.WriteLine(@"\}");				
 			}
 			
 			writer.WriteLine(@"=");
-			writer.WriteLine(@"\left\{");
+			writer.WriteLine(@"\{");
 			if (isLeft)
 				grammar.Rules.AddRange(grammar1.Rules);
 			else
 				grammar.Rules.AddRange(grammar2.Rules);
 			grammar.SaveRules(writer);				
-			writer.WriteLine(@"\right\}");							
+			writer.WriteLine(@"\}");							
 			writer.WriteLine(@"\end{math}");
 			
 			writer.WriteLine(@"--- множество правил вывода для данной грамматики;",true);

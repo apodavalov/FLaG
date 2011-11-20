@@ -135,20 +135,20 @@ namespace FLaG.Data
 			Entity.Grammar.SaveN(writer);
 			writer.WriteLine();
 			writer.WriteLine(@"\bigcup");
-			writer.WriteLine(@"\left\{");
+			writer.WriteLine(@"\{");
 			Grammar.TargetSymbol.Save(writer,Grammar.IsLeft);
-			writer.WriteLine(@"\right\}");
+			writer.WriteLine(@"\}");
 			writer.WriteLine(@"=");
 			
-			writer.WriteLine(@"\left\{");
+			writer.WriteLine(@"\{");
 			Entity.Grammar.SaveUnterminals(writer);
-			writer.WriteLine(@"\right\}");
+			writer.WriteLine(@"\}");
 			
 			writer.WriteLine(@"\bigcup ");
 			
-			writer.WriteLine(@"\left\{");
+			writer.WriteLine(@"\{");
 			Grammar.TargetSymbol.Save(writer, isLeft);
-			writer.WriteLine(@"\right\}");
+			writer.WriteLine(@"\}");
 			
 			List<Rule> onlyTerms,others;
 			
@@ -211,9 +211,9 @@ namespace FLaG.Data
 			Grammar.Rules.Add(newRule);
 			
 			writer.WriteLine(@"=");
-			writer.WriteLine(@"\left\{");
+			writer.WriteLine(@"\{");
 			Grammar.SaveUnterminals(writer);
-			writer.WriteLine(@"\right\}");
+			writer.WriteLine(@"\}");
 			writer.WriteLine(@"\end{math}");
 			
 			writer.WriteLine("--- множество нетермильнальных символов грамматики", true);
@@ -227,19 +227,19 @@ namespace FLaG.Data
 			writer.WriteLine(@"\begin{math}");
 			Grammar.SaveP(writer);
 			writer.WriteLine(@"=");
-			writer.WriteLine(@"\left\{");
+			writer.WriteLine(@"\{");
 			Grammar.Rules.RemoveAt(Grammar.Rules.Count - 1);
 			Grammar.SaveRules(writer);
-			writer.WriteLine(@"\right\}");
+			writer.WriteLine(@"\}");
 			writer.WriteLine(@"\bigcup");
-			writer.WriteLine(@"\left\{");		
+			writer.WriteLine(@"\{");		
 			newRule.Save(writer,isLeft);
-			writer.WriteLine(@"\right\}");			
+			writer.WriteLine(@"\}");			
 			writer.WriteLine(@"=");
-			writer.WriteLine(@"\left\{");
+			writer.WriteLine(@"\{");
 			Grammar.Rules.Add(newRule);
 			Grammar.SaveRules(writer);
-			writer.WriteLine(@"\right\}");							
+			writer.WriteLine(@"\}");							
 			writer.WriteLine(@"\end{math}");
 			
 			writer.WriteLine(@"--- множество правил вывода для данной грамматики; ",true);
