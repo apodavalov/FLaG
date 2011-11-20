@@ -209,7 +209,7 @@ namespace FLaG.Data
 			return val;
 		}
 		
-		public override void GenerateGrammar (Writer writer, bool isLeft)
+		public override void GenerateGrammar(Writer writer, bool isLeft)
 		{
 			
 		}

@@ -105,6 +105,42 @@ namespace FLaG.Data.Grammars
 			writer.Write(@"\right)");
 		}
 		
+		public void SplitRules(out List<Rule> onlyTerms, out List<Rule> others)
+		{
+			onlyTerms = new List<Rule>();
+			others = new List<Rule>();
+			
+			foreach (Rule r in Rules)
+			{
+				Rule onlyTerm = new Rule();
+				Rule other = new Rule();
+				
+				other.Prerequisite = onlyTerm.Prerequisite = r.Prerequisite;
+				
+				foreach (Chain c in r.Chains)
+				{
+					bool allIsTerminals = true;
+					foreach (Symbol s in c.Symbols)
+						if (s is Unterminal)
+						{
+							allIsTerminals = false;	
+							break;
+						}
+					
+					if (allIsTerminals)
+						onlyTerm.Chains.Add(c);
+					else
+						other.Chains.Add(c);
+				}
+				
+				if (onlyTerm.Chains.Count > 0)
+					onlyTerms.Add(onlyTerm);
+				
+				if (other.Chains.Count > 0)
+					others.Add(other);
+			}
+		}
+		
 		public void SaveN(Writer writer)
 		{
 			SaveLetter('N',writer);
