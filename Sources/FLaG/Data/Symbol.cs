@@ -106,6 +106,8 @@ namespace FLaG.Data
 			Unterminal unterminal = new Unterminal();
 			unterminal.Number = Grammar.Number;			
 			
+			Grammar.TargetSymbol = unterminal;
+			
 			rule.Prerequisite = unterminal;
 			
 			Terminal terminal = new Terminal();
@@ -151,7 +153,7 @@ namespace FLaG.Data
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine(@"--- множество правил вывода для данной грамматики,",true);
 			writer.WriteLine(@"\begin{math}");
-			Grammar.SaveS(writer);
+			Grammar.TargetSymbol.Save(writer,Grammar.IsLeft);
 			writer.WriteLine();
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine(@"--- целевой символ грамматики.",true);

@@ -12,6 +12,12 @@ namespace FLaG.Data.Grammars
 			set;
 		}
 		
+		public Unterminal TargetSymbol
+		{
+			get;
+			set;
+		}
+		
 		public bool IsLeft
 		{
 			get;
@@ -95,7 +101,7 @@ namespace FLaG.Data.Grammars
 			writer.Write(@",");			
 			SaveP(writer);						
 			writer.Write(@",");
-			SaveS(writer);						
+			TargetSymbol.Save(writer,IsLeft);					
 			writer.Write(@"\right)");
 		}
 		
@@ -107,11 +113,6 @@ namespace FLaG.Data.Grammars
 		public void SaveP(Writer writer)
 		{
 			SaveLetter('P',writer);
-		}
-		
-		public void SaveS(Writer writer)
-		{
-			SaveLetter('S',writer);
 		}
 		
 		public void SaveG(Writer writer)
