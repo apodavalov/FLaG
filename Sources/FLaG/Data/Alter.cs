@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using FLaG.Output;
+using FLaG.Data.Grammars;
 
 namespace FLaG.Data
 {
@@ -178,7 +179,11 @@ namespace FLaG.Data
 		
 		public override void GenerateGrammar (Writer writer, bool isLeft)
 		{
-			
+			Grammar = new Grammar();
+			Grammar.IsLeft = isLeft;
+			Grammar.Number = NumLabel.Value;
+			Grammar.TargetSymbol = new Unterminal();
+			Grammar.TargetSymbol.Number = Grammar.Number;
 		}		
 	}
 }

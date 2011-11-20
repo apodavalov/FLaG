@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using FLaG.Output;
+using FLaG.Data.Grammars;
 
 namespace FLaG.Data
 {
@@ -209,9 +210,184 @@ namespace FLaG.Data
 			return val;
 		}
 		
+		private Grammar MergeGrammars(Grammar grammar1, Grammar grammar2, Concat concat, int Number, Writer writer, bool isLeft)
+		{
+			Grammar grammar = new Grammar();
+			
+			writer.WriteLine(@"\item");
+			writer.WriteLine("Для выражения вида" , true);
+			writer.WriteLine(@"\begin{math}");
+			concat.SaveAsRegularExp(writer, false);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@", которое является конкатенацией выражений и для которых построены грамматики", true);
+			writer.WriteLine(@"\begin{math}");
+			grammar1.SaveG(writer);			
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@",", true);
+			writer.WriteLine(@"\begin{math}");
+			grammar2.SaveG(writer);			
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine("соответственно, строим грамматику ", true);
+			
+			grammar.Number = Number;
+			grammar.IsLeft = isLeft;
+			grammar.TargetSymbol = new Unterminal();
+			grammar.TargetSymbol.Number = Number;
+			
+			List<Rule> onlyTerms,others;
+			
+			if (isLeft)
+			{
+				grammar2.SplitRules(out onlyTerms, out others);
+				
+				grammar.Rules.AddRange(others);
+				
+				foreach (Rule rule in onlyTerms)
+				{
+					Rule r = rule.DeepClone();
+					
+					foreach (Chain c in r.Chains)
+						c.Symbols.Insert(0,grammar1.TargetSymbol);
+					
+					grammar.Rules.Add(r);
+				}
+			}
+			else
+			{
+				grammar1.SplitRules(out onlyTerms, out others);
+				
+				grammar.Rules.AddRange(others);
+				
+				foreach (Rule rule in onlyTerms)
+				{
+					Rule r = rule.DeepClone();
+					
+					foreach (Chain c in r.Chains)
+						c.Symbols.Add(grammar2.TargetSymbol);
+					
+					grammar.Rules.Add(r);
+				}
+			}
+			
+			writer.WriteLine(@"\begin{math}");
+			grammar.SaveCortege(writer);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			
+			writer.WriteLine(@", где", true);
+			writer.WriteLine(@"\begin{math}");
+			grammar.SaveN(writer);
+			writer.WriteLine(@"=");
+			grammar1.SaveN(writer);
+			writer.WriteLine();
+			writer.WriteLine(@"\bigcup");
+			grammar2.SaveN(writer);
+			writer.WriteLine(@"=");
+			
+			writer.WriteLine(@"\left\{");
+			grammar1.SaveUnterminals(writer);
+			writer.WriteLine(@"\right\}");
+			
+			writer.WriteLine(@"\bigcup ");
+			
+			writer.WriteLine(@"\left\{");
+			grammar2.SaveUnterminals(writer);
+			writer.WriteLine(@"\right\}");
+			
+			writer.WriteLine(@"=");
+			writer.WriteLine(@"\left\{");
+			grammar.SaveUnterminals(writer);
+			writer.WriteLine(@"\right\}");
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine("--- множество нетермильнальных символов грамматики", true);
+			writer.WriteLine(@"\begin{math}");
+			grammar.SaveG(writer);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			
+			writer.WriteLine(";",true);
+			
+			writer.WriteLine(@"\begin{math}");
+			grammar.SaveP(writer);
+			writer.WriteLine(@"=");
+			
+			if (isLeft)
+			{
+				grammar1.SaveP(writer);
+				writer.WriteLine(@"\bigcup");
+				writer.WriteLine(@"\left\{");
+				grammar.SaveRules(writer);
+				writer.WriteLine();
+				writer.WriteLine(@"\right\}");
+			}
+			else
+			{
+				grammar2.SaveP(writer);
+				writer.WriteLine(@"\bigcup ");
+				writer.WriteLine(@"\left\{");
+				grammar.SaveRules(writer);
+				writer.WriteLine();
+				writer.WriteLine(@"\right\}");				
+			}
+			
+			writer.WriteLine(@"=");
+			writer.WriteLine(@"\left\{");
+			if (isLeft)
+				grammar.Rules.AddRange(grammar1.Rules);
+			else
+				grammar.Rules.AddRange(grammar2.Rules);
+			grammar.SaveRules(writer);				
+			writer.WriteLine(@"\right\}");							
+			writer.WriteLine(@"\end{math}");
+			
+			writer.WriteLine(@"--- множество правил вывода для данной грамматики;",true);
+			
+			writer.WriteLine(@"\begin{math}");
+			grammar.TargetSymbol.Save(writer,isLeft);		
+			writer.WriteLine(@"\equiv");
+			grammar.TargetSymbol = isLeft ? grammar2.TargetSymbol : grammar1.TargetSymbol;	
+			grammar.TargetSymbol.Save(writer,isLeft);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- целевой символ грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			grammar.SaveG(writer);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}.");
+			return grammar;
+		}
+		
 		public override void GenerateGrammar(Writer writer, bool isLeft)
 		{
-			
+			if (EntityCollection.Count == 0)
+			{
+				
+			}
+			else if (EntityCollection.Count == 1)
+			{
+				
+			}
+			else
+			{
+				Grammar = EntityCollection[0].Grammar;				
+				
+				for (int i = 1; i < EntityCollection.Count; i++)	
+				{
+					int Number = NumLabel.Value - EntityCollection.Count + 1 + i;	
+					
+					Grammar concatGrammar = EntityCollection[i].Grammar;
+					
+					Concat concat = new Concat();
+					
+					for (int j = 0; j <= i; j++)
+						concat.EntityCollection.Add(EntityCollection[j]);
+					
+					Grammar = MergeGrammars(Grammar, concatGrammar, concat, Number, writer, isLeft);
+				}				
+			}
 		}
     }
 }

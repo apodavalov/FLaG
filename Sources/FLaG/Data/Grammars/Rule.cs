@@ -35,7 +35,18 @@ namespace FLaG.Data.Grammars
 				writer.Write(@"{\varepsilon}");
 		}
 		
-		public Rule ()
+		public Rule DeepClone()
+		{
+			Rule rule = new Rule();
+			rule.Prerequisite = Prerequisite;
+			
+			foreach (Chain c in Chains)
+				rule.Chains.Add(c.DeepClone());
+			
+			return rule;
+		}
+		
+		public Rule()
 		{
 			Chains = new List<Chain>();
 		}
