@@ -111,12 +111,54 @@ namespace FLaG.Data
 
             return c;
 		}
-	
-		public override void SaveAsRegularExp(Writer writer, bool full)
+		
+		private void SaveAsRegularExpWithUnderbraces(Writer writer)
 		{
-			if (full)
-				writer.Write(@"{\underbrace");
+			if (EntityCollection.Count > 1)			
+				writer.Write(@"\left(");					
 			
+			if (EntityCollection.Count < 2)
+			{
+				writer.Write(@"{\underbrace");			
+				writer.Write("{");
+			}
+			else
+				for (int i = 1; i < EntityCollection.Count; i++)
+				{
+					writer.Write(@"{\underbrace");			
+					writer.Write("{");
+				}
+
+            for (int i = 0; i < EntityCollection.Count; i++)
+            {
+                if (i != 0)
+					writer.Write(@" \cdot ");
+
+                EntityCollection[i].SaveAsRegularExp(writer,true);
+				
+				if (i > 0)
+				{
+					writer.Write("}");
+					writer.Write(@"_\text{");			
+					writer.Write(NumLabel - (EntityCollection.Count - 1) + i);
+					writer.Write("}}");
+				}
+            }                   
+			
+			if (EntityCollection.Count < 2)
+			{
+					writer.Write("}");
+					writer.Write(@"_\text{");			
+					writer.Write(NumLabel);
+					writer.Write("}}");
+			}
+			
+			if (EntityCollection.Count > 1)
+				writer.Write(@"\right)");
+		}
+		
+		private void SaveAsRegularExpWithoutUnderbraces(Writer writer)
+		{
 			writer.Write("{");
 			
 			if (EntityCollection.Count > 1)			
@@ -127,20 +169,21 @@ namespace FLaG.Data
                 if (i != 0)
 					writer.Write(@" \cdot ");
 
-                EntityCollection[i].SaveAsRegularExp(writer,full);
+                EntityCollection[i].SaveAsRegularExp(writer,false);
             }                      
 			
 			if (EntityCollection.Count > 1)
 				writer.Write(@"\right)");
 			
 			writer.Write("}");
-			
+		}
+	
+		public override void SaveAsRegularExp(Writer writer, bool full)
+		{
 			if (full)
-			{
-				writer.Write(@"_\text{");
-				writer.Write(NumLabel);
-				writer.Write(@"}}");
-			}
+				SaveAsRegularExpWithUnderbraces(writer);			
+			else
+				SaveAsRegularExpWithoutUnderbraces(writer);	
 		}
 
 		public override int MarkDeepest(int val, List<Entity> list)
@@ -156,11 +199,11 @@ namespace FLaG.Data
 			if (oldval == val)
 			{
 				list.Add(this);
-				NumLabel = val;
 				if (EntityCollection.Count < 3)
 					val++;
 				else
 					val+=EntityCollection.Count - 1;
+				NumLabel = val-1;
 			}
 			
 			return val;
