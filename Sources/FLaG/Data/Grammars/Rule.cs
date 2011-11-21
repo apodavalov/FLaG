@@ -35,13 +35,13 @@ namespace FLaG.Data.Grammars
 				writer.Write(@"{\varepsilon}");
 		}
 		
-		public Rule DeepClone()
+		public Rule DeepClone(bool cloneSymbols)
 		{
 			Rule rule = new Rule();
 			rule.Prerequisite = Prerequisite;
 			
 			foreach (Chain c in Chains)
-				rule.Chains.Add(c.DeepClone());
+				rule.Chains.Add(c.DeepClone(cloneSymbols));
 			
 			return rule;
 		}

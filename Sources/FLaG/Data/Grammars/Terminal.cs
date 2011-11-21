@@ -10,6 +10,12 @@ namespace FLaG.Data.Grammars
 			get;
 			set;
 		}
+		
+		public override Symbol DeepClone()
+		{
+			// Не нужно клонировать терминалы - они не изменяются
+			return this;
+		}
 
 		public override void Save(Writer writer, bool isLeft)
 		{

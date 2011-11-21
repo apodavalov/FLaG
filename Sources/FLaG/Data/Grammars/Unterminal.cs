@@ -10,6 +10,14 @@ namespace FLaG.Data.Grammars
 			get;
 			set;
 		}
+		
+		public override Symbol DeepClone()
+		{
+			Unterminal unterminal = new Unterminal();
+			unterminal.Number = Number;
+			
+			return unterminal;
+		}
 
 		public override void Save(Writer writer, bool isLeft)
 		{

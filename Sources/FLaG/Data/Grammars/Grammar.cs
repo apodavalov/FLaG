@@ -54,6 +54,20 @@ namespace FLaG.Data.Grammars
 			}
 		}
 		
+		public Grammar DeepClone()
+		{
+			Grammar grammar = new Grammar();
+			
+			grammar.Number = Number;
+			grammar.TargetSymbol = TargetSymbol;
+			grammar.IsLeft = IsLeft;
+			
+			foreach (Rule r in Rules)
+				grammar.Rules.Add(r.DeepClone(true));
+				
+			return grammar;
+		}
+		
 		public void SaveUnterminals(Writer writer)
 		{
 			Unterminal[] unterminals = Unterminals;
