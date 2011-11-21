@@ -22,7 +22,7 @@ namespace FLaG.Data
 			set;
 		}
 		
-		public abstract int GenerateGrammar(Writer writer, bool isLeft, int LastUseNumber);
+		public abstract void GenerateGrammar(Writer writer, bool isLeft, ref int LastUseNumber, ref int AddionalGrammarsNum);
 		
 		public abstract Entity DeepClone();
 		

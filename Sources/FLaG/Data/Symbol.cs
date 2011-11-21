@@ -94,7 +94,7 @@ namespace FLaG.Data
 			return Value.CompareTo(other.Value);
 		}
 		
-		public override int GenerateGrammar(Writer writer, bool isLeft, int LastUseNumber)
+		public override void GenerateGrammar(Writer writer, bool isLeft, ref int LastUseNumber, ref int AddionalGrammarsNum)
 		{
 			Grammar = new Grammar();
 			
@@ -103,8 +103,7 @@ namespace FLaG.Data
 			
 			Rule rule = new Rule();
 			
-			Unterminal unterminal = new Unterminal();
-			unterminal.Number = Grammar.Number;			
+			Unterminal unterminal = Unterminal.GetInstance(Grammar.Number);			
 			
 			Grammar.TargetSymbol = unterminal;
 			
@@ -157,8 +156,6 @@ namespace FLaG.Data
 			writer.WriteLine();
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine(@"--- целевой символ грамматики.",true);
-			
-			return LastUseNumber;
 		}
     }
 }

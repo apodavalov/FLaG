@@ -100,13 +100,12 @@ namespace FLaG.Data
 			return val;
 		}
 		
-		public override int GenerateGrammar(Writer writer, bool isLeft, int LastUseNumber)
+		public override void GenerateGrammar(Writer writer, bool isLeft, ref int LastUseNumber, ref int AddionalGrammarsNum)
 		{
 			Grammar = new Grammar();
 			Grammar.IsLeft = isLeft;
 			Grammar.Number = NumLabel.Value;
-			Grammar.TargetSymbol = new Unterminal();
-			Grammar.TargetSymbol.Number = Grammar.Number;
+			Grammar.TargetSymbol = Unterminal.GetInstance(Grammar.Number);
 			
 			writer.WriteLine(@"\item");
 			writer.WriteLine("Для выражения" , true);
@@ -253,8 +252,6 @@ namespace FLaG.Data
 			Grammar.SaveG(writer);
 			writer.WriteLine();
 			writer.WriteLine(@"\end{math}.");
-			
-			return LastUseNumber;
 		}
 	}
 }

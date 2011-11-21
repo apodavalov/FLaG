@@ -190,22 +190,166 @@ namespace FLaG.Data
 			if (oldval == val)
 			{
 				list.Add(this);
-				NumLabel = val;
-				val++;
+				if (Exp is Number)
+				{
+					Number q = (Number)Exp;
+					if (q.Value < 3)
+						val++;
+					else
+						val+=q.Value - 1;					
+				}
+				else
+					val++;
+				NumLabel = val-1;
 			}
 			
 			return val;
 		}
 		
-		public override int GenerateGrammar(Writer writer, bool isLeft, int LastUseNumber)
+		public override void GenerateGrammar(Writer writer, bool isLeft, ref int LastUseNumber, ref int AddionalGrammarsNum)
 		{
-			Grammar = new Grammar();
-			Grammar.IsLeft = isLeft;
-			Grammar.Number = NumLabel.Value;
-			Grammar.TargetSymbol = new Unterminal();
-			Grammar.TargetSymbol.Number = Grammar.Number;
+			if (!(Exp is Number))
+				return;
 			
-			return LastUseNumber;
+			Number number = (Number)Exp;
+			
+			int degree = number.Value;
+			
+			if (degree <= 0)
+			{
+				// TODO: обработать на всякий случай
+			}
+			else if (degree == 1)
+			{
+				// TODO: обработать на всякий случай
+			}
+			else
+			{
+				writer.WriteLine(@"\item");
+				writer.WriteLine(@"Выполним построение в два этапа.",true);
+				writer.WriteLine(@"\begin{enumerate}");				
+				writer.WriteLine(@"\item");
+				writer.WriteLine(@"Для выражения",true);
+				writer.WriteLine(@"\begin{math}");
+				SaveAsRegularExp(writer,false);
+				writer.WriteLine();
+				writer.WriteLine(@"\end{math}");
+				writer.Write(@", которое является конкатенацией ",true);
+				writer.Write(degree);
+				writer.WriteLine(@" выражений вида",true);
+				writer.WriteLine(@"\begin{math}");
+				Base.SaveAsRegularExp(writer,false);
+				writer.WriteLine();
+				writer.WriteLine(@"\end{math}");
+				writer.WriteLine(@"и для которых построены грамматики ",true);
+				
+				Concat concat = new Concat();
+				concat.EntityCollection.Add(Base);
+				
+				for (int i = 1; i < degree; i++)
+				{
+					Entity e = Base.DeepClone();
+					e.Grammar = Base.Grammar.MakeMirror(ref LastUseNumber, ref AddionalGrammarsNum);
+					concat.EntityCollection.Add(e);
+				}
+				
+				concat.NumLabel = NumLabel;
+
+				writer.WriteLine(@"\begin{math}");
+				for (int i = 0; i < concat.EntityCollection.Count; i++)
+				{
+					if (i != 0)
+						writer.Write(@",");
+					
+					concat.EntityCollection[i].Grammar.SaveG(writer);
+				}
+				writer.WriteLine();
+				writer.WriteLine(@"\end{math}");
+				writer.WriteLine(@"построим грамматику");
+				
+				writer.WriteLine(@"\begin{math}");
+				// Создаем временно грамматику
+				Grammar = new Grammar();
+				Grammar.IsLeft = isLeft;
+				Grammar.Number = NumLabel.Value;
+				Grammar.TargetSymbol = Unterminal.GetInstance(Grammar.Number);
+				Grammar.SaveG(writer);
+				Grammar = null;
+				writer.WriteLine(@"\end{math}.");
+				
+				writer.WriteLine(@"Эти регулярные грамматики хоть и являются одинаковыми, но порождаются", true);
+				writer.WriteLine(@"разными грамматиками, поэтому", true);
+				if (concat.EntityCollection.Count > 2)
+					writer.WriteLine("грамматики", true);
+				else
+					writer.WriteLine("грамматика", true);
+				
+				writer.WriteLine(@"\begin{math}");
+				for (int i = 1; i < concat.EntityCollection.Count; i++)
+				{
+					if (i != 0)
+						writer.Write(@",");
+					
+					concat.EntityCollection[i].Grammar.SaveG(writer);
+				}
+				writer.WriteLine();
+				writer.WriteLine(@"\end{math}");
+				
+				if (concat.EntityCollection.Count > 2)
+					writer.WriteLine("получены",true);
+				else
+					writer.WriteLine("получена",true);
+				
+				writer.WriteLine(@"из грамматики");
+				
+				writer.WriteLine(@"\begin{math}");
+				Base.Grammar.SaveG(writer);
+				writer.WriteLine();
+				writer.WriteLine(@"\end{math}");
+				
+				writer.WriteLine("с помощью соответствующей заменой индексов, т.е.", true);
+				
+				
+				for (int i = 1; i < concat.EntityCollection.Count; i++)
+				{
+					writer.WriteLine(@"\begin{math}");						
+					concat.EntityCollection[i].Grammar.SaveCortege(writer);					
+					writer.WriteLine();	
+					writer.WriteLine(@"\end{math}");	
+					writer.WriteLine(", где",true);
+					writer.WriteLine(@"\begin{math}");						
+					concat.EntityCollection[i].Grammar.SaveN(writer);					
+					writer.WriteLine(@"=");	
+					writer.WriteLine(@"\{");	
+					concat.EntityCollection[i].Grammar.SaveUnterminals(writer);
+					writer.WriteLine(@"\}");	
+					writer.WriteLine(@"\end{math}");						
+					writer.WriteLine(@"--- множество нетерминальных символов грамматики",true);	
+					writer.WriteLine(@"\begin{math}");
+					concat.EntityCollection[i].Grammar.SaveG(writer);
+					writer.WriteLine();	
+					writer.WriteLine(@"\end{math}");
+					writer.WriteLine(@";");	
+					writer.WriteLine(@"\begin{math}");
+					concat.EntityCollection[i].Grammar.SaveP(writer);					
+					writer.WriteLine(@"=");	
+					writer.WriteLine(@"\{");
+					concat.EntityCollection[i].Grammar.SaveRules(writer);
+					writer.WriteLine(@"\}");
+					writer.WriteLine(@"\end{math}");
+					writer.Write(@"--- множество правил вывода",true);
+					if (concat.EntityCollection.Count - 1 == i)
+						writer.WriteLine(@".",true);
+					else
+						writer.WriteLine(@";",true);
+				}
+				
+				concat.GenerateGrammar(writer,isLeft,ref LastUseNumber, ref AddionalGrammarsNum);
+				
+				Grammar = concat.Grammar;
+				
+				writer.WriteLine(@"\end{enumerate}");
+			}
 		}
     }
 }

@@ -234,8 +234,7 @@ namespace FLaG.Data
 			
 			grammar.Number = Number;
 			grammar.IsLeft = isLeft;
-			grammar.TargetSymbol = new Unterminal();
-			grammar.TargetSymbol.Number = Number;
+			grammar.TargetSymbol = Unterminal.GetInstance(Number);
 			
 			List<Rule> onlyTerms,others;
 			
@@ -360,7 +359,7 @@ namespace FLaG.Data
 			return grammar;
 		}
 		
-		public override int GenerateGrammar(Writer writer, bool isLeft, int LastUseNumber)
+		public override void GenerateGrammar(Writer writer, bool isLeft, ref int LastUseNumber, ref int AddionalGrammarsNum)
 		{
 			if (EntityCollection.Count == 0)
 			{
@@ -388,8 +387,6 @@ namespace FLaG.Data
 					Grammar = MergeGrammars(Grammar, concatGrammar, concat, Number, writer, isLeft);
 				}				
 			}
-			
-			return LastUseNumber;
 		}
     }
 }

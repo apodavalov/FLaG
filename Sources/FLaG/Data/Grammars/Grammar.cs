@@ -54,12 +54,29 @@ namespace FLaG.Data.Grammars
 			}
 		}
 		
+		public Grammar MakeMirror(ref int LastUseNumber, ref int AdditionalGrammarNumber)
+		{
+			throw new NotImplementedException();
+//			Grammar g = DeepClone();
+//			
+//			g.Number = AdditionalGrammarNumber++;
+//			Unterminal oldUnterminal = g.TargetSymbol;
+//			g.TargetSymbol = Unterminal.GetInstance(LastUseNumber++);			
+//			
+//			foreach (Unterminal u in us)
+//			{
+//				
+//			}
+//			
+//			return g;
+		}
+		
 		public Grammar DeepClone()
 		{
 			Grammar grammar = new Grammar();
 			
 			grammar.Number = Number;
-			grammar.TargetSymbol = TargetSymbol;
+			grammar.TargetSymbol = (Unterminal)TargetSymbol.DeepClone();
 			grammar.IsLeft = IsLeft;
 			
 			foreach (Rule r in Rules)
@@ -97,9 +114,9 @@ namespace FLaG.Data.Grammars
 			writer.Write(@"{");
 			writer.Write(@"{");
 			writer.Write(Letter.ToString(), true);
-			writer.Write("_");
+			writer.Write("_{");
 			writer.Write(Number);
-			writer.Write(@"}");
+			writer.Write(@"}}");
 			writer.Write(Apostrophs);
 			writer.Write(@"}");
 		}
