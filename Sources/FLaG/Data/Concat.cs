@@ -360,7 +360,7 @@ namespace FLaG.Data
 			return grammar;
 		}
 		
-		public override void GenerateGrammar(Writer writer, bool isLeft)
+		public override int GenerateGrammar(Writer writer, bool isLeft, int LastUseNumber)
 		{
 			if (EntityCollection.Count == 0)
 			{
@@ -388,6 +388,8 @@ namespace FLaG.Data
 					Grammar = MergeGrammars(Grammar, concatGrammar, concat, Number, writer, isLeft);
 				}				
 			}
+			
+			return LastUseNumber;
 		}
     }
 }

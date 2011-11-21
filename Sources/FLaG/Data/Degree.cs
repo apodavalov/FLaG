@@ -197,13 +197,15 @@ namespace FLaG.Data
 			return val;
 		}
 		
-		public override void GenerateGrammar(Writer writer, bool isLeft)
+		public override int GenerateGrammar(Writer writer, bool isLeft, int LastUseNumber)
 		{
 			Grammar = new Grammar();
 			Grammar.IsLeft = isLeft;
 			Grammar.Number = NumLabel.Value;
 			Grammar.TargetSymbol = new Unterminal();
 			Grammar.TargetSymbol.Number = Grammar.Number;
+			
+			return LastUseNumber;
 		}
     }
 }

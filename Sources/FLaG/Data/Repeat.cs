@@ -100,7 +100,7 @@ namespace FLaG.Data
 			return val;
 		}
 		
-		public override void GenerateGrammar(Writer writer, bool isLeft)
+		public override int GenerateGrammar(Writer writer, bool isLeft, int LastUseNumber)
 		{
 			Grammar = new Grammar();
 			Grammar.IsLeft = isLeft;
@@ -253,6 +253,8 @@ namespace FLaG.Data
 			Grammar.SaveG(writer);
 			writer.WriteLine();
 			writer.WriteLine(@"\end{math}.");
+			
+			return LastUseNumber;
 		}
 	}
 }

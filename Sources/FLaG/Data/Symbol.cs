@@ -94,7 +94,7 @@ namespace FLaG.Data
 			return Value.CompareTo(other.Value);
 		}
 		
-		public override void GenerateGrammar(Writer writer, bool isLeft)
+		public override int GenerateGrammar(Writer writer, bool isLeft, int LastUseNumber)
 		{
 			Grammar = new Grammar();
 			
@@ -157,6 +157,8 @@ namespace FLaG.Data
 			writer.WriteLine();
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine(@"--- целевой символ грамматики.",true);
+			
+			return LastUseNumber;
 		}
     }
 }
