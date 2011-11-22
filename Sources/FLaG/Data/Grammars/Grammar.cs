@@ -107,28 +107,22 @@ namespace FLaG.Data.Grammars
 			return grammar;
 		}
 		
-		public static void SaveBothUnterminals(Writer writer, Unterminal[] u1, Unterminal[] u2, bool isLeft)
+		public static void SaveBothUnterminals(Writer writer, bool isLeft, params Unterminal[][] uss)
 		{
 			List<Unterminal> unterminals = new List<Unterminal>();
 			
-			foreach (Unterminal u in u1)
-			{
-				int index = unterminals.BinarySearch(u);
-				if (index < 0)
-					unterminals.Insert(~index,u);
-			}
-			
-			foreach (Unterminal u in u2)
-			{
-				int index = unterminals.BinarySearch(u);
-				if (index < 0)
-					unterminals.Insert(~index,u);
-			}
+			foreach (Unterminal[] us in uss)
+				foreach (Unterminal u in us)
+				{
+					int index = unterminals.BinarySearch(u);
+					if (index < 0)
+						unterminals.Insert(~index,u);
+				}	
 			
 			for (int i = 0; i < unterminals.Count; i++)
 			{
 				if (i != 0)		
-					writer.Write(",");
+					writer.Write(", ");
 				
 				unterminals[i].Save(writer, isLeft);
 			}
@@ -141,7 +135,7 @@ namespace FLaG.Data.Grammars
 			for (int i = 0; i < unterminals.Length; i++)
 			{
 				if (i != 0)		
-					writer.Write(",");
+					writer.Write(", ");
 				
 				unterminals[i].Save(writer, IsLeft);
 			}
@@ -152,7 +146,7 @@ namespace FLaG.Data.Grammars
 			for (int i = 0; i < Rules.Count; i++)
 			{
 				if (i != 0)		
-					writer.Write(",");
+					writer.Write(", ");
 				
 				Rules[i].Save(writer, IsLeft);
 			}

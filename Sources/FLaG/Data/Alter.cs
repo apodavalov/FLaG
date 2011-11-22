@@ -175,14 +175,155 @@ namespace FLaG.Data
 			
 			return val;
 		}
-
 		
-		public override void GenerateGrammar (Writer writer, bool isLeft, ref int LastUseNumber, ref int AddionalGrammarsNum)
+		private Grammar MergeGrammars(Grammar grammar1, Grammar grammar2, Alter alter, int Number, Writer writer, bool isLeft)
 		{
-			Grammar = new Grammar();
-			Grammar.IsLeft = isLeft;
-			Grammar.Number = NumLabel.Value;
-			Grammar.TargetSymbol = Unterminal.GetInstance(Grammar.Number);			
+			Grammar grammar = new Grammar();
+			
+			writer.WriteLine(@"\item");
+			writer.WriteLine("Для выражения вида" , true);
+			writer.WriteLine(@"\begin{math}");
+			alter.SaveAsRegularExp(writer, false);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@", которое является объединением выражений и для которых построены грамматики", true);
+			writer.WriteLine(@"\begin{math}");
+			grammar1.SaveG(writer);			
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@",", true);
+			writer.WriteLine(@"\begin{math}");
+			grammar2.SaveG(writer);			
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine("соответственно, строим грамматику ", true);
+			
+			grammar.Number = Number;
+			grammar.IsLeft = isLeft;
+			grammar.TargetSymbol = Unterminal.GetInstance(Number);
+			
+			writer.WriteLine(@"\begin{math}");
+			grammar.SaveCortege(writer);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			
+			writer.WriteLine(@", где", true);
+			writer.WriteLine(@"\begin{math}");
+			grammar.SaveN(writer);
+			writer.WriteLine(@"=");
+			grammar1.SaveN(writer);
+			writer.WriteLine();
+			writer.WriteLine(@"\cup");			
+			grammar2.SaveN(writer);
+			writer.WriteLine();
+			writer.WriteLine(@"\cup");
+			writer.WriteLine(@"\{");  
+			grammar.TargetSymbol.Save(writer,isLeft);
+			writer.WriteLine(@"\}");
+			writer.WriteLine(@"=");
+			writer.WriteLine(@"\{");
+			grammar1.SaveUnterminals(writer);
+			writer.WriteLine(@"\}");			
+			writer.WriteLine(@"\cup ");			
+			writer.WriteLine(@"\{");
+			grammar2.SaveUnterminals(writer);
+			writer.WriteLine(@"\}");			
+			writer.WriteLine(@"=");
+			writer.WriteLine(@"\{");
+			Grammar.SaveBothUnterminals(writer,isLeft, grammar1.Unterminals,grammar2.Unterminals,new Unterminal[] {grammar.TargetSymbol});
+			writer.WriteLine(@"\}");
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine("--- множество нетермильнальных символов грамматики", true);
+			writer.WriteLine(@"\begin{math}");
+			grammar.SaveG(writer);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			
+			writer.WriteLine(";",true);
+			
+			writer.WriteLine(@"\begin{math}");
+			grammar.SaveP(writer);
+			writer.WriteLine(@"=");			
+			grammar1.SaveP(writer);
+			writer.WriteLine(@"\cup");
+			grammar2.SaveP(writer);
+			writer.WriteLine(@"\cup");
+			writer.WriteLine(@"\{");
+			
+			// Rule
+			Rule r = new Rule();
+			r.Prerequisite = grammar.TargetSymbol;			
+			Chain c = new Chain();
+			c.Symbols.Add(grammar1.TargetSymbol);			
+			r.Chains.Add(c);
+			c = new Chain();
+			c.Symbols.Add(grammar2.TargetSymbol);			
+			r.Chains.Add(c);
+			
+			r.Save(writer,isLeft);
+			writer.WriteLine(@"\}");
+			writer.WriteLine(@"=");
+			writer.WriteLine(@"\{");
+			grammar1.SaveRules(writer);
+			writer.WriteLine(@"\}");
+			writer.WriteLine(@"\cup");
+			writer.WriteLine(@"\{");
+			grammar2.SaveRules(writer);
+			writer.WriteLine(@"\}");
+			writer.WriteLine(@"\cup");
+			writer.WriteLine(@"\{");
+			r.Save(writer,isLeft);
+			writer.WriteLine(@"\}");
+			writer.WriteLine(@"=");			
+			writer.WriteLine(@"\{");
+			grammar.Rules.AddRange(grammar1.Rules);
+			grammar.Rules.AddRange(grammar2.Rules);
+			grammar.Rules.Add(r);
+			grammar.SaveRules(writer);				
+			writer.WriteLine(@"\}");							
+			writer.WriteLine(@"\end{math}");
+			
+			writer.WriteLine(@"--- множество правил вывода для данной грамматики;",true);
+			
+			writer.WriteLine(@"\begin{math}");
+			grammar.TargetSymbol.Save(writer,isLeft);		
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- целевой символ грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			grammar.SaveG(writer);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}.");
+			return grammar;
+		}
+		
+		public override void GenerateGrammar(Writer writer, bool isLeft, ref int LastUseNumber, ref int AddionalGrammarsNum)
+		{
+			if (EntityCollection.Count == 0)
+			{
+				// TODO: сделать обработку на всякий случай
+			}
+			else if (EntityCollection.Count == 1)
+			{
+				// TODO: сделать обработку на всякий случай
+			}
+			else
+			{
+				Grammar = EntityCollection[0].Grammar;				
+				
+				for (int i = 1; i < EntityCollection.Count; i++)	
+				{
+					int Number = NumLabel.Value - EntityCollection.Count + 1 + i;	
+					
+					Grammar alterGrammar = EntityCollection[i].Grammar;
+					
+					Alter alter = new Alter();
+					
+					for (int j = 0; j <= i; j++)
+						alter.EntityCollection.Add(EntityCollection[j]);
+					
+					Grammar = MergeGrammars(Grammar, alterGrammar, alter, Number, writer, isLeft);
+				}				
+			}		
 		}		
 	}
 }

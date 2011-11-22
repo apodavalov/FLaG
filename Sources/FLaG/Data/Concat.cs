@@ -298,7 +298,7 @@ namespace FLaG.Data
 			
 			writer.WriteLine(@"=");
 			writer.WriteLine(@"\{");
-			Grammar.SaveBothUnterminals(writer,grammar1.Unterminals,grammar2.Unterminals,isLeft);
+			Grammar.SaveBothUnterminals(writer,isLeft,grammar1.Unterminals,grammar2.Unterminals);
 			writer.WriteLine(@"\}");
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine("--- множество нетермильнальных символов грамматики", true);
