@@ -107,6 +107,33 @@ namespace FLaG.Data.Grammars
 			return grammar;
 		}
 		
+		public static void SaveBothUnterminals(Writer writer, Unterminal[] u1, Unterminal[] u2, bool isLeft)
+		{
+			List<Unterminal> unterminals = new List<Unterminal>();
+			
+			foreach (Unterminal u in u1)
+			{
+				int index = unterminals.BinarySearch(u);
+				if (index < 0)
+					unterminals.Insert(~index,u);
+			}
+			
+			foreach (Unterminal u in u2)
+			{
+				int index = unterminals.BinarySearch(u);
+				if (index < 0)
+					unterminals.Insert(~index,u);
+			}
+			
+			for (int i = 0; i < unterminals.Count; i++)
+			{
+				if (i != 0)		
+					writer.Write(",");
+				
+				unterminals[i].Save(writer, isLeft);
+			}
+		}
+		
 		public void SaveUnterminals(Writer writer)
 		{
 			Unterminal[] unterminals = Unterminals;
