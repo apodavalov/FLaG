@@ -45,12 +45,16 @@ namespace FLaG.Data.Grammars
 		{
 			get
 			{
-				Unterminal[] unterminals = new Unterminal[Rules.Count];
+				List<Unterminal> unterminals = new List<Unterminal>();
 				
-				for (int i = 0; i < Rules.Count; i++)					
-					unterminals[i] = Rules[i].Prerequisite;
+				for (int i = 0; i < Rules.Count; i++)	
+				{
+					int index = unterminals.BinarySearch(Rules[i].Prerequisite);
+					if (index < 0)
+						unterminals.Insert(~index,Rules[i].Prerequisite);
+				}
 				
-				return unterminals;
+				return unterminals.ToArray();
 			}
 		}
 		
