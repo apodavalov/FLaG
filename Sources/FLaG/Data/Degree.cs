@@ -226,7 +226,7 @@ namespace FLaG.Data
 			else
 			{
 				writer.WriteLine(@"\item");
-				writer.WriteLine(@"Выполним построение в два этапа.",true);
+				writer.WriteLine(@"Выполним построение в несколько подэтапов.",true);
 				writer.WriteLine(@"\begin{enumerate}");				
 				writer.WriteLine(@"\item");
 				writer.WriteLine(@"Для выражения",true);
