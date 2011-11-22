@@ -282,7 +282,7 @@ namespace FLaG.Data
 			writer.WriteLine(@"=");
 			grammar1.SaveN(writer);
 			writer.WriteLine();
-			writer.WriteLine(@"\bigcup");
+			writer.WriteLine(@"\cup");
 			grammar2.SaveN(writer);
 			writer.WriteLine(@"=");
 			
@@ -290,7 +290,7 @@ namespace FLaG.Data
 			grammar1.SaveUnterminals(writer);
 			writer.WriteLine(@"\}");
 			
-			writer.WriteLine(@"\bigcup ");
+			writer.WriteLine(@"\cup ");
 			
 			writer.WriteLine(@"\{");
 			grammar2.SaveUnterminals(writer);
@@ -316,7 +316,7 @@ namespace FLaG.Data
 			if (isLeft)
 			{
 				grammar1.SaveP(writer);
-				writer.WriteLine(@"\bigcup");
+				writer.WriteLine(@"\cup");
 				writer.WriteLine(@"\{");
 				grammar.SaveRules(writer);
 				writer.WriteLine();
@@ -325,7 +325,7 @@ namespace FLaG.Data
 			else
 			{
 				grammar2.SaveP(writer);
-				writer.WriteLine(@"\bigcup ");
+				writer.WriteLine(@"\cup ");
 				writer.WriteLine(@"\{");
 				grammar.SaveRules(writer);
 				writer.WriteLine();

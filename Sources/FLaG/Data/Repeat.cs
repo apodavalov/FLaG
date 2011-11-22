@@ -133,7 +133,7 @@ namespace FLaG.Data
 			writer.WriteLine(@"=");
 			Entity.Grammar.SaveN(writer);
 			writer.WriteLine();
-			writer.WriteLine(@"\bigcup");
+			writer.WriteLine(@"\cup");
 			writer.WriteLine(@"\{");
 			Grammar.TargetSymbol.Save(writer,Grammar.IsLeft);
 			writer.WriteLine(@"\}");
@@ -143,7 +143,7 @@ namespace FLaG.Data
 			Entity.Grammar.SaveUnterminals(writer);
 			writer.WriteLine(@"\}");
 			
-			writer.WriteLine(@"\bigcup ");
+			writer.WriteLine(@"\cup ");
 			
 			writer.WriteLine(@"\{");
 			Grammar.TargetSymbol.Save(writer, isLeft);
@@ -230,7 +230,7 @@ namespace FLaG.Data
 			Grammar.Rules.RemoveAt(Grammar.Rules.Count - 1);
 			Grammar.SaveRules(writer);
 			writer.WriteLine(@"\}");
-			writer.WriteLine(@"\bigcup");
+			writer.WriteLine(@"\cup");
 			writer.WriteLine(@"\{");		
 			newRule.Save(writer,isLeft);
 			writer.WriteLine(@"\}");			
