@@ -295,8 +295,8 @@ namespace FLaG.Output
 			
 			WriteLine(@"\begin{enumerate}");
 			
-			int LastUseNumber = entities.Count;
-			int AddionalGrammarsNumber = entities.Count;
+			int LastUseNumber = entities.Count + 1;
+			int AddionalGrammarsNumber = entities.Count + 1;
 			
 			// Создаем леволинейные грамматики
 			for (int i = 0; i < entities.Count; i++)
@@ -313,8 +313,8 @@ namespace FLaG.Output
 						
 			WriteLine(@"\begin{enumerate}");
 			
-			LastUseNumber = entities.Count;
-			AddionalGrammarsNumber = entities.Count;
+			LastUseNumber = entities.Count + 1;
+			AddionalGrammarsNumber = entities.Count + 1;
 			
 			// Создаем праволиненые грамматики
 			for (int i = 0; i < entities.Count; i++)
