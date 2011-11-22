@@ -56,19 +56,37 @@ namespace FLaG.Data.Grammars
 		
 		public Grammar MakeMirror(ref int LastUseNumber, ref int AdditionalGrammarNumber)
 		{
-			throw new NotImplementedException();
-//			Grammar g = DeepClone();
-//			
-//			g.Number = AdditionalGrammarNumber++;
-//			Unterminal oldUnterminal = g.TargetSymbol;
-//			g.TargetSymbol = Unterminal.GetInstance(LastUseNumber++);			
-//			
-//			foreach (Unterminal u in us)
-//			{
-//				
-//			}
-//			
-//			return g;
+			Grammar g = DeepClone();
+			
+			g.Number = AdditionalGrammarNumber++;
+			
+			Dictionary<Unterminal,Unterminal> replacesDictionary = 
+				new Dictionary<Unterminal, Unterminal>();
+			
+			if (!replacesDictionary.ContainsKey(g.TargetSymbol))
+				replacesDictionary.Add(g.TargetSymbol,Unterminal.GetInstance(LastUseNumber++));
+			
+			g.TargetSymbol = replacesDictionary[g.TargetSymbol];
+			
+			foreach (Rule r in g.Rules)
+			{
+				if (!replacesDictionary.ContainsKey(r.Prerequisite))
+					replacesDictionary.Add(r.Prerequisite,Unterminal.GetInstance(LastUseNumber++));
+				
+				r.Prerequisite = replacesDictionary[r.Prerequisite];
+
+				foreach (Chain c in r.Chains)
+					for (int i = 0; i < c.Symbols.Count; i++)
+						if (c.Symbols[i] is Unterminal)
+						{
+							Unterminal u = (Unterminal)c.Symbols[i];
+							if (!replacesDictionary.ContainsKey(u))
+								replacesDictionary.Add(u,Unterminal.GetInstance(LastUseNumber++));
+							c.Symbols[i] = replacesDictionary[u];
+						}
+			}
+			
+			return g;
 		}
 		
 		public Grammar DeepClone()
@@ -76,11 +94,11 @@ namespace FLaG.Data.Grammars
 			Grammar grammar = new Grammar();
 			
 			grammar.Number = Number;
-			grammar.TargetSymbol = (Unterminal)TargetSymbol.DeepClone();
+			grammar.TargetSymbol = TargetSymbol;
 			grammar.IsLeft = IsLeft;
 			
 			foreach (Rule r in Rules)
-				grammar.Rules.Add(r.DeepClone(true));
+				grammar.Rules.Add(r.DeepClone());
 				
 			return grammar;
 		}

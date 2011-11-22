@@ -246,7 +246,7 @@ namespace FLaG.Data
 				
 				foreach (Rule rule in onlyTerms)
 				{
-					Rule r = rule.DeepClone(false);
+					Rule r = rule.DeepClone();
 					
 					foreach (Chain c in r.Chains)
 						c.Symbols.Insert(0,grammar1.TargetSymbol);
@@ -262,7 +262,7 @@ namespace FLaG.Data
 				
 				foreach (Rule rule in onlyTerms)
 				{
-					Rule r = rule.DeepClone(false);
+					Rule r = rule.DeepClone();
 					
 					foreach (Chain c in r.Chains)
 						c.Symbols.Add(grammar2.TargetSymbol);

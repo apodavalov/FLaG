@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace FLaG.Data.Grammars
 {
-	class Unterminal : Symbol, IComparable<Unterminal>
+	class Unterminal : Symbol, IComparable<Unterminal>, IEquatable<Unterminal>
 	{
 		public int Number
 		{
@@ -13,11 +13,6 @@ namespace FLaG.Data.Grammars
 		}
 		
 		private static List<Unterminal> unterminals = new List<Unterminal>();
-		
-		public override Symbol DeepClone()
-		{
-			return this;
-		}
 		
 		public static Unterminal GetInstance(int number)
 		{
@@ -57,6 +52,11 @@ namespace FLaG.Data.Grammars
 		public int CompareTo(Unterminal other)
 		{
 			return Number.CompareTo(other.Number);
+		}
+
+		public bool Equals(FLaG.Data.Grammars.Unterminal other)
+		{
+			return CompareTo(other) == 0;
 		}
 	}
 }

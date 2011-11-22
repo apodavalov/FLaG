@@ -165,7 +165,7 @@ namespace FLaG.Data
 					
 					foreach (Chain c in rule.Chains)
 					{
-						Chain newChain = c.DeepClone(false);						
+						Chain newChain = c.DeepClone();						
 						newChain.Symbols.Insert(0,Grammar.TargetSymbol);
 						r.Chains.Add(newChain);
 						r.Chains.Add(c);
@@ -188,7 +188,7 @@ namespace FLaG.Data
 					
 					foreach (Chain c in rule.Chains)
 					{
-						Chain newChain = c.DeepClone(false);						
+						Chain newChain = c.DeepClone();						
 						newChain.Symbols.Add(Grammar.TargetSymbol);
 						r.Chains.Add(newChain);
 						r.Chains.Add(c);

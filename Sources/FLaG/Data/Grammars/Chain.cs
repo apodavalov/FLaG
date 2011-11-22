@@ -20,16 +20,12 @@ namespace FLaG.Data.Grammars
 				writer.Write(@"{\varepsilon}");
 		}
 		
-		public Chain DeepClone(bool cloneSymbols)
+		public Chain DeepClone()
 		{
 			Chain chain = new Chain();
 			
-			if (cloneSymbols)
-				foreach (Symbol s in Symbols)
-					chain.Symbols.Add(s.DeepClone());
-			else
-				foreach (Symbol s in Symbols)
-					chain.Symbols.Add(s);
+			foreach (Symbol s in Symbols)
+				chain.Symbols.Add(s);
 			
 			return chain;
 		}
