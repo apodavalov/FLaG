@@ -189,18 +189,9 @@ namespace FLaG.Data
 			
 			if (oldval == val)
 			{
-				list.Add(this);
-				if (Exp is Number)
-				{
-					Number q = (Number)Exp;
-					if (q.Value < 3)
-						val++;
-					else
-						val+=q.Value - 1;					
-				}
-				else
-					val++;
-				NumLabel = val-1;
+				list.Add(this);				
+				NumLabel = val;
+				val++;
 			}
 			
 			return val;
