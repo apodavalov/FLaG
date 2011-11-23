@@ -6,6 +6,152 @@ namespace FLaG.Data.Grammars
 {
 	class Grammar
 	{
+		public void CheckLangForEmpty (Writer writer)
+		{
+			writer.WriteLine(@"Проверим на пустоту грамматику",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}.");
+			
+			writer.WriteLine(@"\begin{enumerate}");
+			
+			int i = 0;
+			HashSet<Unterminal> C = new HashSet<Unterminal>();
+			writer.WriteLine(@"\item ");
+			writer.WriteLine(@"\begin{math}");
+			SaveC(writer,i);
+			writer.Write(@"=");
+			SaveCSet(writer,C);
+			writer.Write(@",");
+			writer.Write(@"i=");
+			writer.Write(i);
+			writer.WriteLine(@";\end{math}");
+			
+			bool isAddedSomething;
+			
+			do 
+			{
+				i++;
+				isAddedSomething = false;
+				HashSet<Unterminal> oldC = C;
+				C = new HashSet<Unterminal>();
+				
+				foreach (Rule r in Rules)
+				{	
+					foreach (Chain c in r.Chains)
+					{
+						bool ourChain = true;	
+						
+						foreach (Symbol s in c.Symbols) 
+							if (s is Unterminal)
+							{
+								Unterminal u = (Unterminal)s;
+								
+								if (!oldC.Contains(u))
+								{
+									ourChain = false;
+									break;
+								}
+							}
+						
+						if (ourChain)
+						{
+							if (!C.Contains(r.Prerequisite) && !oldC.Contains(r.Prerequisite))
+							{
+								C.Add(r.Prerequisite);
+								isAddedSomething = true;
+							}
+							break;
+						}
+					}
+				}
+				
+				writer.WriteLine(@"\item ");
+				writer.WriteLine(@"\begin{math}");
+				SaveC(writer,i);
+				writer.WriteLine(@"=");
+				
+				if (isAddedSomething)
+				{
+					SaveC(writer,i-1);
+					writer.WriteLine(@"\cup");
+					SaveCSet(writer,C);
+					oldC.UnionWith(C);
+					C = oldC;
+					writer.WriteLine(@"=");
+					SaveCSet(writer,C);
+					writer.Write(@",i=");
+					writer.Write(i);
+					writer.WriteLine(";");
+				}
+				else
+				{
+					oldC.UnionWith(C);
+					C = oldC;
+					SaveC(writer,i-1);
+					writer.Write(@",i=");
+					writer.Write(i);
+					writer.WriteLine(".");
+				}
+				
+				writer.WriteLine(@"\end{math}");
+				
+
+			} while (isAddedSomething);
+			
+			writer.WriteLine(@"\end{enumerate}");			
+			writer.WriteLine();
+			writer.WriteLine();
+			
+			bool containsTarget = C.Contains(TargetSymbol);
+			
+			writer.WriteLine(@"\begin{math}");
+			TargetSymbol.Save(writer,IsLeft);
+			if (containsTarget)
+				writer.WriteLine(@"\in");
+			else
+				writer.WriteLine(@"\notin");
+			SaveC(writer,i);
+			writer.WriteLine(@"\Rightarrow");
+			writer.WriteLine(@"\end{math}");
+			if (containsTarget)
+				writer.WriteLine(@"--- язык не пуст.",true);
+			else
+				writer.WriteLine(@"--- язык пуст.",true);
+			writer.WriteLine();
+		}
+		
+		private void SaveC(Writer writer, int Number)
+		{
+			writer.Write(@"{C");
+			writer.Write("_{");
+			writer.Write(Number);
+			writer.Write(@"}}");
+		}
+		
+		private void SaveCSet(Writer writer, HashSet<Unterminal> C)
+		{
+			if (C.Count == 0)
+			{
+				writer.WriteLine(@"\varnothing");
+				return;
+			}
+			else
+			{
+				writer.WriteLine(@"\{");
+				List<Unterminal> list = new List<Unterminal>(C);
+				
+				for (int i = 0; i < list.Count; i++)
+				{
+					if (i != 0)
+						writer.Write(@",");
+					
+					list[i].Save(writer,IsLeft);
+				}
+				writer.WriteLine(@"\}");
+			}
+		}
+		
 		public int Number
 		{
 			get;

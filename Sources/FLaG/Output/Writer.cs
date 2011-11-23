@@ -126,7 +126,7 @@ namespace FLaG.Output
 			WriteLine(@"\documentclass[a4paper,12pt]{article}");
 			WriteLine(@"\usepackage[a4paper, includefoot, left=3cm, right=1.5cm, " + 
 				"top=2cm, bottom=2cm, headsep=1cm, footskip=1cm]{geometry}");
-			WriteLine(@"\usepackage{mathtools, mathtext}");
+			WriteLine(@"\usepackage{mathtools, mathtext, amssymb}");
 			WriteLine(@"\usepackage[T1,T2A]{fontenc}");			
 			WriteLine(@"\usepackage{ucs}");
 			WriteLine(@"\usepackage[utf8x]{inputenc}");
@@ -349,6 +349,16 @@ namespace FLaG.Output
 			WriteLine(@"\end{math}");
 			WriteLine(@"т.е. правил которые могут привести к зацикливанию алгоритма.");
 		}
+		
+		private void Step2_4_1()
+		{
+			Write(@"\subsubsection{");
+			Write("Этап 2.4.1",true);
+			WriteLine(@"}");
+			
+			LeftSidedGrammar.CheckLangForEmpty(this);
+			RightSidedGrammar.CheckLangForEmpty(this);
+		}
 
         private void WriteEndDoc()
         {
@@ -364,6 +374,7 @@ namespace FLaG.Output
 			Step2_2();				
 			Step2_3();
 			Step2_4();
+			Step2_4_1();
             WriteEndDoc();
 		}
     }
