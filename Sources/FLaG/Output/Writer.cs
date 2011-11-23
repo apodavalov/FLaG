@@ -150,6 +150,7 @@ namespace FLaG.Output
 			WriteLine(@"\renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}.}");
 			// Команда для вставки изображения
 			//WriteLine(@"\newcommand{\imgh}[3]{\begin{figure}[h]\center{\includegraphics[width=#1]{#2}}\caption{#3}\label{ris:#2}\end{figure}}");
+			WriteLine(@"\sloppy");			
 			WriteLine(@"\begin{document}");
 			WriteLine(@"\begin{titlepage}");
 			WriteLine(@"\newpage");
