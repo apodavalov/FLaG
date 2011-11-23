@@ -198,10 +198,10 @@ namespace FLaG.Output
 			WriteLine(@"\end{titlepage}");
 			WriteLine();
 			WriteLine(@"\newpage");
-			WriteLine(@"\setcounter{tocdepth}{2}");
+			WriteLine(@"\setcounter{tocdepth}{3}");
 			WriteLine(@"\setcounter{secnumdepth}{-1}");
 			WriteLine(@"\newcounter{sectocnonumdepth}");
-			WriteLine(@"\setcounter{sectocnonumdepth}{2}");
+			WriteLine(@"\setcounter{sectocnonumdepth}{3}");
 			WriteLine(@"\tableofcontents");
 			WriteLine();
 			WriteLine(@"\newpage");
