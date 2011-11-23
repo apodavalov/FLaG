@@ -326,6 +326,29 @@ namespace FLaG.Output
 			// FIXME: А если нет ни одной?
 			RightSidedGrammar = entities[entities.Count - 1].Grammar;
 		}
+		
+		private void Step2_4()
+		{
+			Write(@"\subsection{");
+			Write("Этап 2.4",true);
+			WriteLine(@"}");
+			
+			WriteLine(@"На этом шаге производим преобразования (приведение) грамматики.",true);
+			WriteLine(@"Цель этого преобразования заключается в проверке языка на пустоту,",true);
+			WriteLine(@"в удалении недостижимых символов граммактики, т.е. символов, которые",true);
+			WriteLine(@"не встречаются ни в одной сентенциальной форме грамматики, бесплодных",true);
+			WriteLine(@"символов, для которых в грамматике нет правил вывода, пустых правил",true);
+			WriteLine(@"(правил вида",true);
+			WriteLine(@"\begin{math}");
+			WriteLine(@"A \rightarrow \varepsilon");
+			WriteLine(@"\end{math})");
+			WriteLine(@", которые дают лишний переход конечного автомата, что приводит к замедлению",true);
+			WriteLine(@"алгоритма разбора цепочки, цепных правил (правил вида",true);
+			WriteLine(@"\begin{math}");
+			WriteLine(@"A \rightarrow B");
+			WriteLine(@"\end{math}");
+			WriteLine(@"т.е. правил которые могут привести к зацикливанию алгоритма.");
+		}
 
         private void WriteEndDoc()
         {
@@ -340,6 +363,7 @@ namespace FLaG.Output
             Step2_1();
 			Step2_2();				
 			Step2_3();
+			Step2_4();
             WriteEndDoc();
 		}
     }
