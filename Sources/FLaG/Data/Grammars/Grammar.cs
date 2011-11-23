@@ -115,9 +115,9 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"\Rightarrow");
 			writer.WriteLine(@"\end{math}");
 			if (containsTarget)
-				writer.WriteLine(@"--- язык не пуст.",true);
+				writer.WriteLine(@"язык не пуст.",true);
 			else
-				writer.WriteLine(@"--- язык пуст.",true);
+				writer.WriteLine(@"язык пуст.",true);
 			writer.WriteLine();
 		}
 		
