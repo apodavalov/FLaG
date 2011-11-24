@@ -27,7 +27,7 @@ namespace FLaG.Data.Grammars
 			
 			throw new NotSupportedException();
 		}
-
+		
 		public int CompareTo(Terminal other)
 		{
 			return Value.CompareTo(other.Value);
