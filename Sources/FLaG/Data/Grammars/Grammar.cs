@@ -8,7 +8,149 @@ namespace FLaG.Data.Grammars
 	{
 		public void RemoveUnreachedSyms(Writer writer, int newGrammarNumber)
 		{
-			throw new NotImplementedException();
+			writer.WriteLine(@"Производим удаление недостижимых символов грамматики",true);			
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}.");
+			Number = newGrammarNumber;
+			writer.WriteLine(@"В результате построим грамматику",true);			
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@", не содержащую указанные символы.",true);			
+			writer.WriteLine(@"Для этого нам понадобится дополнительное множество",true);			
+			writer.WriteLine(@"\emph{V},");			
+			writer.WriteLine(@"в которое будем заносить достижимые символы.",true);			
+			HashSet<Symbol> V = new HashSet<Symbol>();
+			V.Add(TargetSymbol);
+			int i = 0;
+			writer.WriteLine();
+			writer.WriteLine(@"Итак, на первом шаге алгоритма положим",true);			
+			writer.WriteLine(@"\begin{math}");
+			SaveV(writer,i);
+			writer.WriteLine(@"=");
+			SaveVSet(writer,V);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"и",true);			
+			writer.WriteLine(@"\begin{math}");
+			writer.WriteLine(@"i=");
+			i++;
+			writer.WriteLine(i);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine();
+			writer.WriteLine(@"На следующем шаге получаем множество",true);	
+			writer.WriteLine(@"\begin{math}");
+			SaveV(writer,i);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@", содержащее символы из множество, построенного на предыдущем шаге",true);	
+			writer.WriteLine(@"\begin{math}");
+			SaveV(writer,i-1);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@", а также символы, которые входят в правые части правил для нетерминала,",true);	
+			writer.WriteLine(@"принадлежащего множеству",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveV(writer,i-1);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine(@"В результате получаем",true);
+			
+			List<Unterminal> unterminals = new List<Unterminal>();
+			
+			foreach (Rule r in Rules)
+				unterminals.Add(r.Prerequisite);
+			
+			bool isAddedSomething;
+			
+			do
+			{
+				isAddedSomething = false;
+				HashSet<Symbol> oldV = V;
+				V = new HashSet<Symbol>();
+				
+				foreach (Symbol s in oldV)
+				{
+					if (s is Unterminal)
+					{
+						Unterminal u = (Unterminal)s;
+						
+						int index = unterminals.BinarySearch(u);
+						
+						if (index >= 0)
+						{
+							foreach (Chain c in Rules[index].Chains)
+							{
+								foreach (Symbol ss in c.Symbols)
+								{
+									if (!oldV.Contains(ss) && !V.Contains(ss))
+										isAddedSomething = true;
+									V.Add(ss);
+								}
+							}
+						}
+					}
+				}
+				
+				writer.WriteLine();
+				writer.WriteLine(@"\begin{math}");
+				SaveV(writer,i);
+				writer.WriteLine(@"=");
+				SaveVSet(writer,oldV);
+				writer.WriteLine(@"\cup");
+				SaveVSet(writer,V);
+				writer.WriteLine(@"=");
+				oldV.UnionWith(V);
+				V = oldV;
+				SaveVSet(writer,V);
+				writer.WriteLine(@"\end{math}");
+				writer.WriteLine();
+				
+				if (isAddedSomething)
+				{
+					writer.WriteLine(@"Сравниваем",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveV(writer,i-1);
+					writer.WriteLine(@"\end{math}");
+					writer.WriteLine(@"и",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveV(writer,i);
+					writer.WriteLine(@"\end{math},");
+					writer.WriteLine(@"и получаем, что",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveV(writer,i-1);
+					writer.WriteLine(@"\neq");
+					SaveV(writer,i);
+					writer.WriteLine(@"\end{math}.");
+					i++;
+					writer.WriteLine(@"Делаем приращение",true);
+					writer.WriteLine(@"\begin{math}");
+					writer.WriteLine(@"i");
+					writer.WriteLine(@"\end{math}");
+					writer.WriteLine(@"и строим множество",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveV(writer,i);
+					writer.WriteLine(@"\end{math}");
+					writer.WriteLine(@"вида",true);
+				}
+				else
+				{
+					writer.WriteLine(@"Сравниваем",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveV(writer,i-1);
+					writer.WriteLine(@"\end{math}");
+					writer.WriteLine(@"и",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveV(writer,i);
+					writer.WriteLine(@"\end{math},");
+					writer.WriteLine(@"и получаем, что",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveV(writer,i-1);
+					writer.WriteLine(@"=");
+					SaveV(writer,i);
+					writer.WriteLine(@"\end{math}.");
+				}
+				
+			} while (isAddedSomething);
+			
+			// TODO: построить грамматику	
 		}
 		
 		public void Normalize()
@@ -152,12 +294,43 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine();
 		}
 		
+		private void SaveV(Writer writer, int Number)
+		{
+			writer.Write(@"{V");
+			writer.Write("_{");
+			writer.Write(Number);
+			writer.Write(@"}}");
+		}
+		
 		private void SaveC(Writer writer, int Number)
 		{
 			writer.Write(@"{C");
 			writer.Write("_{");
 			writer.Write(Number);
 			writer.Write(@"}}");
+		}
+		
+		private void SaveVSet(Writer writer, HashSet<Symbol> V)
+		{
+			if (V.Count == 0)
+			{
+				writer.WriteLine(@"\varnothing");
+				return;
+			}
+			else
+			{
+				writer.WriteLine(@"\{");
+				List<Symbol> list = new List<Symbol>(V);
+				
+				for (int i = 0; i < list.Count; i++)
+				{
+					if (i != 0)
+						writer.Write(@",");
+					
+					list[i].Save(writer,IsLeft);
+				}
+				writer.WriteLine(@"\}");
+			}
 		}
 		
 		private void SaveCSet(Writer writer, HashSet<Unterminal> C)
