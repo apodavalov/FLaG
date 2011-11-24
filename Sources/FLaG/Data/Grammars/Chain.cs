@@ -4,7 +4,7 @@ using FLaG.Output;
 
 namespace FLaG.Data.Grammars
 {
-	class Chain
+	class Chain : IComparable<Chain>
 	{
 		public Chain()
 		{
@@ -34,6 +34,26 @@ namespace FLaG.Data.Grammars
 		{
 			get;
 			private set;
+		}
+
+		public int CompareTo(FLaG.Data.Grammars.Chain other)
+		{
+			// сравниваем элементы попарно до первого несовпадения
+			int min = Math.Min(Symbols.Count,other.Symbols.Count);
+			
+			for (int i = 0; i < min; i++)
+			{
+				int res = Symbols[i].CompareTo(other.Symbols[i]);
+				if (res != 0)
+					return res;
+			}
+			
+			if (Symbols.Count < other.Symbols.Count)
+				return -1;
+			else if (Symbols.Count > other.Symbols.Count)
+				return 1;
+			else
+				return 0;
 		}
 	}
 }

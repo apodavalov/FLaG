@@ -4,7 +4,7 @@ using FLaG.Output;
 
 namespace FLaG.Data.Grammars
 {
-	class Rule
+	class Rule : IComparable<Rule>
 	{
 		public Unterminal Prerequisite
 		{
@@ -49,6 +49,54 @@ namespace FLaG.Data.Grammars
 		public Rule()
 		{
 			Chains = new List<Chain>();
+		}
+		
+		public void Normalize()
+		{
+			Chains.Sort();
+			
+			// удалим из коллекции одинаковые правила
+			int i = 0;
+			while (i < Chains.Count)
+			{
+				int j = i + 1;
+				
+				while (j < Chains.Count && Chains[i].CompareTo(Chains[j]) == 0)
+					Chains.RemoveAt(j);
+				
+				i++;
+			}
+		}
+
+		public int CompareTo(Rule other)
+		{
+			int res = Prerequisite.CompareTo(other.Prerequisite);
+			
+			if (res != 0)
+				return res;
+			
+			// сравниваем до первого несовпадения 
+			// условно говоря, сравнение не совсем корректное,
+			// так как во внимание берется порядок (хотя он совершенно не важен)
+			// для того, чтобы правильно работала эта функция
+			// необходимо, чтобы оба правила были нормализованы
+			
+			int min = Math.Min(Chains.Count,other.Chains.Count);
+			
+			for (int i = 0; i < min; i++)
+			{
+				res = Chains[i].CompareTo(other.Chains[i]);
+				
+				if (res != 0)
+					return res;
+			}
+			
+			if (Chains.Count < other.Chains.Count)
+				return -1;
+			else if (Chains.Count > other.Chains.Count)
+				return 1;
+			else
+				return 0;
 		}
 	}
 }

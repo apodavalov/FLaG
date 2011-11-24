@@ -58,6 +58,16 @@ namespace FLaG.Data.Grammars
 		{
 			return CompareTo(other) == 0;
 		}
+
+		public override int CompareTo(Symbol other)
+		{
+			if (other is Unterminal)
+				return CompareTo((Unterminal)other);
+			else if (other is Terminal)
+				return 1;
+			
+			throw new NotSupportedException();
+		}
 	}
 }
 

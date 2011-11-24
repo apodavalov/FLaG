@@ -363,7 +363,9 @@ namespace FLaG.Output
 			Write("Этап 2.4.1",true);
 			WriteLine(@"}");
 			
+			LeftSidedGrammar.Normalize();			
 			LeftSidedGrammar.CheckLangForEmpty(this);
+			RightSidedGrammar.Normalize();
 			RightSidedGrammar.CheckLangForEmpty(this);
 		}
 		

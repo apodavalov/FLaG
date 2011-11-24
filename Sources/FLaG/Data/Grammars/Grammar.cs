@@ -8,7 +8,33 @@ namespace FLaG.Data.Grammars
 	{
 		public void RemoveUnreachedSyms(Writer writer, int newGrammarNumber)
 		{
-			throw new NotImplementedException ();
+			throw new NotImplementedException();
+		}
+		
+		public void Normalize()
+		{
+			foreach (Rule r in Rules)
+				r.Normalize();
+			
+			Rules.Sort();
+			
+			// объединяем цепочки правил с одинаковыми целевыми символами			
+			int i = 0;
+			while (i < Rules.Count)
+			{
+				int j = i + 1;
+				
+				while (j < Rules.Count && Rules[i].Prerequisite.CompareTo(Rules[j].Prerequisite) == 0)
+				{
+					Rules[i].Chains.AddRange(Rules[j].Chains);
+					Rules.RemoveAt(j);
+				}
+				
+				i++;
+			}
+			
+			foreach (Rule r in Rules)
+				r.Normalize();
 		}
 		
 		public void CheckLangForEmpty (Writer writer)
