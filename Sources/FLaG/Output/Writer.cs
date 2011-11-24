@@ -17,6 +17,8 @@ namespace FLaG.Output
 		private Lang lang;
 		private Grammar LeftSidedGrammar;
 		private Grammar RightSidedGrammar;
+		private int FirstLeftSidedFreeNumber;
+		private int FirstRightSidedFreeNumber;
 		
 		public Writer(Stream stream, Lang lang) 
 			: base(stream)
@@ -124,6 +126,7 @@ namespace FLaG.Output
         private void WriteStartDoc()
         {			
 			WriteLine(@"\documentclass[a4paper,12pt]{article}");
+			WriteLine(@"\usepackage{indentfirst}");
 			WriteLine(@"\usepackage[a4paper, includefoot, left=3cm, right=1.5cm, " + 
 				"top=2cm, bottom=2cm, headsep=1cm, footskip=1cm]{geometry}");
 			WriteLine(@"\usepackage{mathtools, mathtext, amssymb}");
@@ -303,6 +306,8 @@ namespace FLaG.Output
 			for (int i = 0; i < entities.Count; i++)
 				entities[i].GenerateGrammar(this,true,ref LastUseNumber, ref AddionalGrammarsNumber);
 			
+			FirstLeftSidedFreeNumber = AddionalGrammarsNumber;
+			
 			WriteLine(@"\end{enumerate}");
 			
 			// FIXME: А если нет ни одной?
@@ -320,6 +325,8 @@ namespace FLaG.Output
 			// Создаем праволиненые грамматики
 			for (int i = 0; i < entities.Count; i++)
 				entities[i].GenerateGrammar(this,false,ref LastUseNumber,ref AddionalGrammarsNumber);	
+			
+			FirstRightSidedFreeNumber = AddionalGrammarsNumber;
 			
 			WriteLine(@"\end{enumerate}");
 			
@@ -359,6 +366,16 @@ namespace FLaG.Output
 			LeftSidedGrammar.CheckLangForEmpty(this);
 			RightSidedGrammar.CheckLangForEmpty(this);
 		}
+		
+		private void Step2_4_2()
+		{
+			Write(@"\subsubsection{");
+			Write("Этап 2.4.2",true);
+			WriteLine(@"}");
+			
+			LeftSidedGrammar.RemoveUnreachedSyms(this, FirstLeftSidedFreeNumber++);
+			RightSidedGrammar.RemoveUnreachedSyms(this, FirstRightSidedFreeNumber++);
+		}
 
         private void WriteEndDoc()
         {
@@ -375,6 +392,7 @@ namespace FLaG.Output
 			Step2_3();
 			Step2_4();
 			Step2_4_1();
+			Step2_4_2();
             WriteEndDoc();
 		}
     }

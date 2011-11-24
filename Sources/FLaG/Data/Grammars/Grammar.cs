@@ -6,6 +6,11 @@ namespace FLaG.Data.Grammars
 {
 	class Grammar
 	{
+		public void RemoveUnreachedSyms(Writer writer, int newGrammarNumber)
+		{
+			throw new NotImplementedException ();
+		}
+		
 		public void CheckLangForEmpty (Writer writer)
 		{
 			writer.WriteLine(@"Проверим на пустоту грамматику",true);
@@ -376,7 +381,7 @@ namespace FLaG.Data.Grammars
 			SaveLetter('G',writer);
 		}
 		
-		public Grammar ()
+		public Grammar()
 		{
 			Rules = new List<Rule>();
 		}
