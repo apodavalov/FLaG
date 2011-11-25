@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace FLaG.Data.Grammars
 {
-	class Unterminal : Symbol, IComparable<Unterminal>, IEquatable<Unterminal>
+	class Unterminal : Symbol, IComparable<Unterminal>
 	{
 		public int Number
 		{
@@ -54,11 +54,6 @@ namespace FLaG.Data.Grammars
 			return Number.CompareTo(other.Number);
 		}
 
-		public bool Equals(FLaG.Data.Grammars.Unterminal other)
-		{
-			return CompareTo(other) == 0;
-		}
-
 		public override int CompareTo(Symbol other)
 		{
 			if (other is Unterminal)
@@ -67,6 +62,11 @@ namespace FLaG.Data.Grammars
 				return 1;
 			
 			throw new NotSupportedException();
+		}
+
+		public override int GetHashCode()
+		{
+			return Number.GetHashCode();
 		}
 	}
 }

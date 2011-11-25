@@ -32,6 +32,11 @@ namespace FLaG.Data.Grammars
 		{
 			return Value.CompareTo(other.Value);
 		}
+
+		public override int GetHashCode()
+		{
+			return Value.GetHashCode();			
+		}
 	}
 }
 

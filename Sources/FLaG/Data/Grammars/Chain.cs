@@ -36,7 +36,7 @@ namespace FLaG.Data.Grammars
 			private set;
 		}
 
-		public int CompareTo(FLaG.Data.Grammars.Chain other)
+		public int CompareTo(Chain other)
 		{
 			// сравниваем элементы попарно до первого несовпадения
 			int min = Math.Min(Symbols.Count,other.Symbols.Count);

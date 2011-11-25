@@ -1,18 +1,21 @@
+using System.Collections.Generic;
 using System;
 using FLaG.Output;
 
 namespace FLaG.Data.Grammars
 {
-	abstract class Symbol : IComparable<Symbol>, IEquatable<Symbol>
+	abstract class Symbol : IComparable<Symbol>
 	{
 		public abstract void Save(Writer writer, bool isLeft);
 		
 		public abstract int CompareTo(Symbol other);
-		
-		public virtual bool Equals(Symbol other)
+
+		public override bool Equals(object other)
 		{
-			return CompareTo(other) == 0;
+			return CompareTo((Symbol)other) == 0;			
 		}
+
+		public override abstract int GetHashCode();
 	}
 }
 
