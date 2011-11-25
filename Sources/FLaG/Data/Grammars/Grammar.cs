@@ -90,7 +90,7 @@ namespace FLaG.Data.Grammars
 				}
 				
 				writer.WriteLine();
-				writer.WriteLine(@"\begin{math}");
+				writer.WriteLine(@"\noindent\begin{math}");
 				SaveV(writer,i);
 				writer.WriteLine(@"=");
 				SaveVSet(writer,oldV);
