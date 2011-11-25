@@ -8,6 +8,7 @@ namespace FLaG.Data.Grammars
 	{
 		public void RemoveUnreachedSyms(Writer writer, int newGrammarNumber)
 		{
+			int oldGrammarNumber = Number;
 			writer.WriteLine(@"Производим удаление недостижимых символов грамматики",true);			
 			writer.WriteLine(@"\begin{math}");
 			SaveG(writer);
@@ -150,7 +151,94 @@ namespace FLaG.Data.Grammars
 				
 			} while (isAddedSomething);
 			
-			// TODO: построить грамматику	
+			Unterminal oldSymbol = TargetSymbol;
+			TargetSymbol = Unterminal.GetInstance(Number);
+			
+			writer.WriteLine(@"Строим искомую грамматику",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveCortege(writer);
+			writer.WriteLine(@"\end{math}");
+			TargetSymbol = oldSymbol;
+			writer.WriteLine(@", где соответствующие элементы грамматики примут следующие значения:",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			SaveN(writer);
+			writer.WriteLine(@"=");
+			Number = oldGrammarNumber;
+			SaveN(writer);
+			Number = newGrammarNumber;
+			writer.WriteLine(@"\cap");
+			SaveV(writer,i);
+			writer.WriteLine(@"=\{");
+			SaveUnterminals(writer);
+			writer.WriteLine(@"\}");
+			writer.WriteLine(@"\cap");
+			SaveVSet(writer,V);
+			writer.WriteLine(@"=");
+			HashSet<Symbol> newN = new HashSet<Symbol>(Unterminals);
+			newN.IntersectWith(V);
+			SaveVSet(writer,newN);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество нетермильнальных символов граммактики");
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math};");
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			SaveSigmaWithNum(writer);
+			writer.WriteLine(@"=");
+			writer.WriteLine(@"\Sigma \cap");
+			SaveV(writer,i);
+			writer.WriteLine(@"=\{");
+			SaveAlphabet(writer);
+			writer.WriteLine(@"\}");
+			writer.WriteLine(@"\cap");
+			SaveVSet(writer,V);
+			writer.WriteLine(@"=");
+			HashSet<Symbol> newAlphabet = new HashSet<Symbol>(Alphabet);
+			newAlphabet.IntersectWith(V);
+			SaveVSet(writer,newAlphabet);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество термильнальных символов граммактики");
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math};");		
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");		
+			SaveP(writer);
+			writer.WriteLine(@"=\{");
+			bool atLeastOneRemoved = false;
+			for (int j = 0; j < Rules.Count; j++)
+				if (!newN.Contains(Rules[j].Prerequisite))
+				{
+					Rules.RemoveAt(j);
+					j--;
+					atLeastOneRemoved = true;
+				}
+			SaveRules(writer);
+			writer.WriteLine(@"\}");
+			writer.WriteLine(@"\end{math}");		
+			writer.WriteLine(@"--- множество правил вывода для данной грамматики");
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math};");		
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			Unterminal.GetInstance(Number).Save(writer,IsLeft);			
+			writer.WriteLine(@"\equiv");
+			TargetSymbol.Save(writer,IsLeft);
+			writer.WriteLine(@"\end{math}");			
+			writer.WriteLine(@"--- целевой символ грамматики");
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}.");					
+			writer.WriteLine();
+			writer.WriteLine(@"В результате выполнения этого шага алгоритма приведения грамматики",true);
+			if (atLeastOneRemoved)
+				writer.WriteLine(@"произошло удаление недостижимых символов.",true);				
+			else
+				writer.WriteLine(@"удаление недостижимых символов не произошло.",true);
+			writer.WriteLine();
 		}
 		
 		public void Normalize()
@@ -390,6 +478,40 @@ namespace FLaG.Data.Grammars
 			get;
 			private set;
 		}
+
+		public void SaveAlphabet(Writer writer)
+		{
+			Terminal[] terminals = Alphabet;
+			
+			for (int i = 0; i < terminals.Length; i++)
+			{
+				if (i != 0)		
+					writer.Write(", ");
+				
+				terminals[i].Save(writer, IsLeft);
+			}
+		}
+	
+		public Terminal[] Alphabet
+		{
+			get
+			{
+				List<Terminal> terminals = new List<Terminal>();
+				
+				foreach (Rule r in Rules)
+					foreach (Chain c in r.Chains)
+						foreach (Symbol s in c.Symbols)
+							if (s is Terminal)
+							{
+								Terminal u = (Terminal)s;
+								int index = terminals.BinarySearch(u);
+								if (index < 0)
+									terminals.Insert(~index,u);
+							}
+				
+				return terminals.ToArray();
+			}
+		}
 		
 		public Unterminal[] Unterminals
 		{
@@ -500,6 +622,18 @@ namespace FLaG.Data.Grammars
 				
 				Rules[i].Save(writer, IsLeft);
 			}
+		}
+		
+		private void SaveSigmaWithNum(Writer writer)
+		{
+			writer.Write(@"{");
+			writer.Write(@"{");
+			writer.Write(@"\Sigma");
+			writer.Write("_{");
+			writer.Write(Number);
+			writer.Write(@"}}");
+			writer.Write(Apostrophs);
+			writer.Write(@"}");
 		}
 		
 		private void SaveLetter(char Letter, Writer writer)

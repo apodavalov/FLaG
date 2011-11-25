@@ -306,7 +306,7 @@ namespace FLaG.Output
 			for (int i = 0; i < entities.Count; i++)
 				entities[i].GenerateGrammar(this,true,ref LastUseNumber, ref AddionalGrammarsNumber);
 			
-			FirstLeftSidedFreeNumber = AddionalGrammarsNumber;
+			FirstLeftSidedFreeNumber = Math.Max(AddionalGrammarsNumber,LastUseNumber);
 			
 			WriteLine(@"\end{enumerate}");
 			
@@ -326,7 +326,7 @@ namespace FLaG.Output
 			for (int i = 0; i < entities.Count; i++)
 				entities[i].GenerateGrammar(this,false,ref LastUseNumber,ref AddionalGrammarsNumber);	
 			
-			FirstRightSidedFreeNumber = AddionalGrammarsNumber;
+			FirstRightSidedFreeNumber = Math.Max(AddionalGrammarsNumber,LastUseNumber);
 			
 			WriteLine(@"\end{enumerate}");
 			
@@ -377,6 +377,9 @@ namespace FLaG.Output
 			
 			LeftSidedGrammar.RemoveUnreachedSyms(this, FirstLeftSidedFreeNumber++);
 			RightSidedGrammar.RemoveUnreachedSyms(this, FirstRightSidedFreeNumber++);
+			
+			WriteLine(@"После удаления недостижимых символов следующим шагом приведения",true);
+			WriteLine(@"грамматики является удаление бесплодных (бесполезных) символов.",true);
 		}
 
         private void WriteEndDoc()
