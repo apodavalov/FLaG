@@ -396,7 +396,19 @@ namespace FLaG.Output
 			WriteLine(@"\begin{math}\varepsilon\end{math}");
 			WriteLine(@"-правил).",true);
 		}
-
+		
+		private void Step2_4_4()
+		{
+			Write(@"\subsubsection{");
+			Write("Этап 2.4.4",true);
+			WriteLine(@"}");
+			
+			LeftSidedGrammar.RemoveEmptyRules(this, FirstLeftSidedFreeNumber++);
+			RightSidedGrammar.RemoveEmptyRules(this, FirstRightSidedFreeNumber++);
+			
+			WriteLine(@"После удаления пустых правил следующим шагом приведения",true);
+			WriteLine(@"грамматики является удаление цепных правил.",true);
+		}
 
         private void WriteEndDoc()
         {
@@ -415,6 +427,7 @@ namespace FLaG.Output
 			Step2_4_1();
 			Step2_4_2();
 			Step2_4_3();
+			Step2_4_4();
             WriteEndDoc();
 		}
     }
