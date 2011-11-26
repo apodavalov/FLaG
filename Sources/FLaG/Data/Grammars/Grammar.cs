@@ -6,6 +6,211 @@ namespace FLaG.Data.Grammars
 {
 	class Grammar
 	{
+		public void RemoveUselessSyms (Writer writer, int newGrammarNumber)
+		{
+			int oldGrammarNumber = Number;
+			writer.WriteLine(@"Удалим бесплодные символы грамматики",true);			
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}");
+			Number = newGrammarNumber;
+			writer.WriteLine(@"и построим грамматику",true);			
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@", не содержащую бесплодные символы.",true);
+			writer.WriteLine(@"Бесплодным является символ, который не порождает",true);
+			writer.WriteLine(@"ни одной сентенциальной формы данной грамматики. Другими",true);
+			writer.WriteLine(@"словами мы будем работать с множеством нетерминальных символов.",true);
+			writer.WriteLine(@"Для этого построим последовать множеств",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveM(writer,0);
+			writer.Write(',');
+			SaveM(writer,1);
+			writer.Write(',');
+			SaveM(writer,2);
+			writer.Write(',');
+			SaveM(writer,3);
+			writer.Write(@",\dots");
+			writer.WriteLine(@"\end{math}");
+			
+			int i = 0;
+			HashSet<Unterminal> M = new HashSet<Unterminal>();			
+			writer.WriteLine();
+			writer.WriteLine(@"Полагаем, что ", true);
+			writer.WriteLine(@"\begin{math}");
+			SaveM(writer,i);
+			writer.WriteLine("=");
+			SaveCSet(writer,M);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine(@"Тогда следующий элемент этой последовательности примет вид", true);
+			
+			bool isAddedSomething;
+			
+			Terminal[] alphabet = Alphabet;
+			HashSet<Symbol> C = new HashSet<Symbol>(alphabet);
+			i++;
+			
+			do
+			{				
+				isAddedSomething = false;
+				C.UnionWith(M);
+				HashSet<Unterminal> oldM = M;
+				M = new HashSet<Unterminal>();
+				
+				foreach (Rule r in Rules)
+					foreach (Chain c in r.Chains)
+					{
+						bool isAllSymbolsInC = true;
+						
+						foreach (Symbol s in c.Symbols)
+							if (!C.Contains(s))
+							{	
+								isAllSymbolsInC = false;
+								break;
+							}
+					
+						if (isAllSymbolsInC)
+						{
+							if (!M.Contains(r.Prerequisite) && !oldM.Contains(r.Prerequisite))
+								isAddedSomething = true;
+						
+							M.Add(r.Prerequisite);																			
+							break;
+						}
+					}
+				
+				writer.WriteLine();
+				writer.WriteLine(@"\noindent\begin{math}");
+				SaveM(writer,i);
+				writer.WriteLine(@"=");
+				SaveCSet(writer,M);
+				writer.WriteLine(@"\cup");
+				SaveM(writer,i-1);
+				writer.WriteLine(@"=");
+				SaveCSet(writer,M);
+				writer.WriteLine(@"\cup");
+				SaveCSet(writer,oldM);
+				writer.WriteLine(@"=");
+				oldM.UnionWith(M);
+				M = oldM;
+				SaveCSet(writer,M);
+				writer.WriteLine(@"\end{math}.");
+				writer.WriteLine();
+					
+				if (isAddedSomething)
+				{
+					writer.WriteLine(@"Сравниваем множества",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveM(writer,i-1);
+					writer.WriteLine(@"\end{math}");
+					writer.WriteLine(@"и",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveM(writer,i);
+					writer.WriteLine(@"\end{math},");
+					writer.WriteLine(@"и получаем, что",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveM(writer,i-1);
+					writer.WriteLine(@"\neq");
+					SaveM(writer,i);
+					writer.WriteLine(@"\end{math}.");
+					writer.WriteLine(@"Делаем приращение",true);
+					writer.WriteLine(@"\begin{math}");
+					writer.WriteLine(@"i");
+					writer.WriteLine(@"\end{math}");
+					writer.WriteLine(@"и строим множество",true);
+					writer.WriteLine(@"\begin{math}");
+					i++;
+					SaveV(writer,i);
+					writer.WriteLine(@"\end{math}");
+					writer.WriteLine(@"вида",true);
+				}
+				else
+				{
+					writer.WriteLine(@"Сравниваем множества",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveM(writer,i-1);
+					writer.WriteLine(@"\end{math}");
+					writer.WriteLine(@"и",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveM(writer,i);
+					writer.WriteLine(@"\end{math},");
+					writer.WriteLine(@"и получаем, что",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveM(writer,i-1);
+					writer.WriteLine(@"=");
+					SaveM(writer,i);
+					writer.WriteLine(@"\end{math}.");
+				}
+			} while (isAddedSomething);
+			
+			writer.WriteLine(@"Алгоритм останавливается.",true);
+			writer.WriteLine(@"В результате получаем грамматику",true);
+			Unterminal oldTargetSymbol = TargetSymbol;
+			TargetSymbol = Unterminal.GetInstance(Number);
+			writer.WriteLine(@"\begin{math}");
+			SaveCortege(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@", где соответствующие элементы грамматики примут следующие значения",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveN(writer);
+			writer.WriteLine(@"=");
+			SaveM(writer,i);
+			writer.WriteLine(@"=");
+			SaveCSet(writer,M);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество нетерминальных символов граммактики",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math};");
+			writer.WriteLine(@"\begin{math}");
+			SaveSigmaWithNum(writer);
+			Number = oldGrammarNumber;
+			writer.WriteLine(@"=");
+			SaveSigmaWithNum(writer);
+			Number = newGrammarNumber;
+			writer.WriteLine(@"=\{");
+			SaveAlphabet(writer);
+			writer.WriteLine(@"\}");
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество терминальных символов граммактики",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math};");			
+			bool atLeastOneRemoved = false;
+			for (int j = 0; j < Rules.Count; j++)
+				if (!M.Contains(Rules[j].Prerequisite))
+				{
+					Rules.RemoveAt(j);
+					j--;
+					atLeastOneRemoved = true;
+				}
+			writer.WriteLine(@"\begin{math}");
+			SaveP(writer);
+			writer.WriteLine(@"=\{");
+			SaveRules(writer);
+			writer.WriteLine(@"\}");
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество правил вывода для данной граммактики;",true);
+			writer.WriteLine(@"\begin{math}");
+			TargetSymbol.Save(writer,IsLeft);
+			writer.WriteLine(@"=");
+			TargetSymbol = oldTargetSymbol;
+			TargetSymbol.Save(writer,IsLeft);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- целевой символ грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}.");	
+			writer.WriteLine();	
+			writer.WriteLine(@"В результате выполнения этого шага алгоритма приведения грамматики",true);
+			if (atLeastOneRemoved)
+				writer.WriteLine(@"произошло удаление бесплодных (бесполезных) символов.",true);				
+			else
+				writer.WriteLine(@"удаление бесплодных (бесполезных) символов не произошло.",true);
+			writer.WriteLine();	
+		}
+		
 		public void RemoveUnreachedSyms(Writer writer, int newGrammarNumber)
 		{
 			int oldGrammarNumber = Number;
@@ -380,6 +585,14 @@ namespace FLaG.Data.Grammars
 			else
 				writer.WriteLine(@"язык пуст.",true);
 			writer.WriteLine();
+		}
+		
+		private void SaveM(Writer writer, int Number)
+		{
+			writer.Write(@"{M");
+			writer.Write("_{");
+			writer.Write(Number);
+			writer.Write(@"}}");
 		}
 		
 		private void SaveV(Writer writer, int Number)

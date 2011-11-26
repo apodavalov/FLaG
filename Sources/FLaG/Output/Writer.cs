@@ -381,6 +381,22 @@ namespace FLaG.Output
 			WriteLine(@"После удаления недостижимых символов следующим шагом приведения",true);
 			WriteLine(@"грамматики является удаление бесплодных (бесполезных) символов.",true);
 		}
+		
+		private void Step2_4_3()
+		{
+			Write(@"\subsubsection{");
+			Write("Этап 2.4.3",true);
+			WriteLine(@"}");
+			
+			LeftSidedGrammar.RemoveUselessSyms(this, FirstLeftSidedFreeNumber++);
+			RightSidedGrammar.RemoveUselessSyms(this, FirstRightSidedFreeNumber++);
+			
+			WriteLine(@"После удаления бесплодных символов следующим шагом приведения",true);
+			WriteLine(@"грамматики является удаление пустых правил (или",true);
+			WriteLine(@"\begin{math}\varepsilon\end{math}");
+			WriteLine(@"-правил).",true);
+		}
+
 
         private void WriteEndDoc()
         {
@@ -398,6 +414,7 @@ namespace FLaG.Output
 			Step2_4();
 			Step2_4_1();
 			Step2_4_2();
+			Step2_4_3();
             WriteEndDoc();
 		}
     }
