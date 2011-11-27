@@ -173,12 +173,12 @@ namespace FLaG.Data.Grammars
 			
 			bool somethingChanged = false;
 			
-			Chain chainToDelete = new Chain();
+			Chain emptyChain = new Chain();
 			
 			foreach (Rule r in Rules)
 				if (r.Chains.Count > 1)				
 				{
-					int index = r.Chains.BinarySearch(chainToDelete);
+					int index = r.Chains.BinarySearch(emptyChain);
 					if (index >= 0)
 					{
 						r.Chains.RemoveAt(index);
@@ -207,9 +207,12 @@ namespace FLaG.Data.Grammars
 						}
 					}
 					
-					int index = newChains.BinarySearch(newChain);
-					if (index < 0)
-						newChains.Insert(~index,newChain);
+					if (emptyChain.CompareTo(newChain) != 0)
+					{
+						int index = newChains.BinarySearch(newChain);
+						if (index < 0)
+							newChains.Insert(~index,newChain);
+					}
 				}
 				
 				foreach (Chain c in newChains)
