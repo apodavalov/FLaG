@@ -163,16 +163,22 @@ namespace FLaG.Data
 				
 			} while (oldv != v);
 						
-			NumLabel = v;
+			if (SetCollection.Count > 1)
+			{
+				NumLabel = v;
+
+				Alter alter = new Alter();
+				
+				alter.NumLabel = NumLabel;
+				
+				foreach (Entity e in SetCollection)
+					alter.EntityCollection.Add(e);
+				
+				list.Add(alter);
+			}
 			
-			Alter alter = new Alter();
-			
-			alter.NumLabel = NumLabel;
-			
-			foreach (Entity e in SetCollection)
-				alter.EntityCollection.Add(e);
-			
-			list.Add(alter);
+			// TODO: возможно стоит сделать добавление пустой грамматики, если вообще 
+			// SetCollection пуст
 			
 			return list;
 		}
