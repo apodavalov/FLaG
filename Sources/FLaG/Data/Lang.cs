@@ -204,7 +204,7 @@ namespace FLaG.Data
 		
 		public void SaveAsRegularExp(Writer writer, bool full)
 		{
-			if (full)
+			if (full && SetCollection.Count > 1)
 				writer.Write(@"{\underbrace");
 			
 			writer.Write("{");
@@ -218,7 +218,7 @@ namespace FLaG.Data
 			
 			writer.Write("}");
 			
-			if (full)
+			if (full && SetCollection.Count > 1)
 			{
 				writer.Write(@"_\text{");
 				writer.Write(NumLabel);
