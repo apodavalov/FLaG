@@ -6,7 +6,7 @@ namespace FLaG.Data.Grammars
 {
 	class Grammar
 	{
-		public void RemoveEmptyRules(Writer writer, int newGrammarNumber)
+		public bool RemoveEmptyRules(Writer writer, int newGrammarNumber)
 		{
 			int oldGrammarNumber = Number;
 			writer.WriteLine(@"Удалим пустые правила грамматики",true);			
@@ -301,9 +301,11 @@ namespace FLaG.Data.Grammars
 			else
 				writer.WriteLine(@"удаление пустых правил не произошло.",true);
 			writer.WriteLine();	
+			
+			return somethingChanged;
 		}
 		
-		public void RemoveUselessSyms (Writer writer, int newGrammarNumber)
+		public bool RemoveUselessSyms (Writer writer, int newGrammarNumber)
 		{
 			int oldGrammarNumber = Number;
 			writer.WriteLine(@"Удалим бесплодные символы грамматики",true);			
@@ -506,9 +508,11 @@ namespace FLaG.Data.Grammars
 			else
 				writer.WriteLine(@"удаление бесплодных (бесполезных) символов не произошло.",true);
 			writer.WriteLine();	
+			
+			return atLeastOneRemoved;
 		}
 		
-		public void RemoveUnreachedSyms(Writer writer, int newGrammarNumber)
+		public bool RemoveUnreachedSyms(Writer writer, int newGrammarNumber)
 		{
 			int oldGrammarNumber = Number;
 			writer.WriteLine(@"Производим удаление недостижимых символов грамматики",true);			
@@ -741,6 +745,8 @@ namespace FLaG.Data.Grammars
 			else
 				writer.WriteLine(@"удаление недостижимых символов не произошло.",true);
 			writer.WriteLine();
+			
+			return atLeastOneRemoved;
 		}
 		
 		public void Normalize()
