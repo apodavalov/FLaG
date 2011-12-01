@@ -369,45 +369,130 @@ namespace FLaG.Output
 			RightSidedGrammar.CheckLangForEmpty(this);
 		}
 		
-		private void Step2_4_2()
+		private bool Step2_4_2(bool isLeft, bool again)
 		{
 			Write(@"\subsubsection{");
 			Write("Этап 2.4.2",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			if (again)
+				Write(", повтор",true);
+			Write(")",true);
 			WriteLine(@"}");
 			
-			LeftSidedGrammar.RemoveUnreachedSyms(this, FirstLeftSidedFreeNumber++);
-			RightSidedGrammar.RemoveUnreachedSyms(this, FirstRightSidedFreeNumber++);
+			bool changed;
+			
+			if (isLeft)			
+				changed = LeftSidedGrammar.RemoveUnreachedSyms(this, FirstLeftSidedFreeNumber++);
+			else
+				changed = RightSidedGrammar.RemoveUnreachedSyms(this, FirstRightSidedFreeNumber++);
 			
 			WriteLine(@"После удаления недостижимых символов следующим шагом приведения",true);
 			WriteLine(@"грамматики является удаление бесплодных (бесполезных) символов.",true);
+			
+			return changed;
 		}
 		
-		private void Step2_4_3()
+		private bool Step2_4_3(bool isLeft, bool again)
 		{
 			Write(@"\subsubsection{");
 			Write("Этап 2.4.3",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			if (again)
+				Write(", повтор",true);
+			Write(")",true);
 			WriteLine(@"}");
 			
-			LeftSidedGrammar.RemoveUselessSyms(this, FirstLeftSidedFreeNumber++);
-			RightSidedGrammar.RemoveUselessSyms(this, FirstRightSidedFreeNumber++);
+			bool changed;
 			
-			WriteLine(@"После удаления бесплодных символов следующим шагом приведения",true);
-			WriteLine(@"грамматики является удаление пустых правил (или",true);
-			WriteLine(@"\begin{math}\varepsilon\end{math}");
-			WriteLine(@"-правил).",true);
+			if (isLeft)	
+				changed = LeftSidedGrammar.RemoveUselessSyms(this, FirstLeftSidedFreeNumber++);
+			else
+				changed = RightSidedGrammar.RemoveUselessSyms(this, FirstRightSidedFreeNumber++);
+			
+			if (!changed)
+			{
+				WriteLine(@"После удаления бесплодных символов следующим шагом приведения",true);
+				WriteLine(@"грамматики является удаление пустых правил (или",true);
+				WriteLine(@"\begin{math}\varepsilon\end{math}");
+				WriteLine(@"-правил).",true);
+			}
+			
+			return changed;
 		}
 		
-		private void Step2_4_4()
+		private bool Step2_4_4(bool isLeft, bool again)
 		{
 			Write(@"\subsubsection{");
 			Write("Этап 2.4.4",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			if (again)
+				Write(", повтор",true);
+			Write(")",true);
 			WriteLine(@"}");
 			
-			LeftSidedGrammar.RemoveEmptyRules(this, FirstLeftSidedFreeNumber++);
-			RightSidedGrammar.RemoveEmptyRules(this, FirstRightSidedFreeNumber++);
+			bool changed;
 			
-			WriteLine(@"После удаления пустых правил следующим шагом приведения",true);
-			WriteLine(@"грамматики является удаление цепных правил.",true);
+			if (isLeft)
+				changed = LeftSidedGrammar.RemoveEmptyRules(this, FirstLeftSidedFreeNumber++);
+			else
+				changed = RightSidedGrammar.RemoveEmptyRules(this, FirstRightSidedFreeNumber++);
+			
+			if (!changed)
+			{
+				WriteLine(@"После удаления пустых правил следующим шагом приведения",true);
+				WriteLine(@"грамматики является удаление цепных правил.",true);
+			}
+			
+			return changed;
+		}
+		
+		private bool Step2_4_5(bool isLeft, bool again)
+		{
+			return false;
+		}
+		
+		public void StepOptimizeGrammatic(bool isLeft)
+		{
+			bool again2_4_2 = false;
+			bool again2_4_3 = false;
+			bool again2_4_4 = false;
+			bool again2_4_5 = false;
+			bool somethingChanged;
+			
+			do
+			{
+				somethingChanged = true;
+				Step2_4_2(isLeft,again2_4_2);
+				again2_4_2 = true;								
+				if (Step2_4_3(isLeft,again2_4_3))
+				{
+					again2_4_3 = true;
+					continue;
+				}
+				again2_4_3 = true;
+				if (Step2_4_4(isLeft,again2_4_4))
+				{
+					again2_4_4 = true;
+					continue;
+				}
+				again2_4_4 = true;
+				if (Step2_4_5(isLeft,again2_4_5))
+				{
+					again2_4_5 = true;
+					continue;
+				}
+				again2_4_5 = true;
+				somethingChanged = false;
+			} while (somethingChanged);			
 		}
 
         private void WriteEndDoc()
@@ -423,11 +508,12 @@ namespace FLaG.Output
             Step2_1();
 			Step2_2();				
 			Step2_3();
-			Step2_4();
+			Step2_4();			
 			Step2_4_1();
-			Step2_4_2();
-			Step2_4_3();
-			Step2_4_4();
+			
+			StepOptimizeGrammatic(true);
+			StepOptimizeGrammatic(false);
+
             WriteEndDoc();
 		}
     }

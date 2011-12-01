@@ -175,8 +175,11 @@ namespace FLaG.Data.Grammars
 			
 			Chain emptyChain = new Chain();
 			
+			bool targetSymbolRuleHasEmptyChain = false;
+			
 			foreach (Rule r in Rules)
-				if (r.Chains.Count > 1)				
+			{
+				if (r.Chains.Count > 1 && r.Prerequisite.CompareTo(oldTargetSymbol) != 0)				
 				{
 					int index = r.Chains.BinarySearch(emptyChain);
 					if (index >= 0)
@@ -185,6 +188,11 @@ namespace FLaG.Data.Grammars
 						somethingChanged = true;
 					}
 				}			
+				
+				if (r.Prerequisite.CompareTo(oldTargetSymbol) == 0)
+					targetSymbolRuleHasEmptyChain = 
+						targetSymbolRuleHasEmptyChain | r.Chains.BinarySearch(emptyChain) >= 0;
+			}
 			
 			foreach (Rule r in Rules)
 			{
@@ -228,7 +236,7 @@ namespace FLaG.Data.Grammars
 			
 			bool isNewTargetSymbol;
 			
-			if (V.Contains(oldTargetSymbol))
+			if (V.Contains(oldTargetSymbol) && !targetSymbolRuleHasEmptyChain)
 			{
 				Rule rule;
 				rule = new Rule();
@@ -242,7 +250,10 @@ namespace FLaG.Data.Grammars
 				
 				int index = Rules.BinarySearch(rule);
 				if (index < 0)
+				{
 					Rules.Insert(~index,rule);
+					somethingChanged = true;
+				}
 				
 				isNewTargetSymbol = true;
 			}
