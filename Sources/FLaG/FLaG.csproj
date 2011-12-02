@@ -64,6 +64,7 @@
     <Compile Include="Data\Grammars\Terminal.cs" />
     <Compile Include="Data\Grammars\Unterminal.cs" />
     <Compile Include="Data\Grammars\Chain.cs" />
+    <Compile Include="Data\Helpers\FlaggedUnterminalSet.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Schema\lang.xsd">
@@ -87,5 +88,6 @@
   -->
   <ItemGroup>
     <Folder Include="Data\Grammars\" />
+    <Folder Include="Data\Helpers\" />
   </ItemGroup>
 </Project>

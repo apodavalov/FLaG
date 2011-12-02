@@ -1,14 +1,229 @@
 using System;
 using System.Collections.Generic;
 using FLaG.Output;
+using FLaG.Data.Helpers;
 
 namespace FLaG.Data.Grammars
 {
 	class Grammar
 	{
+		private void SaveSets(Writer writer, Dictionary<Unterminal,FlaggedUnterminalSet> dictionary, int num)
+		{
+			SaveSets(writer,dictionary,num,false);
+		}
+		
+		private void SaveSets(Writer writer, Dictionary<Unterminal,FlaggedUnterminalSet> dictionary, int num, bool unchangedOnly)
+		{
+			bool firstTime = true;
+			
+			foreach (KeyValuePair<Unterminal,FlaggedUnterminalSet> s in dictionary)
+			{
+				if (s.Value.RemovedFromFuture || unchangedOnly && s.Value.Changed)
+					continue;
+				
+				if (firstTime)
+					firstTime = false;
+				else
+				{
+					writer.WriteLine();								
+					writer.WriteLine(@";");								
+				}
+				
+				writer.WriteLine(@"\begin{math}");
+				SaveNX(writer,s.Key,num);
+				writer.WriteLine(@"=");
+				SaveCSet(writer,s.Value.Set);
+				writer.Write(@"\end{math}");								
+			}
+			
+			writer.WriteLine(@".");	
+		}
+		
 		public bool RemoveChainRules(Writer writer, int newGrammarNumber)
 		{
-			throw new NotImplementedException();
+			int oldGrammarNumber = Number;
+			writer.WriteLine(@"Удалим цепные правила грамматики",true);			
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}");
+			Number = newGrammarNumber;
+			writer.WriteLine(@"и построим грамматику",true);			
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}");
+			
+			writer.WriteLine(@"без правил вида",true);
+			writer.WriteLine(@"\begin{math}");
+			writer.WriteLine(@"A \rightarrow B"); 
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine(@"Для этого строим для каждого нетерминала",true);
+			writer.WriteLine(@"грамматики",true);
+			Number = oldGrammarNumber;
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"последовательность множеств",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveNX(writer,0);
+			writer.Write(',');
+			SaveNX(writer,1);
+			writer.Write(',');
+			SaveNX(writer,2);
+			writer.Write(',');
+			SaveNX(writer,3);
+			writer.Write(@",\dots");
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"для любого нетерминала грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"\begin{math}");
+			writer.WriteLine(@"(\forall X \in ");
+			SaveN(writer);
+			writer.WriteLine(@")\end{math}.");			
+			writer.WriteLine();
+			
+			writer.WriteLine(@"На первом шаге алгоритма совокупность множеств",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveNX(writer,0);
+			writer.WriteLine(@"\end{math}");			
+			writer.WriteLine(@"примет вид",true);
+			
+			Unterminal[] unterminals = Unterminals;			
+			
+			Dictionary<Unterminal,FlaggedUnterminalSet> dictionary = 
+				new Dictionary<Unterminal, FlaggedUnterminalSet>();
+			
+			foreach (Unterminal u in unterminals)
+			{
+				FlaggedUnterminalSet st = new FlaggedUnterminalSet();
+				st.Set.Add(u);
+				dictionary.Add(u,st);
+			}
+			
+			SaveSets(writer,dictionary,0);
+			
+			int i = 1;
+		
+			bool somethingChanged;
+			
+			do
+			{
+				somethingChanged = false;
+				
+				foreach (KeyValuePair<Unterminal,FlaggedUnterminalSet> s in dictionary)
+				{
+					if (s.Value.RemovedFromFuture)
+						continue;
+					
+					s.Value.Changed = false;
+					
+					int index = Array.BinarySearch<Unterminal>(unterminals,s.Key);
+					
+					Rule r = Rules[index];
+					
+					foreach (Chain c in r.Chains)
+					{
+						if (c.Symbols.Count == 1 && c.Symbols[0] is Unterminal)												
+						{
+							if (s.Value.Set.Add((Unterminal)c.Symbols[0]))
+							{
+								s.Value.Changed = true;	
+								somethingChanged = true;
+							}
+						}
+					}
+				}	
+				
+				writer.WriteLine(@"На следующем шаге множества примут вид",true);
+				
+				SaveSets(writer,dictionary,i);
+				
+				if (somethingChanged)
+				{
+					writer.WriteLine(@"Сравниваем множества",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveNX(writer,i-1);
+					writer.WriteLine(@"\end{math}");
+					writer.WriteLine(@"и",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveNX(writer,i);
+					writer.WriteLine(@"\end{math}");
+					writer.WriteLine(@"для каждого из нетерминалов грамматики",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveG(writer);
+					writer.WriteLine(@"\end{math}.");					
+					writer.WriteLine(@"Видим, что часть множеств построенных на предыдущем и текущем",true);
+					writer.WriteLine(@"шаге алгоритма равны",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveNX(writer,i-1);
+					writer.WriteLine(@"=");
+					SaveNX(writer,i);
+					writer.WriteLine(@"\end{math},");
+					writer.WriteLine(@"где",true);
+					writer.WriteLine(@"\begin{math}");
+					writer.WriteLine(@"X \in \{");
+					SaveUnterminals(writer);
+					writer.WriteLine(@"\}");
+					writer.WriteLine(@"\end{math}.");
+					writer.WriteLine(@"Эти множества на следующих этапах рассматривать",true);
+					writer.WriteLine(@"не будем, т.е. не рассматриваем множества вида",true);
+					SaveSets(writer,dictionary,i,true);
+					writer.WriteLine();
+					
+					foreach (KeyValuePair<Unterminal,FlaggedUnterminalSet> s in dictionary)
+						if (!s.Value.Changed)
+							s.Value.RemovedFromFuture = true;
+					
+					writer.WriteLine(@"Продолжаем алгоритм для нетерминалов",true);
+					
+					writer.WriteLine(@"\begin{math}");
+					
+					bool firstTime = true;					
+					foreach (KeyValuePair<Unterminal,FlaggedUnterminalSet> s in dictionary)
+					{
+						if (s.Value.RemovedFromFuture)
+							continue;
+						
+						if (firstTime)
+							firstTime = false;
+						else
+							writer.Write(',');
+						
+						s.Key.Save(writer,IsLeft);
+					}
+					writer.WriteLine(@"\end{math}.");
+					i++;
+				}				
+				else
+				{
+					writer.WriteLine(@"Сравниваем множества",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveNX(writer,i-1);
+					writer.WriteLine(@"\end{math}");
+					writer.WriteLine(@"и",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveNX(writer,i);
+					writer.WriteLine(@"\end{math}");
+					writer.WriteLine(@"для каждого из нетерминалов грамматики",true);
+					writer.WriteLine(@"\begin{math}");
+					SaveG(writer);
+					writer.WriteLine(@"\end{math}.");					
+					writer.WriteLine(@"Видим, что все построенные множества на предыдущем и текущем",true);
+					writer.WriteLine(@"шаге алгоритма равны, значит дальнейшее построение последовательности множеств",true);
+					writer.WriteLine(@"заканчиваем и переходим к следующему шагу алгоритма, на котором из полученных",true);
+					writer.WriteLine(@"множеств исключаем сам нетерминал, для которого построено данное множество, т.е.",true);
+					writer.WriteLine(@"\begin{math}");
+					writer.WriteLine(@"N^X={N_i}^X \setminus \{ X \}");					
+					writer.WriteLine(@"\end{math}.");
+					writer.WriteLine();
+				}
+				
+			} while (somethingChanged);
+			
+			
+			
+			return false;
 		}
 		
 		public bool RemoveEmptyRules(Writer writer, int newGrammarNumber)
@@ -904,6 +1119,22 @@ namespace FLaG.Data.Grammars
 			else
 				writer.WriteLine(@"язык пуст.",true);
 			writer.WriteLine();
+		}
+		
+		private void SaveNX(Writer writer, int Number)
+		{
+			writer.Write("{{N_{");
+			writer.Write(Number);
+			writer.Write("}}^X}");
+		}
+		
+		private void SaveNX(Writer writer, Unterminal unterminal, int Number)
+		{
+			writer.Write("{{N_{");
+			writer.Write(Number);
+			writer.Write("}}^{");			
+			unterminal.Save(writer,IsLeft);
+			writer.Write("}}");
 		}
 		
 		private void SaveM(Writer writer, int Number)
