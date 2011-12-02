@@ -422,6 +422,11 @@ namespace FLaG.Output
 				WriteLine(@"\begin{math}\varepsilon\end{math}");
 				WriteLine(@"-правил).",true);
 			}
+			else
+			{
+				WriteLine(@"Итак, так как в результате приведения грамматики произошло",true);
+				WriteLine(@"ее изменение, то мы должны повторить алгоритм приведения снова.",true);
+			}
 			
 			return changed;
 		}
@@ -451,13 +456,48 @@ namespace FLaG.Output
 				WriteLine(@"После удаления пустых правил следующим шагом приведения",true);
 				WriteLine(@"грамматики является удаление цепных правил.",true);
 			}
+			else
+			{
+				WriteLine(@"Итак, так как в результате приведения грамматики произошло",true);
+				WriteLine(@"ее изменение, то мы должны повторить алгоритм приведения снова.",true);
+			}
 			
 			return changed;
 		}
 		
 		private bool Step2_4_5(bool isLeft, bool again)
 		{
-			return false;
+			Write(@"\subsubsection{");
+			Write("Этап 2.4.5",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			if (again)
+				Write(", повтор",true);
+			Write(")",true);
+			WriteLine(@"}");
+			
+			bool changed;
+			
+			if (isLeft)
+				changed = LeftSidedGrammar.RemoveChainRules(this, FirstLeftSidedFreeNumber++);
+			else
+				changed = RightSidedGrammar.RemoveChainRules(this, FirstRightSidedFreeNumber++);
+			
+			if (!changed)
+			{
+				WriteLine(@"Итак, так как в результате приведения грамматики не произошло",true);
+				WriteLine(@"ее изменение, то переходим к построению конечного автомата для",true);
+				WriteLine(@"приведенной грамматики.",true);
+			}
+			else
+			{
+				WriteLine(@"Итак, так как в результате приведения грамматики произошло",true);
+				WriteLine(@"ее изменение, то мы должны повторить алгоритм приведения снова.",true);
+			}
+			
+			return changed;
 		}
 		
 		public void StepOptimizeGrammatic(bool isLeft)

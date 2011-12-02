@@ -6,6 +6,11 @@ namespace FLaG.Data.Grammars
 {
 	class Grammar
 	{
+		public bool RemoveChainRules(Writer writer, int newGrammarNumber)
+		{
+			throw new NotImplementedException();
+		}
+		
 		public bool RemoveEmptyRules(Writer writer, int newGrammarNumber)
 		{
 			int oldGrammarNumber = Number;
