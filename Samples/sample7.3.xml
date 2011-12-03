@@ -4,14 +4,14 @@
 		<variable name="k" sign=">=" num="0" />
 		<variable name="l" sign=">=" num="0" />
 		<variable name="m" sign=">=" num="0" />
-  </variables>
-	<sets>
-		<set>
+	</variables>
+	<content>
+		<alter>
 			<degree>
 				<base>
 					<degree>
 						<base>
-							<symbol>a</symbol>			
+							<symbol>a</symbol>
 						</base>
 						<exp>
 							<number>2</number>
@@ -21,18 +21,16 @@
 				<exp>
 					<vref>k</vref>
 				</exp>
-			</degree>		
-		</set>
-		<set>
+			</degree>
 			<concat>
 				<degree>
 					<base>
 						<degree>
 							<base>
-								<symbol>b</symbol>			
+								<symbol>b</symbol>
 							</base>
 							<exp>
-								<vref>l</vref>								
+								<vref>l</vref>
 							</exp>
 						</degree>
 					</base>
@@ -44,7 +42,7 @@
 					<base>
 						<degree>
 							<base>
-								<symbol>c</symbol>			
+								<symbol>c</symbol>
 							</base>
 							<exp>
 								<number>2</number>
@@ -56,8 +54,8 @@
 					</exp>
 				</degree>
 			</concat>
-		</set>
-	</sets>
+		</alter>
+	</content>
 	<info>
 	    <author firstname="" secondname="" lastname="" group="" />
 	    <variant>7.3</variant>

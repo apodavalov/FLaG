@@ -12,12 +12,6 @@ namespace FLaG.Data
 {
     class Lang
     {
-		public int? NumLabel
-		{
-			get;
-			set;
-		}
-		
 		public string Variant
 		{
 			get;
@@ -47,11 +41,16 @@ namespace FLaG.Data
 			get;
 			set;
 		}
+		
+		public Entity Content
+		{
+			get;
+			set;
+		}
 				
         public Lang()
         {
             VariableCollection = new List<Variable>();
-            SetCollection = new List<Entity>();
         }
 
         public Lang(string filename)
@@ -91,20 +90,13 @@ namespace FLaG.Data
 
             isEmpty = reader.IsEmptyElement;
 
-            reader.ReadStartElement(); // sets
+            reader.ReadStartElement(); // content
 
-            while (reader.IsStartElement("set"))
-            {
-                reader.ReadStartElement(); // set
-
-                if (reader.IsStartElement())
-                    SetCollection.Add(Entity.Load(reader,VariableCollection));
-
-                reader.ReadEndElement(); // set
-            }
+            if (reader.IsStartElement())
+            	Content = Entity.Load(reader,VariableCollection);
 
             if (!isEmpty)
-                reader.ReadEndElement(); // sets
+                reader.ReadEndElement(); // content
 			
 			reader.ReadStartElement("info");
 			
@@ -193,19 +185,12 @@ namespace FLaG.Data
             private set;
         }
 
-        public List<Entity> SetCollection
-        {
-            get;
-            private set;
-        }
-
         public Lang ToRegularSet()
         {
             Lang l = new Lang();
             l.VariableCollection.AddRange(VariableCollection);
-
-            foreach (Entity e in SetCollection)
-                l.SetCollection.Add(e.ToRegularSet());
+			
+			l.Content = Content.ToRegularSet();
 
             return l;
         }
@@ -214,8 +199,7 @@ namespace FLaG.Data
 		{
 			Lang l = new Lang();		
 			
-			foreach (Entity e in SetCollection)
-				l.SetCollection.Add(e.ToRegularExp());
+			l.Content = Content.ToRegularExp();
 			
 			return l;
 		}
@@ -224,81 +208,25 @@ namespace FLaG.Data
 		{
 			List<Entity> list = new List<Entity>();
 			
-			if (NumLabel != null)
-				return list;
+			int v = 1, oldv;
 			
-			int v = 1,oldv;
-
 			do
 			{
 				oldv = v;
-				
-				foreach (Entity e in SetCollection)
-					v = e.MarkDeepest(v, list);
-				
+				v = Content.MarkDeepest(v, list);
 			} while (oldv != v);
-						
-			if (SetCollection.Count > 1)
-			{
-				NumLabel = v;
-
-				Alter alter = new Alter();
-				
-				alter.NumLabel = NumLabel;
-				
-				foreach (Entity e in SetCollection)
-					alter.EntityCollection.Add(e);
-				
-				list.Add(alter);
-			}
-			
-			// TODO: возможно стоит сделать добавление пустой грамматики, если вообще 
-			// SetCollection пуст
 			
 			return list;
 		}
 		
 		public Symbol[] CollectAlphabet()
 		{
-			List<Symbol> symbols = new List<Symbol>();
-			
-			foreach (Entity e in SetCollection)
-			{
-				Symbol[] smbs = e.CollectAlphabet();
-				foreach (Symbol s in smbs)
-				{
-					int index = symbols.BinarySearch(s);
-					
-					if (index < 0)
-						symbols.Insert(~index,s);
-				}
-			}
-			
-			return symbols.ToArray();
+			return Content.CollectAlphabet();
 		}
 		
 		public void SaveAsRegularExp(Writer writer, bool full)
 		{
-			if (full && SetCollection.Count > 1)
-				writer.Write(@"{\underbrace");
-			
-			writer.Write("{");
-			
-			for (int i = 0; i < SetCollection.Count; i++)
-			{
-				if (i != 0)
-					writer.Write('+');
-                SetCollection[i].SaveAsRegularExp(writer, full);
-			}
-			
-			writer.Write("}");
-			
-			if (full && SetCollection.Count > 1)
-			{
-				writer.Write(@"_\text{");
-				writer.Write(NumLabel);
-				writer.Write(@"}}");
-			}
+			Content.SaveAsRegularExp(writer,full);
 		}
 		
 		public void SaveAlphabet(Writer writer)
@@ -324,12 +252,7 @@ namespace FLaG.Data
         {
 			writer.Write(@"\left\{");
 			
-            for (int i = 0; i < SetCollection.Count; i++)
-			{
-				if (i != 0)
-					writer.Write(',');
-                SetCollection[i].Save(writer);
-			}
+            Content.Save(writer);
 			
 			writer.Write(@"\mid ");
 			

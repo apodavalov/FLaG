@@ -15,7 +15,7 @@
 	<xsd:complexType name="langType">
 		<xsd:sequence>
 			<xsd:element name="variables" type="il:variablesType" />
-			<xsd:element name="sets" type="il:setsType" />
+			<xsd:element name="content" type="il:contentType" />
 			<xsd:element name="info" type="il:infoType" />
 		</xsd:sequence>
 	</xsd:complexType>
@@ -53,15 +53,14 @@
 		</xsd:restriction>
 	</xsd:simpleType>
 	
-	<xsd:complexType name="setsType">
-		<xsd:choice>
-			<xsd:element name="set" type="il:setType" minOccurs="0" maxOccurs="unbounded" />
-		</xsd:choice>
+	<xsd:complexType name="contentType">
+		<xsd:group ref="il:entityGroup" minOccurs="1" maxOccurs="1" />
 	</xsd:complexType>
 
   <xsd:group name="entityGroup">
     <xsd:choice>
-      <xsd:element name="concat" type="il:concatType" />
+      <xsd:element name="concat" type="il:collectionType" />
+	  <xsd:element name="alter" type="il:collectionType" />
       <xsd:element name="degree" type="il:degreeType" />
       <xsd:element name="symbol" type="il:charType" />
     </xsd:choice>
@@ -80,15 +79,15 @@
     </xsd:restriction>
   </xsd:simpleType>
 	
-	<xsd:complexType name="setType">
-		<xsd:group ref="il:entityGroup"/>
-	</xsd:complexType>
+  <xsd:complexType name="setType">
+	<xsd:group ref="il:entityGroup"/>
+  </xsd:complexType>
 
   <xsd:complexType name="quantityType">
     <xsd:group ref="il:quantityGroup"/>
   </xsd:complexType>
 	
-	<xsd:complexType name="concatType">
+	<xsd:complexType name="collectionType">
 		<xsd:group ref="il:entityGroup" minOccurs="0" maxOccurs="unbounded" />		
 	</xsd:complexType>
 	

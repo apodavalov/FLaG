@@ -16,6 +16,22 @@ namespace FLaG.Data
             EntityCollection = new List<Entity>();
         }
 		
+		public Alter(XmlReader reader, List<Variable> variableCollection) 
+            : this()
+        {
+            while (!reader.IsStartElement("alter")) reader.Read();
+
+            bool isEmpty = reader.IsEmptyElement;
+
+            reader.ReadStartElement();
+
+            while (reader.IsStartElement())
+                EntityCollection.Add(Entity.Load(reader, variableCollection));
+
+            if (!isEmpty)
+                reader.ReadEndElement();
+        }
+		
 		public override Symbol[] CollectAlphabet()
 		{
 			List<Symbol> symbols = new List<Symbol>();

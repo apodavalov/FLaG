@@ -34,6 +34,8 @@ namespace FLaG.Data
             {
                 case "concat":
                     return new Concat(reader, variableCollection);
+				case "alter":
+                    return new Alter(reader, variableCollection);
                 case "degree":
                     return new Degree(reader, variableCollection);
                 case "symbol":
