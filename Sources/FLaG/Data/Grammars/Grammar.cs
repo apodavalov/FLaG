@@ -430,7 +430,7 @@ namespace FLaG.Data.Grammars
 			
 			writer.WriteLine(@"Итак, окончательно грамматика",true);
 			writer.WriteLine(@"\begin{math}");	
-			SaveP(writer);	
+			SaveG(writer);	
 			writer.WriteLine(@"\end{math}");	
 			writer.WriteLine(@"--- это четверка вида",true);
 			writer.WriteLine(@"\begin{math}");	
