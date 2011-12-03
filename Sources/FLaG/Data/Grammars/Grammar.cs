@@ -346,11 +346,11 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"\}");
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine();
-			writer.WriteLine(@"На последним шаге алгоритма рассматриваем построенное множество",true);
+			writer.WriteLine(@"На последнем шаге алгоритма рассматриваем построенное множество",true);
 			writer.WriteLine(@"\begin{math}");	
 			SaveP(writer);
 			writer.WriteLine(@"\end{math}.");
-			writer.WriteLine(@"Для всех правил из этого множестве, в левых частях которых находятся",true);
+			writer.WriteLine(@"Для всех правил из этого множества, в левых частях которых находятся",true);
 			writer.WriteLine(@"нетерминалы, попавшие в построенные множества",true);
 			writer.WriteLine(@"\begin{math}");	
 			writer.WriteLine(@"N^X");
