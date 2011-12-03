@@ -172,8 +172,11 @@ namespace FLaG.Data.Grammars
 					writer.WriteLine();
 					
 					foreach (KeyValuePair<Unterminal,FlaggedUnterminalSet> s in dictionary)
-						if (!s.Value.Changed)
+						if (!s.Value.Changed && !s.Value.RemovedFromFuture)
+						{
 							s.Value.RemovedFromFuture = true;
+							s.Value.LastIndexWhenChanged = i;
+						}
 					
 					writer.WriteLine(@"Продолжаем алгоритм для нетерминалов",true);
 					
@@ -195,8 +198,14 @@ namespace FLaG.Data.Grammars
 					writer.WriteLine(@"\end{math}.");
 					i++;
 				}				
-				else
+				else					
 				{
+					foreach (KeyValuePair<Unterminal,FlaggedUnterminalSet> s in dictionary)
+						if (!s.Value.RemovedFromFuture)
+						{
+							s.Value.RemovedFromFuture = true;
+							s.Value.LastIndexWhenChanged = i;
+						}
 					writer.WriteLine(@"Сравниваем множества",true);
 					writer.WriteLine(@"\begin{math}");
 					SaveNX(writer,i-1);
@@ -221,9 +230,254 @@ namespace FLaG.Data.Grammars
 				
 			} while (somethingChanged);
 			
+			writer.WriteLine(@"В итоге получаем множества вида",true);
 			
+			bool firstT = true;
 			
-			return false;
+			foreach (KeyValuePair<Unterminal,FlaggedUnterminalSet> s in dictionary)
+			{
+				if (firstT)
+					firstT = false;
+				else
+					writer.WriteLine(';');
+				
+				writer.WriteLine();
+				writer.WriteLine(@"\begin{math}");
+				SaveNX(writer,s.Key);
+				writer.Write("=");
+				SaveNX(writer,s.Key,s.Value.LastIndexWhenChanged);
+				writer.Write(@"\setminus \{");
+				s.Key.Save(writer,IsLeft);
+				writer.Write(@"\}");
+				writer.Write("=");
+				s.Value.Set.Remove(s.Key);
+				SaveCSet(writer,s.Value.Set);
+				writer.Write(@"\end{math}");
+			}
+			
+			writer.WriteLine(@".");
+			writer.WriteLine();
+			
+			writer.WriteLine(@"На следующем шаге алгоритм строим множества нетерминальных и терминальных",true);
+			writer.WriteLine(@"символов грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			Number = newGrammarNumber;
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}.");
+			
+			bool removedChainRules = false;
+			
+			for (int k = 0; k < Rules.Count; k++)
+			{
+				for (int j = 0; j < Rules[k].Chains.Count; j++)
+				{
+					if (Rules[k].Chains[j].Symbols.Count == 1 && Rules[k].Chains[j].Symbols[0] is Unterminal)
+					{
+						Rules[k].Chains.RemoveAt(j);
+						j--;
+						removedChainRules = true;
+					}
+				}
+				
+				if (Rules[k].Chains.Count == 0)
+				{
+					Rules.RemoveAt(k);
+					k--;	
+				}
+			}
+			
+			writer.WriteLine(@"В итоге мы получаем следующие множества",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			SaveN(writer);
+			writer.Write(@"=\{");
+			SaveUnterminals(writer); // TODO: более глубоко надо пройтись по нетерминалам
+			writer.Write(@"\}");
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество нетерминальных символов грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math};");
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			SaveSigmaWithNum(writer);
+			writer.Write(@"=\{");
+			SaveAlphabet(writer);
+			writer.WriteLine(@"\}\end{math}");
+			writer.WriteLine(@"--- множество терминальных символов грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math};");
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			Unterminal.GetInstance(newGrammarNumber).Save(writer,IsLeft);
+			writer.WriteLine(@"\equiv");
+			TargetSymbol.Save(writer,IsLeft);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"целевой символ грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine();
+			writer.WriteLine(@"Далее строим множество правил вывода",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveP(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine(@"В это множество включаем все правила из",true);
+			Number = oldGrammarNumber;
+			writer.WriteLine(@"\begin{math}");
+			SaveP(writer);
+			writer.WriteLine(@"\end{math},");
+			Number = newGrammarNumber;
+			writer.WriteLine(@"кроме цепных правил. Таким образом, множество",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveP(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"примет вид",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			SaveP(writer);
+			writer.WriteLine(@"=\{");
+			SaveRules(writer);
+			writer.WriteLine(@"\}");
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine();
+			writer.WriteLine(@"На последним шаге алгоритма рассматриваем построенное множество",true);
+			writer.WriteLine(@"\begin{math}");	
+			SaveP(writer);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine(@"Для всех правил из этого множестве, в левых частях которых находятся",true);
+			writer.WriteLine(@"нетерминалы, попавшие в построенные множества",true);
+			writer.WriteLine(@"\begin{math}");	
+			writer.WriteLine(@"N^X");
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"где",true);
+			writer.WriteLine(@"\begin{math}");	
+			writer.WriteLine(@"X \in");
+			SaveN(writer);
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"добавляем новое правило, путем замены нетерминала в левой части на нетерминал",true);
+			writer.WriteLine(@"\begin{math}");	
+			writer.WriteLine(@"X");
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"для которого построено множество",true);
+			writer.WriteLine(@"\begin{math}");	
+			writer.WriteLine(@"N^X");
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine(@"В результате множество",true);
+			writer.WriteLine(@"\begin{math}");	
+			SaveP(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"примет вид",true);
+			
+			List<Rule> newRules = new List<Rule>();
+			
+			foreach (Rule r in Rules)
+				foreach (KeyValuePair<Unterminal,FlaggedUnterminalSet> st in dictionary)
+					if (st.Value.Set.Contains(r.Prerequisite))
+					{
+						Rule newR = new Rule();
+						newR.Prerequisite = st.Key;
+						foreach (Chain c in r.Chains)						
+							newR.Chains.Add(c.DeepClone());
+						newRules.Add(newR);
+					}
+			
+			RuleByTargetSymbolComparer comparer = new RuleByTargetSymbolComparer();
+			
+			foreach (Rule newR in newRules)
+			{
+				int indexRule = Rules.BinarySearch(newR,comparer);
+				Rule r;
+				
+				if (indexRule < 0)
+				{				
+					r = new Rule();
+					r.Prerequisite = newR.Prerequisite;
+				}
+				else
+					r = Rules[indexRule];
+				
+				foreach (Chain c in newR.Chains)
+				{
+					int indexChain = r.Chains.BinarySearch(c);
+					if (indexChain < 0)
+					{
+						r.Chains.Insert(~indexChain,c);
+						removedChainRules = true;
+					}
+				}
+				
+				if (r.Chains.Count > 0 && indexRule < 0)
+				{
+					Rules.Insert(~indexRule,r);	
+					removedChainRules = true;
+				}
+			}
+			
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");	
+			SaveP(writer);
+			writer.WriteLine(@"=");
+			writer.WriteLine(@"\{");
+			SaveRules(writer);
+			writer.WriteLine(@"\}\end{math}");
+			writer.WriteLine();
+			
+			writer.WriteLine(@"Итак, окончательно грамматика",true);
+			writer.WriteLine(@"\begin{math}");	
+			SaveP(writer);	
+			writer.WriteLine(@"\end{math}");	
+			writer.WriteLine(@"--- это четверка вида",true);
+			writer.WriteLine(@"\begin{math}");	
+			SaveCortege(writer);
+			writer.WriteLine(@"\end{math},");	
+			writer.WriteLine(@"где соответствующие элементы грамматики принимают следующие значения",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");	
+			SaveN(writer);
+			writer.WriteLine(@"=\{");				
+			SaveUnterminals(writer);
+			writer.WriteLine(@"\}");	
+			writer.WriteLine(@"\end{math}");	
+			writer.WriteLine(@"--- множнство нетерминальных символов грамматики",true);
+			writer.WriteLine(@"\begin{math}");	
+			SaveG(writer);
+			writer.WriteLine(@"\end{math};");	
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			SaveSigmaWithNum(writer);
+			writer.Write(@"=\{");
+			SaveAlphabet(writer);
+			writer.WriteLine(@"\}\end{math}");
+			writer.WriteLine(@"--- множество терминальных символов грамматики",true);
+			writer.WriteLine(@"\begin{math}");	
+			SaveG(writer);
+			writer.WriteLine(@"\end{math};");	
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");	
+			SaveP(writer);
+			writer.WriteLine(@"=");
+			writer.WriteLine(@"\{");
+			SaveRules(writer);
+			writer.WriteLine(@"\}\end{math}");
+			writer.WriteLine(@"--- множество правил вывода для данной грамматики;",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			Unterminal.GetInstance(newGrammarNumber).Save(writer,IsLeft);
+			writer.WriteLine(@"\equiv");
+			TargetSymbol.Save(writer,IsLeft);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"целевой символ грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine();
+			return removedChainRules;
 		}
 		
 		public bool RemoveEmptyRules(Writer writer, int newGrammarNumber)
@@ -1126,6 +1380,13 @@ namespace FLaG.Data.Grammars
 			writer.Write("{{N_{");
 			writer.Write(Number);
 			writer.Write("}}^X}");
+		}
+		
+		private void SaveNX(Writer writer, Unterminal unterminal)
+		{
+			writer.Write("{N^{");
+			unterminal.Save(writer,IsLeft);
+			writer.Write("}}");
 		}
 		
 		private void SaveNX(Writer writer, Unterminal unterminal, int Number)

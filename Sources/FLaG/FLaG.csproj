@@ -65,6 +65,7 @@
     <Compile Include="Data\Grammars\Unterminal.cs" />
     <Compile Include="Data\Grammars\Chain.cs" />
     <Compile Include="Data\Helpers\FlaggedUnterminalSet.cs" />
+    <Compile Include="Data\Helpers\RuleByTargetSymbolComparer.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Schema\lang.xsd">

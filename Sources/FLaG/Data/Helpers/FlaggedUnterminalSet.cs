@@ -13,6 +13,12 @@ namespace FLaG.Data.Helpers
 			Set = new HashSet<Unterminal>();
 		}
 		
+		public int LastIndexWhenChanged
+		{
+			get;
+			set;
+		}
+		
 		public bool Changed
 		{
 			get;
