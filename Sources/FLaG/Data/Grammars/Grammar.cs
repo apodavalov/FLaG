@@ -291,7 +291,7 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"\begin{math}");
 			SaveN(writer);
 			writer.Write(@"=\{");
-			SaveUnterminals(writer); // TODO: более глубоко надо пройтись по нетерминалам
+			SaveDeepUnterminals(writer);
 			writer.Write(@"\}");
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine(@"--- множество нетерминальных символов грамматики",true);
@@ -301,9 +301,9 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine();
 			writer.WriteLine(@"\begin{math}");
 			SaveSigmaWithNum(writer);
-			writer.Write(@"=\{");
+			writer.Write(@"=");
 			SaveAlphabet(writer);
-			writer.WriteLine(@"\}\end{math}");
+			writer.WriteLine(@"\end{math}");
 			writer.WriteLine(@"--- множество терминальных символов грамматики",true);
 			writer.WriteLine(@"\begin{math}");
 			SaveG(writer);
@@ -451,9 +451,9 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine();
 			writer.WriteLine(@"\begin{math}");
 			SaveSigmaWithNum(writer);
-			writer.Write(@"=\{");
+			writer.Write(@"=");
 			SaveAlphabet(writer);
-			writer.WriteLine(@"\}\end{math}");
+			writer.WriteLine(@"\end{math}");
 			writer.WriteLine(@"--- множество терминальных символов грамматики",true);
 			writer.WriteLine(@"\begin{math}");	
 			SaveG(writer);
@@ -751,9 +751,8 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"=");
 			SaveSigmaWithNum(writer);
 			Number = newGrammarNumber;
-			writer.WriteLine(@"=\{");
+			writer.WriteLine(@"=");
 			SaveAlphabet(writer);
-			writer.WriteLine(@"\}");
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine(@"--- множество терминальных символов граммактики",true);
 			writer.WriteLine(@"\begin{math}");
@@ -953,9 +952,8 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"=");
 			SaveSigmaWithNum(writer);
 			Number = newGrammarNumber;
-			writer.WriteLine(@"=\{");
+			writer.WriteLine(@"=");
 			SaveAlphabet(writer);
-			writer.WriteLine(@"\}");
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine(@"--- множество терминальных символов граммактики",true);
 			writer.WriteLine(@"\begin{math}");
@@ -1180,9 +1178,8 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"=");
 			writer.WriteLine(@"\Sigma \cap");
 			SaveV(writer,i);
-			writer.WriteLine(@"=\{");
+			writer.WriteLine(@"=");
 			SaveAlphabet(writer);
-			writer.WriteLine(@"\}");
 			writer.WriteLine(@"\cap");
 			SaveVSet(writer,V);
 			writer.WriteLine(@"=");
@@ -1507,12 +1504,19 @@ namespace FLaG.Data.Grammars
 		{
 			Terminal[] terminals = Alphabet;
 			
-			for (int i = 0; i < terminals.Length; i++)
+			if (terminals.Length == 0)
+				writer.WriteLine(@"\varnothing");
+			else
 			{
-				if (i != 0)		
-					writer.Write(", ");
-				
-				terminals[i].Save(writer, IsLeft);
+				writer.WriteLine(@"\{");
+				for (int i = 0; i < terminals.Length; i++)
+				{
+					if (i != 0)		
+						writer.Write(", ");
+					
+					terminals[i].Save(writer, IsLeft);
+				}
+				writer.WriteLine(@"\}");
 			}
 		}
 	
@@ -1534,6 +1538,33 @@ namespace FLaG.Data.Grammars
 							}
 				
 				return terminals.ToArray();
+			}
+		}
+		
+		public Unterminal[] DeepUnterminals
+		{
+			get
+			{
+				List<Unterminal> unterminals = new List<Unterminal>();
+				
+				for (int i = 0; i < Rules.Count; i++)	
+				{
+					int index = unterminals.BinarySearch(Rules[i].Prerequisite);
+					if (index < 0)
+						unterminals.Insert(~index,Rules[i].Prerequisite);
+					
+					foreach (Chain c in Rules[i].Chains)
+						foreach (Symbol s in c.Symbols)						
+							if (s is Unterminal)
+							{
+								Unterminal u = (Unterminal)s;
+								index = unterminals.BinarySearch(u);
+								if (index < 0)
+									unterminals.Insert(~index,u);
+							}
+				}
+				
+				return unterminals.ToArray();
 			}
 		}
 		
@@ -1624,10 +1655,18 @@ namespace FLaG.Data.Grammars
 			}
 		}
 		
+		public void SaveDeepUnterminals(Writer writer)
+		{
+			SaveUnterminals(writer, DeepUnterminals);			
+		}
+		
 		public void SaveUnterminals(Writer writer)
 		{
-			Unterminal[] unterminals = Unterminals;
-			
+			SaveUnterminals(writer, Unterminals);			
+		}
+		
+		public void SaveUnterminals(Writer writer, Unterminal[] unterminals)
+		{
 			for (int i = 0; i < unterminals.Length; i++)
 			{
 				if (i != 0)		
