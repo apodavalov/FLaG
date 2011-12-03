@@ -389,13 +389,11 @@ namespace FLaG.Output
 			else
 				changed = RightSidedGrammar.RemoveUnreachedSyms(this, FirstRightSidedFreeNumber++);
 			
-			WriteLine(@"После удаления недостижимых символов следующим шагом приведения",true);
-			WriteLine(@"грамматики является удаление бесплодных (бесполезных) символов.",true);
-			
+		
 			return changed;
 		}
 		
-		private bool Step2_4_3(bool isLeft, bool again)
+		private bool Step2_4_3(bool isLeft)
 		{
 			Write(@"\subsubsection{");
 			Write("Этап 2.4.3",true);
@@ -403,8 +401,6 @@ namespace FLaG.Output
 				Write(" (левосторонняя",true);
 			else
 				Write(" (правосторонняя",true);
-			if (again)
-				Write(", повтор",true);
 			Write(")",true);
 			WriteLine(@"}");
 			
@@ -413,25 +409,12 @@ namespace FLaG.Output
 			if (isLeft)	
 				changed = LeftSidedGrammar.RemoveUselessSyms(this, FirstLeftSidedFreeNumber++);
 			else
-				changed = RightSidedGrammar.RemoveUselessSyms(this, FirstRightSidedFreeNumber++);
-			
-			if (!changed)
-			{
-				WriteLine(@"После удаления бесплодных символов следующим шагом приведения",true);
-				WriteLine(@"грамматики является удаление пустых правил (или",true);
-				WriteLine(@"\begin{math}\varepsilon\end{math}");
-				WriteLine(@"-правил).",true);
-			}
-			else
-			{
-				WriteLine(@"Итак, так как в результате приведения грамматики произошло",true);
-				WriteLine(@"ее изменение, то мы должны повторить алгоритм приведения снова.",true);
-			}
-			
+				changed = RightSidedGrammar.RemoveUselessSyms(this, FirstRightSidedFreeNumber++);			
+
 			return changed;
 		}
 		
-		private bool Step2_4_4(bool isLeft, bool again)
+		private bool Step2_4_4(bool isLeft)
 		{
 			Write(@"\subsubsection{");
 			Write("Этап 2.4.4",true);
@@ -439,8 +422,6 @@ namespace FLaG.Output
 				Write(" (левосторонняя",true);
 			else
 				Write(" (правосторонняя",true);
-			if (again)
-				Write(", повтор",true);
 			Write(")",true);
 			WriteLine(@"}");
 			
@@ -451,21 +432,10 @@ namespace FLaG.Output
 			else
 				changed = RightSidedGrammar.RemoveEmptyRules(this, FirstRightSidedFreeNumber++);
 			
-			if (!changed)
-			{
-				WriteLine(@"После удаления пустых правил следующим шагом приведения",true);
-				WriteLine(@"грамматики является удаление цепных правил.",true);
-			}
-			else
-			{
-				WriteLine(@"Итак, так как в результате приведения грамматики произошло",true);
-				WriteLine(@"ее изменение, то мы должны повторить алгоритм приведения снова.",true);
-			}
-			
 			return changed;
 		}
 		
-		private bool Step2_4_5(bool isLeft, bool again)
+		private bool Step2_4_5(bool isLeft)
 		{
 			Write(@"\subsubsection{");
 			Write("Этап 2.4.5",true);
@@ -473,8 +443,6 @@ namespace FLaG.Output
 				Write(" (левосторонняя",true);
 			else
 				Write(" (правосторонняя",true);
-			if (again)
-				Write(", повтор",true);
 			Write(")",true);
 			WriteLine(@"}");
 			
@@ -484,8 +452,34 @@ namespace FLaG.Output
 				changed = LeftSidedGrammar.RemoveChainRules(this, FirstLeftSidedFreeNumber++);
 			else
 				changed = RightSidedGrammar.RemoveChainRules(this, FirstRightSidedFreeNumber++);
+
+			return changed;
+		}
+		
+		public void StepOptimizeGrammatic(bool isLeft)
+		{
+			bool somethingChanged;
 			
-			if (!changed)
+			Step2_4_2(isLeft,false);
+			
+			WriteLine(@"После удаления недостижимых символов следующим шагом приведения",true);
+			WriteLine(@"грамматики является удаление бесплодных (бесполезных) символов.",true);		
+			
+			somethingChanged = Step2_4_3(isLeft);
+			
+			WriteLine(@"После удаления бесплодных символов следующим шагом приведения",true);
+			WriteLine(@"грамматики является удаление пустых правил (или",true);
+			WriteLine(@"\begin{math}\varepsilon\end{math}");
+			WriteLine(@"-правил).",true);
+			
+			somethingChanged |=	Step2_4_4(isLeft);
+			
+			WriteLine(@"После удаления пустых правил следующим шагом приведения",true);
+			WriteLine(@"грамматики является удаление цепных правил.",true);
+			
+			somethingChanged |= Step2_4_5(isLeft);
+			
+			if (!somethingChanged)
 			{
 				WriteLine(@"Итак, так как в результате приведения грамматики не произошло",true);
 				WriteLine(@"ее изменение, то переходим к построению конечного автомата для",true);
@@ -495,44 +489,10 @@ namespace FLaG.Output
 			{
 				WriteLine(@"Итак, так как в результате приведения грамматики произошло",true);
 				WriteLine(@"ее изменение, то мы должны повторить алгоритм приведения снова.",true);
-			}
-			
-			return changed;
-		}
-		
-		public void StepOptimizeGrammatic(bool isLeft)
-		{
-			bool again2_4_2 = false;
-			bool again2_4_3 = false;
-			bool again2_4_4 = false;
-			bool again2_4_5 = false;
-			bool somethingChanged;
-			
-			do
-			{
-				somethingChanged = true;
-				Step2_4_2(isLeft,again2_4_2);
-				again2_4_2 = true;								
-				if (Step2_4_3(isLeft,again2_4_3))
-				{
-					again2_4_3 = true;
-					continue;
-				}
-				again2_4_3 = true;
-				if (Step2_4_4(isLeft,again2_4_4))
-				{
-					again2_4_4 = true;
-					continue;
-				}
-				again2_4_4 = true;
-				if (Step2_4_5(isLeft,again2_4_5))
-				{
-					again2_4_5 = true;
-					continue;
-				}
-				again2_4_5 = true;
-				somethingChanged = false;
-			} while (somethingChanged);			
+				Step2_4_2(isLeft,true);
+				WriteLine(@"Переходим к построению конечного автомата для",true);
+				WriteLine(@"приведенной грамматики.",true);
+			}		
 		}
 
         private void WriteEndDoc()
