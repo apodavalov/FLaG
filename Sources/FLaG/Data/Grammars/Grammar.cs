@@ -444,7 +444,7 @@ namespace FLaG.Data.Grammars
 			SaveUnterminals(writer);
 			writer.WriteLine(@"\}");	
 			writer.WriteLine(@"\end{math}");	
-			writer.WriteLine(@"--- множнство нетерминальных символов грамматики",true);
+			writer.WriteLine(@"--- множество нетерминальных символов грамматики",true);
 			writer.WriteLine(@"\begin{math}");	
 			SaveG(writer);
 			writer.WriteLine(@"\end{math};");	
