@@ -18,6 +18,36 @@ namespace FLaG.Data
 			set;
 		}
 		
+		public string Variant
+		{
+			get;
+			set;
+		}
+		
+		public string Group
+		{
+			get;
+			set;
+		}
+		
+		public string FirstName
+		{
+			get;
+			set;
+		}
+		
+		public string SecondName
+		{
+			get;
+			set;
+		}
+		
+		public string LastName			
+		{
+			get;
+			set;
+		}
+				
         public Lang()
         {
             VariableCollection = new List<Variable>();
@@ -75,6 +105,51 @@ namespace FLaG.Data
 
             if (!isEmpty)
                 reader.ReadEndElement(); // sets
+			
+			reader.ReadStartElement("info");
+			
+			while (reader.IsStartElement())
+			{
+				if (reader.Name == "author")
+				{
+					isEmpty = reader.IsEmptyElement;
+					
+					if (reader.HasAttributes)
+						while (reader.MoveToNextAttribute())
+							switch (reader.Name)
+							{
+								case "firstname":
+									FirstName = reader.Value;
+									break;
+								case "secondname":
+									SecondName = reader.Value;
+									break;								
+								case "lastname":
+									LastName = reader.Value;
+									break;																
+								case "group":
+									Group = reader.Value;
+									break;
+							}
+				
+					reader.ReadStartElement("author");
+					
+					if (!isEmpty)
+                		reader.ReadEndElement(); // author
+				}
+				else if (reader.Name == "variant")
+				{
+					isEmpty = reader.IsEmptyElement;	
+					
+					reader.ReadStartElement("variant");
+					Variant = reader.ReadContentAsString();
+					
+					if (!isEmpty)
+                		reader.ReadEndElement(); // variant
+				}
+			}
+			
+			reader.ReadEndElement(); // info
 
             reader.ReadEndElement(); // lang
         }

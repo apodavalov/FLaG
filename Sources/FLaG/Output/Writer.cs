@@ -179,16 +179,27 @@ namespace FLaG.Output
 			WriteLine();
 			WriteLine();
 			WriteLine(@"\newbox{\lbox}");
-			// TODO: загружать из XML
-			WriteLine(@"\savebox{\lbox}{\hbox{Подавалова Ленуза Дамировна}}"); 
+			Write(@"\savebox{\lbox}{\hbox{");
+			Write(lang.LastName + " " + lang.FirstName + " " + lang.SecondName,true);
+			WriteLine(@"}}");
 			WriteLine(@"\newlength{\maxl}");
 			WriteLine(@"\setlength{\maxl}{\wd\lbox}");
-			WriteLine(@"\hfill\parbox{11cm}{");
-			// TODO: подставлять из XML
-			WriteLine(@"\hspace*{5cm}\hspace*{-5cm}Студент:\hfill\hbox to\maxl{Подавалова~Л.\,Д.\hfill}\\");
+			WriteLine(@"\hfill\parbox{11cm}{");			
+			string fn = lang.FirstName.Length > 0 ? lang.FirstName.Substring(0,1) : "";
+			string sn = lang.SecondName.Length > 0 ? lang.SecondName.Substring(0,1) : "";			
+			Write(@"\hspace*{5cm}\hspace*{-5cm}Студент:\hfill\hbox to\maxl{");
+			Write(lang.LastName,true);
+			Write("~");
+			Write(fn,true);
+			Write(@".\,");
+			Write(sn,true);
+			Write(@".");
+			WriteLine(@"\hfill}\\");
 			WriteLine(@"\hspace*{5cm}\hspace*{-5cm}Преподаватель:\hfill\hbox to\maxl{\hfill}\\");
 			WriteLine(@"\\");
-			WriteLine(@"\hspace*{5cm}\hspace*{-5cm}Группа:\hfill\hbox to\maxl{4416}\\");			
+			Write(@"\hspace*{5cm}\hspace*{-5cm}Группа:\hfill\hbox to\maxl{");
+			Write(lang.Group,true);
+			WriteLine(@"}\\");
 			WriteLine(@"}");
 			WriteLine();
 			WriteLine();

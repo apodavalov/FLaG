@@ -58,4 +58,8 @@
 			</concat>
 		</set>
 	</sets>
+	<info>
+	    <author firstname="" secondname="" lastname="" group="" />
+	    <variant>7.3</variant>
+	</info>
 </lang>

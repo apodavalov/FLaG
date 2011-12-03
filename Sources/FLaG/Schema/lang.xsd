@@ -16,7 +16,22 @@
 		<xsd:sequence>
 			<xsd:element name="variables" type="il:variablesType" />
 			<xsd:element name="sets" type="il:setsType" />
+			<xsd:element name="info" type="il:infoType" />
 		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="infoType">
+		<xsd:all>
+			<xsd:element name="author" type="il:authorType" />
+			<xsd:element name="variant" type="xsd:string"/>
+		</xsd:all>
+	</xsd:complexType>
+	
+	<xsd:complexType name="authorType">
+		<xsd:attribute name="firstname" type="xsd:string" use="required"/>
+		<xsd:attribute name="secondname" type="xsd:string" use="required"/>
+		<xsd:attribute name="lastname" type="xsd:string" use="required"/>
+		<xsd:attribute name="group" type="xsd:string" use="required"/>
 	</xsd:complexType>
 	
 	<xsd:complexType name="variablesType">
