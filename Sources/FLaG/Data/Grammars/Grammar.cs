@@ -374,50 +374,58 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine(@"примет вид",true);
 			
-			List<Rule> newRules = new List<Rule>();
+			RuleByTargetSymbolComparer comparer = new RuleByTargetSymbolComparer();			
 			
-			foreach (Rule r in Rules)
-				foreach (KeyValuePair<Unterminal,FlaggedUnterminalSet> st in dictionary)
-					if (st.Value.Set.Contains(r.Prerequisite))
-					{
-						Rule newR = new Rule();
-						newR.Prerequisite = st.Key;
-						foreach (Chain c in r.Chains)						
-							newR.Chains.Add(c.DeepClone());
-						newRules.Add(newR);
-					}
+			bool atLeastOneChainAdded;
 			
-			RuleByTargetSymbolComparer comparer = new RuleByTargetSymbolComparer();
-			
-			foreach (Rule newR in newRules)
+			do
 			{
-				int indexRule = Rules.BinarySearch(newR,comparer);
-				Rule r;
+				atLeastOneChainAdded = false;
 				
-				if (indexRule < 0)
-				{				
-					r = new Rule();
-					r.Prerequisite = newR.Prerequisite;
-				}
-				else
-					r = Rules[indexRule];
+				List<Rule> newRules = new List<Rule>();
 				
-				foreach (Chain c in newR.Chains)
+				foreach (Rule r in Rules)
+					foreach (KeyValuePair<Unterminal,FlaggedUnterminalSet> st in dictionary)
+						if (st.Value.Set.Contains(r.Prerequisite))
+						{
+							Rule newR = new Rule();
+							newR.Prerequisite = st.Key;
+							foreach (Chain c in r.Chains)						
+								newR.Chains.Add(c.DeepClone());
+							newRules.Add(newR);
+						}
+				
+				foreach (Rule newR in newRules)
 				{
-					int indexChain = r.Chains.BinarySearch(c);
-					if (indexChain < 0)
+					int indexRule = Rules.BinarySearch(newR,comparer);
+					Rule r;
+					
+					if (indexRule < 0)
+					{				
+						r = new Rule();
+						r.Prerequisite = newR.Prerequisite;
+					}
+					else
+						r = Rules[indexRule];
+					
+					foreach (Chain c in newR.Chains)
 					{
-						r.Chains.Insert(~indexChain,c);
+						int indexChain = r.Chains.BinarySearch(c);
+						if (indexChain < 0)
+						{
+							r.Chains.Insert(~indexChain,c);
+							atLeastOneChainAdded = true;
+							removedChainRules = true;
+						}
+					}
+					
+					if (r.Chains.Count > 0 && indexRule < 0)
+					{
+						Rules.Insert(~indexRule,r);	
 						removedChainRules = true;
 					}
 				}
-				
-				if (r.Chains.Count > 0 && indexRule < 0)
-				{
-					Rules.Insert(~indexRule,r);	
-					removedChainRules = true;
-				}
-			}
+			} while (atLeastOneChainAdded);
 			
 			writer.WriteLine();
 			writer.WriteLine(@"\begin{math}");	
