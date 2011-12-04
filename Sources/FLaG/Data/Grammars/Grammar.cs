@@ -9,11 +9,207 @@ namespace FLaG.Data.Grammars
 	{
 		public void MakeAutomatonGrammar(Writer writer, int newGrammarNumber)
 		{
+			int oldGrammarNumber = Number;
 			// newGrammarNumber - с этого же номера начинаем
 			// нумеровать дополнительные нетерминальные символы 
 			// грамматики
 			
-			throw new NotImplementedException();
+			// удалим пустые правила (оно единственное и привязано к целевому символу)
+			bool haveEmptyRuleForS = false;
+			for (int i = 0; i < Rules.Count; i++)
+				for (int j = 0; j < Rules[i].Chains.Count; j++)
+				{
+					if (Rules[i].Chains[j].Symbols.Count == 0)	
+					{
+						haveEmptyRuleForS = true;
+						Rules[i].Chains.RemoveAt(j);
+						j--;
+					}
+				}
+			
+			writer.WriteLine(@"Приведем регулярную грамматику к регулярной, для этого грамматику",true);			
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}");
+			Number = newGrammarNumber;
+			writer.WriteLine(@"и построим грамматику",true);			
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			Number = oldGrammarNumber;
+			writer.WriteLine(@"\end{math}.");
+			
+			List<Rule> newRules = new List<Rule>();
+			
+			writer.WriteLine();
+			
+			writer.WriteLine(@"\begin{math}");
+			SaveN(writer);
+			writer.WriteLine(@"=");
+			Number = newGrammarNumber;
+			SaveN(writer);
+			writer.WriteLine(@",",true);
+			Number = oldGrammarNumber;			
+			Unterminal.GetInstance(newGrammarNumber).Save(writer,IsLeft);
+			writer.WriteLine(@"=");			
+			TargetSymbol.Save(writer,IsLeft);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine();
+			writer.WriteLine(@"В силу того, что",true);
+			writer.WriteLine(@"\begin{math}");
+			if (haveEmptyRuleForS)
+				writer.WriteLine(@"\varepsilon \in L(");
+			else
+				writer.WriteLine(@"\varepsilon \notin L(");
+			SaveG(writer);
+			writer.WriteLine(@")");
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"то",true);			
+			Number = newGrammarNumber;
+			writer.WriteLine(@"\begin{math}");
+			SaveP(writer);
+			writer.WriteLine(@"=");
+			
+			if (haveEmptyRuleForS)
+			{
+				Rule rule = new Rule();
+				rule.Prerequisite = TargetSymbol;
+				rule.Chains.Add(new Chain());
+				newRules.Add(rule);
+			}
+			
+			SaveRules(writer,newRules);
+			
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine();
+			
+			writer.WriteLine(@"Построим остальные правила грамматики");
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}");
+			
+			int firstUnterminalNumber = newGrammarNumber + 1;
+			
+			foreach (Rule r in Rules)
+				foreach (Chain c in r.Chains)
+				{
+					List<Rule> chainNewRules = new List<Rule>();
+					if (c.Symbols.Count > 2)
+					{
+						if (IsLeft)
+						{
+							Unterminal u = null;
+							if (c.Symbols[0] is Unterminal)
+							{
+								u = (Unterminal)c.Symbols[0];
+								c.Symbols.RemoveAt(0);
+							}
+							
+							Rule rule = new Rule();							
+							Chain chain = new Chain();
+							if (u != null)
+								chain.Symbols.Add(u);
+							chain.Symbols.Add(c.Symbols[0]);
+							rule.Prerequisite = Unterminal.GetInstance(firstUnterminalNumber++);
+							rule.Chains.Add(chain);							
+							AddRule(chainNewRules,rule);
+						
+							for (int j = 1; j < c.Symbols.Count - 1; j++)
+							{
+								rule = new Rule();							
+								chain = new Chain();
+								chain.Symbols.Add(Unterminal.GetInstance(firstUnterminalNumber-1));
+								chain.Symbols.Add(c.Symbols[j]);
+								rule.Prerequisite = Unterminal.GetInstance(firstUnterminalNumber++);
+								rule.Chains.Add(chain);
+								AddRule(chainNewRules,rule);
+							}	
+						
+							rule = new Rule();							
+							chain = new Chain();
+							chain.Symbols.Add(Unterminal.GetInstance(firstUnterminalNumber-1));
+							chain.Symbols.Add(c.Symbols[c.Symbols.Count - 1]);
+							rule.Prerequisite = r.Prerequisite;
+							rule.Chains.Add(chain);
+							AddRule(chainNewRules,rule);
+						}
+						else
+						{
+							Unterminal u = null;
+							if (c.Symbols[c.Symbols.Count - 1] is Unterminal)
+							{
+								u = (Unterminal)c.Symbols[c.Symbols.Count - 1];
+								c.Symbols.RemoveAt(c.Symbols.Count - 1);
+							}
+						
+							Rule rule = new Rule();														
+							rule.Prerequisite = r.Prerequisite;
+							Chain chain = new Chain();
+							chain.Symbols.Add(c.Symbols[0]);
+							chain.Symbols.Add(Unterminal.GetInstance(firstUnterminalNumber++));													
+							rule.Chains.Add(chain);
+							AddRule(chainNewRules,rule);						
+						
+							for (int j = 1; j < c.Symbols.Count - 1; j++)
+							{
+								rule = new Rule();							
+								rule.Prerequisite = Unterminal.GetInstance(firstUnterminalNumber);
+								chain = new Chain();																
+								chain.Symbols.Add(c.Symbols[j]);
+								chain.Symbols.Add(Unterminal.GetInstance(firstUnterminalNumber++));
+								rule.Chains.Add(chain);
+								AddRule(chainNewRules,rule);
+							}	
+						
+							rule = new Rule();							
+							rule.Prerequisite = Unterminal.GetInstance(firstUnterminalNumber);
+							chain = new Chain();
+							chain.Symbols.Add(c.Symbols[c.Symbols.Count - 1]);
+							if (u != null)
+								chain.Symbols.Add(u);
+							rule.Chains.Add(chain);							
+							AddRule(chainNewRules,rule);
+						}
+					}
+					else
+					{
+						Rule rule = new Rule();
+						rule.Prerequisite = r.Prerequisite;
+						rule.Chains.Add(c.DeepClone());
+						AddRule(chainNewRules,rule);
+					}
+				
+					
+				}
+		}
+		
+		private bool AddRule(List<Rule> rules, Rule rule)
+		{
+			RuleByTargetSymbolComparer comparer = new RuleByTargetSymbolComparer();
+			
+			int index = rules.BinarySearch(rule,comparer);
+			
+			if (index < 0)
+			{
+				rule.Normalize();
+				rules.Insert(~index,rule);
+				return true;
+			}				
+			else
+			{
+				bool result = false;
+				
+				foreach (Chain c in rule.Chains)	
+				{
+					int chainIndex = rules[index].Chains.BinarySearch(c);
+					if (chainIndex < 0)
+					{
+						rules[index].Chains.Insert(~chainIndex,c);
+						result = true;
+					}
+				}
+				
+				return result;
+			}
 		}
 		
 		private void SaveSets(Writer writer, Dictionary<Unterminal,FlaggedUnterminalSet> dictionary, int num)
@@ -1620,30 +1816,49 @@ namespace FLaG.Data.Grammars
 			}
 		}
 		
+		private Unterminal[] GetDeepUnterminals(List<Rule> rules)
+		{
+			List<Unterminal> unterminals = new List<Unterminal>();
+			
+			for (int i = 0; i < rules.Count; i++)	
+			{
+				int index = unterminals.BinarySearch(rules[i].Prerequisite);
+				if (index < 0)
+					unterminals.Insert(~index,rules[i].Prerequisite);
+				
+				foreach (Chain c in rules[i].Chains)
+					foreach (Symbol s in c.Symbols)						
+						if (s is Unterminal)
+						{
+							Unterminal u = (Unterminal)s;
+							index = unterminals.BinarySearch(u);
+							if (index < 0)
+								unterminals.Insert(~index,u);
+						}
+			}
+			
+			return unterminals.ToArray();
+		}
+		
+		private Unterminal[] GetUnterminals(List<Rule> rules)
+		{
+			List<Unterminal> unterminals = new List<Unterminal>();
+			
+			for (int i = 0; i < rules.Count; i++)	
+			{
+				int index = unterminals.BinarySearch(rules[i].Prerequisite);
+				if (index < 0)
+					unterminals.Insert(~index,rules[i].Prerequisite);
+			}
+			
+			return unterminals.ToArray();
+		}
+		
 		public Unterminal[] DeepUnterminals
 		{
 			get
 			{
-				List<Unterminal> unterminals = new List<Unterminal>();
-				
-				for (int i = 0; i < Rules.Count; i++)	
-				{
-					int index = unterminals.BinarySearch(Rules[i].Prerequisite);
-					if (index < 0)
-						unterminals.Insert(~index,Rules[i].Prerequisite);
-					
-					foreach (Chain c in Rules[i].Chains)
-						foreach (Symbol s in c.Symbols)						
-							if (s is Unterminal)
-							{
-								Unterminal u = (Unterminal)s;
-								index = unterminals.BinarySearch(u);
-								if (index < 0)
-									unterminals.Insert(~index,u);
-							}
-				}
-				
-				return unterminals.ToArray();
+				return GetDeepUnterminals(Rules);
 			}
 		}
 		
@@ -1651,16 +1866,7 @@ namespace FLaG.Data.Grammars
 		{
 			get
 			{
-				List<Unterminal> unterminals = new List<Unterminal>();
-				
-				for (int i = 0; i < Rules.Count; i++)	
-				{
-					int index = unterminals.BinarySearch(Rules[i].Prerequisite);
-					if (index < 0)
-						unterminals.Insert(~index,Rules[i].Prerequisite);
-				}
-				
-				return unterminals.ToArray();
+				return GetUnterminals(Rules);
 			}
 		}
 		
@@ -1757,12 +1963,17 @@ namespace FLaG.Data.Grammars
 		
 		public void SaveRules(Writer writer)
 		{
-			for (int i = 0; i < Rules.Count; i++)
+			SaveRules(writer,Rules);
+		}
+		
+		public void SaveRules(Writer writer, List<Rule> rules)
+		{
+			for (int i = 0; i < rules.Count; i++)
 			{
 				if (i != 0)		
 					writer.Write(", ");
 				
-				Rules[i].Save(writer, IsLeft);
+				rules[i].Save(writer, IsLeft);
 			}
 		}
 		
