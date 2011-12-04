@@ -488,8 +488,70 @@ namespace FLaG.Data.Grammars
 			return removedChainRules;
 		}
 		
-		public bool RemoveEmptyRules(Writer writer, int newGrammarNumber)
+		private bool RemoveFullEmptyRules()
 		{
+			bool somethingChanged = false;
+			// удаляем сначала исключительно пустые правила на всякий случай
+			// этот пункт не входит в отчет, поэтому писаниной заниматься тут не будем
+			
+			bool atLeastOneRuleDeleted;
+			
+			do
+			{
+				atLeastOneRuleDeleted = false;
+				
+				HashSet<Unterminal> fullEmptyUnterminals = new HashSet<Unterminal>();			
+				
+				for (int i = 0; i < Rules.Count; i++)
+				{
+					bool isAllEmpty = true;
+					foreach (Chain c in Rules[i].Chains)
+					{
+						if (c.Symbols.Count != 0)
+						{
+							isAllEmpty = false;
+							break;
+						}
+					}
+					
+					if (isAllEmpty)
+					{
+						fullEmptyUnterminals.Add(Rules[i].Prerequisite);
+						if (Rules[i].Prerequisite.CompareTo(TargetSymbol) != 0)
+						{
+							Rules.RemoveAt(i);
+							i--;
+							somethingChanged = true;							
+							atLeastOneRuleDeleted = true;
+						}
+					}
+				}
+				
+				for (int i = 0; i < Rules.Count; i++)
+					for (int j = 0; j < Rules[i].Chains.Count; j++)
+						for (int k = 0; k < Rules[i].Chains[j].Symbols.Count; k++)
+							if (Rules[i].Chains[j].Symbols[k] is Unterminal)	
+							{
+								Unterminal u = (Unterminal)Rules[i].Chains[j].Symbols[k];
+								if (fullEmptyUnterminals.Contains(u))
+								{
+									Rules[i].Chains[j].Symbols.RemoveAt(k);
+									k--;
+									somethingChanged = true;
+									atLeastOneRuleDeleted = true;
+								}
+							}
+				
+				Normalize();
+				
+			} while (atLeastOneRuleDeleted);			
+						
+			return somethingChanged;
+		}
+		
+		public bool RemoveEmptyRules(Writer writer, int newGrammarNumber)
+		{		
+			RemoveFullEmptyRules();
 			int oldGrammarNumber = Number;
 			writer.WriteLine(@"Удалим пустые правила грамматики",true);			
 			writer.WriteLine(@"\begin{math}");
