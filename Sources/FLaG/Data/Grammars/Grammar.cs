@@ -7,6 +7,15 @@ namespace FLaG.Data.Grammars
 {
 	class Grammar
 	{
+		public void MakeAutomatonGrammar(Writer writer, int newGrammarNumber)
+		{
+			// newGrammarNumber - с этого же номера начинаем
+			// нумеровать дополнительные нетерминальные символы 
+			// грамматики
+			
+			throw new NotImplementedException();
+		}
+		
 		private void SaveSets(Writer writer, Dictionary<Unterminal,FlaggedUnterminalSet> dictionary, int num)
 		{
 			SaveSets(writer,dictionary,num,false);

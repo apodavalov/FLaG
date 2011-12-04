@@ -467,6 +467,23 @@ namespace FLaG.Output
 			return changed;
 		}
 		
+		private void Step2_4_6(bool isLeft)
+		{
+			Write(@"\subsubsection{");
+			Write("Этап 2.4.6",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
+			WriteLine(@"}");
+			
+			if (isLeft)
+				LeftSidedGrammar.MakeAutomatonGrammar(this,FirstLeftSidedFreeNumber++);
+			else
+				RightSidedGrammar.MakeAutomatonGrammar(this,FirstRightSidedFreeNumber++);			
+		}
+		
 		public void StepOptimizeGrammatic(bool isLeft)
 		{
 			bool somethingChanged;
@@ -493,16 +510,14 @@ namespace FLaG.Output
 			if (!somethingChanged)
 			{
 				WriteLine(@"Итак, так как в результате приведения грамматики не произошло",true);
-				WriteLine(@"ее изменение, то переходим к построению конечного автомата для",true);
-				WriteLine(@"приведенной грамматики.",true);
+				WriteLine(@"ее изменение, то переходим к построению автоматной грамматики.",true);
 			}
 			else
 			{
 				WriteLine(@"Итак, так как в результате приведения грамматики произошло",true);
 				WriteLine(@"ее изменение, то мы должны повторить алгоритм приведения снова.",true);
 				Step2_4_2(isLeft,true);
-				WriteLine(@"Переходим к построению конечного автомата для",true);
-				WriteLine(@"приведенной грамматики.",true);
+				WriteLine(@"Переходим к построению автоматной грамматики.",true);
 			}		
 		}
 
@@ -524,6 +539,9 @@ namespace FLaG.Output
 			
 			StepOptimizeGrammatic(true);
 			StepOptimizeGrammatic(false);
+			
+			Step2_4_6(true);
+			Step2_4_6(false);
 
             WriteEndDoc();
 		}
