@@ -76,7 +76,7 @@ namespace FLaG.Data
             for (int i = 0; i < EntityCollection.Count; i++)
             {
                 if (i != 0)
-					writer.Write(@"+");
+					writer.Write(@",");
 
                 EntityCollection[i].Save(writer);
             }                      
