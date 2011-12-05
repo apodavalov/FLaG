@@ -27,7 +27,7 @@ namespace FLaG.Data.Grammars
 					}
 				}
 			
-			writer.WriteLine(@"Приведем регулярную грамматику к регулярной, для этого грамматику",true);			
+			writer.WriteLine(@"Приведем регулярную грамматику к автоматной, для этого грамматику",true);			
 			writer.WriteLine(@"\begin{math}");
 			SaveG(writer);
 			writer.WriteLine(@"\end{math}");
@@ -77,7 +77,11 @@ namespace FLaG.Data.Grammars
 				newRules.Add(rule);
 			}
 			
-			SaveRules(writer,newRules);
+			// TODO: SaveRules должна сама это делать
+			if (newRules.Count == 0)
+				writer.WriteLine(@"\varnothing");
+			else
+				SaveRules(writer,newRules);
 			
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine();
@@ -85,25 +89,50 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"Построим остальные правила грамматики");
 			writer.WriteLine(@"\begin{math}");
 			SaveG(writer);
-			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"\end{math}.");
+			
+			List<Unterminal> newUnterminals = new List<Unterminal>(Unterminals);
 			
 			int firstUnterminalNumber = newGrammarNumber + 1;
 			
 			foreach (Rule r in Rules)
 				foreach (Chain c in r.Chains)
 				{
+					Rule pseudoRule = new Rule();
+					pseudoRule.Prerequisite = r.Prerequisite;
+					pseudoRule.Chains.Add(c.DeepClone());
+				
 					List<Rule> chainNewRules = new List<Rule>();
-					if (c.Symbols.Count > 2)
+				
+					bool needAlgorithm = false;
+					Unterminal u = null;
+				
+					if (c.Symbols.Count > 1)
+					{
+						if (c.Symbols[IsLeft ? 0 : c.Symbols.Count - 1] is Unterminal)
+						{	
+							if (c.Symbols.Count > 2) // в этом случае выполняем алгоритм 3.2
+							{
+								needAlgorithm = true;							
+								// извлекаем сразу символ
+								u = (Unterminal)c.Symbols[IsLeft ? 0 : c.Symbols.Count - 1];
+							}
+						}
+						else
+							needAlgorithm = true; // алгоритм 3.3
+					}				
+				
+					if (!needAlgorithm)
+					{
+						Rule rule = new Rule();
+						rule.Prerequisite = r.Prerequisite;
+						rule.Chains.Add(c.DeepClone());
+						AddRule(chainNewRules,rule);
+					}
+					else
 					{
 						if (IsLeft)
 						{
-							Unterminal u = null;
-							if (c.Symbols[0] is Unterminal)
-							{
-								u = (Unterminal)c.Symbols[0];
-								c.Symbols.RemoveAt(0);
-							}
-							
 							Rule rule = new Rule();							
 							Chain chain = new Chain();
 							if (u != null)
@@ -134,13 +163,6 @@ namespace FLaG.Data.Grammars
 						}
 						else
 						{
-							Unterminal u = null;
-							if (c.Symbols[c.Symbols.Count - 1] is Unterminal)
-							{
-								u = (Unterminal)c.Symbols[c.Symbols.Count - 1];
-								c.Symbols.RemoveAt(c.Symbols.Count - 1);
-							}
-						
 							Rule rule = new Rule();														
 							rule.Prerequisite = r.Prerequisite;
 							Chain chain = new Chain();
@@ -170,16 +192,124 @@ namespace FLaG.Data.Grammars
 							AddRule(chainNewRules,rule);
 						}
 					}
+				
+					writer.WriteLine();
+					writer.WriteLine(@"Обработаем правило",true);
+					writer.WriteLine(@"\begin{math}");
+					pseudoRule.Save(writer,IsLeft);
+					writer.WriteLine(@"\end{math}.");
+				
+					if (!needAlgorithm)
+					{
+						writer.WriteLine("Данное правило переносится без изменений в",true);
+						writer.WriteLine(@"\begin{math}");
+						SaveP(writer);
+						writer.WriteLine(@"\end{math}.");
+					}
 					else
 					{
-						Rule rule = new Rule();
-						rule.Prerequisite = r.Prerequisite;
-						rule.Chains.Add(c.DeepClone());
-						AddRule(chainNewRules,rule);
+						writer.WriteLine("Данное правило преобразовывается в множество правил и данное множество добавляется в",true);
+						writer.WriteLine(@"\begin{math}");
+						SaveP(writer);
+						writer.WriteLine(@"\end{math}.");	
 					}
 				
+					writer.WriteLine();
+					writer.WriteLine(@"\begin{math}");
+					SaveP(writer);
+					writer.WriteLine(@"=");
+					SaveP(writer);
+					writer.WriteLine(@"\cup");
+					writer.WriteLine(@"\{");
+					SaveRules(writer,chainNewRules);
+					writer.WriteLine(@"\}");
+					writer.WriteLine(@"=");
+					foreach (Rule rule in chainNewRules)
+						AddRule(newRules,rule);
+					writer.WriteLine(@"\{");
+					SaveRules(writer,newRules);
+					writer.WriteLine(@"\}");
+					writer.WriteLine(@"\end{math}");
+				
+					if (needAlgorithm)
+					{
+						writer.WriteLine();
+						SaveN(writer);
+						writer.WriteLine(@"=");
+						SaveN(writer);
+						writer.WriteLine(@"\cup");
+						Unterminal[] unterminals = GetUnterminals(chainNewRules);
+						writer.WriteLine(@"\{");	
+						SaveUnterminals(writer,unterminals);
+						writer.WriteLine(@"\}");	
+						foreach (Unterminal uu in unterminals)
+						{
+							int index = newUnterminals.BinarySearch(uu);
+							if (index < 0)
+								newUnterminals.Insert(~index,uu);
+						}
 					
+						writer.WriteLine(@"=");
+						writer.WriteLine(@"\{");	
+						SaveUnterminals(writer,newUnterminals.ToArray());
+						writer.WriteLine(@"\}");	
+					}
 				}
+			
+			Rules.Clear();
+			Rules.AddRange(newRules);
+			
+			writer.WriteLine();
+			
+			writer.WriteLine(@"Итак, окончательно грамматика",true);
+			writer.WriteLine(@"\begin{math}");	
+			SaveG(writer);	
+			writer.WriteLine(@"\end{math}");	
+			writer.WriteLine(@"--- это четверка вида",true);
+			writer.WriteLine(@"\begin{math}");	
+			SaveCortege(writer);
+			writer.WriteLine(@"\end{math},");	
+			writer.WriteLine(@"где соответствующие элементы грамматики принимают следующие значения",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");	
+			SaveN(writer);
+			writer.WriteLine(@"=\{");				
+			SaveUnterminals(writer);
+			writer.WriteLine(@"\}");	
+			writer.WriteLine(@"\end{math}");	
+			writer.WriteLine(@"--- множество нетерминальных символов грамматики",true);
+			writer.WriteLine(@"\begin{math}");	
+			SaveG(writer);
+			writer.WriteLine(@"\end{math};");	
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			SaveSigmaWithNum(writer);
+			writer.Write(@"=");
+			SaveAlphabet(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество терминальных символов грамматики",true);
+			writer.WriteLine(@"\begin{math}");	
+			SaveG(writer);
+			writer.WriteLine(@"\end{math};");	
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");	
+			SaveP(writer);
+			writer.WriteLine(@"=");
+			writer.WriteLine(@"\{");
+			SaveRules(writer);
+			writer.WriteLine(@"\}\end{math}");
+			writer.WriteLine(@"--- множество правил вывода для данной грамматики;",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			Unterminal.GetInstance(newGrammarNumber).Save(writer,IsLeft);
+			writer.WriteLine(@"\equiv");
+			TargetSymbol.Save(writer,IsLeft);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"целевой символ грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine();
 		}
 		
 		private bool AddRule(List<Rule> rules, Rule rule)

@@ -481,7 +481,10 @@ namespace FLaG.Output
 			if (isLeft)
 				LeftSidedGrammar.MakeAutomatonGrammar(this,FirstLeftSidedFreeNumber++);
 			else
-				RightSidedGrammar.MakeAutomatonGrammar(this,FirstRightSidedFreeNumber++);			
+				RightSidedGrammar.MakeAutomatonGrammar(this,FirstRightSidedFreeNumber++);		
+			
+			WriteLine(@"После приведения регулярной грамматики к автоматной, переходим",true);
+			WriteLine(@"к построению конечного автомата для данной грамматики.",true);
 		}
 		
 		public void StepOptimizeGrammatic(bool isLeft)
