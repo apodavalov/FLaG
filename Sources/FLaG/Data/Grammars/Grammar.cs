@@ -270,7 +270,7 @@ namespace FLaG.Data.Grammars
 			SaveG(writer);	
 			writer.WriteLine(@"\end{math}");	
 			writer.WriteLine(@"--- это четверка вида",true);
-			writer.WriteLine(@"\begin{math}");	
+			writer.WriteLine(@"\begin{math}");				
 			SaveCortege(writer);
 			writer.WriteLine(@"\end{math},");	
 			writer.WriteLine(@"где соответствующие элементы грамматики принимают следующие значения",true);
@@ -2146,7 +2146,7 @@ namespace FLaG.Data.Grammars
 			writer.Write(@",");			
 			SaveP(writer);						
 			writer.Write(@",");
-			TargetSymbol.Save(writer,IsLeft);					
+			Unterminal.GetInstance(Number).Save(writer,IsLeft);					
 			writer.Write(@"\right)");
 		}
 		
