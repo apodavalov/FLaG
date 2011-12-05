@@ -81,7 +81,11 @@ namespace FLaG.Data.Grammars
 			if (newRules.Count == 0)
 				writer.WriteLine(@"\varnothing");
 			else
+			{
+				writer.WriteLine(@"\{");
 				SaveRules(writer,newRules);
+				writer.WriteLine(@"\}");
+			}
 			
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine();
