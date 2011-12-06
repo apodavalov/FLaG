@@ -467,10 +467,10 @@ namespace FLaG.Output
 			return changed;
 		}
 		
-		private void Step2_4_6(bool isLeft)
+		private void Step2_5_1(bool isLeft)
 		{
 			Write(@"\subsubsection{");
-			Write("Этап 2.4.6",true);
+			Write("Этап 2.5.1",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -513,15 +513,24 @@ namespace FLaG.Output
 			if (!somethingChanged)
 			{
 				WriteLine(@"Итак, так как в результате приведения грамматики не произошло",true);
-				WriteLine(@"ее изменение, то переходим к построению автоматной грамматики.",true);
+				WriteLine(@"ее изменение, то переходим к построению конечного автомата.",true);
 			}
 			else
 			{
 				WriteLine(@"Итак, так как в результате приведения грамматики произошло",true);
 				WriteLine(@"ее изменение, то мы должны повторить алгоритм приведения снова.",true);
 				Step2_4_2(isLeft,true);
-				WriteLine(@"Переходим к построению автоматной грамматики.",true);
+				WriteLine(@"Переходим к построению конечного автомата для данной грамматики.",true);
 			}		
+		}
+		
+		private void Step2_5()
+		{
+			Write(@"\subsection{");
+			Write("Этап 2.5",true);
+			WriteLine(@"}");
+			
+			WriteLine(@"На этом шаге для приведенной грамматики строим конечный автомат.",true);			
 		}
 
         private void WriteEndDoc()
@@ -543,8 +552,10 @@ namespace FLaG.Output
 			StepOptimizeGrammatic(true);
 			StepOptimizeGrammatic(false);
 			
-			Step2_4_6(true);
-			Step2_4_6(false);
+			Step2_5();
+			
+			Step2_5_1(true);
+			Step2_5_1(false);
 
             WriteEndDoc();
 		}
