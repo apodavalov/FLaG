@@ -66,6 +66,12 @@
     <Compile Include="Data\Grammars\Chain.cs" />
     <Compile Include="Data\Helpers\FlaggedUnterminalSet.cs" />
     <Compile Include="Data\Helpers\RuleByTargetSymbolComparer.cs" />
+    <Compile Include="Data\Automaton\Automaton.cs" />
+    <Compile Include="Data\Automaton\TransitionFunc.cs" />
+    <Compile Include="Data\Automaton\Status.cs" />
+    <Compile Include="Data\Automaton\Symbol.cs" />
+    <Compile Include="Data\Automaton\SimpleStatus.cs" />
+    <Compile Include="Data\Automaton\ComplexStatus.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Schema\lang.xsd">
@@ -90,5 +96,6 @@
   <ItemGroup>
     <Folder Include="Data\Grammars\" />
     <Folder Include="Data\Helpers\" />
+    <Folder Include="Data\Automaton\" />
   </ItemGroup>
 </Project>
