@@ -167,7 +167,10 @@ namespace FLaG.Data.Automaton
 		public void SaveDelta(Writer writer)
 		{
 			writer.Write(@"{");
-			writer.Write(@"\delta");
+			writer.Write(@"{\delta}");
+			writer.Write("_{");
+			writer.Write(Number);
+			writer.Write(@"}");
 			writer.Write(Apostrophs);
 			writer.Write(@"}");
 		}
@@ -175,7 +178,10 @@ namespace FLaG.Data.Automaton
 		public void SaveSigma(Writer writer)
 		{
 			writer.Write(@"{");
-			writer.Write(@"\Sigma");
+			writer.Write(@"{\Sigma}");
+			writer.Write("_{");
+			writer.Write(Number);
+			writer.Write(@"}");
 			writer.Write(Apostrophs);
 			writer.Write(@"}");
 		}

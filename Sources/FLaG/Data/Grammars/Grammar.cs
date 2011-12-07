@@ -54,7 +54,9 @@ namespace FLaG.Data.Grammars
 			automaton.SaveQ(writer);
 			writer.WriteLine(@"\end{math}");			
 			writer.WriteLine(@"автомата",true);
+			writer.WriteLine(@"\begin{math}");
 			automaton.SaveM(writer);
+			writer.WriteLine(@"\end{math}.");			
 			writer.WriteLine(@"Кроме того, во множество состояний автомата добавляется",true);
 			writer.WriteLine(@"еще одно дополнительное состояние, которое будем обозначать",true);
 			writer.WriteLine(@"\begin{math}");
@@ -65,11 +67,17 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine();
 			
 			NStatus targetSymbolStatus= new NStatus('S',TargetSymbol.Number);
-									
+			
 			if (IsLeft)
+			{
 				automaton.InitialStatus = status;
+				automaton.AddEndStatus(targetSymbolStatus);
+			}
 			else
+			{
 				automaton.InitialStatus = targetSymbolStatus;
+				automaton.AddEndStatus(status);
+			}
 			
 			foreach (Rule r in Rules)
 			{
@@ -170,7 +178,7 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"Строим множество функции перехода",true);
 			writer.WriteLine(@"\begin{math}");
 			automaton.SaveDelta(writer);
-			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"\end{math}.");
 			writer.WriteLine(@"Для этого просматриваем множество правил вывода грамматики",true);
 			writer.WriteLine(@"\begin{math}");
 			SaveG(writer);
@@ -227,7 +235,7 @@ namespace FLaG.Data.Grammars
 				writer.WriteLine(@"\delta(H,t)=A");
 			else
 				writer.WriteLine(@"\delta(A,t)=H");
-			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"\end{math}.");
 			writer.WriteLine(@"Начальным состоянием автомата является состояние",true);
 			writer.WriteLine(@"\begin{math}");
 			automaton.SaveQ0(writer);
@@ -265,7 +273,10 @@ namespace FLaG.Data.Grammars
 			automaton.SaveAlphabet(writer);
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine(@"--- входной алфавит автомата (конечное множество допустимых входных символов);",true);
+			writer.WriteLine();
 			writer.WriteLine(@"\begin{math}");
+			automaton.SaveDelta(writer);
+			writer.WriteLine(@"=");
 			automaton.SaveFunctions(writer);
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine(@"--- множество функций переходов;",true);
