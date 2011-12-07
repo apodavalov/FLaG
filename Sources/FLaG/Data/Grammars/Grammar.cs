@@ -59,7 +59,7 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"еще одно дополнительное состояние, которое будем обозначать",true);
 			writer.WriteLine(@"\begin{math}");
 			NStatus status = new NStatus('H');			
-			status.Save(writer);			
+			status.Save(writer,automaton.IsLeft);			
 			writer.WriteLine(@"\end{math}.");
 			writer.WriteLine(@"В итоге множество всех состояний автомата примет вид",true);
 			writer.WriteLine();

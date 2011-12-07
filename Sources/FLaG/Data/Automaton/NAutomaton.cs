@@ -6,59 +6,200 @@ namespace FLaG.Data.Automaton
 {
 	class NAutomaton
 	{
-		public void SaveFunctions (Writer writer)
+		public void SaveFunctions(Writer writer)
 		{
-			throw new NotImplementedException ();
+			if (Functions.Count == 0)
+				writer.WriteLine(@"\varnothing");
+			else
+			{
+				writer.WriteLine(@"\{");
+				for (int i = 0; i < Functions.Count; i++)
+				{
+					if (i != 0)		
+						writer.Write(", ");
+					
+					Functions[i].Save(writer,IsLeft);
+				}
+				writer.WriteLine(@"\}");
+			}
 		}
 		
-		public void SaveEndStatuses (Writer writer)
+		private void SaveStatuses(Writer writer, NStatus[] statuses)
 		{
-			throw new NotImplementedException ();
+			if (statuses.Length == 0)
+				writer.WriteLine(@"\varnothing");
+			else
+			{
+				writer.WriteLine(@"\{");
+				for (int i = 0; i < statuses.Length; i++)
+				{
+					if (i != 0)		
+						writer.Write(", ");
+					
+					statuses[i].Save(writer,IsLeft);
+				}
+				writer.WriteLine(@"\}");
+			}
 		}
 		
-		public void SaveAlphabet (Writer writer)
+		public void SaveAlphabet(Writer writer)
 		{
-			throw new NotImplementedException ();
+			Symbol[] symbols = Alphabet;
+			
+			if (symbols.Length == 0)
+				writer.WriteLine(@"\varnothing");
+			else
+			{
+				writer.WriteLine(@"\{");
+				for (int i = 0; i < symbols.Length; i++)
+				{
+					if (i != 0)		
+						writer.Write(", ");
+					
+					symbols[i].Save(writer);
+				}
+				writer.WriteLine(@"\}");
+			}
 		}
 		
-		public void SaveStatuses (Writer writer)
+		public void SaveEndStatuses(Writer writer)
 		{
-			throw new NotImplementedException ();
+			SaveStatuses(writer,EndStatuses.ToArray());
 		}
 		
-		public void SaveM (Writer writer)
+		private bool AddStatus(List<NStatus> statuses, NStatus item)
 		{
-			throw new NotImplementedException ();
+			int index = statuses.BinarySearch(item);
+			if (index < 0)
+				statuses.Insert(~index,item);
+			
+			return index < 0;
+		}
+
+		public bool AddSymbol(List<Symbol> symbols, Symbol item)
+		{
+			int index = symbols.BinarySearch(item);
+			
+			if (index < 0)
+				symbols.Insert(~index,item);
+			
+			return index < 0;
 		}
 		
-		public void SaveS (Writer writer)
+		public Symbol[] Alphabet
 		{
-			throw new NotImplementedException ();
+			get
+			{
+				List<Symbol> symbols = new List<Symbol>();
+				
+				foreach (NTransitionFunc func in Functions)
+					AddSymbol(symbols,func.Symbol);
+				
+				return symbols.ToArray();
+			}
 		}
 		
-		public void SaveQ0 (Writer writer)
+		public NStatus[] Statuses
 		{
-			throw new NotImplementedException ();
+			get
+			{
+				List<NStatus> statuses = new List<NStatus>();
+				
+				foreach (NTransitionFunc func in Functions)
+				{
+					AddStatus(statuses,func.OldStatus);
+					AddStatus(statuses,func.NewStatus);
+				}
+				
+				AddStatus(statuses,InitialStatus);
+				
+				return statuses.ToArray();
+			}
 		}
 		
-		public void SaveDelta (Writer writer)
+		public void SaveStatuses(Writer writer)
 		{
-			throw new NotImplementedException ();
+			SaveStatuses(writer, Statuses);
 		}
 		
-		public void SaveSigma (Writer writer)
+		public string Apostrophs
 		{
-			throw new NotImplementedException ();
+			get
+			{
+				if (IsLeft)
+					return "'";
+				else
+					return "''";
+			}
 		}
 		
-		public void SaveQ (Writer writer)
+		private void SaveLetter(char Letter, Writer writer)
 		{
-			throw new NotImplementedException ();
+			writer.Write(@"{");
+			writer.Write(@"{");
+			writer.Write(Letter.ToString(), true);
+			writer.Write("_{");
+			writer.Write(Number);
+			writer.Write(@"}}");
+			writer.Write(Apostrophs);
+			writer.Write(@"}");
 		}
 		
-		public void SaveCortege (Writer writer)
+		public void SaveM(Writer writer)
 		{
-			throw new NotImplementedException ();
+			SaveLetter('M',writer);
+		}
+		
+		public void SaveS(Writer writer)
+		{
+			SaveLetter('S',writer);
+		}
+		
+		public void SaveQ0(Writer writer)
+		{
+			writer.Write(@"{{{Q_0}_{");
+			writer.Write(Number);
+			writer.Write(@"}}");
+			writer.Write(Apostrophs);
+			writer.Write(@"}");
+		}
+		
+		public void SaveDelta(Writer writer)
+		{
+			writer.Write(@"{");
+			writer.Write(@"\delta");
+			writer.Write(Apostrophs);
+			writer.Write(@"}");
+		}
+		
+		public void SaveSigma(Writer writer)
+		{
+			writer.Write(@"{");
+			writer.Write(@"\Sigma");
+			writer.Write(Apostrophs);
+			writer.Write(@"}");
+		}
+		
+		public void SaveQ(Writer writer)
+		{
+			SaveLetter('Q',writer);
+		}
+		
+		public void SaveCortege(Writer writer)
+		{
+			SaveM(writer);
+			writer.WriteLine(@"=");
+			writer.WriteLine(@"(");
+			SaveQ(writer);
+			writer.WriteLine(@",");
+			SaveSigma(writer);
+			writer.WriteLine(@",");
+			SaveDelta(writer);
+			writer.WriteLine(@",");
+			SaveQ0(writer);
+			writer.WriteLine(@",");
+			SaveS(writer);
+			writer.WriteLine(@")");
 		}
 		
 		public bool IsLeft
@@ -84,11 +225,7 @@ namespace FLaG.Data.Automaton
 		
 		public bool AddEndStatus(NStatus item)		
 		{
-			int index = EndStatuses.BinarySearch(item);
-			if (index < 0)
-				EndStatuses.Insert(~index,item);
-			
-			return index < 0;
+			return AddStatus(EndStatuses,item);
 		}	
 		
 		public List<NStatus> EndStatuses

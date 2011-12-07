@@ -1,17 +1,29 @@
 using System;
+using FLaG.Output;
 
 namespace FLaG.Data.Automaton
 {
 	class NStatus : IComparable<NStatus>
 	{
-		public void Save (FLaG.Output.Writer writer, bool isLeft)
+		public void Save(Writer writer, bool isLeft)
 		{
-			throw new NotImplementedException ();
-		}
-		
-		public void Save (FLaG.Output.Writer writer)
-		{
-			throw new NotImplementedException ();
+			writer.Write(@"{");
+			writer.Write(@"{");
+			writer.Write(Value + "", true);
+			
+			if (Number != null)
+			{
+				writer.Write("_{");
+				writer.Write(Number);
+				writer.Write(@"}");
+			}
+			writer.Write(@"}");
+				
+			if (isLeft)
+				writer.Write("'");
+			else
+				writer.Write("''");
+			writer.Write(@"}");
 		}
 		
 		public NStatus(char value)

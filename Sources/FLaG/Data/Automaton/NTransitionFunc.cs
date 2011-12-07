@@ -1,9 +1,21 @@
 using System;
+using FLaG.Output;
 
 namespace FLaG.Data.Automaton
 {
 	class NTransitionFunc : IComparable<NTransitionFunc>
 	{
+		public void Save(Writer writer, bool IsLeft)
+		{
+			writer.WriteLine(@"\delta(");
+			OldStatus.Save(writer,IsLeft);
+			writer.WriteLine(@",");
+			Symbol.Save(writer);
+			writer.WriteLine(@")");
+			writer.WriteLine(@"=");
+			NewStatus.Save(writer,IsLeft);
+		}
+		
 		public NTransitionFunc(NStatus oldStatus, Symbol symbol, NStatus newStatus)
 		{
 			OldStatus = oldStatus;

@@ -1,9 +1,15 @@
 using System;
+using FLaG.Output;
 
 namespace FLaG.Data.Automaton
 {
 	class Symbol : IComparable<Symbol>
 	{
+		public void Save(Writer writer)
+		{
+			writer.WriteLine(Value);
+		}
+		
 		public char Value
 		{
 			get;
