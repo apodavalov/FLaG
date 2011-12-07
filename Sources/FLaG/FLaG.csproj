@@ -66,12 +66,13 @@
     <Compile Include="Data\Grammars\Chain.cs" />
     <Compile Include="Data\Helpers\FlaggedUnterminalSet.cs" />
     <Compile Include="Data\Helpers\RuleByTargetSymbolComparer.cs" />
-    <Compile Include="Data\Automaton\Automaton.cs" />
-    <Compile Include="Data\Automaton\TransitionFunc.cs" />
-    <Compile Include="Data\Automaton\Status.cs" />
     <Compile Include="Data\Automaton\Symbol.cs" />
-    <Compile Include="Data\Automaton\SimpleStatus.cs" />
-    <Compile Include="Data\Automaton\ComplexStatus.cs" />
+    <Compile Include="Data\Automaton\NAutomaton.cs" />
+    <Compile Include="Data\Automaton\NTransitionFunc.cs" />
+    <Compile Include="Data\Automaton\NStatus.cs" />
+    <Compile Include="Data\Automaton\DStatus.cs" />
+    <Compile Include="Data\Automaton\DAutomaton.cs" />
+    <Compile Include="Data\Automaton\DTransitionFunc.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Schema\lang.xsd">

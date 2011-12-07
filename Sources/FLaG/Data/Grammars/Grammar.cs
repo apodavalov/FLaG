@@ -2,11 +2,298 @@ using System;
 using System.Collections.Generic;
 using FLaG.Output;
 using FLaG.Data.Helpers;
+using FLaG.Data.Automaton;
 
 namespace FLaG.Data.Grammars
 {
 	class Grammar
 	{
+		public NAutomaton MakeAutomaton(Writer writer)
+		{
+			NAutomaton automaton = new NAutomaton();
+			automaton.Number = 1;
+			automaton.IsLeft = IsLeft;
+			writer.WriteLine(@"Выполним простроение конечного автомата по автоматной грамматике,",true);			
+			writer.WriteLine(@"т.е. определим пятерку вида",true);			
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveCortege(writer);
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"где",true);			
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveQ(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- конечное множество состояний автомата,",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveSigma(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- входной алфавит автомата (конечное множество допустимых входных символов),",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveDelta(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество функций переходов,",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveQ0(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- начальное состояние автомата,",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveS(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- заключительное состояние (конечное множество заключительных состояний).",true);
+			writer.WriteLine();
+			writer.WriteLine(@"Строим конечное множество состояний автомата. Состояния автомата строятся таким",true);
+			writer.WriteLine(@"образом, что каждому нетерминальному символу из множества",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveN(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"соответствовало одно состояние из множества",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveQ(writer);
+			writer.WriteLine(@"\end{math}");			
+			writer.WriteLine(@"автомата",true);
+			automaton.SaveM(writer);
+			writer.WriteLine(@"Кроме того, во множество состояний автомата добавляется",true);
+			writer.WriteLine(@"еще одно дополнительное состояние, которое будем обозначать",true);
+			writer.WriteLine(@"\begin{math}");
+			NStatus status = new NStatus('H');			
+			status.Save(writer);			
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine(@"В итоге множество всех состояний автомата примет вид",true);
+			writer.WriteLine();
+			
+			NStatus targetSymbolStatus= new NStatus('S',TargetSymbol.Number);
+									
+			if (IsLeft)
+				automaton.InitialStatus = status;
+			else
+				automaton.InitialStatus = targetSymbolStatus;
+			
+			foreach (Rule r in Rules)
+			{
+				foreach (Chain c in r.Chains)	
+				{
+					if (c.Symbols.Count == 0)
+					{
+						if (IsLeft)	
+							automaton.AddEndStatus(status);
+						else
+							automaton.AddEndStatus(targetSymbolStatus);
+					}
+					else if (c.Symbols.Count == 1)
+					{
+						if (c.Symbols[0] is Terminal)
+						{
+							NStatus oldStatus;
+							NStatus newStatus;
+							if (IsLeft)
+							{
+								oldStatus = status;
+								newStatus = new NStatus('S',r.Prerequisite.Number);
+							}
+							else
+							{
+								oldStatus = new NStatus('S',r.Prerequisite.Number);
+								newStatus = status;
+							}
+							
+							FLaG.Data.Automaton.Symbol symbol = new FLaG.Data.Automaton.Symbol(
+								((Terminal)c.Symbols[0]).Value);
+							NTransitionFunc func = new NTransitionFunc(oldStatus,symbol,newStatus);
+							automaton.AddFunc(func);
+						}
+					}
+					else if (c.Symbols.Count == 2)
+					{
+						if (IsLeft)
+						{
+							if (c.Symbols[0] is Unterminal && c.Symbols[1] is Terminal)
+							{
+								NStatus oldStatus = new NStatus('S',((Unterminal)c.Symbols[0]).Number);
+								FLaG.Data.Automaton.Symbol symbol = new FLaG.Data.Automaton.Symbol(
+									((Terminal)c.Symbols[1]).Value);
+								NStatus newStatus = new NStatus('S',r.Prerequisite.Number);
+								NTransitionFunc func = new NTransitionFunc(oldStatus,symbol,newStatus);
+								automaton.AddFunc(func);
+							}
+						}
+						else
+						{
+							if (c.Symbols[0] is Terminal && c.Symbols[1] is Unterminal)
+							{
+								NStatus oldStatus = new NStatus('S',r.Prerequisite.Number);
+								FLaG.Data.Automaton.Symbol symbol = new FLaG.Data.Automaton.Symbol(
+									((Terminal)c.Symbols[0]).Value);
+								NStatus newStatus = new NStatus('S',((Unterminal)c.Symbols[1]).Number);
+								NTransitionFunc func = new NTransitionFunc(oldStatus,symbol,newStatus);
+								automaton.AddFunc(func);
+							}
+						}
+					}
+				}
+			}
+			
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveQ(writer);
+			writer.WriteLine(@"=");
+			SaveN(writer);
+			writer.WriteLine(@"\cup");
+			writer.WriteLine(@"\{");
+			status.Save(writer,automaton.IsLeft);
+			writer.WriteLine(@"\}");
+			writer.WriteLine(@"=");
+			automaton.SaveStatuses(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine();
+			
+			writer.WriteLine(@"Входным алфавитом автомата",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveM(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"является множество терминальных символов грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"т.е.",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveSigma(writer);
+			writer.WriteLine(@"=");
+			SaveSigmaWithNum(writer);
+			writer.WriteLine(@"=");
+			automaton.SaveAlphabet(writer);
+			writer.WriteLine(@"\end{math}.");
+			
+			writer.WriteLine();
+			writer.WriteLine(@"Строим множество функции перехода",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveDelta(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"Для этого просматриваем множество правил вывода грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveG(writer);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine(@"Если встречается правило вида",true);
+			writer.WriteLine(@"\begin{math}");
+			if (automaton.IsLeft)
+				writer.WriteLine(@"A \rightarrow Bt");
+			else
+				writer.WriteLine(@"A \rightarrow tB");
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"где ",true);
+			writer.WriteLine(@"\begin{math}");
+			writer.WriteLine(@"A,B \in");
+			SaveN(writer);
+			writer.WriteLine(@",t \in");
+			SaveSigmaWithNum(writer);
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"то во множество",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveDelta(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"добавляется функция перехода вида",true);
+			
+			writer.WriteLine(@"\begin{math}");
+			if (automaton.IsLeft)
+				writer.WriteLine(@"\delta(B,t)=A");
+			else
+				writer.WriteLine(@"\delta(A,t)=B");
+			writer.WriteLine(@"\end{math}.");
+			
+			writer.WriteLine(@"Если во множестве",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveP(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"встречается правило вида ",true);
+			writer.WriteLine(@"\begin{math}");
+			writer.WriteLine(@"A \rightarrow t");
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"где ",true);
+			writer.WriteLine(@"\begin{math}");
+			writer.WriteLine(@"A \in");
+			SaveN(writer);
+			writer.WriteLine(@", t \in");
+			SaveSigmaWithNum(writer);
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"то в ",true);
+			writer.WriteLine(@"\begin{math}");
+			writer.WriteLine(@"\delta");
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"добавляется функция перехода вида",true);
+			writer.WriteLine(@"\begin{math}");
+			if (automaton.IsLeft)
+				writer.WriteLine(@"\delta(H,t)=A");
+			else
+				writer.WriteLine(@"\delta(A,t)=H");
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"Начальным состоянием автомата является состояние",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveQ0(writer);
+			writer.WriteLine(@"=");
+			automaton.InitialStatus.Save(writer,automaton.IsLeft);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine();
+			writer.WriteLine(@"Множество заключительных состояний автомата",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveM(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"является",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveS(writer);
+			writer.WriteLine(@"=");
+			automaton.SaveEndStatuses(writer);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine();
+			writer.WriteLine(@"Таким образом, конечный автомат примет вид",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveCortege(writer);
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"где",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveQ(writer);
+			writer.WriteLine(@"=");
+			automaton.SaveStatuses(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- конечное множество состояний автомата;",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveSigma(writer);
+			writer.WriteLine(@"=");
+			automaton.SaveAlphabet(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- входной алфавит автомата (конечное множество допустимых входных символов);",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveFunctions(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество функций переходов;",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveQ0(writer);
+			writer.WriteLine(@"=");
+			automaton.InitialStatus.Save(writer,automaton.IsLeft);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- начальное состояние автомата;",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveS(writer);
+			writer.WriteLine(@"=");
+			automaton.SaveEndStatuses(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- конечное множество заключительных состояний.",true);
+			writer.WriteLine();
+			writer.WriteLine(@"На этом этапе построение конечного автомата по ", true);
+			if (IsLeft)
+				writer.WriteLine(@"леволинейной",true);
+			else
+				writer.WriteLine(@"праволинейной",true);
+			writer.WriteLine(@" автоматной грамматике заканчивается.", true);
+			
+			return automaton;
+		}
+		
 		public void MakeAutomatonGrammar(Writer writer, int newGrammarNumber)
 		{
 			int oldGrammarNumber = Number;

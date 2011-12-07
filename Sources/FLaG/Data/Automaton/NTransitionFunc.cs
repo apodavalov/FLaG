@@ -4,22 +4,29 @@ namespace FLaG.Data.Automaton
 {
 	class NTransitionFunc : IComparable<NTransitionFunc>
 	{
+		public NTransitionFunc(NStatus oldStatus, Symbol symbol, NStatus newStatus)
+		{
+			OldStatus = oldStatus;
+			Symbol = symbol;
+			NewStatus = newStatus;
+		}
+		
 		public NStatus OldStatus
 		{
 			get;
-			set;
+			private set;
 		}
 		
 		public Symbol Symbol
 		{
 			get;
-			set;
+			private set;
 		}
 		
 		public NStatus NewStatus
 		{
 			get;
-			set;
+			private set;
 		}
 		
 		public int CompareTo(NTransitionFunc other)

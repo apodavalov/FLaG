@@ -10,19 +10,11 @@ namespace FLaG.Data.Automaton
 			set;
 		}
 		
-		public override bool Equals(object obj)
+		public Symbol(char value)
 		{
-			if (obj is Symbol)
-				return CompareTo((Symbol)obj) == 0;
-			else
-				return false;
+			Value = value;
 		}
-		
-		public override int GetHashCode ()
-		{
-			return Value.GetHashCode();
-		}
-		
+	
 		public int CompareTo(Symbol other)
 		{
 			return Value.CompareTo(other.Value);

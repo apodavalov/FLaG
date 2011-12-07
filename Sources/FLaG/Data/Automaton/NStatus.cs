@@ -4,16 +4,37 @@ namespace FLaG.Data.Automaton
 {
 	class NStatus : IComparable<NStatus>
 	{
+		public void Save (FLaG.Output.Writer writer, bool isLeft)
+		{
+			throw new NotImplementedException ();
+		}
+		
+		public void Save (FLaG.Output.Writer writer)
+		{
+			throw new NotImplementedException ();
+		}
+		
+		public NStatus(char value)
+		{
+			Value = value;
+		}
+		
+		public NStatus(char value, int number)
+		{
+			Value = value;
+			Number = number;
+		}
+		
 		public int? Number
 		{
 			get;
-			set;
+			private set;
 		}
 		
 		public char Value
 		{
 			get;
-			set;
+			private set;
 		}
 
 		public int CompareTo(NStatus other)

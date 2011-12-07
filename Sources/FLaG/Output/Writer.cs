@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using FLaG.Data;
 using FLaG.Data.Grammars;
+using FLaG.Data.Automaton;
 
 namespace FLaG.Output
 {
@@ -19,6 +20,9 @@ namespace FLaG.Output
 		private Grammar RightSidedGrammar;
 		private int FirstLeftSidedFreeNumber;
 		private int FirstRightSidedFreeNumber;
+		
+		private NAutomaton nLeftAutomaton;
+		private NAutomaton nRightAutomaton;
 		
 		public Writer(Stream stream, Lang lang) 
 			: base(stream)
@@ -532,6 +536,27 @@ namespace FLaG.Output
 			
 			WriteLine(@"На этом шаге для приведенной грамматики строим конечный автомат.",true);			
 		}
+		
+		private void Step2_5_2(bool isLeft)
+		{
+			Write(@"\subsubsection{");
+			Write("Этап 2.5.2",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
+			WriteLine(@"}");
+			
+			Grammar grammar = isLeft ? LeftSidedGrammar : RightSidedGrammar;
+			
+			NAutomaton automaton = grammar.MakeAutomaton(this);
+			
+			if (isLeft)
+				nLeftAutomaton = automaton;
+			else
+				nRightAutomaton = automaton;		
+		}
 
         private void WriteEndDoc()
         {
@@ -556,6 +581,9 @@ namespace FLaG.Output
 			
 			Step2_5_1(true);
 			Step2_5_1(false);
+			
+			Step2_5_2(true);
+			Step2_5_2(false);
 
             WriteEndDoc();
 		}
