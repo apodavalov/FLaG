@@ -557,6 +557,39 @@ namespace FLaG.Output
 			else
 				nRightAutomaton = automaton;		
 		}
+		
+		private void Step2_6(bool isLeft)
+		{
+			Write(@"\subsection{");
+			Write("Этап 2.6",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
+			WriteLine(@"}");
+			
+			WriteLine(@"На этом шаге проверяем, является ли построенный конечный автомат детерминированным.",true);
+			WriteLine(@"Если он недетерминированный, то строим для него детерминированный конечный автомат (ДКА).",true);
+			WriteLine(@"Один из наиболее важных результатов теории конечных автоматов состоит в том, что класс языков,",true);
+			WriteLine(@"определяемых нетерминированными конечными автоматами, совпадает с классом языков, определяемых",true);
+			WriteLine(@"детерминированными конечными автоматами. Это означает, что для любого недерминированного конечного",true);
+			WriteLine(@"автомата (НКА) всегда можно построить детерминированный конечный автомат, определяющий тот же язык.",true);
+			
+			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;
+			
+			bool dfa = automaton.IsDFA();
+			
+			WriteLine(@"Рассматривая множество функций переходов построенного конечного автомата",true);
+			WriteLine(@"\begin{math}");
+			automaton.SaveM(this);
+			WriteLine(@"\end{math}.");
+			Write(@"Видим, что автомат является ",true);
+			if (dfa)
+				WriteLine("ДКА т.к. каждое состояние имеет ровно одну функцию перехода для каждого возможного символа.",true);
+			else
+				WriteLine("НКА т.к. не каждое состояние имеет ровно одну функцию перехода для каждого возможного символа.", true);
+		}
 
         private void WriteEndDoc()
         {
@@ -584,6 +617,9 @@ namespace FLaG.Output
 			
 			Step2_5_2(true);
 			Step2_5_2(false);
+			
+			Step2_6(true);
+			Step2_6(false);
 
             WriteEndDoc();
 		}

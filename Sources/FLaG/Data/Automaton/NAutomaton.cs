@@ -6,6 +6,18 @@ namespace FLaG.Data.Automaton
 {
 	class NAutomaton
 	{
+		public bool IsDFA ()
+		{
+			for (int i = 0; i < Functions.Count - 1; i++)
+			{
+				if (Functions[i+1].OldStatus.CompareTo(Functions[i].OldStatus) == 0 &&
+				    Functions[i+1].Symbol.CompareTo(Functions[i].Symbol) == 0)
+					return false;
+			}
+				
+			return true;
+		}
+		
 		public void SaveFunctions(Writer writer)
 		{
 			if (Functions.Count == 0)

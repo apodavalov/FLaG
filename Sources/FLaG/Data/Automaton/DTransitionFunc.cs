@@ -29,12 +29,7 @@ namespace FLaG.Data.Automaton
 			if (res != 0)
 				return res;
 			
-			res = Symbol.CompareTo(other.Symbol);
-			
-			if (res != 0)
-				return res;
-			
-			return NewStatus.CompareTo(other.NewStatus);				
+			return Symbol.CompareTo(other.Symbol);
 		}
 	}
 }
