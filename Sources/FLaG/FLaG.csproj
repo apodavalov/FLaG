@@ -73,6 +73,8 @@
     <Compile Include="Data\Automaton\DStatus.cs" />
     <Compile Include="Data\Automaton\DAutomaton.cs" />
     <Compile Include="Data\Automaton\DTransitionFunc.cs" />
+    <Compile Include="Data\Helpers\NTransitionFuncBySymbolComparer.cs" />
+    <Compile Include="Data\Automaton\NTransitionFuncCluster.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Schema\lang.xsd">

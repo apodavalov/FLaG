@@ -46,6 +46,24 @@ namespace FLaG.Data.Automaton
 			return index < 0;
 		}
 		
+		public DStatus[] Statuses
+		{
+			get
+			{
+				List<DStatus> statuses = new List<DStatus>();
+				
+				foreach (DTransitionFunc func in Functions)
+				{
+					AddStatus(statuses,func.OldStatus);
+					AddStatus(statuses,func.NewStatus);
+				}
+				
+				AddStatus(statuses,InitialStatus);
+				
+				return statuses.ToArray();
+			}
+		}
+		
 		public List<DStatus> EndStatuses
 		{
 			get;

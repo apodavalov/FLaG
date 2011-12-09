@@ -4,6 +4,13 @@ namespace FLaG.Data.Automaton
 {
 	class DTransitionFunc : IComparable<DTransitionFunc>
 	{
+		public DTransitionFunc(DStatus oldStatus, Symbol symbol, DStatus newStatus)
+		{
+			OldStatus = oldStatus;
+			Symbol = symbol;
+			NewStatus = newStatus;
+		}
+		
 		public DStatus OldStatus
 		{
 			get;

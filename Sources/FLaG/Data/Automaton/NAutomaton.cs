@@ -1,32 +1,152 @@
 using System;
 using System.Collections.Generic;
 using FLaG.Output;
+using FLaG.Data.Helpers;
 
 namespace FLaG.Data.Automaton
 {
 	class NAutomaton
 	{
-		public DAutomaton MakeDeterministic ()
+		private void PassToNewState(bool[] statusesOn)
 		{
-			throw new NotImplementedException ();
+			for (int i = 0; i < statusesOn.Length; i++)
+			{
+				if (statusesOn[i])
+					statusesOn[i] = false;
+				else
+				{
+					statusesOn[i] = true;
+					break;
+				}
+			}
+		}
+		
+		public DAutomaton MakeDeterministic()
+		{
+			DAutomaton automaton = new DAutomaton();
+			automaton.Number = Number + 1;
+			automaton.IsLeft = IsLeft;
+			automaton.ProducedFromDFA = false;
+			
+			// получаем функции перехода
+			NTransitionFunc[] functions = Functions.ToArray();
+			
+			// сортируем их по символу перехода
+			NTransitionFuncBySymbolComparer symbolComparer = new NTransitionFuncBySymbolComparer();
+			Array.Sort<NTransitionFunc>(functions,symbolComparer);
+			
+			// получаем алфавит
+			Symbol[] alphabet = Alphabet;
+			
+			// разбиваем функции на кластеры по полученному алфавиту	
+			
+			NTransitionFuncCluster[] clusters = new NTransitionFuncCluster[alphabet.Length];
+			int oldIndex = -1;
+			
+			int m = 0;
+			Symbol prev = null;
+			
+			// цикл по всем кроме последнего
+			foreach (Symbol s in alphabet)
+			{
+				NTransitionFunc funcToSearch = new NTransitionFunc(null,s,null);				
+				int index = ~Array.BinarySearch<NTransitionFunc>(functions,funcToSearch,symbolComparer);
+				
+				if (oldIndex >= 0)
+				{
+					NTransitionFuncCluster cluster = new NTransitionFuncCluster();
+					cluster.Symbol = prev;
+					cluster.Functions = new NTransitionFunc[index - oldIndex];
+					for (int i = oldIndex; i < index; i++)
+						cluster.Functions[i - oldIndex] = functions[i];
+					clusters[m++] = cluster;
+				}
+				
+				prev = s;
+				oldIndex = index;
+			}
+			
+			// последний отдельно рассматриваем
+			if (oldIndex >= 0)
+			{
+				NTransitionFuncCluster cluster = new NTransitionFuncCluster();
+				cluster.Symbol = prev;
+				cluster.Functions = new NTransitionFunc[functions.Length - oldIndex];
+				for (int i = oldIndex; i < functions.Length; i++)
+					cluster.Functions[i - oldIndex] = functions[i];	
+				clusters[m++] = cluster;
+			}
+			
+			// проходимся по кластеру
+			foreach (NTransitionFuncCluster cluster in clusters)
+			{
+				NStatus[] statuses = cluster.OldStatuses;
+				bool[] statusesOn = new bool[statuses.Length];
+				
+				for (int i = 0; i < statusesOn.Length; i++)
+					statusesOn[i] = false;
+				
+				do
+				{
+					PassToNewState(statusesOn);
+					
+					List<NStatus> newStatuses = new List<NStatus>();
+					
+					foreach (NTransitionFunc func in cluster.Functions)
+					{
+						int index = Array.BinarySearch<NStatus>(statuses,func.OldStatus);
+						if (statusesOn[index])
+							AddStatus(newStatuses,func.NewStatus);
+					}
+					
+					DStatus oldStatus = new DStatus();
+					
+					for (int i = 0; i < statuses.Length; i++)
+						if (statusesOn[i])
+							oldStatus.AddStatus(statuses[i]);
+					
+					DStatus newStatus = new DStatus();
+					
+					foreach (NStatus st in newStatuses)
+						newStatus.AddStatus(st);
+					
+					automaton.AddFunc(new DTransitionFunc(oldStatus,cluster.Symbol,newStatus));
+					
+				} while (!Array.TrueForAll<bool>(statusesOn, x => x));
+			}
+			
+			DStatus initialStatus = new DStatus();
+			initialStatus.AddStatus(InitialStatus);
+			automaton.InitialStatus = initialStatus;
+			
+			foreach (DStatus status in automaton.Statuses)
+			{
+				bool atLeastOneFromEnd = false;
+				foreach (NStatus endStatus in EndStatuses)				
+					if (status.Set.BinarySearch(endStatus) >= 0)
+					{
+						atLeastOneFromEnd = true;
+						break;
+					}
+				
+				if (atLeastOneFromEnd)
+					automaton.AddEndStatus(status);
+			}
+				
+			return automaton;
 		}
 		
 		public DStatus MakeSimpliestStatus (NStatus status)
 		{
 			DStatus dStatus = new DStatus();
-			dStatus.Add(status);
+			dStatus.AddStatus(status);
 
 			return dStatus;
 		}
 
 		public DTransitionFunc MakeSimpliestFunc (NTransitionFunc func)
 		{
-			DTransitionFunc dFunc = new DTransitionFunc();
-			dFunc.OldStatus = MakeSimpliestStatus(func.OldStatus);
-			dFunc.NewStatus = MakeSimpliestStatus(func.NewStatus);
-			dFunc.Symbol = func.Symbol;
-			
-			return dFunc;
+			return new DTransitionFunc(MakeSimpliestStatus(func.OldStatus),func.Symbol,MakeSimpliestStatus(func.NewStatus));
 		}
 		
 		public DAutomaton MakeSimpliest()

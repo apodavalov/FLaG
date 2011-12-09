@@ -16,7 +16,7 @@ namespace FLaG.Data.Automaton
 			Set = new List<NStatus>();
 		}
 		
-		public bool Add(NStatus item)		
+		public bool AddStatus(NStatus item)		
 		{
 			int index = Set.BinarySearch(item);
 			if (index < 0)
