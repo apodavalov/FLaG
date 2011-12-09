@@ -755,18 +755,23 @@ namespace FLaG.Data.Grammars
 					
 					s.Value.Changed = false;
 					
-					int index = Array.BinarySearch<Unterminal>(unterminals,s.Key);
+					List<Unterminal> listUnterminals = new List<Unterminal>(s.Value.Set);
 					
-					Rule r = Rules[index];
-					
-					foreach (Chain c in r.Chains)
+					foreach (Unterminal unt in listUnterminals)
 					{
-						if (c.Symbols.Count == 1 && c.Symbols[0] is Unterminal)												
+						int index = Array.BinarySearch<Unterminal>(unterminals,unt);
+						
+						Rule r = Rules[index];
+						
+						foreach (Chain c in r.Chains)
 						{
-							if (s.Value.Set.Add((Unterminal)c.Symbols[0]))
+							if (c.Symbols.Count == 1 && c.Symbols[0] is Unterminal)												
 							{
-								s.Value.Changed = true;	
-								somethingChanged = true;
+								if (s.Value.Set.Add((Unterminal)c.Symbols[0]))
+								{
+									s.Value.Changed = true;	
+									somethingChanged = true;
+								}
 							}
 						}
 					}
