@@ -600,6 +600,26 @@ namespace FLaG.Output
 			else
 				WriteLine("НКА т.к. не каждое состояние имеет ровно одну функцию перехода для каждого возможного символа.", true);
 		}
+	
+		private void Step2_7(bool isLeft)
+		{
+			Write(@"\subsection{");
+			Write("Этап 2.7",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
+			WriteLine(@"}");
+			
+			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;
+			DAutomaton newAutomaton = automaton.MakeDeterministic();
+			
+			if (isLeft)
+				dLeftAutomaton = newAutomaton;
+			else
+				dRightAutomaton = newAutomaton;
+		}
 
         private void WriteEndDoc()
         {
@@ -630,6 +650,11 @@ namespace FLaG.Output
 			
 			Step2_6(true);
 			Step2_6(false);
+			
+			if (dLeftAutomaton == null)
+				Step2_7(true);
+			if (dRightAutomaton == null)
+				Step2_7(false);
 
             WriteEndDoc();
 		}

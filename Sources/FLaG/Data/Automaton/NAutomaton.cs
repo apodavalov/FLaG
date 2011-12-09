@@ -6,6 +6,11 @@ namespace FLaG.Data.Automaton
 {
 	class NAutomaton
 	{
+		public DAutomaton MakeDeterministic ()
+		{
+			throw new NotImplementedException ();
+		}
+		
 		public DStatus MakeSimpliestStatus (NStatus status)
 		{
 			DStatus dStatus = new DStatus();
