@@ -6,6 +6,11 @@ namespace FLaG.Data.Automaton
 {
 	class NAutomaton
 	{
+		public DAutomaton MakeSimpliest()
+		{
+			throw new NotImplementedException ();
+		}
+		
 		public bool IsDFA ()
 		{
 			for (int i = 0; i < Functions.Count - 1; i++)

@@ -5,6 +5,12 @@ namespace FLaG.Data.Automaton
 {
 	class DAutomaton
 	{
+		public bool ProducedFromDFA
+		{
+			get;
+			set;
+		}
+		
 		public bool IsLeft
 		{
 			get;

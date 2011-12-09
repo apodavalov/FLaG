@@ -24,6 +24,9 @@ namespace FLaG.Output
 		private NAutomaton nLeftAutomaton;
 		private NAutomaton nRightAutomaton;
 		
+		private DAutomaton dLeftAutomaton;
+		private DAutomaton dRightAutomaton;
+		
 		public Writer(Stream stream, Lang lang) 
 			: base(stream)
 		{
@@ -586,7 +589,14 @@ namespace FLaG.Output
 			WriteLine(@"\end{math}.");
 			Write(@"Видим, что автомат является ",true);
 			if (dfa)
+			{
 				WriteLine("ДКА т.к. каждое состояние имеет ровно одну функцию перехода для каждого возможного символа.",true);
+				DAutomaton newAutomaton = automaton.MakeSimpliest();
+				if (isLeft)
+					dLeftAutomaton = newAutomaton;
+				else
+					dRightAutomaton = newAutomaton;
+			}
 			else
 				WriteLine("НКА т.к. не каждое состояние имеет ровно одну функцию перехода для каждого возможного символа.", true);
 		}
