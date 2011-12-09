@@ -6,9 +6,40 @@ namespace FLaG.Data.Automaton
 {
 	class NAutomaton
 	{
+		public DStatus MakeSimpliestStatus (NStatus status)
+		{
+			DStatus dStatus = new DStatus();
+			dStatus.Add(status);
+
+			return dStatus;
+		}
+
+		public DTransitionFunc MakeSimpliestFunc (NTransitionFunc func)
+		{
+			DTransitionFunc dFunc = new DTransitionFunc();
+			dFunc.OldStatus = MakeSimpliestStatus(func.OldStatus);
+			dFunc.NewStatus = MakeSimpliestStatus(func.NewStatus);
+			dFunc.Symbol = func.Symbol;
+			
+			return dFunc;
+		}
+		
 		public DAutomaton MakeSimpliest()
 		{
-			throw new NotImplementedException ();
+			DAutomaton automaton = new DAutomaton();
+			automaton.IsLeft = IsLeft;
+			automaton.Number = Number;
+			automaton.ProducedFromDFA = true;
+			
+			automaton.InitialStatus = MakeSimpliestStatus(InitialStatus);
+			
+			foreach (NTransitionFunc func in Functions)
+				automaton.AddFunc(MakeSimpliestFunc(func));
+			
+			foreach (NStatus status in EndStatuses)
+				automaton.AddEndStatus(MakeSimpliestStatus(status));
+			
+			return automaton;
 		}
 		
 		public bool IsDFA ()
