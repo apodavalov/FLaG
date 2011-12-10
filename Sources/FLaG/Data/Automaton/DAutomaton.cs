@@ -49,12 +49,52 @@ namespace FLaG.Data.Automaton
 			return index < 0;
 		}
 		
-		public void SaveStatuses(Writer writer)
+		public void SaveStatuses(Writer writer, bool shortOutput)
 		{
-			SaveStatuses(writer, Statuses);
+			SaveStatuses(writer, Statuses, shortOutput);
 		}
 		
-		private void SaveStatuses(Writer writer, DStatus[] statuses)
+		private void SaveStatusesShort(Writer writer, DStatus[] statuses)
+		{
+			int prevCount = -1;
+			int count = 0;
+			int outputCount = 4;
+			
+			if (statuses.Length == 0)
+				writer.WriteLine(@"\varnothing");
+			else
+			{
+				writer.WriteLine(@"\{");
+				for (int i = 0; i < statuses.Length; i++)
+				{
+					if (prevCount != statuses[i].Set.Count)
+					{
+						count = 0;
+						prevCount = statuses[i].Set.Count;
+					}
+					
+					if (count < outputCount)
+					{
+						if (i != 0)		
+							writer.Write(", \\end{math}\r\n\r\n\\begin{math} ");					
+						
+						statuses[i].Save(writer,IsLeft,ProducedFromDFA);
+						count++;
+					}
+					else if (count == outputCount)
+					{
+						if (i != 0)		
+							writer.Write(", \\end{math}\r\n\r\n\\begin{math} ");
+						
+						writer.WriteLine(@"\dots");
+						count++;
+					}
+				}
+				writer.WriteLine(@"\}");
+			}
+		}
+		
+		private void SaveStatusesFull(Writer writer, DStatus[] statuses)
 		{
 			if (statuses.Length == 0)
 				writer.WriteLine(@"\varnothing");
@@ -70,6 +110,14 @@ namespace FLaG.Data.Automaton
 				}
 				writer.WriteLine(@"\}");
 			}
+		}
+		
+		private void SaveStatuses(Writer writer, DStatus[] statuses, bool shortOutput)
+		{
+			if (shortOutput)
+				SaveStatusesShort(writer, statuses);
+			else
+				SaveStatusesFull(writer, statuses);
 		}
 		
 		public string Apostrophs

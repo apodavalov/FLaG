@@ -40,21 +40,21 @@ namespace FLaG.Data.Automaton
 		
 		public int CompareTo(DStatus other)
 		{
-			int min = Math.Min(Set.Count,other.Set.Count);
+			int res = Set.Count.CompareTo(other.Set.Count);
 			
-			for (int i = 0; i < min; i++)
+			if (res != 0)
+				return res;
+			
+			int count = other.Set.Count;
+			
+			for (int i = 0; i < count; i++)
 			{
-				int res = Set[i].CompareTo(other.Set[i]);
+				res = Set[i].CompareTo(other.Set[i]);
 				if (res != 0)
 					return res;
 			}
 			
-			if (Set.Count > min)
-				return 1;
-			else if (other.Set.Count > min)
-				return -1;
-			else
-				return 0;
+			return 0;
 		}
 	}
 }

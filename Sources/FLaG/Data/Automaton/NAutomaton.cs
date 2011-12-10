@@ -212,7 +212,7 @@ namespace FLaG.Data.Automaton
 			writer.WriteLine(@"\begin{math}");
 			automaton.SaveQ(writer);
 			writer.WriteLine(@"=");
-			automaton.SaveStatuses(writer);
+			automaton.SaveStatuses(writer, true);
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine();
 			writer.WriteLine(@"Входной алфавит детерминированного конечного автомата совпадает с входным алфавитом ",true);	
