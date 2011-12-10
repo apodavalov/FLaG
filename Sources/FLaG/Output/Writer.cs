@@ -613,7 +613,7 @@ namespace FLaG.Output
 			WriteLine(@"}");
 			
 			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;
-			DAutomaton newAutomaton = automaton.MakeDeterministic();
+			DAutomaton newAutomaton = automaton.MakeDeterministic(this);
 			
 			if (isLeft)
 				dLeftAutomaton = newAutomaton;

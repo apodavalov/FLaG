@@ -21,7 +21,7 @@ namespace FLaG.Data.Automaton
 			}
 		}
 		
-		public DAutomaton MakeDeterministic()
+		private DAutomaton _MakeDeterministic()
 		{
 			DAutomaton automaton = new DAutomaton();
 			automaton.Number = Number + 1;
@@ -77,12 +77,12 @@ namespace FLaG.Data.Automaton
 				clusters[m++] = cluster;
 			}
 			
+			NStatus[] statuses = Statuses;
+			bool[] statusesOn = new bool[statuses.Length];
+			
 			// проходимся по кластеру
 			foreach (NTransitionFuncCluster cluster in clusters)
 			{
-				NStatus[] statuses = cluster.OldStatuses;
-				bool[] statusesOn = new bool[statuses.Length];
-				
 				for (int i = 0; i < statusesOn.Length; i++)
 					statusesOn[i] = false;
 				
@@ -110,7 +110,8 @@ namespace FLaG.Data.Automaton
 					foreach (NStatus st in newStatuses)
 						newStatus.AddStatus(st);
 					
-					automaton.AddFunc(new DTransitionFunc(oldStatus,cluster.Symbol,newStatus));
+					if (newStatus.Set.Count != 0)					
+						automaton.AddFunc(new DTransitionFunc(oldStatus,cluster.Symbol,newStatus));
 					
 				} while (!Array.TrueForAll<bool>(statusesOn, x => x));
 			}
@@ -133,6 +134,15 @@ namespace FLaG.Data.Automaton
 					automaton.AddEndStatus(status);
 			}
 				
+			return automaton;
+		}
+		
+		public DAutomaton MakeDeterministic(Writer writer)
+		{
+			DAutomaton automaton = _MakeDeterministic();
+			
+			
+			
 			return automaton;
 		}
 		
