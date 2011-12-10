@@ -6,6 +6,11 @@ namespace FLaG.Data.Automaton
 {
 	class DAutomaton
 	{
+		public void RemoveUnreachedStates (Writer par1)
+		{
+			throw new NotImplementedException ();
+		}
+		
 		public void SaveFunctionsShort (Writer writer)
 		{
 			throw new NotImplementedException ();
