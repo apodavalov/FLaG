@@ -225,6 +225,31 @@ namespace FLaG.Data.Automaton
 			automaton.SaveAlphabet(writer);
 			writer.WriteLine(@"\end{math}.");
 			writer.WriteLine();
+			writer.WriteLine(@"Выполним построение множества фукнции перехода детерминированного автомата.",true);	
+			writer.WriteLine(@"В результате получаем множества вида",true);	
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveDelta(writer);
+			writer.WriteLine(@"=");
+			automaton.SaveFunctions(writer,false); // TODO: сделать короткую версию
+			writer.WriteLine(@"\end{math}");			
+			writer.WriteLine();
+			writer.WriteLine(@"Начальным состоянием ДКА",true);	
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveM(writer);
+			writer.WriteLine(@"\end{math}");			
+			writer.WriteLine(@"будет состояние вида",true);	
+			writer.WriteLine(@"\begin{math}");
+			automaton.InitialStatus.Save(writer,automaton.IsLeft,automaton.ProducedFromDFA);
+			writer.WriteLine(@"\end{math}.");			
+			writer.WriteLine();
+			writer.WriteLine(@"Множество заключительных состояний привет вид",true);	
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveS(writer);
+			writer.WriteLine(@"=");
+			automaton.SaveEndStatuses(writer,true);
+			writer.WriteLine(@"\end{math}");			
 			
 			return automaton;
 		}

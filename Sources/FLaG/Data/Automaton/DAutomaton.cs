@@ -6,6 +6,37 @@ namespace FLaG.Data.Automaton
 {
 	class DAutomaton
 	{
+		public void SaveFunctionsShort (Writer writer)
+		{
+			throw new NotImplementedException ();
+		}
+		
+		public void SaveFunctions(Writer writer, bool shortOutput)
+		{
+			if (shortOutput)
+				SaveFunctionsShort(writer);
+			else
+				SaveFunctionsFull(writer);
+		}
+		
+		private void SaveFunctionsFull(Writer writer)
+		{
+			if (Functions.Count == 0)
+				writer.WriteLine(@"\varnothing");
+			else
+			{
+				writer.WriteLine(@"\{");
+				for (int i = 0; i < Functions.Count; i++)
+				{
+					if (i != 0)		
+						writer.Write(", \\end{math}\r\n\r\n\\begin{math} ");
+					
+					Functions[i].Save(writer,IsLeft, ProducedFromDFA);
+				}
+				writer.WriteLine(@"\}");
+			}
+		}
+		
 		public void SaveAlphabet(Writer writer)
 		{
 			Symbol[] symbols = Alphabet;
@@ -47,6 +78,11 @@ namespace FLaG.Data.Automaton
 				symbols.Insert(~index,item);
 			
 			return index < 0;
+		}
+		
+		public void SaveEndStatuses(Writer writer, bool shortOutput)
+		{
+			SaveStatuses(writer,EndStatuses.ToArray(), shortOutput);
 		}
 		
 		public void SaveStatuses(Writer writer, bool shortOutput)
