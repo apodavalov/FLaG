@@ -36,7 +36,20 @@ namespace FLaG.Data.Automaton
 				Set.Insert(~index,item);
 			
 			return index < 0;
-		}			
+		}		
+		
+		public override bool Equals (object obj)
+		{
+			if (!(obj is DStatus))
+				return false;
+			
+			return CompareTo((DStatus)obj) == 0;
+		}
+		
+		public override int GetHashCode ()
+		{
+			return 0;
+		}
 		
 		public int CompareTo(DStatus other)
 		{

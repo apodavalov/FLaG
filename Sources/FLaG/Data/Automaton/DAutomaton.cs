@@ -21,7 +21,78 @@ namespace FLaG.Data.Automaton
 			writer.WriteLine("R");
 		}
 		
-		public void RemoveUnreachedStates (Writer writer)
+		private NAutomaton Reorganize(Writer writer)
+		{
+			NAutomaton automaton = new NAutomaton();
+			automaton.IsLeft = IsLeft;
+			automaton.Number = Number + 1;
+			
+			Dictionary<DStatus,NStatus> dictionary = new Dictionary<DStatus, NStatus>();
+			
+			int i = 1;
+			
+			DStatus[] statuses = Statuses;
+			
+			foreach (DStatus status in statuses)
+			{
+				dictionary.Add(status,new NStatus('S',i));
+				i++;
+			}
+			
+			automaton.InitialStatus = dictionary[InitialStatus];
+			
+			foreach (DTransitionFunc func in Functions)
+				automaton.AddFunc(new NTransitionFunc(dictionary[func.OldStatus],func.Symbol,dictionary[func.NewStatus]));
+			
+			foreach (DStatus status in EndStatuses)
+				automaton.AddEndStatus(dictionary[status]);
+			
+			writer.WriteLine();
+			writer.WriteLine(@"Для упрощения дальнейших преобразований выполним переобозначения состояний ДКА. В результате получим автомат",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveCortege(writer);
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"где",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveQ(writer);
+			writer.WriteLine(@"=");
+			automaton.SaveStatuses(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- конечное множество состояний автомата;",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveSigma(writer);
+			writer.WriteLine(@"=");
+			automaton.SaveAlphabet(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- входной алфавит автомата (конечное множество допустимых входных символов);",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveDelta(writer);
+			writer.WriteLine(@"=");
+			automaton.SaveFunctions(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество функций переходов;",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveQ0(writer);
+			writer.WriteLine(@"=");
+			automaton.InitialStatus.Save(writer,automaton.IsLeft);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- начальное состояние автомата;",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveS(writer);
+			writer.WriteLine(@"=");
+			automaton.SaveEndStatuses(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество заключительных состояний.",true);
+			
+			return automaton;
+		}
+		
+		public NAutomaton RemoveUnreachedStates (Writer writer)
 		{
 			writer.WriteLine(@"Выполним удаление недостижимых состояний построенного ДКА. Для ",true);
 			writer.WriteLine(@"этого будем использовать два дополнительных множества: ",true);
@@ -231,6 +302,7 @@ namespace FLaG.Data.Automaton
 			writer.WriteLine(@"=");
 			SaveEndStatuses(writer,false);
 			writer.WriteLine(@"\end{math}");
+			return Reorganize(writer);
 		}
 		
 		public void SaveFunctionsShort (Writer writer)

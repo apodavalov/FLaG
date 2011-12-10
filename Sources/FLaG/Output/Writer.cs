@@ -633,7 +633,12 @@ namespace FLaG.Output
 			WriteLine(@"}");
 			
 			DAutomaton automaton = isLeft ? dLeftAutomaton : dRightAutomaton;
-			automaton.RemoveUnreachedStates(this);
+			NAutomaton nAutomaton = automaton.RemoveUnreachedStates(this);
+			
+			if (isLeft)
+				nLeftAutomaton = nAutomaton;
+			else
+				nRightAutomaton = nAutomaton;
 		}
 
         private void WriteEndDoc()
