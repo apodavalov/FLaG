@@ -141,7 +141,90 @@ namespace FLaG.Data.Automaton
 		{
 			DAutomaton automaton = _MakeDeterministic();
 			
-			
+			writer.WriteLine(@"Построим для недетерминированного конечного автомата детерминированный конечный автомат", true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveCortege(writer);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine(@"Множество состояний", true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveQ(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"состоит из всех подмножеств множества",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveQ(writer);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine(@"Каждое состояние из",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveQ(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"будем обозначать",true);
+			writer.WriteLine(@"\begin{math}");
+			writer.WriteLine(@"[ A_1 A_2 \dots A_n ]");			
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"где ",true);
+			writer.WriteLine(@"\begin{math}");
+			writer.WriteLine(@"A_i \in");			
+			SaveQ(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"(учитываем, что состояния",true);
+			writer.WriteLine(@"\begin{math}");
+			writer.WriteLine(@"[ A_i A_j ]");			
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"и",true);
+			writer.WriteLine(@"\begin{math}");
+			writer.WriteLine(@"[ A_j A_i ]");			
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- одно и тоже состояние).",true);
+			writer.WriteLine(@"Тогда получаем множество",true);
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveQ(writer);
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"содержащее количество состояний, выражающееся по формуле",true);
+			writer.WriteLine(@"\begin{math}");
+			writer.WriteLine(@"N_{");
+			automaton.SaveQ(writer);
+			writer.WriteLine(@"}");
+			writer.WriteLine(@"=");
+			writer.WriteLine(@"2^n-1");
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"что при",true);
+			writer.WriteLine(@"\begin{math}");
+			writer.WriteLine(@"n=");
+			NStatus[] statuses = Statuses;
+			writer.WriteLine(statuses.Length);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"нам дает",true);			
+			writer.WriteLine(@"\begin{math}");
+			writer.WriteLine(@"N_{");
+			automaton.SaveQ(writer);
+			writer.WriteLine(@"}");
+			writer.WriteLine(@"=");			
+			long maxCountStatuses = (long)Math.Pow(2,statuses.Length)-1;
+			writer.WriteLine(maxCountStatuses);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"состояний.",true);			
+			writer.WriteLine(@"В результате получаем следующее множество всех состояний детерминированного",true);	
+			writer.WriteLine(@"конечного автомата (здесь исключены состояния, которые не встречаются в функциях перехода,",true);
+			writer.WriteLine(@"не являются начальным и конечным состоянием автомата, всего таких состояний",true);				
+			writer.Write(maxCountStatuses - automaton.Statuses.Length);
+			writer.WriteLine(@")",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveQ(writer);
+			writer.WriteLine(@"=");
+			automaton.SaveStatuses(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine();
+			writer.WriteLine(@"Входной алфавит детерминированного конечного автомата совпадает с входным алфавитом ",true);	
+			writer.WriteLine(@"недетерминированного конечного автомата, т.е.",true);	
+			writer.WriteLine(@"\begin{math}");
+			automaton.SaveSigma(writer);
+			writer.WriteLine(@"=");
+			SaveSigma(writer);
+			writer.WriteLine(@"=");
+			automaton.SaveAlphabet(writer);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine();
 			
 			return automaton;
 		}
@@ -295,6 +378,9 @@ namespace FLaG.Data.Automaton
 				}
 				
 				AddStatus(statuses,InitialStatus);
+				
+				foreach (NStatus status in EndStatuses)
+					AddStatus(statuses,status);
 				
 				return statuses.ToArray();
 			}

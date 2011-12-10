@@ -1,10 +1,23 @@
 using System;
 using System.Collections.Generic;
+using FLaG.Output;
 
 namespace FLaG.Data.Automaton
 {
 	class DStatus : IComparable<DStatus>
 	{
+		public void Save(Writer writer, bool isLeft, bool producedFromDFA)
+		{
+			if (!producedFromDFA)
+				writer.WriteLine(@"[");
+				
+			foreach (NStatus status in Set)
+				status.Save(writer,isLeft);
+			
+			if (!producedFromDFA)
+				writer.WriteLine(@"]");
+		}
+		
 		public List<NStatus> Set
 		{
 			get;
