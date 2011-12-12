@@ -75,6 +75,11 @@
     <Compile Include="Data\Automaton\DTransitionFunc.cs" />
     <Compile Include="Data\Helpers\NTransitionFuncBySymbolComparer.cs" />
     <Compile Include="Data\Automaton\NTransitionFuncCluster.cs" />
+    <Compile Include="Data\Automaton\EqualitySet.cs" />
+    <Compile Include="Data\Automaton\EqualitySetCollection.cs" />
+    <Compile Include="Data\Automaton\ClassEquality.cs" />
+    <Compile Include="Data\Automaton\ClassEqualityCollection.cs" />
+    <Compile Include="Data\Helpers\ClassEqualityComparerByGroupNum.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Schema\lang.xsd">

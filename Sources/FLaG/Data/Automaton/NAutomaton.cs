@@ -7,6 +7,189 @@ namespace FLaG.Data.Automaton
 {
 	class NAutomaton
 	{
+		public void Minimize(Writer writer)
+		{
+			writer.WriteLine(@"Выполним минимизацию состояний для построенного детерминированного автомата",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveCortege(writer);
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"то есть определим пятерку вида",true);
+			Number++;
+			writer.WriteLine(@"\begin{math}");
+			SaveCortege(writer);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine();
+			writer.WriteLine(@"Алгоритм минимизации конечного автомата заключается в следующем:",true);
+			writer.WriteLine(@"из автомата исключаются все недостижимые состояния; строятся классы",true);
+			writer.WriteLine(@"эквивалентности автомата; классы эквивалентности состояний исходного ДКА",true);
+			writer.WriteLine(@"становятся состояниями результирующего конечного автомата; множество функций",true);
+			writer.WriteLine(@"переходов результирующего конечного автомата строятся на основе",true);
+			writer.WriteLine(@"множества функций переходов исходного ДКА.",true);
+			writer.WriteLine();
+			writer.WriteLine(@"Выполним по шагам приведенный алгоритм минимизации количества состояний ДКА.",true);
+			writer.WriteLine(@"На первом шаге этого алгоритма нужно выполнить удаление недостижимых состояний.",true);
+			writer.WriteLine(@"Так как удаление недостижимых состояний уже было произведено, то этот шаг алгоритма",true);
+			writer.WriteLine(@"мы пропускаем.",true);
+			writer.WriteLine();
+			writer.WriteLine(@"На следующем шаге алгоритма минимизации конечного автомата строим классы эквивалентности автомата.",true);
+			writer.WriteLine(@"По определению множество классов 0-эквилентности имеет вид",true);
+			
+			EqualitySetCollection R = new EqualitySetCollection();
+			
+			NStatus[] statuses = Statuses;
+			
+			EqualitySet r1 = new EqualitySet();
+			r1.Number = 1;
+			foreach (NStatus status in statuses)
+			{
+				if (EndStatuses.BinarySearch(status) < 0)
+					r1.AddStatus(status);
+			}
+			
+			EqualitySet r2 = new EqualitySet();
+			r2.Number = 2;
+			foreach (NStatus status in EndStatuses)
+				r2.AddStatus(status);
+		
+			R.AddEqualitySet(r1);
+			R.AddEqualitySet(r2);
+			R.Number = 0;
+			
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			R.SaveR(writer);
+			writer.WriteLine(@"=");
+			R.SaveRR(writer);
+			writer.WriteLine(@"=");
+			R.SaveSets(writer,IsLeft);
+			writer.WriteLine(@"\end{math}.");
+			
+			ClassEqualityComparerByGroupNum equalityComparer = new ClassEqualityComparerByGroupNum();
+			
+			bool somethingChanged;
+			
+			do
+			{
+				somethingChanged = false;
+				EqualitySetCollection newR = new EqualitySetCollection();
+				
+				newR.Number = R.Number+1;
+				
+				writer.WriteLine();
+				writer.WriteLine(@"Итак, вычисляем");
+				writer.WriteLine(@"\begin{math}");
+				newR.SaveR(writer);
+				writer.WriteLine(@"\end{math}");				
+				
+				int rr = 1;
+				
+				foreach (EqualitySet st in R.Set)
+				{
+					List<ClassEqualityCollection> classEqualitySetList = new List<ClassEqualityCollection>();
+					foreach (NStatus state in st.Set)
+					{
+						ClassEqualityCollection classEqualitySet = new ClassEqualityCollection();
+						
+						foreach (NTransitionFunc func in Functions)
+						{
+							if (func.OldStatus.CompareTo(state) != 0)
+								continue;
+							
+							ClassEquality equality = new ClassEquality();
+							equality.GroupNum = R.GetStatusGroupNum(func.NewStatus);
+							
+							int index = classEqualitySet.Set.BinarySearch(equality,equalityComparer);
+							if (index < 0)
+								classEqualitySet.Set.Insert(~index,equality);
+							else
+								equality = classEqualitySet.Set[index];
+							
+							equality.AddSymbol(func.Symbol);
+						}
+						
+						classEqualitySet.Set.Sort();
+						
+						int ind = classEqualitySetList.BinarySearch(classEqualitySet);
+						
+						if (ind < 0)
+							classEqualitySetList.Insert(~ind,classEqualitySet);
+						else
+							classEqualitySet = classEqualitySetList[ind];
+						
+						classEqualitySet.AddStatus(state);
+					}					
+					
+					for (int i = 0 ; i < classEqualitySetList.Count; i++)
+					{
+						EqualitySet es = new EqualitySet();
+						es.Number = i+rr;
+						foreach (NStatus sss in classEqualitySetList[i].Statuses)
+							es.AddStatus(sss);
+						newR.AddEqualitySet(es);
+						
+						writer.WriteLine();
+						writer.WriteLine(@"\begin{math}");
+						es.SaveR(writer,newR.Number);
+						writer.WriteLine(@"=");
+						es.SaveSet(writer,IsLeft);
+						writer.WriteLine(@"\end{math},");
+						writer.WriteLine(@"---");
+						
+						for (int j = 0; j < classEqualitySetList[i].Set.Count; j++)
+						{
+							if (j != 0)	
+								writer.WriteLine(@";");
+							
+							writer.WriteLine(@"по символам",true);
+							writer.WriteLine(@"\begin{math}");
+							SaveSymbols(writer,classEqualitySetList[i].Set[j].Symbols.ToArray());
+							writer.WriteLine(@"\end{math},");	
+							writer.WriteLine(@"переходят в класс",true);
+							writer.WriteLine(@"\begin{math}");
+							R.Set[classEqualitySetList[i].Set[j].GroupNum].SaveR(writer,R.Number);
+							writer.Write(@"\end{math}");	
+						}
+						
+						writer.WriteLine(@".");
+						
+					}
+					
+					rr += classEqualitySetList.Count;
+				}
+				
+				somethingChanged = R.CompareTo(newR) != 0;
+				
+				writer.WriteLine();
+				writer.WriteLine(@"Таким образом, множество классов " + newR.Number + "-эквивалентности",true);
+				writer.WriteLine(@"примет вид",true);
+				writer.WriteLine();
+				writer.WriteLine(@"\begin{math}");
+				newR.SaveR(writer);
+				writer.WriteLine(@"=");
+				newR.SaveRR(writer);
+				writer.WriteLine(@"=");
+				newR.SaveSets(writer,IsLeft);
+				writer.WriteLine(@"\end{math}.");
+				writer.WriteLine();
+				
+				if (somethingChanged)
+				{
+					writer.WriteLine(@"Видно, что множества классов ",true);
+					writer.WriteLine(R.Number + "-эквивалентности и ",true);
+					writer.WriteLine(newR.Number + "-эквивалентности не совпадают, значит продолжаем выполнение алгоритма. ",true);
+						
+					R = newR;
+				}
+				else
+				{
+					writer.WriteLine(@"Видно, что множества классов ",true);
+					writer.WriteLine(R.Number + "-эквивалентности и ",true);
+					writer.WriteLine(newR.Number + "-эквивалентности совпадают, значит выполнение алгоритма");
+					writer.WriteLine(@"построения классов эквивалентности конечного автомата останавливается. ",true);
+				}
+			} while (somethingChanged);
+		}
+		
 		private void PassToNewState(bool[] statusesOn)
 		{
 			for (int i = 0; i < statusesOn.Length; i++)
@@ -333,10 +516,8 @@ namespace FLaG.Data.Automaton
 			}
 		}
 		
-		public void SaveAlphabet(Writer writer)
+		public void SaveSymbols(Writer writer, Symbol[] symbols)
 		{
-			Symbol[] symbols = Alphabet;
-			
 			if (symbols.Length == 0)
 				writer.WriteLine(@"\varnothing");
 			else
@@ -351,6 +532,11 @@ namespace FLaG.Data.Automaton
 				}
 				writer.WriteLine(@"\}");
 			}
+		}
+		
+		public void SaveAlphabet(Writer writer)
+		{
+			SaveSymbols(writer,Alphabet);
 		}
 		
 		public void SaveEndStatuses(Writer writer)

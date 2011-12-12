@@ -640,6 +640,22 @@ namespace FLaG.Output
 			else
 				nRightAutomaton = nAutomaton;
 		}
+		
+		private void Step2_8(bool isLeft)
+		{
+			Write(@"\subsection{");
+			Write("Этап 2.7.1",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
+			WriteLine(@"}");
+			
+			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;
+			
+			automaton.Minimize(this);
+		}
 
         private void WriteEndDoc()
         {
@@ -678,6 +694,9 @@ namespace FLaG.Output
 			
 			Step2_7_1(true);
 			Step2_7_1(false);
+			
+			Step2_8(true);
+			Step2_8(false);
 
             WriteEndDoc();
 		}
