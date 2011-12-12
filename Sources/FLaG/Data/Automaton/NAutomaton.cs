@@ -188,6 +188,115 @@ namespace FLaG.Data.Automaton
 					writer.WriteLine(@"построения классов эквивалентности конечного автомата останавливается. ",true);
 				}
 			} while (somethingChanged);
+			
+			bool changed = false;
+			
+			foreach (EqualitySet sR in R.Set)
+			{
+				if (sR.Set.Count > 1)
+				{
+					changed = true;
+					break;
+				}
+			}
+			
+			writer.WriteLine(@"Так как в результате построения множества классов эквивалентности",true);
+			if (changed)
+				writer.WriteLine(@"произошло объединение состояний автомата в один из классов",true);
+			else
+				writer.WriteLine(@"не произошло объединение состояний автомата в один из классов",true);
+			writer.Write(@"\emph{n}");
+			writer.WriteLine(@"-эквивалентности, то исходный автомат",true);
+			if (changed)
+				writer.WriteLine(@"не является минимальным.",true);
+			else
+				writer.WriteLine(@"является минимальным.",true);
+			writer.WriteLine(@"Следовательно, конечный автомат имеет вид",true);
+			
+			foreach (EqualitySet sR in R.Set)
+			{
+				if (sR.Set.Count < 2)
+					continue;
+				
+				NStatus status;
+				
+				if (sR.Set.BinarySearch(InitialStatus) >= 0)
+					status = InitialStatus;
+				else
+					status = sR.Set[0];
+					
+				NTransitionFunc[] functions = Functions.ToArray();
+				Functions.Clear();
+				
+				foreach (NTransitionFunc func in functions)
+				{
+					NStatus OldStatus, NewStatus;
+					
+					if (sR.Set.BinarySearch(func.OldStatus) >= 0)		
+						OldStatus = status;
+					else
+						OldStatus = func.OldStatus;
+					
+					if (sR.Set.BinarySearch(func.NewStatus) >= 0)		
+						NewStatus = status;
+					else
+						NewStatus = func.NewStatus;
+					
+					AddFunc(new NTransitionFunc(OldStatus,func.Symbol,NewStatus));
+				}
+				
+				for (int i = 0; i < EndStatuses.Count; i++)
+				{
+					if (sR.Set.BinarySearch(EndStatuses[i]) >= 0)
+						EndStatuses[i] = status;
+				}
+				
+				NStatus[] endStatuses = EndStatuses.ToArray();
+				EndStatuses.Clear();
+				
+				foreach (NStatus ssss in endStatuses)
+					AddEndStatus(ssss);	
+			}
+			
+			writer.WriteLine(@"\begin{math}");
+			SaveCortege(writer);
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"где",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			SaveQ(writer);
+			writer.WriteLine(@"=");
+			SaveStatuses(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- конечное множество состояний автомата;",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			SaveSigma(writer);
+			writer.WriteLine(@"=");
+			SaveAlphabet(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- входной алфавит автомата (конечное множество допустимых входных символов);",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			SaveDelta(writer);
+			writer.WriteLine(@"=");
+			SaveFunctions(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество функций переходов;",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			SaveQ0(writer);
+			writer.WriteLine(@"=");
+			InitialStatus.Save(writer,IsLeft);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- начальное состояние автомата;",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			SaveS(writer);
+			writer.WriteLine(@"=");
+			SaveEndStatuses(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество заключительных состояний.",true);
 		}
 		
 		private void PassToNewState(bool[] statusesOn)
