@@ -667,6 +667,27 @@ namespace FLaG.Output
 			WriteLine(@"обратные преобразования, то есть рассмотрим множество каких входных",true);
 			WriteLine(@"цепочек допускает данный конечный автомат.",true);
 		}
+
+		public void Step2_10_1 (bool isLeft)
+		{
+			Write(@"\subsubsection{");
+			Write("Этап 2.10.1",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
+			WriteLine(@"}");
+			
+			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;
+			
+			Grammar grammar = automaton.MakeGrammar(this, isLeft ? FirstLeftSidedFreeNumber++ : FirstRightSidedFreeNumber++);
+			
+			if (isLeft)
+				LeftSidedGrammar = grammar;
+			else
+				RightSidedGrammar = grammar;
+		}
 		
 		public void Out()
 		{
@@ -705,6 +726,9 @@ namespace FLaG.Output
 			Step2_8(false);
 			
 			Step2_10();
+			
+			Step2_10_1(true);
+			Step2_10_1(false);
 
             WriteEndDoc();
 		}

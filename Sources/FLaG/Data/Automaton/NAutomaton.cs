@@ -2,11 +2,196 @@ using System;
 using System.Collections.Generic;
 using FLaG.Output;
 using FLaG.Data.Helpers;
+using Gram=FLaG.Data.Grammars;
 
 namespace FLaG.Data.Automaton
 {
 	class NAutomaton
 	{
+		public Gram.Grammar MakeGrammar (Writer writer, int grammarNumber, bool isLeft)
+		{
+			if (isLeft)
+				return MakeLeftGrammar(writer,grammarNumber);
+			else
+				return MakeRightGrammar(writer,grammarNumber);
+		}
+		
+		private Gram.Grammar MakeLeftGrammar(Writer writer, int grammarNumber)
+		{
+			Gram.Grammar g = new Gram.Grammar();
+			g.Number = grammarNumber;
+			g.IsLeft = true;
+			
+			RuleByTargetSymbolComparer ruleComparer = new RuleByTargetSymbolComparer();
+			
+			int max = 0;
+			
+			foreach (NStatus status in Statuses)
+				if (status.Number != null && status.Number > max)
+					max = status.Number.Value;
+			
+			max++;
+			g.TargetSymbol = Gram.Unterminal.GetInstance(max);
+			
+			foreach (NTransitionFunc func in Functions)
+			{
+				Gram.Rule rule = new Gram.Rule();
+				rule.Prerequisite = Gram.Unterminal.GetInstance(func.NewStatus.Number.Value);
+				
+				int index = g.Rules.BinarySearch(rule,ruleComparer);
+				if (index >= 0)
+					rule = g.Rules[index];
+				else
+					g.Rules.Insert(~index,rule);
+				
+				Gram.Chain chain = new Gram.Chain();
+				
+				chain.Symbols.Add(Gram.Unterminal.GetInstance(func.OldStatus.Number.Value));
+				Gram.Terminal t = new Gram.Terminal();
+				t.Value = func.Symbol.Value;
+				chain.Symbols.Add(t);
+				
+				index = rule.Chains.BinarySearch(chain);
+				if (index < 0)
+					rule.Chains.Insert(~index,chain);
+			}
+			
+			foreach (NStatus endStatus in EndStatuses)
+			{
+				Gram.Rule rule = new Gram.Rule();
+				rule.Prerequisite = Gram.Unterminal.GetInstance(endStatus.Number.Value);
+				
+				int index = g.Rules.BinarySearch(rule, ruleComparer);
+				if (index >= 0)
+					rule = g.Rules[index];
+				else
+					g.Rules.Insert(~index,rule);
+				
+				Gram.Chain chain = new Gram.Chain();
+				
+				index = rule.Chains.BinarySearch(chain);
+				if (index < 0)
+					rule.Chains.Insert(~index,chain);
+			}
+			
+			Gram.Rule r = new Gram.Rule();
+			r.Prerequisite = g.TargetSymbol;
+			
+			int ind = g.Rules.BinarySearch(r,ruleComparer);
+			if (ind >= 0)
+				r = g.Rules[ind];
+			else
+				g.Rules.Insert(~ind,r);
+
+			foreach (NStatus endStatus in EndStatuses)
+			{
+				Gram.Chain chain = new Gram.Chain();
+				chain.Symbols.Add(Gram.Unterminal.GetInstance(endStatus.Number.Value));
+				
+				int index = r.Chains.BinarySearch(chain);
+				if (index < 0)
+					r.Chains.Insert(~index,chain);
+			}
+			
+			writer.WriteLine(@"Выполним построение леволинейной грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			g.SaveCortege(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"по минимальному конечному автомату",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveCortege(writer);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine();
+			writer.WriteLine(@"На первом шаге алгоритма определяем множество",true);
+			writer.WriteLine(@"нетерминальных символов грамматики, которое строится",true);
+			writer.WriteLine(@"на основании множества состояний автомата",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveM(writer);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			g.SaveN(writer);
+			writer.WriteLine(@"=");
+			SaveQ(writer);
+			writer.WriteLine(@"\cup");
+			writer.WriteLine(@"\{");
+			g.TargetSymbol.Save(writer,g.IsLeft);
+			writer.WriteLine(@"\}");
+			writer.WriteLine(@"=");
+			SaveStatuses(writer);
+			writer.WriteLine(@"\cup");
+			g.TargetSymbol.Save(writer,g.IsLeft);
+			writer.WriteLine(@"=");
+			g.SaveUnterminals(writer);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine();
+			writer.WriteLine(@"На следующем шаге алгоритма определяем множество терминальных символов",true);
+			writer.WriteLine(@"грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			g.SaveCortege(writer);
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"которое строится из алфавита допустимых входных символов автомата",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveCortege(writer);
+			writer.WriteLine(@"\end{math}, т.е.");
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			g.SaveSigmaWithNum(writer);
+			writer.WriteLine(@"=");
+			SaveSigma(writer);
+			writer.WriteLine(@"=");
+			g.SaveAlphabet(writer);
+			writer.WriteLine(@"\end{math}.");
+			writer.WriteLine();
+			writer.WriteLine(@"На третьем шаге алгоритма рассматриваем множество функций переходов автомата,",true);
+			writer.WriteLine(@"а также конечные состояния автомата, строим множество правил вывода ",true);
+			writer.WriteLine(@"\begin{math}");
+			g.SaveP(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"результирующей грамматики.",true);
+			writer.WriteLine();
+			writer.WriteLine(@"Таким образом, множество правил",true);
+			writer.WriteLine(@"\begin{math}");
+			g.SaveP(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"грамматики",true);
+			writer.WriteLine(@"\begin{math}");
+			g.SaveG(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"примет следующий вид",true);
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
+			g.SaveP(writer);
+			writer.WriteLine(@"=");
+			g.SaveRules(writer);
+			writer.WriteLine(@"\end{math}.	");
+			writer.WriteLine();			
+			writer.WriteLine(@"Далее определяем целевой символ ",true);
+			writer.WriteLine(@"\begin{math}");
+			Gram.Unterminal.GetInstance(g.Number).Save(writer,g.IsLeft);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"результирующей грамматики",true);
+			writer.WriteLine();						
+			writer.WriteLine(@"\begin{math}");
+			Gram.Unterminal.GetInstance(g.Number).Save(writer,g.IsLeft);
+			writer.WriteLine(@"\equiv");
+			g.TargetSymbol.Save(writer,g.IsLeft);
+			writer.WriteLine(@"\end{math}.");
+			
+			return g;
+		}
+	
+		private Gram.Grammar MakeRightGrammar(Writer writer, int grammarNumber)
+		{
+			//throw new NotImplementedException();
+			return null;
+		}
+		
+		public Gram.Grammar MakeGrammar(Writer writer, int grammarNumber)
+		{
+			return MakeGrammar(writer,grammarNumber,IsLeft);
+		}
+		
 		public void Minimize(Writer writer)
 		{
 			writer.WriteLine(@"Выполним минимизацию состояний для построенного детерминированного автомата",true);

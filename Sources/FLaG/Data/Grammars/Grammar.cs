@@ -2414,7 +2414,7 @@ namespace FLaG.Data.Grammars
 			}
 		}
 		
-		private void SaveSigmaWithNum(Writer writer)
+		public void SaveSigmaWithNum(Writer writer)
 		{
 			writer.Write(@"{");
 			writer.Write(@"{");
