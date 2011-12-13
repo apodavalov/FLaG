@@ -11,10 +11,6 @@ namespace FLaG.Output
 {
     class Writer : StreamWriter
     {
-        public static string docBookNS = "http://docbook.org/ns/docbook";
-        public static string xmlNS = "http://www.w3.org/XML/1998/namespace";
-        public static string mathmlNS = "http://www.w3.org/1998/Math/MathML";
-		
 		private Lang lang;
 		private Grammar LeftSidedGrammar;
 		private Grammar RightSidedGrammar;
@@ -623,7 +619,7 @@ namespace FLaG.Output
 		
 		private void Step2_7_1(bool isLeft)
 		{
-			Write(@"\subsection{");
+			Write(@"\subsubsection{");
 			Write("Этап 2.7.1",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
@@ -644,7 +640,7 @@ namespace FLaG.Output
 		private void Step2_8(bool isLeft)
 		{
 			Write(@"\subsection{");
-			Write("Этап 2.7.1",true);
+			Write("Этап 2.8",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -661,6 +657,16 @@ namespace FLaG.Output
         {
 			WriteLine(@"\end{document}");
         }
+
+		public void Step2_10 ()
+		{
+			Write(@"\subsection{");
+			Write("Этап 2.10",true);
+			WriteLine(@"}");
+			WriteLine(@"Для проверки правильности построения конечного автомата выполним",true);
+			WriteLine(@"обратные преобразования, то есть рассмотрим множество каких входных",true);
+			WriteLine(@"цепочек допускает данный конечный автомат.",true);
+		}
 		
 		public void Out()
 		{
@@ -697,6 +703,8 @@ namespace FLaG.Output
 			
 			Step2_8(true);
 			Step2_8(false);
+			
+			Step2_10();
 
             WriteEndDoc();
 		}
