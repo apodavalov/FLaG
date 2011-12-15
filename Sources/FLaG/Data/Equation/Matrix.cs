@@ -6,6 +6,18 @@ namespace FLaG.Data.Equation
 {
 	class Matrix
 	{
+		private Expression[][] Mx
+		{
+			get;
+			set;
+		}
+		
+		private Gram.Unterminal[] Unterminals
+		{
+			get;
+			set;
+		}
+		
 		public bool IsLeft
 		{
 			get;
@@ -24,7 +36,16 @@ namespace FLaG.Data.Equation
 		
 		public Matrix (Gram.Grammar g)
 		{
-			throw new NotImplementedException();
+			Unterminals = g.DeepUnterminals;
+			
+			Mx = new Expression[Unterminals.Length][];
+			
+			for (int i = 0; i < Unterminals.Length; i++)
+				Mx[i] = new Expression[Unterminals.Length + 1];
+			
+			IsLeft = g.IsLeft;
+			
+			
 		}
 	}
 }
