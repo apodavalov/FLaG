@@ -6,6 +6,7 @@ using System.IO;
 using FLaG.Data;
 using FLaG.Data.Grammars;
 using FLaG.Data.Automaton;
+using FLaG.Data.Equation;
 
 namespace FLaG.Output
 {
@@ -689,6 +690,21 @@ namespace FLaG.Output
 				RightSidedGrammar = grammar;
 		}
 		
+		public void Step2_10_2(bool isLeft)
+		{
+			Write(@"\subsubsection{");
+			Write("Этап 2.10.2",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
+			WriteLine(@"}");
+			
+			Matrix matrix = new Matrix(isLeft ? LeftSidedGrammar : RightSidedGrammar);
+			matrix.Solve(this);
+		}
+		
 		public void Out()
 		{
         	WriteStartDoc();
@@ -729,6 +745,9 @@ namespace FLaG.Output
 			
 			Step2_10_1(true);
 			Step2_10_1(false);
+			
+			Step2_10_2(true);
+			Step2_10_2(false);
 
             WriteEndDoc();
 		}

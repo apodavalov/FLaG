@@ -80,6 +80,13 @@
     <Compile Include="Data\Automaton\ClassEquality.cs" />
     <Compile Include="Data\Automaton\ClassEqualityCollection.cs" />
     <Compile Include="Data\Helpers\ClassEqualityComparerByGroupNum.cs" />
+    <Compile Include="Data\Equation\Alter.cs" />
+    <Compile Include="Data\Equation\Concat.cs" />
+    <Compile Include="Data\Equation\Repeat.cs" />
+    <Compile Include="Data\Equation\Expression.cs" />
+    <Compile Include="Data\Equation\Symbol.cs" />
+    <Compile Include="Data\Equation\Matrix.cs" />
+    <Compile Include="Data\Equation\Empty.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Schema\lang.xsd">
@@ -105,5 +112,6 @@
     <Folder Include="Data\Grammars\" />
     <Folder Include="Data\Helpers\" />
     <Folder Include="Data\Automaton\" />
+    <Folder Include="Data\Equation\" />
   </ItemGroup>
 </Project>

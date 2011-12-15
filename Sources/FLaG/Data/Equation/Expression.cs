@@ -10,6 +10,8 @@ namespace FLaG
 			
 		}
 		
+		public abstract void Optimize();
+		
 		public abstract Expression DeepClone();
 
 		public override abstract bool Equals(object obj);

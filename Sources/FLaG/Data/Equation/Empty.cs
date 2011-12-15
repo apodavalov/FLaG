@@ -11,15 +11,20 @@ namespace FLaG
 
 		public override bool Equals (object obj)
 		{
-			throw new NotImplementedException ();
+			return obj is Empty;
 		}
 
 		public override int GetHashCode ()
 		{
-			throw new NotImplementedException ();
+			return 0;
 		}
 
 		public override Expression DeepClone ()
+		{
+			return this;
+		}
+
+		public override void Optimize ()
 		{
 			throw new NotImplementedException ();
 		}

@@ -4,6 +4,12 @@ namespace FLaG
 {
 	class Repeat : Expression
 	{
+		public Expression Expression
+		{
+			get;
+			set;
+		}
+		
 		public bool AtLeastOne
 		{
 			get;
@@ -17,15 +23,29 @@ namespace FLaG
 
 		public override bool Equals(object obj)
 		{
-			throw new NotImplementedException ();
+			if (!(obj is Repeat))
+				return false;
+			
+			Repeat o = (Repeat)obj;
+			return o.AtLeastOne == AtLeastOne && Expression.Equals(o.Expression);
 		}
 
 		public override int GetHashCode()
 		{
-			throw new NotImplementedException ();
+			return Expression.GetHashCode() ^ AtLeastOne.GetHashCode();
 		}
 
 		public override Expression DeepClone ()
+		{
+			Repeat r = new Repeat();
+			
+			r.Expression = Expression.DeepClone();
+			r.AtLeastOne = AtLeastOne;
+			
+			return r;
+		}
+
+		public override void Optimize ()
 		{
 			throw new NotImplementedException ();
 		}
