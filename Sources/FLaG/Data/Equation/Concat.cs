@@ -57,8 +57,7 @@ namespace FLaG.Data.Equation
 
 		public override void Optimize ()
 		{
-			throw new NotImplementedException ();
+			// TODO: оптимизировать
 		}
 	}
 }
-

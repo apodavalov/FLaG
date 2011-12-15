@@ -47,7 +47,7 @@ namespace FLaG
 
 		public override void Optimize ()
 		{
-			throw new NotImplementedException ();
+			// TODO: оптимизировать
 		}
 	}
 }
