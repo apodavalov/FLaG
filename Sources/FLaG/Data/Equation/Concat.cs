@@ -64,7 +64,8 @@ namespace FLaG.Data.Equation
 		
 		public override void Save(Writer writer)
 		{
-			throw new NotImplementedException ();
+            foreach (Expression e in Expressions)
+                e.Save(writer);
 		}
 	}
 }

@@ -43,7 +43,7 @@ namespace FLaG.Data.Equation
 		
 		public override void Save(Writer writer)
 		{
-			throw new NotImplementedException ();
+			writer.Write(Value + "",true);
 		}
 	}
 }

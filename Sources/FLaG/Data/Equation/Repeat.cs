@@ -54,9 +54,14 @@ namespace FLaG
 		
 		public override void Save(Writer writer)
 		{
-			throw new NotImplementedException ();
+			writer.Write(@"{");
+			writer.Write(@"{");
+			Expression.Save(writer);			
+			writer.Write(@"}^{");
+			writer.Write(AtLeastOne ? "+" : "*", true);
+			writer.Write(@"}");
+			writer.Write(@"}");
 		}
-
 	}
 }
 

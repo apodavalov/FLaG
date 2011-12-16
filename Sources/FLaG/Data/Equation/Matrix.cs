@@ -28,7 +28,7 @@ namespace FLaG.Data.Equation
 		{
 			writer.WriteLine(@"\left\{");
 			
-  			writer.WriteLine(@"\begin{array}");
+  			writer.WriteLine(@"\begin{array}{l l}");
 			
 			for (int i = 0; i < Mx.Length; i++)
 			{

@@ -32,7 +32,7 @@ namespace FLaG
 		
 		public override void Save(Writer writer)
 		{
-			throw new NotImplementedException ();
+			writer.Write(@"\varepsilon ");
 		}
 	}
 }

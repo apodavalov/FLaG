@@ -54,7 +54,21 @@ namespace FLaG.Data.Equation
 
 		public override void Save(Writer writer)
 		{
-			throw new NotImplementedException ();
+			writer.Write("(");
+			
+			bool first = true;
+
+            foreach (Expression e in Expressions)
+            {
+                if (!first)
+					writer.Write(@" + ");
+				else
+					first = false;
+
+                e.Save(writer);
+            }                      
+			
+			writer.Write(")");
 		}
 	}
 }
