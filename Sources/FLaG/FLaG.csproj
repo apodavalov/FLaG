@@ -87,6 +87,7 @@
     <Compile Include="Data\Equation\Symbol.cs" />
     <Compile Include="Data\Equation\Matrix.cs" />
     <Compile Include="Data\Equation\Empty.cs" />
+    <Compile Include="Data\Equation\Degree.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Schema\lang.xsd">

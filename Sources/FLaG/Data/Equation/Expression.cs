@@ -10,7 +10,7 @@ namespace FLaG
 			
 		}
 		
-		public abstract void Optimize();
+		public abstract Expression Optimize();
 		
 		public abstract Expression DeepClone();
 

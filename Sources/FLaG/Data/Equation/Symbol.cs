@@ -35,9 +35,9 @@ namespace FLaG.Data.Equation
 			return this;
 		}
 
-		public override void Optimize ()
+		public override Expression Optimize ()
 		{
-			
+			return this;
 		}
 	}
 }

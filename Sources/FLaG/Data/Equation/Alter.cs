@@ -45,9 +45,10 @@ namespace FLaG.Data.Equation
 			return alter;
 		}
 
-		public override void Optimize ()
+		public override Expression Optimize ()
 		{
 			// TODO: оптимизировать
+			return this;
 		}
 	}
 }

@@ -24,9 +24,9 @@ namespace FLaG
 			return this;
 		}
 
-		public override void Optimize ()
+		public override Expression Optimize ()
 		{
-			
+			return this;
 		}
 	}
 }

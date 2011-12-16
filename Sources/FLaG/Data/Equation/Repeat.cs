@@ -45,9 +45,10 @@ namespace FLaG
 			return r;
 		}
 
-		public override void Optimize ()
+		public override Expression Optimize ()
 		{
 			// TODO: оптимизировать
+			return this;
 		}
 	}
 }
