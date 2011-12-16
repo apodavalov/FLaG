@@ -68,6 +68,16 @@ namespace FLaG.Data.Equation
 			}
   			writer.WriteLine(@"\end{array} \right.");
 		}
+
+		public bool IterateSimply ()
+		{
+			throw new NotImplementedException ();
+		}
+
+		public bool IterateAlphaBeta ()
+		{
+			throw new NotImplementedException ();
+		}
 		
 		public void Solve(Writer writer)
 		{
@@ -75,6 +85,29 @@ namespace FLaG.Data.Equation
 			writer.WriteLine(@"\begin{math}");
 			Save(writer);
 			writer.WriteLine(@"\end{math}");			
+			writer.WriteLine();		
+			writer.WriteLine(@"Найдем решение данной системы.", true);
+			
+			bool somethingChanged;
+			bool first = true;
+			
+			do
+			{
+				somethingChanged = IterateSimply();
+				if (!somethingChanged)
+					somethingChanged = IterateAlphaBeta();
+				
+				writer.WriteLine();
+				writer.WriteLine(@"\begin{math}");
+				
+				if (!first)
+					writer.Write(@"\Rightarrow ");
+				else
+					first = false;
+				
+				Save(writer);
+				writer.WriteLine(@"\begin{math}");
+			} while (somethingChanged);
 		}
 		
 		public Matrix (Gram.Grammar g)
