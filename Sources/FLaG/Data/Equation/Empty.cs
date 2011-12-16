@@ -1,4 +1,5 @@
 using System;
+using FLaG.Output;
 
 namespace FLaG
 {
@@ -27,6 +28,11 @@ namespace FLaG
 		public override Expression Optimize ()
 		{
 			return this;
+		}
+		
+		public override void Save(Writer writer)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }

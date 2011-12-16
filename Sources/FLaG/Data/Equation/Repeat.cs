@@ -1,4 +1,5 @@
 using System;
+using FLaG.Output;
 
 namespace FLaG
 {
@@ -50,6 +51,12 @@ namespace FLaG
 			// TODO: оптимизировать
 			return this;
 		}
+		
+		public override void Save(Writer writer)
+		{
+			throw new NotImplementedException ();
+		}
+
 	}
 }
 

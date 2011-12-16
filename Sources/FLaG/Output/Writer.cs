@@ -701,7 +701,16 @@ namespace FLaG.Output
 			Write(")",true);
 			WriteLine(@"}");
 			
-			Matrix matrix = new Matrix(isLeft ? LeftSidedGrammar : RightSidedGrammar);
+			Grammar g = isLeft ? LeftSidedGrammar : RightSidedGrammar;
+			
+			WriteLine(@"Используя теорию уравнений с регулярными коэффициентами, выполним построение",true);
+			WriteLine(@"регулярного выражения для грамматики",true);
+			WriteLine(@"\begin{math}");
+			g.SaveG(this);
+			WriteLine(@"\end{math}.");
+			WriteLine();
+			
+			Matrix matrix = new Matrix(g);
 			matrix.Solve(this);
 		}
 		

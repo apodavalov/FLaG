@@ -24,14 +24,57 @@ namespace FLaG.Data.Equation
 			set;
 		}
 		
-		public void Save(Writer writer)
+		private void Save(Writer writer)
 		{
-			throw new NotImplementedException();
+			writer.WriteLine(@"\left\{");
+			
+  			writer.WriteLine(@"\begin{array}");
+			
+			for (int i = 0; i < Mx.Length; i++)
+			{
+				writer.Write(@"{");
+				
+				Unterminals[i].Save(writer,IsLeft);
+				
+				writer.Write(@" = ");
+				
+				bool first = true;
+				
+				for (int j = 0; j < Mx[i].Length; j++)
+				{
+					if (Mx[i][j] == null)
+						continue;
+					
+					if (!first)	
+						writer.Write(@" + ");
+					else
+						first = false;
+					
+					if (IsLeft && j < Mx[i].Length - 1)
+						Unterminals[j].Save(writer,IsLeft);
+					
+					if (!(Mx[i][j] is Empty) || j == Mx[i].Length - 1)
+					{
+						writer.Write(@"{");
+						Mx[i][j].Save(writer);
+						writer.Write(@"}");
+					}
+					
+					if (!IsLeft && j < Mx[i].Length - 1)
+						Unterminals[j].Save(writer,IsLeft);
+				}
+				
+				writer.WriteLine(@"}\\");
+			}
+  			writer.WriteLine(@"\end{array} \right.");
 		}
 		
 		public void Solve(Writer writer)
 		{
-			throw new NotImplementedException();
+			writer.WriteLine(@"Система уравнений с регулярными коэффициентами примет следующий вид", true);
+			writer.WriteLine(@"\begin{math}");
+			Save(writer);
+			writer.WriteLine(@"\end{math}");			
 		}
 		
 		public Matrix (Gram.Grammar g)

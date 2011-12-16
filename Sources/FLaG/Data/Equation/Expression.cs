@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FLaG.Output;
 
 namespace FLaG
 {
@@ -9,6 +10,8 @@ namespace FLaG
 		{
 			
 		}
+		
+		public abstract void Save(Writer writer);
 		
 		public abstract Expression Optimize();
 		

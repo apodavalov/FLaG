@@ -1,4 +1,5 @@
 using System;
+using FLaG.Output;
 
 namespace FLaG.Data.Equation
 {
@@ -38,6 +39,11 @@ namespace FLaG.Data.Equation
 		public override Expression Optimize ()
 		{
 			return this;
+		}
+		
+		public override void Save(Writer writer)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }

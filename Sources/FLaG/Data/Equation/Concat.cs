@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FLaG.Output;
 
 namespace FLaG.Data.Equation
 {
@@ -59,6 +60,11 @@ namespace FLaG.Data.Equation
 		{
 			// TODO: оптимизировать
 			return this;
+		}
+		
+		public override void Save(Writer writer)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }
