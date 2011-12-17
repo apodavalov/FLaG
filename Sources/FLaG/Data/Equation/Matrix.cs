@@ -296,7 +296,7 @@ namespace FLaG.Data.Equation
 			return cycles.ToArray();
 		}
 
-		public bool EliminateCycles()
+		public bool EliminateCycle()
 		{
 			int[][] cycles = FindCycles();
 			
@@ -322,7 +322,7 @@ namespace FLaG.Data.Equation
 				if (!somethingChanged)
 					somethingChanged = IterateAlphaBeta();
 				if (!somethingChanged)
-					somethingChanged = EliminateCycles();
+					somethingChanged = EliminateCycle();
 				
 				writer.WriteLine();
 				writer.WriteLine(@"\begin{math}");
