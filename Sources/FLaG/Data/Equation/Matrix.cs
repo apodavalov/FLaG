@@ -229,7 +229,9 @@ namespace FLaG.Data.Equation
 				for (int i = 0; i < labels.Length; i++)
 					wentFrom[i] = labels[i] = -1;
 				
-				labels[0] = 0;
+				int t = 0;
+				
+				labels[0] = t;
 				
 				HashSet<int> V = new HashSet<int>();
 				V.Add(0);
@@ -238,7 +240,7 @@ namespace FLaG.Data.Equation
 				
 				do 
 				{
-					int t = 1;
+					t++;
 					foreach (int v in V)
 					{
 						int row = titles[v]; // определяем ряд в исходной матрице
@@ -257,7 +259,7 @@ namespace FLaG.Data.Equation
 										// найден цикл - формируем и добавляем
 										int[] cycle = new int[t - labels[index]];
 									
-										cycle[cycle.Length - 1] = v;
+										cycle[cycle.Length - 1] = titles[v];
 										int top = v;									
 									
 										for (int j = 1; j < cycle.Length; j++)									
@@ -279,7 +281,7 @@ namespace FLaG.Data.Equation
 					}
 					
 					V = newV;
-					t++;
+					newV = new HashSet<int>();
 				} while (V.Count > 0);
 				
 				List<int> titlesNew = new List<int>(titles);
