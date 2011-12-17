@@ -18,6 +18,9 @@ namespace FLaG.Output
 		private int FirstLeftSidedFreeNumber;
 		private int FirstRightSidedFreeNumber;
 		
+		private Expression leftExpression;
+		private Expression rightExpression;
+		
 		private NAutomaton nLeftAutomaton;
 		private NAutomaton nRightAutomaton;
 		
@@ -711,7 +714,30 @@ namespace FLaG.Output
 			WriteLine();
 			
 			Matrix matrix = new Matrix(g);
-			matrix.Solve(this);
+			Expression exp = matrix.Solve(this);
+			
+			WriteLine();
+			WriteLine(@"Таким образом, мы определили все неизвестные. Доказано, что решение для",true);
+			WriteLine(@"\begin{math}");
+			matrix.Unterminals[matrix.TargetSymbolIndex].Save(this,isLeft);
+			WriteLine(@"\end{math}");
+			WriteLine(@"будет представлять собой искомое регулярное выражение, обозначающее язык,",true);
+			WriteLine(@"заданный грамматикой",true);
+			WriteLine(@"\begin{math}");
+			g.SaveG(this);
+			WriteLine(@"\end{math}.");
+			WriteLine(@"Таким образом искомое регулярное выражение примет вид",true);
+			WriteLine();
+			WriteLine(@"\begin{math}");
+			matrix.Unterminals[matrix.TargetSymbolIndex].Save(this,isLeft);
+			WriteLine(@"=");
+			exp.Save(this);
+			WriteLine(@"\end{math}.");
+			
+			if (isLeft)
+				leftExpression = exp;
+			else
+				rightExpression = exp;
 		}
 		
 		public void Out()

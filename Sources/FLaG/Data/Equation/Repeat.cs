@@ -55,9 +55,9 @@ namespace FLaG.Data.Equation
 		public override void Save(Writer writer)
 		{
 			writer.Write(@"{");
-			writer.Write(@"{");
+			writer.Write(@"{(");
 			Expression.Save(writer);			
-			writer.Write(@"}^{");
+			writer.Write(@")}^{");
 			writer.Write(AtLeastOne ? "+" : "*", true);
 			writer.Write(@"}");
 			writer.Write(@"}");

@@ -13,16 +13,22 @@ namespace FLaG.Data.Equation
 			set;
 		}
 		
-		private Gram.Unterminal[] Unterminals
+		public Gram.Unterminal[] Unterminals
 		{
 			get;
-			set;
+			private set;
+		}
+		
+		public int TargetSymbolIndex
+		{
+			get;
+			private set;
 		}
 		
 		public bool IsLeft
 		{
 			get;
-			set;
+			private set;
 		}
 		
 		private void Save(Writer writer)
@@ -369,7 +375,7 @@ namespace FLaG.Data.Equation
 			return true;
 		}
 		
-		public void Solve(Writer writer)
+		public Expression Solve(Writer writer)
 		{
 			writer.WriteLine(@"Система уравнений с регулярными коэффициентами примет следующий вид", true);
 			writer.WriteLine(@"\begin{math}");
@@ -400,11 +406,15 @@ namespace FLaG.Data.Equation
 				Save(writer);
 				writer.WriteLine(@"\end{math}");
 			} while (somethingChanged);
+			
+			return Mx[TargetSymbolIndex][Mx[TargetSymbolIndex].Length - 1];
 		}
 		
 		public Matrix (Gram.Grammar g)
 		{
 			Unterminals = g.DeepUnterminals;
+			
+			TargetSymbolIndex = Array.BinarySearch<Gram.Unterminal>(Unterminals,g.TargetSymbol);
 			
 			Mx = new Expression[Unterminals.Length][];
 			
