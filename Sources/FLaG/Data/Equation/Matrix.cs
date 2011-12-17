@@ -296,9 +296,26 @@ namespace FLaG.Data.Equation
 			return cycles.ToArray();
 		}
 
+		public int[] ChooseCycleToRemove (int[][] cycles)
+		{
+			if (cycles.Length == 0)
+				return null;
+			
+			int[] cycle = cycles[0];
+			
+			for (int i = 1; i < cycles.Length; i++)
+				if (cycles[i].Length > cycle.Length)
+					cycle = cycles[i];
+			
+			return cycle;
+		}
+
 		public bool EliminateCycle()
 		{
 			int[][] cycles = FindCycles();
+			
+			int[] cycle = ChooseCycleToRemove(cycles);
+			
 			
 			
 			throw new NotImplementedException ();
