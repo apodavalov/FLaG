@@ -310,16 +310,63 @@ namespace FLaG.Data.Equation
 			return cycle;
 		}
 
-		private bool EliminateCycle()
+		private bool EliminateCycle(Writer writer, ref bool first)
 		{
 			int[][] cycles = FindCycles();
 			
 			int[] cycle = ChooseCycleToRemove(cycles);
 			
+			if (cycle == null || cycle.Length < 2)
+				return false;
 			
+			Expression[] rowToModify = Mx[cycle[0]];
 			
+			for (int i = 1; i < cycle.Length; i++)			
+			{
+				int rowModifyFromNumber = cycle[i];
+				Expression[] rowModifyFrom = Mx[rowModifyFromNumber];
+				
+				Expression expr = rowToModify[rowModifyFromNumber];
+				rowToModify[rowModifyFromNumber] = null;
+				
+				for (int j = 0; j < rowModifyFrom.Length; j++)
+					if (rowModifyFrom[j] != null)
+					{
+						Concat concat = new Concat();
+						if (IsLeft)
+							concat.Expressions.Add(rowModifyFrom[j]);
+						
+						concat.Expressions.Add(expr.DeepClone());
+						
+						if (!IsLeft)
+							concat.Expressions.Add(rowModifyFrom[j]);
+						
+						if (rowToModify[j] == null)
+							rowToModify[j] = concat.Optimize();
+						else
+						{
+							Alter alter = new Alter();
+							alter.Expressions.Add(rowToModify[j]);
+							alter.Expressions.Add(concat);
+							rowToModify[j] = alter.Optimize();
+						}
+					}
+				
+				writer.WriteLine();
+				writer.WriteLine(@"\begin{math}");
+				
+				if (!first)
+					writer.Write(@"\Rightarrow ");
+				else
+					first = false;
+				
+				Save(writer);
+				writer.WriteLine(@"\end{math}");
+			}
 			
-			throw new NotImplementedException ();
+			IterateAlphaBeta();
+			
+			return true;
 		}
 		
 		public void Solve(Writer writer)
@@ -340,7 +387,7 @@ namespace FLaG.Data.Equation
 				if (!somethingChanged)
 					somethingChanged = IterateAlphaBeta();
 				if (!somethingChanged)
-					somethingChanged = EliminateCycle();
+					somethingChanged = EliminateCycle(writer, ref first);
 				
 				writer.WriteLine();
 				writer.WriteLine(@"\begin{math}");
