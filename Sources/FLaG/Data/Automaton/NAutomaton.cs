@@ -834,7 +834,7 @@ namespace FLaG.Data.Automaton
 			writer.WriteLine(@"\begin{math}");
 			automaton.SaveDelta(writer);
 			writer.WriteLine(@"=");
-			automaton.SaveFunctions(writer,false); // TODO: сделать короткую версию
+			automaton.SaveFunctions(writer,true);
 			writer.WriteLine(@"\end{math}");			
 			writer.WriteLine();
 			writer.WriteLine(@"Начальным состоянием ДКА",true);	
