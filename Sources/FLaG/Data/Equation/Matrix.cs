@@ -198,12 +198,12 @@ namespace FLaG.Data.Equation
 				if (Mx[row][i] != null)
 				{
 					Concat concat = new Concat();
-					if (IsLeft)
+					if (!IsLeft)
 						concat.Expressions.Add(repeat.DeepClone());
 				
 					concat.Expressions.Add(Mx[row][i]);
 				
-					if (!IsLeft)
+					if (IsLeft)
 						concat.Expressions.Add(repeat.DeepClone());
 				
 					Mx[row][i] = concat.Optimize();
