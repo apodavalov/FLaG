@@ -211,6 +211,96 @@ namespace FLaG.Data.Equation
 			
 			return true;
 		}
+
+		public int[][] FindCycles ()
+		{
+			List<int[]> cycles = new List<int[]>(); // циклы
+			
+			int[] titles = new int[Mx.Length]; // номера ячеек в исходной матрице
+			 
+			for (int i = 0; i < titles.Length;i++) // изначально все присутствуют
+				titles[i] = i;
+			
+			while (titles.Length > 0)
+			{
+				int[] labels = new int[titles.Length]; // метки
+				int[] wentFrom = new int[titles.Length]; // из какой вершины мы пришли сюда
+				
+				for (int i = 0; i < labels.Length; i++)
+					wentFrom[i] = labels[i] = -1;
+				
+				labels[0] = 0;
+				
+				HashSet<int> V = new HashSet<int>();
+				V.Add(0);
+				
+				HashSet<int> newV = new HashSet<int>();
+				
+				do 
+				{
+					int t = 1;
+					foreach (int v in V)
+					{
+						int row = titles[v]; // определяем ряд в исходной матрице
+						
+						for (int i = 0; i < Mx[row].Length - 1; i++)
+							if (Mx[row][i] != null)
+							{
+								// есть путь - получаем индекс
+								int index = Array.BinarySearch<int>(titles,i);
+								
+								if (index >= 0)
+								{
+									// вершина в множестве
+									if (labels[index] >= 0) 
+									{
+										// найден цикл - формируем и добавляем
+										int[] cycle = new int[t - labels[index]];
+									
+										cycle[cycle.Length - 1] = v;
+										int top = v;									
+									
+										for (int j = 1; j < cycle.Length; j++)									
+										{
+											cycle[cycle.Length - 1 - j] = titles[wentFrom[top]];
+											top = wentFrom[top];
+										}
+									
+										cycles.Add(cycle);
+									}
+									else
+									{
+										labels[index] = t;
+										wentFrom[index] = v;
+										newV.Add(index);
+									}
+								}
+							}
+					}
+					
+					V = newV;
+					t++;
+				} while (V.Count > 0);
+				
+				List<int> titlesNew = new List<int>(titles);
+				
+				for (int i = titles.Length - 1; i >= 0; i--)
+					if (labels[i] >= 0)
+						titlesNew.RemoveAt(i);
+				
+				titles = titlesNew.ToArray();
+			}
+			
+			return cycles.ToArray();
+		}
+
+		public bool EliminateCycles()
+		{
+			int[][] cycles = FindCycles();
+			
+			
+			throw new NotImplementedException ();
+		}
 		
 		public void Solve(Writer writer)
 		{
@@ -229,6 +319,8 @@ namespace FLaG.Data.Equation
 				somethingChanged = IterateSimply();
 				if (!somethingChanged)
 					somethingChanged = IterateAlphaBeta();
+				if (!somethingChanged)
+					somethingChanged = EliminateCycles();
 				
 				writer.WriteLine();
 				writer.WriteLine(@"\begin{math}");
