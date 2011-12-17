@@ -1,6 +1,7 @@
 using System;
 using FLaG.Output;
 using Gram=FLaG.Data.Grammars;
+using System.Collections.Generic;
 
 namespace FLaG.Data.Equation
 {
@@ -69,12 +70,81 @@ namespace FLaG.Data.Equation
   			writer.WriteLine(@"\end{array} \right.");
 		}
 
-		public bool IterateSimply ()
+		public int[] FindWithFreeMemberOnly()
 		{
-			throw new NotImplementedException ();
+			List<int> list = new List<int>();
+			
+			for (int i = 0; i < Mx.Length; i++)
+			{
+				bool isAllNull = true;
+				for (int j = 0; j < Mx[i].Length - 1; j++)
+					if (Mx[i][j] != null)
+					{
+						isAllNull = false;
+						break;
+					}
+				
+				if (isAllNull && Mx[i][Mx[i].Length - 1] != null)
+					list.Add(i);
+			}
+			
+			return list.ToArray();
 		}
 
-		public bool IterateAlphaBeta ()
+		public int ChooseWithMinimumFreeMember (int[] rows)
+		{
+			if (rows.Length == 0)
+				return -1;
+			
+			// TODO: сделать правильный выбор самого простого выражения
+			return rows[new Random().Next(rows.Length)];
+		}
+
+		public bool IterateSimply()
+		{
+			int[] rows = FindWithFreeMemberOnly();
+			
+			int row = ChooseWithMinimumFreeMember(rows);
+			
+			if (row < 0)
+				return false;
+			
+			bool res = false;
+			
+			Expression expr = Mx[row][Mx[row].Length - 1];
+			
+			for (int i = 0; i < Mx.Length; i++)
+			{
+				if (Mx[i][row] != null)
+				{
+					res = true;
+					
+					Concat concat = new Concat();
+					if (IsLeft)
+						concat.Expressions.Add(expr.DeepClone());
+					
+					concat.Expressions.Add(Mx[i][row]);
+					Mx[i][row] = null;
+					
+					if (!IsLeft)
+						concat.Expressions.Add(expr.DeepClone());
+					
+					if (Mx[i][Mx[i].Length - 1] == null)
+						Mx[i][Mx[i].Length - 1] = concat.Optimize();
+					else
+					{
+						Alter alter = new Alter();
+						alter.Expressions.Add(Mx[i][Mx[i].Length - 1]);
+						alter.Expressions.Add(concat);
+						Mx[i][Mx[i].Length - 1] = alter.Optimize();
+					}
+				}
+			}
+			
+			return res;
+		}
+
+		public bool IterateAlphaBeta()
 		{
 			throw new NotImplementedException ();
 		}
@@ -106,7 +176,7 @@ namespace FLaG.Data.Equation
 					first = false;
 				
 				Save(writer);
-				writer.WriteLine(@"\begin{math}");
+				writer.WriteLine(@"\end{math}");
 			} while (somethingChanged);
 		}
 		
