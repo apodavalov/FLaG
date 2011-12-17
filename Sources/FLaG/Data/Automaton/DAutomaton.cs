@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FLaG.Output;
+using FLaG.Data.Helpers;
 
 namespace FLaG.Data.Automaton
 {
@@ -307,7 +308,51 @@ namespace FLaG.Data.Automaton
 		
 		public void SaveFunctionsShort (Writer writer)
 		{
-			throw new NotImplementedException ();
+//			Dictionary<DStatus,List<DTransitionFunc>> dictionary =
+//				new Dictionary<DStatus, List<DTransitionFunc>>();
+//			
+//			foreach (DTransitionFunc func in Functions)
+//			{
+//				if (!dictionary.ContainsKey(func.NewStatus))
+//					dictionary[func.NewStatus] = new List<DTransitionFunc>();
+//				
+//				dictionary[func.NewStatus].Add(func);
+//			}
+			
+			DTransitionFunc[] functions;
+			
+			if (Functions.Count >= 9)
+			{
+				functions = new DTransitionFunc[9];
+				
+				for (int i = 0; i < 4; i++)
+					functions[i] = Functions[i];
+				
+				functions[4] = null;
+				
+				for (int i = 0; i < 4; i++)
+					functions[i + 5] = Functions[Functions.Count - 4 + i];
+			}
+			else
+				functions = Functions.ToArray();
+			
+			if (Functions.Count == 0)
+				writer.WriteLine(@"\varnothing");
+			else
+			{
+				writer.WriteLine(@"\{");
+				for (int i = 0; i < functions.Length; i++)
+				{
+					if (i != 0)		
+						writer.Write(", \\end{math}\r\n\r\n\\begin{math} ");
+					
+					if (functions[i] != null)					
+						functions[i].Save(writer,IsLeft, ProducedFromDFA);
+					else
+						writer.WriteLine(@"\dots");
+				}
+				writer.WriteLine(@"\}");
+			}
 		}
 		
 		public void SaveFunctions(Writer writer, bool shortOutput)
