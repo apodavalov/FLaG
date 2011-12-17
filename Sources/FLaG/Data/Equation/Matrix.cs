@@ -212,7 +212,7 @@ namespace FLaG.Data.Equation
 			return true;
 		}
 
-		public int[][] FindCycles ()
+		private int[][] FindCycles ()
 		{
 			List<int[]> cycles = new List<int[]>(); // циклы
 			
@@ -296,7 +296,7 @@ namespace FLaG.Data.Equation
 			return cycles.ToArray();
 		}
 
-		public int[] ChooseCycleToRemove (int[][] cycles)
+		private int[] ChooseCycleToRemove (int[][] cycles)
 		{
 			if (cycles.Length == 0)
 				return null;
@@ -310,11 +310,12 @@ namespace FLaG.Data.Equation
 			return cycle;
 		}
 
-		public bool EliminateCycle()
+		private bool EliminateCycle()
 		{
 			int[][] cycles = FindCycles();
 			
 			int[] cycle = ChooseCycleToRemove(cycles);
+			
 			
 			
 			
