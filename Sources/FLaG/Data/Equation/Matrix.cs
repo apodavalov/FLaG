@@ -70,7 +70,7 @@ namespace FLaG.Data.Equation
   			writer.WriteLine(@"\end{array} \right.");
 		}
 
-		public int[] FindWithFreeMemberOnly()
+		private int[] FindWithFreeMemberOnly()
 		{
 			List<int> list = new List<int>();
 			
@@ -91,7 +91,86 @@ namespace FLaG.Data.Equation
 			return list.ToArray();
 		}
 
-		public int ChooseWithMinimumFreeMember (int[] rows)
+		private int ChooseWithMinimumFreeMember(int[] rows)
+		{
+			if (rows.Length == 0)
+				return -1;
+			
+			// TODO: сделать правильный выбор самого простого выражения
+			return new Random().Next(rows.Length);
+		}
+
+		private bool IterateSimply()
+		{
+			int[] rows = FindWithFreeMemberOnly();
+			
+			bool res;
+			
+			do
+			{
+				int rowNumInRows = ChooseWithMinimumFreeMember(rows);
+				
+				if (rowNumInRows < 0)
+					return false;
+				
+				int row = rows[rowNumInRows];
+				
+				res = false;
+				
+				Expression expr = Mx[row][Mx[row].Length - 1];
+				
+				for (int i = 0; i < Mx.Length; i++)
+				{
+					if (Mx[i][row] != null)
+					{
+						res = true;
+						
+						Concat concat = new Concat();
+						if (IsLeft)
+							concat.Expressions.Add(expr.DeepClone());
+						
+						concat.Expressions.Add(Mx[i][row]);
+						Mx[i][row] = null;
+						
+						if (!IsLeft)
+							concat.Expressions.Add(expr.DeepClone());
+						
+						if (Mx[i][Mx[i].Length - 1] == null)
+							Mx[i][Mx[i].Length - 1] = concat.Optimize();
+						else
+						{
+							Alter alter = new Alter();
+							alter.Expressions.Add(Mx[i][Mx[i].Length - 1]);
+							alter.Expressions.Add(concat);
+							Mx[i][Mx[i].Length - 1] = alter.Optimize();
+						}
+					}
+				}
+				
+				if (res == false)
+				{
+					List<int> list = new List<int>(rows);
+					list.RemoveAt(rowNumInRows);
+					rows = list.ToArray();
+				}
+				
+			} while (!res);
+			
+			return true;
+		}
+
+		private int[] FindWithAlphaBetaAllowed()
+		{
+			List<int> list = new List<int>();
+			
+			for (int i = 0; i < Mx.Length; i++)
+				if (Mx[i][i] != null)	
+					list.Add(i);
+			
+			return list.ToArray();
+		}
+
+		private int ChooseWithAlphaBeta(int[] rows)
 		{
 			if (rows.Length == 0)
 				return -1;
@@ -100,53 +179,37 @@ namespace FLaG.Data.Equation
 			return rows[new Random().Next(rows.Length)];
 		}
 
-		public bool IterateSimply()
+		private bool IterateAlphaBeta()
 		{
-			int[] rows = FindWithFreeMemberOnly();
+			int[] rows = FindWithAlphaBetaAllowed();
 			
-			int row = ChooseWithMinimumFreeMember(rows);
+			int row = ChooseWithAlphaBeta(rows);
 			
 			if (row < 0)
 				return false;
 			
-			bool res = false;
+			Repeat repeat = new Repeat();
 			
-			Expression expr = Mx[row][Mx[row].Length - 1];
+			repeat.AtLeastOne = false;
+			repeat.Expression = Mx[row][row];
+			Mx[row][row] = null;
 			
-			for (int i = 0; i < Mx.Length; i++)
-			{
-				if (Mx[i][row] != null)
+			for (int i = 0; i < Mx[row].Length; i++)
+				if (Mx[row][i] != null)
 				{
-					res = true;
-					
 					Concat concat = new Concat();
 					if (IsLeft)
-						concat.Expressions.Add(expr.DeepClone());
-					
-					concat.Expressions.Add(Mx[i][row]);
-					Mx[i][row] = null;
-					
+						concat.Expressions.Add(repeat.DeepClone());
+				
+					concat.Expressions.Add(Mx[row][i]);
+				
 					if (!IsLeft)
-						concat.Expressions.Add(expr.DeepClone());
-					
-					if (Mx[i][Mx[i].Length - 1] == null)
-						Mx[i][Mx[i].Length - 1] = concat.Optimize();
-					else
-					{
-						Alter alter = new Alter();
-						alter.Expressions.Add(Mx[i][Mx[i].Length - 1]);
-						alter.Expressions.Add(concat);
-						Mx[i][Mx[i].Length - 1] = alter.Optimize();
-					}
+						concat.Expressions.Add(repeat.DeepClone());
+				
+					Mx[row][i] = concat.Optimize();
 				}
-			}
 			
-			return res;
-		}
-
-		public bool IterateAlphaBeta()
-		{
-			throw new NotImplementedException ();
+			return true;
 		}
 		
 		public void Solve(Writer writer)

@@ -1,7 +1,7 @@
 using System;
 using FLaG.Output;
 
-namespace FLaG
+namespace FLaG.Data.Equation
 {
 	class Empty : Expression
 	{

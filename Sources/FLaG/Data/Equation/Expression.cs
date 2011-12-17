@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using FLaG.Output;
 
-namespace FLaG
+namespace FLaG.Data.Equation
 {
 	abstract class Expression
 	{
