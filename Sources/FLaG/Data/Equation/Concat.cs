@@ -58,8 +58,58 @@ namespace FLaG.Data.Equation
 
 		public override Expression Optimize ()
 		{
-			// TODO: оптимизировать
-			return this;
+			for (int i = 0; i < Expressions.Count; i++)
+				Expressions[i] = Expressions[i].Optimize();
+			
+			bool isAllEmpty = true;
+			
+			for (int i = 0; i < Expressions.Count; i++)
+				if (!(Expressions[i] is Empty))
+				{
+					isAllEmpty = false;
+					break;
+				}
+			
+			if (isAllEmpty)
+				return new Empty();
+			
+			bool somethingChanged;
+			
+			do
+			{
+				somethingChanged = false;
+			
+				// поднимает конкатенации
+				for (int i = 0; i < Expressions.Count; i++)
+					if (Expressions[i] is Concat)
+					{
+						Concat c = (Concat)Expressions[i];
+						Expressions.RemoveAt(i);
+						for (int j = c.Expressions.Count - 1; j >= 0; j--)
+							Expressions.Insert(i,c.Expressions[j]);
+						i--;
+						i += c.Expressions.Count;
+						somethingChanged = true;
+					}
+			
+				// удаляем пустые 
+				for (int i = 0; i < Expressions.Count; i++)
+					if (Expressions[i] is Empty)
+					{
+						Expressions.RemoveAt(i--);
+						somethingChanged = true;
+					}
+				
+				
+				
+				
+			} while (somethingChanged);
+			
+			if (Expressions.Count == 0)
+				return new Empty();
+			else if (Expressions.Count == 1)
+				return Expressions[0];
+			else return this;
 		}
 		
 		public override void Save(Writer writer)
