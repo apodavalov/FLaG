@@ -19,8 +19,30 @@ namespace FLaG.Data.Equation
 		
 		public override Expression Optimize ()
 		{
-			// TODO: оптимизировать
-			return this;
+			if (Exp == 0)
+				return new Empty();
+			else if (Exp == 1)
+				return Base.Optimize();
+			else
+			{
+				Base = Base.Optimize();
+				if (Base is Degree)
+				{
+					Degree degree = (Degree)Base;
+					degree.Exp *= Exp;
+					return degree;
+				}
+				else if (Base is Repeat)
+				{
+					Repeat repeat = (Repeat)Base;
+					if (!repeat.AtLeastOne)
+						return repeat;
+					else
+						return this;
+				}
+				else
+					return this;
+			}
 		}
 
 		public override Expression DeepClone ()
