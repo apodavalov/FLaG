@@ -215,7 +215,15 @@ namespace FLaG.Data.Equation
 		public override void Save(Writer writer)
 		{
             foreach (Expression e in Expressions)
+			{
+				if (e is Alter)
+					writer.Write(@"(");
+				
                 e.Save(writer);
+				
+				if (e is Alter)
+					writer.Write(@")");
+			}
 		}
 	}
 }

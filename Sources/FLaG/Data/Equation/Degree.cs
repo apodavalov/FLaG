@@ -73,7 +73,11 @@ namespace FLaG.Data.Equation
 		{
 			writer.Write(@"{");
 			writer.Write(@"{");
-			Base.Save(writer);			
+			if (Base is Concat || Base is Alter || Base is Degree || Base is Repeat)
+				writer.Write(@"(");
+			Base.Save(writer);	
+			if (Base is Concat || Base is Alter || Base is Degree || Base is Repeat)
+				writer.Write(@")");
 			writer.Write(@"}^{");
 			writer.Write(Exp);
 			writer.Write(@"}");

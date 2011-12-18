@@ -66,9 +66,13 @@ namespace FLaG.Data.Equation
 		public override void Save(Writer writer)
 		{
 			writer.Write(@"{");
-			writer.Write(@"{(");
+			writer.Write(@"{");
+			if (Expression is Concat || Expression is Alter || Expression is Degree || Expression is Repeat)
+				writer.Write(@"(");
 			Expression.Save(writer);			
-			writer.Write(@")}^{");
+			if (Expression is Concat || Expression is Alter || Expression is Degree || Expression is Repeat)
+				writer.Write(@")");
+			writer.Write(@"}^{");
 			writer.Write(AtLeastOne ? "+" : "*", true);
 			writer.Write(@"}");
 			writer.Write(@"}");

@@ -161,8 +161,6 @@ namespace FLaG.Data.Equation
 
 		public override void Save(Writer writer)
 		{
-			writer.Write("(");
-			
 			bool first = true;
 
             foreach (Expression e in Expressions)
@@ -174,8 +172,6 @@ namespace FLaG.Data.Equation
 
                 e.Save(writer);
             }                      
-			
-			writer.Write(")");
 		}
 	}
 }
