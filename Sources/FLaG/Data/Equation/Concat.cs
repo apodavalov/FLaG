@@ -61,25 +61,13 @@ namespace FLaG.Data.Equation
 			for (int i = 0; i < Expressions.Count; i++)
 				Expressions[i] = Expressions[i].Optimize();
 			
-			bool isAllEmpty = true;
-			
-			for (int i = 0; i < Expressions.Count; i++)
-				if (!(Expressions[i] is Empty))
-				{
-					isAllEmpty = false;
-					break;
-				}
-			
-			if (isAllEmpty)
-				return new Empty();
-			
 			bool somethingChanged;
 			
 			do
 			{
 				somethingChanged = false;
 			
-				// поднимает конкатенации
+				// поднимаем конкатенации
 				for (int i = 0; i < Expressions.Count; i++)
 					if (Expressions[i] is Concat)
 					{
@@ -100,9 +88,121 @@ namespace FLaG.Data.Equation
 						somethingChanged = true;
 					}
 				
-				
-				
-				
+				for (int i = 0; i < Expressions.Count - 1; i++)
+				{
+					Expression expr1 = Expressions[i];
+					Expression expr2 = Expressions[i + 1];
+					
+					// a a = a^2
+					if (expr1.Equals(expr2))
+					{
+						Degree degree = new Degree();
+						degree.Base = expr1;
+						degree.Exp = 2;
+						Expressions[i] = degree.Optimize();
+						Expressions.RemoveAt(i+1);
+						i--;
+						somethingChanged = true;
+					}
+					// a a^n = a^(n+1)
+					else if (expr2 is Degree && expr1.Equals(((Degree)expr2).Base))
+					{
+						Degree degree = (Degree)expr2;
+						degree.Exp++;
+						Expressions[i] = degree.Optimize();
+						Expressions.RemoveAt(i+1);
+						i--;
+						somethingChanged = true;
+					}
+					// a a* = a+
+					else if (expr2 is Repeat 
+						&& !((Repeat)expr2).AtLeastOne 
+						&& expr1.Equals(((Repeat)expr2).Expression))
+					{
+						Repeat repeat = (Repeat)expr2;
+						repeat.AtLeastOne = true;
+						Expressions[i] = repeat.Optimize();
+						Expressions.RemoveAt(i+1);
+						i--;
+						somethingChanged = true;
+					}
+					// a^n a = a^(n+1)
+					else if (expr1 is Degree && expr2.Equals(((Degree)expr1).Base))
+					{
+						Degree degree = (Degree)expr1;
+						degree.Exp++;
+						Expressions[i] = degree.Optimize();
+						Expressions.RemoveAt(i+1);
+						i--;
+						somethingChanged = true;
+					}
+					// a^n a^m = a^(n+m)
+					else if (expr1 is Degree && expr2 is Degree 
+						&& ((Degree)expr1).Base.Equals(((Degree)expr2).Base))
+					{
+						Degree degreeExpr1 = (Degree)expr1;
+						Degree degreeExpr2 = (Degree)expr2;
+						
+						degreeExpr1.Exp += degreeExpr2.Exp;
+						
+						Expressions[i] = degreeExpr1.Optimize();
+						Expressions.RemoveAt(i+1);
+						i--;
+						somethingChanged = true;
+					}
+					// a^n a*
+					else if (expr1 is Degree && expr2 is Repeat 
+						&& !((Repeat)expr2).AtLeastOne 
+						&& ((Degree)expr1).Base.Equals(((Repeat)expr2).Expression))
+					{
+						Degree degreeExpr1 = (Degree)expr1;
+						Repeat repeatExpr2 = (Repeat)expr2;						
+						
+						degreeExpr1.Exp--;
+						repeatExpr2.AtLeastOne = true;
+						Expressions[i] = degreeExpr1.Optimize();
+						Expressions[i+1] = repeatExpr2.Optimize();
+						somethingChanged = true;
+					}
+					// a* a = a+
+					else if (expr1 is Repeat 
+						&& !((Repeat)expr1).AtLeastOne 
+						&& expr2.Equals(((Repeat)expr1).Expression))
+					{
+						Repeat repeat = (Repeat)expr1;
+						repeat.AtLeastOne = true;
+						Expressions[i] = repeat.Optimize();
+						Expressions.RemoveAt(i+1);
+						i--;
+						somethingChanged = true;
+					}
+					// a* a^n
+					else if (expr2 is Degree && expr1 is Repeat 
+						&& !((Repeat)expr1).AtLeastOne 
+						&& ((Degree)expr2).Base.Equals(((Repeat)expr1).Expression))
+					{
+						Repeat repeatExpr1 = (Repeat)expr1;						
+						Degree degreeExpr2 = (Degree)expr2;
+						
+						repeatExpr1.AtLeastOne = true;
+						degreeExpr2.Exp--;
+						Expressions[i] = repeatExpr1.Optimize();
+						Expressions[i+1] = degreeExpr2.Optimize();
+						somethingChanged = true;
+					}
+					// a*a+ и a+a*
+					else if (expr1 is Repeat && expr2 is Repeat 
+						&& ((Repeat)expr1).Expression.Equals(((Repeat)expr2).Expression))
+					{
+						Repeat repeatExpr1 = (Repeat)expr1;
+						
+						repeatExpr1.AtLeastOne = true;
+						Expressions[i] = repeatExpr1.Optimize();
+						Expressions.RemoveAt(i+1);
+						i--;
+						somethingChanged = true;
+					}
+				}
 			} while (somethingChanged);
 			
 			if (Expressions.Count == 0)
