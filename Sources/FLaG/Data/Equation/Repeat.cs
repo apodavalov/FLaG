@@ -48,7 +48,18 @@ namespace FLaG.Data.Equation
 
 		public override Expression Optimize ()
 		{
-			// TODO: оптимизировать
+			Expression = Expression.Optimize();
+			
+			while (Expression is Repeat)
+			{
+				Repeat repeat = (Repeat)Expression;
+				AtLeastOne &= repeat.AtLeastOne;
+				Expression = repeat.Expression;
+			}
+			
+			if (Expression is Empty) 
+				return Expression;
+			
 			return this;
 		}
 		
