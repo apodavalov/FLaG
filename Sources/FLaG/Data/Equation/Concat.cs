@@ -93,16 +93,14 @@ namespace FLaG.Data.Equation
 					Expression expr1 = Expressions[i];
 					Expression expr2 = Expressions[i + 1];
 					
-					// a a = a^2
+					// a a = a a, a* a* = a*
 					if (expr1.Equals(expr2))
 					{
-						Degree degree = new Degree();
-						degree.Base = expr1;
-						degree.Exp = 2;
-						Expressions[i] = degree.Optimize();
-						Expressions.RemoveAt(i+1);
-						i--;
-						somethingChanged = true;
+						if (expr1 is Repeat && expr2 is Repeat && !((Repeat)expr1).AtLeastOne)
+						{
+							Expressions.RemoveAt(i+1);	
+							somethingChanged = true;	
+						}
 					}
 					// a a^n = a^(n+1)
 					else if (expr2 is Degree && expr1.Equals(((Degree)expr2).Base))
