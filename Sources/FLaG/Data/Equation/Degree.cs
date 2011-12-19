@@ -83,6 +83,14 @@ namespace FLaG.Data.Equation
 			writer.Write(@"}");
 			writer.Write(@"}");
 		}
+		
+		public override bool IsLetEmpty()
+		{
+			if (Exp == 0)
+				return true;
+			
+			return Base.IsLetEmpty();
+		}
 	}
 }
 

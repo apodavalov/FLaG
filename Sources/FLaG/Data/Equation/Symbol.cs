@@ -45,6 +45,11 @@ namespace FLaG.Data.Equation
 		{
 			writer.Write(Value + "",true);
 		}
+		
+		public override bool IsLetEmpty()
+		{
+			return false;
+		}
 	}
 }
 

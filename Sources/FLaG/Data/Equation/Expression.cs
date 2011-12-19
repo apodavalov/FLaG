@@ -13,6 +13,8 @@ namespace FLaG.Data.Equation
 		
 		public abstract void Save(Writer writer);
 		
+		public abstract bool IsLetEmpty();
+		
 		public abstract Expression Optimize();
 		
 		public abstract Expression DeepClone();

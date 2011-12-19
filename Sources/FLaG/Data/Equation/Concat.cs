@@ -223,5 +223,16 @@ namespace FLaG.Data.Equation
 					writer.Write(@")");
 			}
 		}
+		
+		public override bool IsLetEmpty()
+		{
+			foreach (Expression e in Expressions)
+			{
+				if (!e.IsLetEmpty())
+					return false;
+			}
+			
+			return true;
+		}
 	}
 }

@@ -63,6 +63,14 @@ namespace FLaG.Data.Equation
 			return this;
 		}
 		
+		public override bool IsLetEmpty()
+		{
+			if (!AtLeastOne)
+				return true;
+			
+			return Expression.IsLetEmpty();
+		}
+		
 		public override void Save(Writer writer)
 		{
 			writer.Write(@"{");

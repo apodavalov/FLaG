@@ -34,6 +34,11 @@ namespace FLaG.Data.Equation
 		{
 			writer.Write(@"\varepsilon ");
 		}
+		
+		public override bool IsLetEmpty()
+		{
+			return true;
+		}
 	}
 }
 
