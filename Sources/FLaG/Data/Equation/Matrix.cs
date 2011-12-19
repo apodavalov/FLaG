@@ -407,7 +407,7 @@ namespace FLaG.Data.Equation
 				writer.WriteLine(@"\end{math}");
 			} while (somethingChanged);
 			
-			return Mx[TargetSymbolIndex][Mx[TargetSymbolIndex].Length - 1].Optimize(); // FIXME: hack
+			return Mx[TargetSymbolIndex][Mx[TargetSymbolIndex].Length - 1];
 		}
 		
 		public Matrix (Gram.Grammar g)
