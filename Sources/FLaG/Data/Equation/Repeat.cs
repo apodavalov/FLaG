@@ -60,6 +60,9 @@ namespace FLaG.Data.Equation
 			if (Expression is Empty) 
 				return Expression;
 			
+			if (Expression.IsLetEmpty())
+				AtLeastOne = false;
+			
 			return this;
 		}
 		
