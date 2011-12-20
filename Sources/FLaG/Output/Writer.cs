@@ -7,6 +7,7 @@ using FLaG.Data;
 using FLaG.Data.Grammars;
 using FLaG.Data.Automaton;
 using FLaG.Data.Equation;
+using System.Drawing;
 
 namespace FLaG.Output
 {
@@ -26,6 +27,12 @@ namespace FLaG.Output
 		
 		private DAutomaton dLeftAutomaton;
 		private DAutomaton dRightAutomaton;
+		
+		public string OutputFileNamePrefix
+		{
+			get;
+			set;
+		}
 		
 		public Writer(Stream stream, Lang lang) 
 			: base(stream)
@@ -561,6 +568,25 @@ namespace FLaG.Output
 				nRightAutomaton = automaton;		
 		}
 		
+		private void Step2_5_3(bool isLeft)
+		{
+			Write(@"\subsubsection{");
+			Write("Этап 2.5.3",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
+			WriteLine(@"}");
+			
+			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;		
+			
+			string fileSuffix = isLeft ? "1l.png" : "1r.png";
+			
+			using (Image image = automaton.MakeDiagram())
+				image.Save(OutputFileNamePrefix + fileSuffix); 		
+		}
+		
 		private void Step2_6(bool isLeft)
 		{
 			Write(@"\subsection{");
@@ -641,6 +667,25 @@ namespace FLaG.Output
 				nRightAutomaton = nAutomaton;
 		}
 		
+		private void Step2_7_2(bool isLeft)
+		{
+			Write(@"\subsubsection{");
+			Write("Этап 2.7.2",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
+			WriteLine(@"}");
+			
+			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;	
+			
+			string fileSuffix = isLeft ? "2l.png" : "2r.png";
+			
+			using (Image image = automaton.MakeDiagram())
+				image.Save(OutputFileNamePrefix + fileSuffix); 		
+		}
+		
 		private void Step2_8(bool isLeft)
 		{
 			Write(@"\subsection{");
@@ -655,6 +700,25 @@ namespace FLaG.Output
 			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;
 			
 			automaton.Minimize(this);
+		}
+		
+		private void Step2_9(bool isLeft)
+		{
+			Write(@"\subsection{");
+			Write("Этап 2.9",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
+			WriteLine(@"}");
+			
+			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;		
+			
+			string fileSuffix = isLeft ? "3l.png" : "3r.png";
+			
+			using (Image image = automaton.MakeDiagram())
+				image.Save(OutputFileNamePrefix + fileSuffix); 		
 		}
 
         private void WriteEndDoc()
@@ -762,6 +826,9 @@ namespace FLaG.Output
 			Step2_5_2(true);
 			Step2_5_2(false);
 			
+			Step2_5_3(true);
+			Step2_5_3(false);			
+			
 			Step2_6(true);
 			Step2_6(false);
 			
@@ -773,8 +840,14 @@ namespace FLaG.Output
 			Step2_7_1(true);
 			Step2_7_1(false);
 			
+			Step2_7_2(true);
+			Step2_7_2(false);
+			
 			Step2_8(true);
 			Step2_8(false);
+			
+			Step2_9(true);
+			Step2_9(false);			
 			
 			Step2_10();
 			

@@ -3,11 +3,103 @@ using System.Collections.Generic;
 using FLaG.Output;
 using FLaG.Data.Helpers;
 using Gram=FLaG.Data.Grammars;
+using System.Drawing;
+using FLaG.Automaton.Diagrams;
 
 namespace FLaG.Data.Automaton
 {
 	class NAutomaton
 	{
+		public Image MakeDiagram ()
+		{
+			NStatus[] statuses = Statuses;
+			NStatus[] endStatuses = EndStatuses.ToArray();
+			
+			List<Arrow> arrows = new List<Arrow>();
+			
+			foreach (NTransitionFunc func in Functions)
+			{
+				Arrow arrow = new Arrow();
+				
+				arrow.A = Array.BinarySearch<NStatus>(statuses, func.OldStatus);
+				arrow.B = Array.BinarySearch<NStatus>(statuses, func.NewStatus);
+				
+				int index = arrows.BinarySearch(arrow);
+				
+				if (index < 0)
+					arrows.Insert(~index,arrow);
+				else
+					arrow = arrows[index];
+				
+				arrow.AddSymbol(func.Symbol);
+			}
+			
+			//Font font = new Font("Arial",12, GraphicsUnit.Point);
+			
+			double r = 100;
+			
+			double alpha = 2 * Math.PI / statuses.Length;
+			
+			double l;
+			
+			if (statuses.Length > 1)
+				l = r / (1 - Math.Cos(alpha)) + 2 * r;
+			else
+				l = 0;
+			
+			double sideSize = 2 * (l + 2 * r);
+			
+			Image image = new Bitmap((int)sideSize,(int)sideSize);
+			
+			using (Graphics g = Graphics.FromImage(image))
+			{
+				Pen pen = new Pen(Brushes.Black,5.0f);
+				Pen boldPen = new Pen(Brushes.Black,10.0f);
+				
+				g.TranslateTransform((float)sideSize / 2, (float)sideSize / 2);
+				
+				for (int i = 0; i < statuses.Length; i++)
+				{
+					double lc = l * Math.Cos(i * alpha) - r;
+					double tc = l * Math.Sin(i * alpha) - r;
+					
+					Pen drawPen = Array.BinarySearch<NStatus>(endStatuses,statuses[i]) >= 0 ? boldPen : pen;
+					
+					g.DrawEllipse(drawPen,new RectangleF((float)lc,(float)tc,(float)(2 * r),(float)(2 * r)));
+					
+					// TODO: вывести текст - статус
+					
+				}
+				
+				foreach (Arrow arrow in arrows)
+				{
+					// обычная дуга
+					if (arrow.A != arrow.B)
+					{
+						double xA = l * Math.Cos(arrow.A * alpha);
+						double yA = l * Math.Sin(arrow.A * alpha);
+						
+						double xB = l * Math.Cos(arrow.B * alpha);
+						double yB = l * Math.Sin(arrow.B * alpha);
+						
+						g.DrawLine(pen, (float)xA, (float)yA, (float)xB, (float)yB);
+					}
+					// петля
+					else
+					{
+						
+					}
+				}
+				
+				pen.Dispose();
+				boldPen.Dispose();
+			}
+			
+			//font.Dispose();
+			
+			return image;
+		}
+		
 		public Gram.Grammar MakeGrammar (Writer writer, int grammarNumber, bool isLeft)
 		{
 			if (isLeft)

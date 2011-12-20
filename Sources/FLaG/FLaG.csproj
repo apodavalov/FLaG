@@ -42,6 +42,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\Entity.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Data\Equation\Matrix.cs" />
     <Compile Include="Data\Equation\Empty.cs" />
     <Compile Include="Data\Equation\Degree.cs" />
+    <Compile Include="Data\Automaton\Diagrams\Arrow.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Schema\lang.xsd">
@@ -114,5 +116,6 @@
     <Folder Include="Data\Helpers\" />
     <Folder Include="Data\Automaton\" />
     <Folder Include="Data\Equation\" />
+    <Folder Include="Data\Automaton\Diagrams\" />
   </ItemGroup>
 </Project>
