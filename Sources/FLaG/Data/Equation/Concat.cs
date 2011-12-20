@@ -234,5 +234,10 @@ namespace FLaG.Data.Equation
 			
 			return true;
 		}
+		
+		public override void LetBeEmpty()
+		{
+			// ничего не делаем
+		}
 	}
 }

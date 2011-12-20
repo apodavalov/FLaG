@@ -50,6 +50,11 @@ namespace FLaG.Data.Equation
 		{
 			return false;
 		}
+		
+		public override void LetBeEmpty()
+		{
+			// ничего не можем поделать
+		}
 	}
 }
 

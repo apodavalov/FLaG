@@ -39,6 +39,11 @@ namespace FLaG.Data.Equation
 		{
 			return true;
 		}
+		
+		public override void LetBeEmpty()
+		{
+			// мы и так сама пустота =)
+		}
 	}
 }
 

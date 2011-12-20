@@ -60,8 +60,11 @@ namespace FLaG.Data.Equation
 			if (Expression is Empty) 
 				return Expression;
 			
-			if (Expression.IsLetEmpty())
+			if (Expression.IsLetEmpty() && AtLeastOne)
+			{
 				AtLeastOne = false;
+				return this.Optimize();
+			}
 			
 			return this;
 		}
@@ -87,6 +90,11 @@ namespace FLaG.Data.Equation
 			writer.Write(AtLeastOne ? "+" : "*", true);
 			writer.Write(@"}");
 			writer.Write(@"}");
+		}
+		
+		public override void LetBeEmpty()
+		{
+			AtLeastOne = false;
 		}
 	}
 }

@@ -15,6 +15,8 @@ namespace FLaG.Data.Equation
 		
 		public abstract bool IsLetEmpty();
 		
+		public abstract void LetBeEmpty();
+		
 		public abstract Expression Optimize();
 		
 		public abstract Expression DeepClone();

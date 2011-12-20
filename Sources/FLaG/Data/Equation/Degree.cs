@@ -91,6 +91,11 @@ namespace FLaG.Data.Equation
 			
 			return Base.IsLetEmpty();
 		}
+		
+		public override void LetBeEmpty()
+		{
+			// ничего не делаем
+		}
 	}
 }
 

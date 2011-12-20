@@ -16,6 +16,12 @@ namespace FLaG.Data.Equation
 		{
 			Expressions = new HashSet<Expression>();
 		}
+		
+		public override void LetBeEmpty()
+		{
+			foreach (Expression e in Expressions)
+				e.LetBeEmpty();
+		}
 
 		public override bool Equals(object obj)
 		{
@@ -258,7 +264,7 @@ namespace FLaG.Data.Equation
 				bool haveEmpty = false;
 				
 				for (int i = 0; i < list.Count; i++)
-					if (list[i] is Empty || list[i] is Repeat && !((Repeat)list[i]).AtLeastOne)
+					if (list[i].IsLetEmpty())
 					{
 						haveEmpty = true;
 						break;
@@ -267,28 +273,20 @@ namespace FLaG.Data.Equation
 				if (haveEmpty)
 					for (int i = 0; i < list.Count; i++)
 					{
-						if (list[i] is Repeat)		
-						{
-							Repeat repeat = (Repeat)list[i];
-							if (repeat.AtLeastOne)
-							{	
-								repeat.AtLeastOne = false;
-								list[i] = repeat.Optimize();
-								somethingChanged = true;
-							}
-						}
+						list[i].LetBeEmpty();
+						list[i] = list[i].Optimize();
 					}
 				
-				bool haveRepeatWithAtLeastOneFalse = false;
+				bool haveLetEmptyButNotEmpty = false;
 				
 				for (int i = 0; i < list.Count; i++)
-					if (list[i] is Repeat && !((Repeat)list[i]).AtLeastOne)
+					if (!(list[i] is Empty) && list[i].IsLetEmpty())
 					{
-						haveRepeatWithAtLeastOneFalse = true;
+						haveLetEmptyButNotEmpty = true;
 						break;
 					}
 				
-				if (haveRepeatWithAtLeastOneFalse)
+				if (haveLetEmptyButNotEmpty)
 					for (int i = 0; i < list.Count; i++)
 						if (list[i] is Empty)
 						{
