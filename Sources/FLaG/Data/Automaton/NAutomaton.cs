@@ -42,16 +42,48 @@ namespace FLaG.Data.Automaton
             g.Transform = state;
         }
 
-		public double MakeRByFontAndStatuses (Font stateFont, NStatus[] statuses)
+		public double MakeRByFontAndStatuses (Font stateFont, Font subscriptFont, NStatus[] statuses)
 		{
-			// TODO: вычислить по размеру шрифта в кружочках
-			return 100;
+			double r = 0;
+			
+			Bitmap bitmap = new Bitmap(1,1);
+			
+			Graphics g = Graphics.FromImage(bitmap);
+			
+			foreach (NStatus status in statuses)
+			{
+				SizeF textSize = g.MeasureString(status.Value + "",stateFont);
+				
+				if (status.Number.HasValue)
+				{
+					int val = status.Number.Value;
+					
+					SizeF indexSize = g.MeasureString(val.ToString(),subscriptFont);
+					
+					float xSize = textSize.Width + 5 + indexSize.Width;
+					float ySize = Math.Max(textSize.Height, 0.6f * textSize.Height + indexSize.Height);
+					
+					textSize = new SizeF(xSize,ySize);
+				}
+				
+				if (r < textSize.Width)
+					r = textSize.Width;
+				
+				if (r < textSize.Height)
+					r = textSize.Height;
+			}
+			
+			g.Dispose();
+			bitmap.Dispose();
+			
+			return r;
 		}
 		
 		public Image MakeDiagram ()
 		{
 			Font stateFont = new Font("Times New Roman", 100, GraphicsUnit.Point);
 			Font transitionFont = new Font("Times New Roman", 70, GraphicsUnit.Point);
+			Font subscriptFont = new Font("Times New Roman", 62, GraphicsUnit.Point);
 			
 			NStatus[] statuses = Statuses;
 			NStatus[] endStatuses = EndStatuses.ToArray();
@@ -75,7 +107,7 @@ namespace FLaG.Data.Automaton
 				arrow.AddSymbol(func.Symbol);
 			}
 			
-			double r = MakeRByFontAndStatuses(stateFont,statuses); 
+			double r = MakeRByFontAndStatuses(stateFont,subscriptFont, statuses); 
 			
 			double alpha = 2 * Math.PI / statuses.Length;
 			
@@ -109,9 +141,13 @@ namespace FLaG.Data.Automaton
 					
 					Pen drawPen = Array.BinarySearch<NStatus>(endStatuses,statuses[i]) >= 0 ? boldPen : pen;
 					
-					g.DrawEllipse(drawPen,new RectangleF((float)lc,(float)tc,(float)(2 * r),(float)(2 * r)));
+					RectangleF rect = new RectangleF((float)lc,(float)tc,(float)(2 * r),(float)(2 * r));
 					
-					// TODO: вывести текст - статус
+					g.DrawEllipse(drawPen, rect);
+					
+					
+					
+					
 					
 				}
 			
@@ -162,6 +198,7 @@ namespace FLaG.Data.Automaton
 			
 			transitionFont.Dispose();
 			stateFont.Dispose();
+			subscriptFont.Dispose();
 			
 			return bitmap;
 		}
