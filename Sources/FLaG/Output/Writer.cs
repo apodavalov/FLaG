@@ -776,6 +776,14 @@ namespace FLaG.Output
 			string label = isLeft ? "img:rl3" : "img:rr3";
 			string caption = "Диаграмма состояний минимального ДКА";
 			
+			WriteLine(@"Построим диаграмму состояний минимального автомата",true);
+			WriteLine(@"\begin{math}");
+			automaton.SaveM(this);
+			WriteLine(@"\end{math}");
+			Write(@"(см. рис. ",true);
+			Write(@"\ref{" + label + "}");
+			WriteLine(@").",true);
+			
 			using (Image image = automaton.MakeDiagram())
 				InsertImage(image,OutputFileNamePrefix + fileSuffix,label,caption);
 		}
