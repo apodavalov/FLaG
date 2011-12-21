@@ -5,13 +5,41 @@ using FLaG.Data.Helpers;
 using Gram=FLaG.Data.Grammars;
 using System.Drawing;
 using FLaG.Automaton.Diagrams;
+using System.Drawing.Drawing2D;
 
 namespace FLaG.Data.Automaton
 {
 	class NAutomaton
 	{
+		private void DrawLine(Graphics g, float x1, float y1, float x2, float y2, float r, Pen pen, Font font, string text)
+        {
+            Matrix state = g.Transform;
+
+            float len = (float)Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+
+            if (len < 2.5f * r)
+                return;
+
+            g.TranslateTransform(x1, y1);
+
+            float sin = (y1 - y2) / len;
+            float cos = (x2 - x1) / len;
+
+            Matrix matrix = new Matrix(cos, -sin, sin, cos, 0, 0);
+
+            g.MultiplyTransform(matrix);                     
+
+            g.DrawLine(pen, 1.25f*r, 0f, len - 1.25f*r, 0f);
+			
+			// TODO: вывести текст
+
+            g.Transform = state;
+        }
+		
 		public Image MakeDiagram ()
 		{
+			Font font = new Font("Arial",12, GraphicsUnit.Point);
+			
 			NStatus[] statuses = Statuses;
 			NStatus[] endStatuses = EndStatuses.ToArray();
 			
@@ -34,8 +62,6 @@ namespace FLaG.Data.Automaton
 				arrow.AddSymbol(func.Symbol);
 			}
 			
-			//Font font = new Font("Arial",12, GraphicsUnit.Point);
-			
 			double r = 100;
 			
 			double alpha = 2 * Math.PI / statuses.Length;
@@ -47,11 +73,13 @@ namespace FLaG.Data.Automaton
 			else
 				l = 0;
 			
-			double sideSize = 2 * (l + 2 * r);
+			double sideSize = 2 * (l + 4 * r);
 			
-			Image image = new Bitmap((int)sideSize,(int)sideSize);
+			Bitmap bitmap = new Bitmap((int)sideSize,(int)sideSize);
 			
-			using (Graphics g = Graphics.FromImage(image))
+			//bitmap.SetResolution(600,600);
+			
+			using (Graphics g = Graphics.FromImage(bitmap))
 			{
 				Pen pen = new Pen(Brushes.Black,5.0f);
 				Pen boldPen = new Pen(Brushes.Black,10.0f);
@@ -82,7 +110,8 @@ namespace FLaG.Data.Automaton
 						double xB = l * Math.Cos(arrow.B * alpha);
 						double yB = l * Math.Sin(arrow.B * alpha);
 						
-						g.DrawLine(pen, (float)xA, (float)yA, (float)xB, (float)yB);
+						// TODO: вставить шрифт
+						DrawLine(g, (float)xA, (float)yA, (float)xB, (float)yB, (float)r,pen,null,arrow.Text);						
 					}
 					// петля
 					else
@@ -95,9 +124,9 @@ namespace FLaG.Data.Automaton
 				boldPen.Dispose();
 			}
 			
-			//font.Dispose();
+			font.Dispose();
 			
-			return image;
+			return bitmap;
 		}
 		
 		public Gram.Grammar MakeGrammar (Writer writer, int grammarNumber, bool isLeft)

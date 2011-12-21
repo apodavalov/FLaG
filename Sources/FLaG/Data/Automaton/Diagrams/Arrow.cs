@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FLaG.Data.Automaton;
+using System.Text;
 
 namespace FLaG.Automaton.Diagrams
 {
@@ -22,6 +23,24 @@ namespace FLaG.Automaton.Diagrams
 		{
 			get;
 			private set;
+		}
+		
+		public string Text
+		{
+			get
+			{
+				StringBuilder sb = new StringBuilder();
+				
+				for (int i = 0; i < Symbols.Count; i++)
+				{
+					if (i != 0)
+						sb.Append(',');
+					
+					sb.Append(Symbols[i].Value);
+				}
+				
+				return sb.ToString();
+			}
 		}
 		
 		public Arrow()
