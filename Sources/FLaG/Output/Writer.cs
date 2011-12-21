@@ -591,7 +591,7 @@ namespace FLaG.Output
 			automaton.SaveM(this);
 			WriteLine(@"\end{math}.");
 			WriteLine(@"Диаграмма состояний конечного автомата ---",true);
-			WriteLine(@"это неупорядоченный ориентированный граф, ",true);
+			WriteLine(@"это неупорядоченный ориентированный помеченный граф, ",true);
 			WriteLine(@"вершины которого помечены именами состояний",true);
 			WriteLine(@"автомата и в котором есть дуга из вершины",true);
 			WriteLine(@"\begin{math}");
@@ -730,6 +730,14 @@ namespace FLaG.Output
 			string fileSuffix = isLeft ? "2l.png" : "2r.png";
 			string label = isLeft ? "img:rl2" : "img:rr2";
 			string caption = "Диаграмма состояний детерминированного конечного автомата";
+			
+			WriteLine(@"Построим диаграмму состояний детерминированного конечного автомата",true);
+			WriteLine(@"\begin{math}");
+			automaton.SaveM(this);
+			WriteLine(@"\end{math}");
+			Write(@"(см. рис. ",true);
+			Write(@"\ref{" + label + "}");
+			WriteLine(@").",true);
 			
 			using (Image image = automaton.MakeDiagram())
 				InsertImage(image,OutputFileNamePrefix + fileSuffix,label,caption);
