@@ -583,11 +583,55 @@ namespace FLaG.Output
 			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;		
 			
 			string fileSuffix = isLeft ? "1l.png" : "1r.png";
-				string label = isLeft ? "rl1" : "rr1";
+			string label = isLeft ? "img:rl1" : "img:rr1";
 			string caption = "Диаграмма состояний недетерминированного конечного автомата";
 			
+			WriteLine(@"Построим диаграмму состояний автомата",true);
+			WriteLine(@"\begin{math}");
+			automaton.SaveM(this);
+			WriteLine(@"\end{math}.");
+			WriteLine(@"Диаграмма состояний конечного автомата ---",true);
+			WriteLine(@"это неупорядоченный ориентированный граф, ",true);
+			WriteLine(@"вершины которого помечены именами состояний",true);
+			WriteLine(@"автомата и в котором есть дуга из вершины",true);
+			WriteLine(@"\begin{math}");
+			WriteLine(@"A");
+			WriteLine(@"\end{math}");
+			WriteLine(@"к вершине ",true);
+			WriteLine(@"\begin{math}");
+			WriteLine(@"B");
+			WriteLine(@"\end{math},");
+			WriteLine(@"если есть такой символ",true);
+			WriteLine(@"\begin{math}");
+			WriteLine(@"t \in \Sigma");
+			WriteLine(@"\end{math},");			
+			WriteLine(@"для которого существует функция перехода",true);
+			WriteLine(@"\begin{math}");
+			WriteLine(@"\delta(A,t)=B");
+			WriteLine(@"\end{math}");			
+			WriteLine(@"во множестве",true);
+			WriteLine(@"\begin{math}");
+			WriteLine(@"\delta");
+			WriteLine(@"\end{math}");			
+			WriteLine(@"конечного автомата",true);
+			WriteLine(@"\begin{math}");
+			automaton.SaveM(this);
+			WriteLine(@"\end{math}.");
+			WriteLine(@"Кроме того, эта дуга помечается списком, состоящих из всех",true);
+			WriteLine(@"\begin{math}");
+			WriteLine(@"t \in \Sigma");
+			WriteLine(@"\end{math}, для которых есть функция перехода");			
+			WriteLine(@"\begin{math}");
+			WriteLine(@"\delta(A,t)=B");
+			WriteLine(@"\end{math}.");		
+			WriteLine();
+
 			using (Image image = automaton.MakeDiagram())
 				InsertImage(image,OutputFileNamePrefix + fileSuffix,label,caption);
+			WriteLine();
+			Write(@"Диаграмма состояний конечного автомата представлена на рис. ",true);
+			Write(@"\ref{" + label + "}");
+			WriteLine(@".",true);
 		}
 		
 		private void Step2_6(bool isLeft)
@@ -684,7 +728,7 @@ namespace FLaG.Output
 			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;	
 			
 			string fileSuffix = isLeft ? "2l.png" : "2r.png";
-			string label = isLeft ? "rl2" : "rr2";
+			string label = isLeft ? "img:rl2" : "img:rr2";
 			string caption = "Диаграмма состояний детерминированного конечного автомата";
 			
 			using (Image image = automaton.MakeDiagram())
@@ -721,7 +765,7 @@ namespace FLaG.Output
 			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;		
 			
 			string fileSuffix = isLeft ? "3l.png" : "3r.png";
-			string label = isLeft ? "rl3" : "rr3";
+			string label = isLeft ? "img:rl3" : "img:rr3";
 			string caption = "Диаграмма состояний минимального ДКА";
 			
 			using (Image image = automaton.MakeDiagram())
