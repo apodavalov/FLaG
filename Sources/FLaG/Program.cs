@@ -25,7 +25,9 @@ namespace FLaG
 			FileInfo fileInfo = new FileInfo(args[1]);
 			
 			string outputFileNamePrefix = 
-				fileInfo.FullName.Substring(0,fileInfo.FullName.Length - fileInfo.Extension.Length) + "_";
+				fileInfo.FullName.Substring(0,fileInfo.FullName.Length - fileInfo.Extension.Length) + ".";
+			
+			outputFileNamePrefix = outputFileNamePrefix.Replace('.','-');
 			
 			using (Writer writer = new Writer(args[1],false,new UTF8Encoding(false),lang))
 			{

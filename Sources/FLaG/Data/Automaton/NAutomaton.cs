@@ -62,7 +62,7 @@ namespace FLaG.Data.Automaton
 				arrow.AddSymbol(func.Symbol);
 			}
 			
-			double r = 100;
+			double r = 100; // TODO: вычислить по размеру шрифта в кружочках
 			
 			double alpha = 2 * Math.PI / statuses.Length;
 			
@@ -77,10 +77,12 @@ namespace FLaG.Data.Automaton
 			
 			Bitmap bitmap = new Bitmap((int)sideSize,(int)sideSize);
 			
-			//bitmap.SetResolution(600,600);
+			bitmap.SetResolution(600,600);
 			
 			using (Graphics g = Graphics.FromImage(bitmap))
 			{
+				g.CompositingQuality = CompositingQuality.HighQuality;
+				
 				Pen pen = new Pen(Brushes.Black,5.0f);
 				Pen boldPen = new Pen(Brushes.Black,10.0f);
 				

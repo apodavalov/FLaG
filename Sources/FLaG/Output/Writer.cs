@@ -149,6 +149,7 @@ namespace FLaG.Output
 			WriteLine(@"\usepackage[utf8x]{inputenc}");
 			WriteLine(@"\usepackage[english, russian]{babel}");
 			WriteLine(@"\usepackage{cmap}");
+			WriteLine(@"\usepackage{graphicx}");
 			WriteLine(@"\makeatletter");
 			// Заменяем библиографию с квадратных скобок на точку
 			WriteLine(@"\renewcommand{\@biblabel}[1]{#1.}");				
@@ -166,7 +167,7 @@ namespace FLaG.Output
 			// Меняем везде перечисления на цифра.цифра
 			WriteLine(@"\renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}.}");
 			// Команда для вставки изображения
-			//WriteLine(@"\newcommand{\imgh}[3]{\begin{figure}[h]\center{\includegraphics[width=#1]{#2}}\caption{#3}\label{ris:#2}\end{figure}}");
+			WriteLine(@"\newcommand{\imgh}[4]{\begin{figure}[h]\center{\includegraphics[width=#1]{#2}}\caption{#3}\label{#4}\end{figure}}");
 			WriteLine(@"\tolerance=10000");			
 			WriteLine(@"\begin{document}");
 			WriteLine(@"\begin{titlepage}");
@@ -582,9 +583,11 @@ namespace FLaG.Output
 			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;		
 			
 			string fileSuffix = isLeft ? "1l.png" : "1r.png";
+				string label = isLeft ? "rl1" : "rr1";
+			string caption = "Диаграмма состояний недетерминированного конечного автомата";
 			
 			using (Image image = automaton.MakeDiagram())
-				image.Save(OutputFileNamePrefix + fileSuffix); 		
+				InsertImage(image,OutputFileNamePrefix + fileSuffix,label,caption);
 		}
 		
 		private void Step2_6(bool isLeft)
@@ -681,9 +684,11 @@ namespace FLaG.Output
 			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;	
 			
 			string fileSuffix = isLeft ? "2l.png" : "2r.png";
+			string label = isLeft ? "rl2" : "rr2";
+			string caption = "Диаграмма состояний детерминированного конечного автомата";
 			
 			using (Image image = automaton.MakeDiagram())
-				image.Save(OutputFileNamePrefix + fileSuffix); 		
+				InsertImage(image,OutputFileNamePrefix + fileSuffix,label,caption);
 		}
 		
 		private void Step2_8(bool isLeft)
@@ -716,9 +721,11 @@ namespace FLaG.Output
 			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;		
 			
 			string fileSuffix = isLeft ? "3l.png" : "3r.png";
+			string label = isLeft ? "rl3" : "rr3";
+			string caption = "Диаграмма состояний минимального ДКА";
 			
 			using (Image image = automaton.MakeDiagram())
-				image.Save(OutputFileNamePrefix + fileSuffix); 		
+				InsertImage(image,OutputFileNamePrefix + fileSuffix,label,caption);
 		}
 
         private void WriteEndDoc()
@@ -802,6 +809,20 @@ namespace FLaG.Output
 				leftExpression = exp;
 			else
 				rightExpression = exp;
+		}
+		
+		public void InsertImage(Image image, string fileName, string label, string caption)
+		{
+			FileInfo fileInfo = new FileInfo(fileName);
+			image.Save(fileInfo.FullName); 		
+			int widthInInches = (int)(image.Width / image.HorizontalResolution);
+			Write(@"\imgh{" + widthInInches + "in}{");
+			Write(Path.Combine("Output",fileInfo.Name),true);
+			Write(@"}{");
+			Write(caption,true);
+			Write(@"}{");
+			Write(label,true);
+			WriteLine(@"}");
 		}
 		
 		public void Out()
