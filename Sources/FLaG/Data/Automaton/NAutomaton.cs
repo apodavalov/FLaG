@@ -82,9 +82,10 @@ namespace FLaG.Data.Automaton
 			using (Graphics g = Graphics.FromImage(bitmap))
 			{
 				g.CompositingQuality = CompositingQuality.HighQuality;
+				g.SmoothingMode = SmoothingMode.AntiAlias;
 				
 				Pen pen = new Pen(Brushes.Black,5.0f);
-				Pen boldPen = new Pen(Brushes.Black,10.0f);
+				Pen boldPen = new Pen(Brushes.Black,10.0f);				
 				
 				g.TranslateTransform((float)sideSize / 2, (float)sideSize / 2);
 				
@@ -100,7 +101,7 @@ namespace FLaG.Data.Automaton
 					// TODO: вывести текст - статус
 					
 				}
-				
+			
 				foreach (Arrow arrow in arrows)
 				{
 					// обычная дуга
@@ -118,7 +119,18 @@ namespace FLaG.Data.Automaton
 					// петля
 					else
 					{
+						Matrix state = g.Transform;
 						
+						double beta = arrow.A * alpha;
+						
+						g.TranslateTransform((float)(l * Math.Cos(arrow.A * alpha)),(float)(l * Math.Sin(arrow.A * alpha)));
+						g.RotateTransform((float)(beta * 180 / Math.PI + 90));
+						
+						double arcTop = -r * (Math.Sqrt(3) + 1.0);
+						
+						g.DrawArc(pen,new RectangleF((float)-r,(float)arcTop,(float)(2*r),(float)(2*r)),-240,300);
+						
+			            g.Transform = state;
 					}
 				}
 				
