@@ -31,14 +31,27 @@ namespace FLaG.Data.Automaton
 
             g.DrawLine(pen, 1.25f*r, 0f, len - 1.25f*r, 0f);
 			
-			// TODO: вывести текст
+			// TODO: стрелки
+			
+			SizeF textSize = g.MeasureString(text,font);
+			
+			PointF pointToDraw = new PointF((len - textSize.Width) / 2.0f,-textSize.Height);
+			
+			g.DrawString(text,font,Brushes.Black,pointToDraw);
 
             g.Transform = state;
         }
+
+		public double MakeRByFontAndStatuses (Font stateFont, NStatus[] statuses)
+		{
+			// TODO: вычислить по размеру шрифта в кружочках
+			return 100;
+		}
 		
 		public Image MakeDiagram ()
 		{
-			Font font = new Font("Arial",12, GraphicsUnit.Point);
+			Font stateFont = new Font("Times New Roman", 100, GraphicsUnit.Point);
+			Font transitionFont = new Font("Times New Roman", 70, GraphicsUnit.Point);
 			
 			NStatus[] statuses = Statuses;
 			NStatus[] endStatuses = EndStatuses.ToArray();
@@ -62,7 +75,7 @@ namespace FLaG.Data.Automaton
 				arrow.AddSymbol(func.Symbol);
 			}
 			
-			double r = 100; // TODO: вычислить по размеру шрифта в кружочках
+			double r = MakeRByFontAndStatuses(stateFont,statuses); 
 			
 			double alpha = 2 * Math.PI / statuses.Length;
 			
@@ -113,8 +126,7 @@ namespace FLaG.Data.Automaton
 						double xB = l * Math.Cos(arrow.B * alpha);
 						double yB = l * Math.Sin(arrow.B * alpha);
 						
-						// TODO: вставить шрифт
-						DrawLine(g, (float)xA, (float)yA, (float)xB, (float)yB, (float)r,pen,null,arrow.Text);						
+						DrawLine(g, (float)xA, (float)yA, (float)xB, (float)yB, (float)r,pen,transitionFont,arrow.Text);						
 					}
 					// петля
 					else
@@ -128,9 +140,19 @@ namespace FLaG.Data.Automaton
 						
 						double arcTop = -r * (Math.Sqrt(3) + 1.0);
 						
-						g.DrawArc(pen,new RectangleF((float)-r,(float)arcTop,(float)(2*r),(float)(2*r)),-240,300);
+						g.DrawArc(pen,new RectangleF((float)-r,(float)arcTop,(float)(2*r),(float)(2*r)),-225,270);
+						
+						string text = arrow.Text;
+						
+						SizeF textSize = g.MeasureString(text,transitionFont);
+						
+						PointF pointToDraw = new PointF(-textSize.Width / 2.0f,(float)(arcTop - textSize.Height));
+						
+						g.DrawString(text,transitionFont,Brushes.Black,pointToDraw);
 						
 			            g.Transform = state;
+						
+						// TODO: стрелки
 					}
 				}
 				
@@ -138,7 +160,8 @@ namespace FLaG.Data.Automaton
 				boldPen.Dispose();
 			}
 			
-			font.Dispose();
+			transitionFont.Dispose();
+			stateFont.Dispose();
 			
 			return bitmap;
 		}
