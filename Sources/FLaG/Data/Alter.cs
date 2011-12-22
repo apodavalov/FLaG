@@ -275,7 +275,7 @@ namespace FLaG.Data
 			c = new Chain();
 			c.Symbols.Add(grammar2.TargetSymbol);			
 			r.Chains.Add(c);
-			
+			r.Normalize();			
 			r.Save(writer,isLeft);
 			writer.WriteLine(@"\}");
 			writer.WriteLine(@"=");
@@ -295,6 +295,7 @@ namespace FLaG.Data
 			grammar.Rules.AddRange(grammar1.Rules);
 			grammar.Rules.AddRange(grammar2.Rules);
 			grammar.Rules.Add(r);
+			grammar.Normalize();
 			grammar.SaveRules(writer);				
 			writer.WriteLine(@"\}");							
 			writer.WriteLine(@"\end{math}");

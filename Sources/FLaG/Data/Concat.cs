@@ -271,6 +271,8 @@ namespace FLaG.Data
 				}
 			}
 			
+			grammar.Normalize();
+			
 			writer.WriteLine(@"\begin{math}");
 			grammar.SaveCortege(writer);
 			writer.WriteLine();
@@ -338,6 +340,7 @@ namespace FLaG.Data
 				grammar.Rules.AddRange(grammar1.Rules);
 			else
 				grammar.Rules.AddRange(grammar2.Rules);
+			grammar.Normalize();
 			grammar.SaveRules(writer);				
 			writer.WriteLine(@"\}");							
 			writer.WriteLine(@"\end{math}");
