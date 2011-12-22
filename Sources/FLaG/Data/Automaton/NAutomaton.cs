@@ -35,7 +35,7 @@ namespace FLaG.Data.Automaton
 			
 			SizeF textSize = g.MeasureString(text,font);
 			
-			PointF pointToDraw = new PointF((len - textSize.Width) / 2.0f,-textSize.Height);
+			PointF pointToDraw = new PointF(1.25f * r + (len - 2.5f) / 4.0f - textSize.Width / 2.0f,-textSize.Height);
 			
 			g.DrawString(text,font,Brushes.Black,pointToDraw);
 
