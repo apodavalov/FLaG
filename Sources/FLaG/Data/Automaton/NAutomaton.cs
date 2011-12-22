@@ -112,9 +112,9 @@ namespace FLaG.Data.Automaton
 		
 		public Image MakeDiagram ()
 		{
-			Font stateFont = new Font("Times New Roman", 100, GraphicsUnit.Point);
-			Font transitionFont = new Font("Times New Roman", 70, GraphicsUnit.Point);
-			Font subscriptFont = new Font("Times New Roman", 62, GraphicsUnit.Point);
+			Font stateFont = new Font("Times New Roman", 100, FontStyle.Italic, GraphicsUnit.Point);
+			Font transitionFont = new Font("Times New Roman", 70, FontStyle.Italic, GraphicsUnit.Point);
+			Font subscriptFont = new Font("Times New Roman", 62, FontStyle.Italic, GraphicsUnit.Point);
 			
 			NStatus[] statuses = Statuses;
 			NStatus[] endStatuses = EndStatuses.ToArray();
