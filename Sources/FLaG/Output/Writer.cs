@@ -866,8 +866,9 @@ namespace FLaG.Output
 		{
 			FileInfo fileInfo = new FileInfo(fileName);
 			image.Save(fileInfo.FullName); 		
-			int widthInInches = (int)(image.Width / image.HorizontalResolution);
-			Write(@"\imgh{" + widthInInches + "in}{");
+			int widthInInches = (int)(image.Width / image.HorizontalResolution * 25.4);			
+			if (widthInInches > 160) widthInInches = 160;
+			Write(@"\imgh{" + widthInInches + "mm}{");
 			Write(Path.Combine("Output",fileInfo.Name),true);
 			Write(@"}{");
 			Write(caption,true);
