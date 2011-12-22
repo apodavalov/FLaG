@@ -11,6 +11,26 @@ namespace FLaG.Data.Automaton
 {
 	class NAutomaton
 	{
+		void DrawArrow (Graphics g, PointF point, float angle)
+		{
+			Matrix state = g.Transform;
+			
+			g.TranslateTransform(point.X,point.Y);
+			g.RotateTransform(angle / (float)Math.PI * 180 + 90);
+			
+			float r = 40;
+			
+			PointF[] pp = new PointF[3];
+			
+			pp[0] = new PointF(r / 2, (float)-(r * Math.Sqrt(3) / 2)); 
+			pp[1] = new PointF(0,0); 
+			pp[2] = new PointF(-r / 2, (float)-(r * Math.Sqrt(3) / 2)); 
+			
+			g.FillPolygon(Brushes.Black,pp);
+			
+ 			g.Transform = state;
+		}
+		
 		private void DrawLine(Graphics g, float x1, float y1, float x2, float y2, float r, Pen pen, Font font, string text)
         {
             Matrix state = g.Transform;
@@ -31,7 +51,7 @@ namespace FLaG.Data.Automaton
 
             g.DrawLine(pen, 1.25f*r, 0f, len - 1.25f*r, 0f);
 			
-			// TODO: стрелки
+			DrawArrow(g, new PointF(len - 1.25f*r,0), (float)Math.PI);
 			
 			SizeF textSize = g.MeasureString(text,font);
 			
@@ -206,6 +226,10 @@ namespace FLaG.Data.Automaton
 						
 						g.DrawArc(pen,new RectangleF((float)-r,(float)arcTop,(float)(2*r),(float)(2*r)),-225,270);
 						
+						float gamma = -225 * (float)Math.PI / 180;
+						
+						DrawArrow(g,new PointF((float)(r * Math.Cos(gamma)),(float)(arcTop + r + r * Math.Sin(gamma))),gamma + (float)Math.PI / 2.0f);
+						
 						string text = arrow.Text;
 						
 						SizeF textSize = g.MeasureString(text,transitionFont);
@@ -215,8 +239,6 @@ namespace FLaG.Data.Automaton
 						g.DrawString(text,transitionFont,Brushes.Black,pointToDraw);
 						
 			            g.Transform = state;
-						
-						// TODO: стрелки
 					}
 				}
 				
