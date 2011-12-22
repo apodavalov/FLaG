@@ -41,6 +41,25 @@ namespace FLaG.Data.Automaton
 
             g.Transform = state;
         }
+		
+		public SizeF GetStatusLabelSize(Graphics g, Font stateFont, Font subscriptFont, NStatus status)
+		{
+			SizeF textSize = g.MeasureString(status.Value + "",stateFont);
+			
+			if (status.Number.HasValue)
+			{
+				int val = status.Number.Value;
+				
+				SizeF indexSize = g.MeasureString(val.ToString(),subscriptFont);
+				
+				float xSize = textSize.Width + 5 + indexSize.Width;
+				float ySize = Math.Max(textSize.Height, 0.6f * textSize.Height + indexSize.Height);
+				
+				textSize = new SizeF(xSize,ySize);
+			}
+			
+			return textSize;
+		}
 
 		public double MakeRByFontAndStatuses (Font stateFont, Font subscriptFont, NStatus[] statuses)
 		{
@@ -52,19 +71,7 @@ namespace FLaG.Data.Automaton
 			
 			foreach (NStatus status in statuses)
 			{
-				SizeF textSize = g.MeasureString(status.Value + "",stateFont);
-				
-				if (status.Number.HasValue)
-				{
-					int val = status.Number.Value;
-					
-					SizeF indexSize = g.MeasureString(val.ToString(),subscriptFont);
-					
-					float xSize = textSize.Width + 5 + indexSize.Width;
-					float ySize = Math.Max(textSize.Height, 0.6f * textSize.Height + indexSize.Height);
-					
-					textSize = new SizeF(xSize,ySize);
-				}
+				SizeF textSize = GetStatusLabelSize(g,stateFont,subscriptFont, status);
 				
 				if (r < textSize.Width)
 					r = textSize.Width;
@@ -77,6 +84,30 @@ namespace FLaG.Data.Automaton
 			bitmap.Dispose();
 			
 			return r;
+		}
+
+		public void DrawCenteredStatusName (Graphics g, Font stateFont, Font subscriptFont, RectangleF rect, NStatus status)
+		{
+			SizeF labelSize = GetStatusLabelSize(g,stateFont,subscriptFont,status);
+			
+			float centerX = (rect.Left + rect.Right) / 2;
+			float centerY = (rect.Top + rect.Bottom) / 2;
+			
+			float leftX = centerX - labelSize.Width / 2;
+			float TopY = centerY - labelSize.Height / 2;
+			
+			g.DrawString(status.Value + "", stateFont,Brushes.Black,new PointF(leftX,TopY));
+			
+			SizeF letterSize = g.MeasureString(status.Value + "",stateFont);
+			
+			if (status.Number.HasValue)
+			{
+				int v = status.Number.Value;	
+				leftX += letterSize.Width + 5;
+				TopY += 0.6f * letterSize.Height;
+			
+				g.DrawString(v.ToString(),subscriptFont,Brushes.Black,new PointF(leftX,TopY));
+			}
 		}
 		
 		public Image MakeDiagram ()
@@ -145,10 +176,7 @@ namespace FLaG.Data.Automaton
 					
 					g.DrawEllipse(drawPen, rect);
 					
-					
-					
-					
-					
+					DrawCenteredStatusName(g, stateFont, subscriptFont, rect, statuses[i]);
 				}
 			
 				foreach (Arrow arrow in arrows)
