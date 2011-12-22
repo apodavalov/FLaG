@@ -18,10 +18,6 @@ namespace FLaG.Output
 		private Grammar RightSidedGrammar;
 		private int FirstLeftSidedFreeNumber;
 		private int FirstRightSidedFreeNumber;
-		
-		private Expression leftExpression;
-		private Expression rightExpression;
-		
 		private NAutomaton nLeftAutomaton;
 		private NAutomaton nRightAutomaton;
 		
@@ -864,11 +860,6 @@ namespace FLaG.Output
 			WriteLine(@"=");
 			exp.Save(this);
 			WriteLine(@"\end{math}.");
-			
-			if (isLeft)
-				leftExpression = exp;
-			else
-				rightExpression = exp;
 		}
 		
 		public void InsertImage(Image image, string fileName, string label, string caption)
