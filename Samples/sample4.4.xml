@@ -1,35 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lang xmlns="urn:inputlang">
-	<variables>
-		<variable name="k" sign=">=" num="0" />
-		<variable name="l" sign=">=" num="0" />
+    <variables>
+		<variable name="k" sign=">" num="0" />
 		<variable name="m" sign=">=" num="0" />
-	</variables>
+    </variables>
 	<content>
-		<concat>
+		<alter>
 			<degree>
 				<base>
 					<degree>
 						<base>
-							<symbol>a</symbol>
+							<concat>
+							    <symbol>a</symbol>
+							    <symbol>c</symbol>
+							</concat>
 						</base>
 						<exp>
-							<number>2</number>
-						</exp>
-					</degree>
-				</base>
-				<exp>
-					<vref>k</vref>
-				</exp>
-			</degree>
-			<degree>
-				<base>
-					<degree>
-						<base>
-							<symbol>b</symbol>
-						</base>
-						<exp>
-							<vref>l</vref>
+							<vref>k</vref>
 						</exp>
 					</degree>
 				</base>
@@ -41,7 +28,10 @@
 				<base>
 					<degree>
 						<base>
-							<symbol>c</symbol>
+							<alter>
+							    <symbol>a</symbol>
+							    <symbol>c</symbol>
+							</alter>
 						</base>
 						<exp>
 							<vref>m</vref>
@@ -49,13 +39,13 @@
 					</degree>
 				</base>
 				<exp>
-				    <number>2</number>
+					<number>2</number>
 				</exp>
 			</degree>
-		</concat>
+		</alter>
 	</content>
 	<info>
 	    <author firstname="" secondname="" lastname="" group="" />
-	    <variant>5.4</variant>
+	    <variant>4.4</variant>
 	</info>
 </lang>
