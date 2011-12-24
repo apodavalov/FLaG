@@ -208,6 +208,7 @@ namespace FLaG.Data
 				newRule.Chains.Add(new Chain());
 			
 			Grammar.Rules.Add(newRule);
+			Grammar.Normalize();
 			
 			writer.WriteLine(@"=");
 			writer.WriteLine(@"\{");
@@ -227,7 +228,8 @@ namespace FLaG.Data
 			Grammar.SaveP(writer);
 			writer.WriteLine(@"=");
 			writer.WriteLine(@"\{");
-			Grammar.Rules.RemoveAt(Grammar.Rules.Count - 1);
+			int index = Grammar.Rules.BinarySearch(newRule);
+			Grammar.Rules.RemoveAt(index);
 			Grammar.SaveRules(writer);
 			writer.WriteLine(@"\}");
 			writer.WriteLine(@"\cup");
@@ -236,7 +238,7 @@ namespace FLaG.Data
 			writer.WriteLine(@"\}");			
 			writer.WriteLine(@"=");
 			writer.WriteLine(@"\{");
-			Grammar.Rules.Add(newRule);
+			Grammar.Rules.Insert(index,newRule);
 			Grammar.SaveRules(writer);
 			writer.WriteLine(@"\}");							
 			writer.WriteLine(@"\end{math}");
