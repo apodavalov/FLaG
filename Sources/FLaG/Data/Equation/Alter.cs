@@ -230,6 +230,73 @@ namespace FLaG.Data.Equation
 			return allYes;
 			
 		}
+		
+		private Expression ExtractFromBrackets(Expression A, Expression B)
+		{
+			Concat concatA;
+			if (A is Concat)
+				concatA = (Concat)A;
+			else
+			{
+				concatA = new Concat();
+				concatA.Expressions.Add(A);
+			}
+			
+			Concat concatB;
+			if (B is Concat)
+				concatB = (Concat)B;
+			else
+			{
+				concatB = new Concat();
+				concatB.Expressions.Add(B);
+			}
+			
+			int left = 0; // метка слева первого символа от начала, где совпадения заканчиваются
+			int right = 0; // метка справа первого символа от конца, где совпадения заканчиваются
+			
+			int count = Math.Min(concatA.Expressions.Count, concatB.Expressions.Count);
+						
+			while (left < count && concatA.Expressions[left].Equals(concatB.Expressions[left]))
+				left++;
+			
+			while (right < count - left && concatA.Expressions[concatA.Expressions.Count - 1 - right].
+				Equals(concatB.Expressions[concatB.Expressions.Count - 1 - right]))
+				right++;
+			
+			if (left == 0 && right == 0)
+				return null;
+			
+			Concat newConcat = new Concat();
+			Concat leftConcat = new Concat();
+			Alter middleAlter = new Alter();
+			Concat rightConcat = new Concat();
+			
+			for (int i = 0; i < left; i++)
+				leftConcat.Expressions.Add(concatA.Expressions[i]);
+			
+			for (int i = 0; i < right; i++)
+				rightConcat.Expressions.Add(concatB.Expressions[concatB.Expressions.Count - 1 - i]);
+			
+			Concat middleConcat = new Concat();
+			
+			for (int i = left; i < concatA.Expressions.Count - right; i++)
+				middleConcat.Expressions.Add(concatA.Expressions[i]);
+			
+			middleAlter.Expressions.Add(middleConcat);
+			
+			middleConcat = new Concat();
+			
+			for (int i = left; i < concatB.Expressions.Count - right; i++)
+				middleConcat.Expressions.Add(concatB.Expressions[i]);
+			
+			middleAlter.Expressions.Add(middleConcat);
+			
+			newConcat.Expressions.Add(leftConcat);		
+			newConcat.Expressions.Add(middleAlter);		
+			newConcat.Expressions.Add(rightConcat);		
+			
+			return newConcat.Optimize();
+		}
 
 		public override Expression Optimize ()
 		{
@@ -318,6 +385,30 @@ namespace FLaG.Data.Equation
 						}
 					}
 				} while (removedSubset);
+				
+				for (int i = 0; i < list.Count; i++)
+					for (int j = 0; j < list.Count; j++)
+					{
+						if (i == j) continue;
+					
+						Expression e = ExtractFromBrackets(list[i],list[j]);
+					
+						if  (e != null)
+						{
+							list.RemoveAt(j);						
+						
+							if (i > j)
+								i--;
+
+							list.RemoveAt(i);
+						
+							list.Add(e);
+						
+							j--;
+						
+							somethingChanged = true;
+						}
+					}
 				
 			} while (somethingChanged);
 			
