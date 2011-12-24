@@ -614,7 +614,17 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine();
 		}
 		
-		private bool AddRule(List<Rule> rules, Rule rule)
+		private static bool AddChain(Rule rule, Chain chain)
+		{
+			int index = rule.Chains.BinarySearch(chain);
+			
+			if (index < 0)
+				rule.Chains.Insert(~index,chain);
+			
+			return index < 0;
+		}
+		
+		private static bool AddRule(List<Rule> rules, Rule rule)
 		{
 			RuleByTargetSymbolComparer comparer = new RuleByTargetSymbolComparer();
 			
