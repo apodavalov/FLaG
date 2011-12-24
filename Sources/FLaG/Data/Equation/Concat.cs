@@ -201,6 +201,56 @@ namespace FLaG.Data.Equation
 						somethingChanged = true;
 					}
 				}
+				
+				for (int i = 0; i < Expressions.Count - 2; i++)
+				{
+					if (!(Expressions[i + 1] is Repeat))
+						continue;
+					
+					Repeat repeat = (Repeat)Expressions[i+1];
+					
+					if (!(repeat.Expression is Concat))
+						continue;
+					
+					Concat concat = (Concat)repeat.Expression;
+					
+					if (concat.Expressions.Count != 2)
+						continue;
+					
+					if (Expressions[i].Equals(concat.Expressions[1]) && 
+						Expressions[i+2].Equals(concat.Expressions[0]))
+					{
+						Concat newConcat = new Concat();
+						newConcat.Expressions.Add(concat.Expressions[1]);
+						newConcat.Expressions.Add(concat.Expressions[0]);
+						
+						somethingChanged = true;
+						
+						Repeat newRepeat;
+						
+						if (repeat.AtLeastOne)
+						{
+							Expressions[i+1] = newConcat.DeepClone().Optimize();							
+							newRepeat = new Repeat();
+							newRepeat.Expression = newConcat;
+							newRepeat.AtLeastOne = true;							
+							Expressions[i] = newRepeat.Optimize();
+							Expressions.RemoveAt(i+2);
+						}
+						else
+						{
+							Expressions[i] = newConcat;
+							newRepeat = new Repeat();
+							newRepeat.Expression = newConcat;
+							newRepeat.AtLeastOne = true;							
+							Expressions[i] = newRepeat.Optimize();
+							Expressions.RemoveAt(i+2);
+							Expressions.RemoveAt(i+1);
+						}
+						
+						i--;
+					}
+				}
 			} while (somethingChanged);
 			
 			if (Expressions.Count == 0)
