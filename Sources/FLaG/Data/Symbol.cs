@@ -115,9 +115,9 @@ namespace FLaG.Data
 			Chain chain = new Chain();
 			chain.Symbols.Add(terminal);
 			
-			rule.Chains.Add(chain);
+			Grammar.AddChain(rule,chain);
 			
-			Grammar.Rules.Add(rule);
+			Grammar.AddRule(Grammar.Rules,rule);
 			
 			writer.Write(@"\item ");
 			writer.Write("Для выражения вида " ,true);

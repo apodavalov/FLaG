@@ -167,11 +167,11 @@ namespace FLaG.Data
 					{
 						Chain newChain = c.DeepClone();						
 						newChain.Symbols.Insert(0,Grammar.TargetSymbol);
-						r.Chains.Add(newChain);
-						r.Chains.Add(c);
+						Grammar.AddChain(r,newChain);
+						Grammar.AddChain(r,c);
 					}
 					
-					Grammar.Rules.Add(r);
+					Grammar.AddRule(Grammar.Rules,r);
 				}
 			}
 			else
@@ -190,11 +190,11 @@ namespace FLaG.Data
 					{
 						Chain newChain = c.DeepClone();						
 						newChain.Symbols.Add(Grammar.TargetSymbol);
-						r.Chains.Add(newChain);
-						r.Chains.Add(c);
+						Grammar.AddChain(r,newChain);
+						Grammar.AddChain(r,c);
 					}
 					
-					Grammar.Rules.Add(r);
+					Grammar.AddRule(Grammar.Rules,r);
 				}
 			}
 			
@@ -202,13 +202,12 @@ namespace FLaG.Data
 			newRule.Prerequisite = Grammar.TargetSymbol;	
 			Chain nc = new Chain();
 			nc.Symbols.Add(Entity.Grammar.TargetSymbol);
-			newRule.Chains.Add(nc);
+			Grammar.AddChain(newRule,nc);
 			
 			if (!AtLeastOne)
-				newRule.Chains.Add(new Chain());
-			
-			Grammar.Rules.Add(newRule);
-			Grammar.Normalize();
+				Grammar.AddChain(newRule,new Chain());
+
+			bool addedNewRule = Grammar.AddRule(Grammar.Rules, newRule);
 			
 			writer.WriteLine(@"=");
 			writer.WriteLine(@"\{");
@@ -228,8 +227,11 @@ namespace FLaG.Data
 			Grammar.SaveP(writer);
 			writer.WriteLine(@"=");
 			writer.WriteLine(@"\{");
-			int index = Grammar.Rules.BinarySearch(newRule);
-			Grammar.Rules.RemoveAt(index);
+			if (addedNewRule)
+			{
+				int index = Grammar.Rules.BinarySearch(newRule);
+				Grammar.Rules.RemoveAt(index);
+			}
 			Grammar.SaveRules(writer);
 			writer.WriteLine(@"\}");
 			writer.WriteLine(@"\cup");
@@ -238,7 +240,8 @@ namespace FLaG.Data
 			writer.WriteLine(@"\}");			
 			writer.WriteLine(@"=");
 			writer.WriteLine(@"\{");
-			Grammar.Rules.Insert(index,newRule);
+			if (addedNewRule)
+				Grammar.AddRule(Grammar.Rules,newRule);
 			Grammar.SaveRules(writer);
 			writer.WriteLine(@"\}");							
 			writer.WriteLine(@"\end{math}");

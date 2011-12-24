@@ -614,7 +614,7 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine();
 		}
 		
-		private static bool AddChain(Rule rule, Chain chain)
+		public static bool AddChain(Rule rule, Chain chain)
 		{
 			int index = rule.Chains.BinarySearch(chain);
 			
@@ -624,7 +624,7 @@ namespace FLaG.Data.Grammars
 			return index < 0;
 		}
 		
-		private static bool AddRule(List<Rule> rules, Rule rule)
+		public static bool AddRule(List<Rule> rules, Rule rule)
 		{
 			RuleByTargetSymbolComparer comparer = new RuleByTargetSymbolComparer();
 			

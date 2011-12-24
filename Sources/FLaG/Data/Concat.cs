@@ -242,7 +242,8 @@ namespace FLaG.Data
 			{
 				grammar2.SplitRules(out onlyTerms, out others);
 				
-				grammar.Rules.AddRange(others);
+				foreach (Rule rule in others)
+					Grammar.AddRule(grammar.Rules,rule);
 				
 				foreach (Rule rule in onlyTerms)
 				{
@@ -251,14 +252,15 @@ namespace FLaG.Data
 					foreach (Chain c in r.Chains)
 						c.Symbols.Insert(0,grammar1.TargetSymbol);
 					
-					grammar.Rules.Add(r);
+					Grammar.AddRule(grammar.Rules,r);
 				}
 			}
 			else
 			{
 				grammar1.SplitRules(out onlyTerms, out others);
 				
-				grammar.Rules.AddRange(others);
+				foreach (Rule rule in others)
+					Grammar.AddRule(grammar.Rules,rule);
 				
 				foreach (Rule rule in onlyTerms)
 				{
@@ -267,11 +269,9 @@ namespace FLaG.Data
 					foreach (Chain c in r.Chains)
 						c.Symbols.Add(grammar2.TargetSymbol);
 					
-					grammar.Rules.Add(r);
+					Grammar.AddRule(grammar.Rules,r);
 				}
 			}
-			
-			grammar.Normalize();
 			
 			writer.WriteLine(@"\begin{math}");
 			grammar.SaveCortege(writer);
@@ -337,10 +337,15 @@ namespace FLaG.Data
 			writer.WriteLine(@"=");
 			writer.WriteLine(@"\{");
 			if (isLeft)
-				grammar.Rules.AddRange(grammar1.Rules);
+			{
+				foreach (Rule rule in grammar1.Rules)
+					Grammar.AddRule(grammar.Rules, rule);
+			}
 			else
-				grammar.Rules.AddRange(grammar2.Rules);
-			grammar.Normalize();
+			{
+				foreach (Rule rule in grammar2.Rules)
+					Grammar.AddRule(grammar.Rules, rule);
+			}
 			grammar.SaveRules(writer);				
 			writer.WriteLine(@"\}");							
 			writer.WriteLine(@"\end{math}");

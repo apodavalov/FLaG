@@ -271,11 +271,10 @@ namespace FLaG.Data
 			r.Prerequisite = grammar.TargetSymbol;			
 			Chain c = new Chain();
 			c.Symbols.Add(grammar1.TargetSymbol);			
-			r.Chains.Add(c);
+			Grammar.AddChain(r,c);
 			c = new Chain();
 			c.Symbols.Add(grammar2.TargetSymbol);			
-			r.Chains.Add(c);
-			r.Normalize();			
+			Grammar.AddChain(r,c);
 			r.Save(writer,isLeft);
 			writer.WriteLine(@"\}");
 			writer.WriteLine(@"=");
@@ -292,10 +291,11 @@ namespace FLaG.Data
 			writer.WriteLine(@"\}");
 			writer.WriteLine(@"=");			
 			writer.WriteLine(@"\{");
-			grammar.Rules.AddRange(grammar1.Rules);
-			grammar.Rules.AddRange(grammar2.Rules);
-			grammar.Rules.Add(r);
-			grammar.Normalize();
+			foreach (Rule rule in grammar1.Rules)
+				Grammar.AddRule(grammar.Rules,rule);
+			foreach (Rule rule in grammar2.Rules)
+				Grammar.AddRule(grammar.Rules,rule);
+			Grammar.AddRule(grammar.Rules,r);
 			grammar.SaveRules(writer);				
 			writer.WriteLine(@"\}");							
 			writer.WriteLine(@"\end{math}");
