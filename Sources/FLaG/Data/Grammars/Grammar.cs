@@ -1685,7 +1685,7 @@ namespace FLaG.Data.Grammars
 			SaveRules(writer);
 			writer.WriteLine(@"\}");
 			writer.WriteLine(@"\end{math}");
-			writer.WriteLine(@"--- множество правил вывода для данной граммактики;",true);
+			writer.WriteLine(@"--- множество правил вывода для данной грамматики;",true);
 			writer.WriteLine(@"\begin{math}");
 			TargetSymbol.Save(writer,IsLeft);
 			writer.WriteLine(@"\equiv");
