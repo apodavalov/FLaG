@@ -63,7 +63,11 @@ namespace FLaG.Data.Equation
 					if (!(Mx[i][j] is Empty) || j == Mx[i].Length - 1)
 					{
 						writer.Write(@"{");
+						if (Mx[i][j] is Alter)
+							writer.Write(@"(");
 						Mx[i][j].Save(writer);
+						if (Mx[i][j] is Alter)
+							writer.Write(@")");
 						writer.Write(@"}");
 					}
 					
