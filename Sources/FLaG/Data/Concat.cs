@@ -220,7 +220,7 @@ namespace FLaG.Data
 			concat.SaveAsRegularExp(writer, false);
 			writer.WriteLine();
 			writer.WriteLine(@"\end{math}");
-			writer.WriteLine(@", которое является конкатенацией выражений и для которых построены грамматики", true);
+			writer.WriteLine(@", являющегося конкатенацией двух выражений с построенными грамматиками ", true);
 			writer.WriteLine(@"\begin{math}");
 			grammar1.SaveG(writer);			
 			writer.WriteLine();

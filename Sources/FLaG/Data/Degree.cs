@@ -226,7 +226,7 @@ namespace FLaG.Data
 				writer.WriteLine();
 				writer.WriteLine(@"\end{math}");
 				writer.Write(@", которое является конкатенацией ",true);
-				writer.Write(degree);
+				//writer.Write(degree);
 				writer.WriteLine(@" выражений вида",true);
 				writer.WriteLine(@"\begin{math}");
 				Base.SaveAsRegularExp(writer,false);
@@ -268,7 +268,7 @@ namespace FLaG.Data
 				Grammar = null;
 				writer.WriteLine(@"\end{math}.");
 				
-				writer.WriteLine(@"Эти регулярные грамматики хоть и являются одинаковыми, но порождаются", true);
+				writer.WriteLine(@"Не смотря на то, что эти регулярные грамматики одинаковы, они порождаются", true);
 				writer.WriteLine(@"разными грамматиками, поэтому", true);
 				if (concat.EntityCollection.Count > 2)
 					writer.WriteLine("грамматики", true);
@@ -278,8 +278,8 @@ namespace FLaG.Data
 				writer.WriteLine(@"\begin{math}");
 				for (int i = 1; i < concat.EntityCollection.Count; i++)
 				{
-					if (i != 0)
-						writer.Write(@",");
+					if (i != 1)
+						writer.Write(@", ");
 					
 					concat.EntityCollection[i].Grammar.SaveG(writer);
 				}
@@ -298,7 +298,7 @@ namespace FLaG.Data
 				writer.WriteLine();
 				writer.WriteLine(@"\end{math}");
 				
-				writer.WriteLine("с помощью соответствующей заменой индексов, т.е.", true);
+				writer.WriteLine("с помощью соответствующей замены индексов, т.е.", true);
 				
 				
 				for (int i = 1; i < concat.EntityCollection.Count; i++)
