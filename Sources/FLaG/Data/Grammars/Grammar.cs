@@ -371,8 +371,8 @@ namespace FLaG.Data.Grammars
 			{
 				Rule rule = new Rule();
 				rule.Prerequisite = TargetSymbol;
-				rule.Chains.Add(new Chain());
-				newRules.Add(rule);
+				AddChain(rule,new Chain());
+				AddRule(newRules,rule);
 			}
 			
 			// TODO: SaveRules должна сама это делать
@@ -402,7 +402,7 @@ namespace FLaG.Data.Grammars
 				{
 					Rule pseudoRule = new Rule();
 					pseudoRule.Prerequisite = r.Prerequisite;
-					pseudoRule.Chains.Add(c.DeepClone());
+					AddChain(pseudoRule,c.DeepClone());
 				
 					List<Rule> chainNewRules = new List<Rule>();
 				
@@ -428,7 +428,7 @@ namespace FLaG.Data.Grammars
 					{
 						Rule rule = new Rule();
 						rule.Prerequisite = r.Prerequisite;
-						rule.Chains.Add(c.DeepClone());
+						AddChain(rule,c.DeepClone());
 						AddRule(chainNewRules,rule);
 					}
 					else
@@ -441,7 +441,7 @@ namespace FLaG.Data.Grammars
 								chain.Symbols.Add(u);
 							chain.Symbols.Add(c.Symbols[0]);
 							rule.Prerequisite = Unterminal.GetInstance(firstUnterminalNumber++);
-							rule.Chains.Add(chain);							
+							AddChain(rule,chain);							
 							AddRule(chainNewRules,rule);
 						
 							for (int j = 1; j < c.Symbols.Count - 1; j++)
@@ -451,7 +451,7 @@ namespace FLaG.Data.Grammars
 								chain.Symbols.Add(Unterminal.GetInstance(firstUnterminalNumber-1));
 								chain.Symbols.Add(c.Symbols[j]);
 								rule.Prerequisite = Unterminal.GetInstance(firstUnterminalNumber++);
-								rule.Chains.Add(chain);
+								AddChain(rule,chain);
 								AddRule(chainNewRules,rule);
 							}	
 						
@@ -460,7 +460,7 @@ namespace FLaG.Data.Grammars
 							chain.Symbols.Add(Unterminal.GetInstance(firstUnterminalNumber-1));
 							chain.Symbols.Add(c.Symbols[c.Symbols.Count - 1]);
 							rule.Prerequisite = r.Prerequisite;
-							rule.Chains.Add(chain);
+							AddChain(rule,chain);
 							AddRule(chainNewRules,rule);
 						}
 						else
@@ -470,7 +470,7 @@ namespace FLaG.Data.Grammars
 							Chain chain = new Chain();
 							chain.Symbols.Add(c.Symbols[0]);
 							chain.Symbols.Add(Unterminal.GetInstance(firstUnterminalNumber++));													
-							rule.Chains.Add(chain);
+							AddChain(rule,chain);
 							AddRule(chainNewRules,rule);						
 						
 							for (int j = 1; j < c.Symbols.Count - 1; j++)
@@ -480,7 +480,7 @@ namespace FLaG.Data.Grammars
 								chain = new Chain();																
 								chain.Symbols.Add(c.Symbols[j]);
 								chain.Symbols.Add(Unterminal.GetInstance(firstUnterminalNumber++));
-								rule.Chains.Add(chain);
+								AddChain(rule,chain);
 								AddRule(chainNewRules,rule);
 							}	
 						
@@ -490,7 +490,7 @@ namespace FLaG.Data.Grammars
 							chain.Symbols.Add(c.Symbols[c.Symbols.Count - 1]);
 							if (u != null)
 								chain.Symbols.Add(u);
-							rule.Chains.Add(chain);							
+							AddChain(rule,chain);					
 							AddRule(chainNewRules,rule);
 						}
 					}
@@ -614,7 +614,17 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine();
 		}
 		
-		private bool AddRule(List<Rule> rules, Rule rule)
+		private static bool AddChain(Rule rule, Chain chain)
+		{
+			int index = rule.Chains.BinarySearch(chain);
+			
+			if (index < 0)
+				rule.Chains.Insert(~index,chain);
+			
+			return index < 0;
+		}
+		
+		private static bool AddRule(List<Rule> rules, Rule rule)
 		{
 			RuleByTargetSymbolComparer comparer = new RuleByTargetSymbolComparer();
 			
@@ -1033,8 +1043,8 @@ namespace FLaG.Data.Grammars
 							Rule newR = new Rule();
 							newR.Prerequisite = st.Key;
 							foreach (Chain c in r.Chains)						
-								newR.Chains.Add(c.DeepClone());
-							newRules.Add(newR);
+								AddChain(newR,c.DeepClone());
+							AddRule(newRules,newR);
 						}
 				
 				foreach (Rule newR in newRules)
@@ -1428,11 +1438,11 @@ namespace FLaG.Data.Grammars
 				rule = new Rule();
 				rule.Prerequisite = TargetSymbol;
 				Chain c = new Chain();				
-				rule.Chains.Add(c);
+				AddChain(rule,c);
 				
 				c = new Chain();
 				c.Symbols.Add(oldTargetSymbol);
-				rule.Chains.Insert(~rule.Chains.BinarySearch(c),c);
+				AddChain(rule,c);
 				
 				int index = Rules.BinarySearch(rule);
 				if (index < 0)
@@ -1654,7 +1664,7 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"=");
 			SaveCSet(writer,M);
 			writer.WriteLine(@"\end{math}");
-			writer.WriteLine(@"--- множество нетерминальных символов граммактики",true);
+			writer.WriteLine(@"--- множество нетерминальных символов грамматики",true);
 			writer.WriteLine(@"\begin{math}");
 			SaveG(writer);
 			writer.WriteLine(@"\end{math};");
@@ -1667,7 +1677,7 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"=");
 			SaveAlphabet(writer);
 			writer.WriteLine(@"\end{math}");
-			writer.WriteLine(@"--- множество терминальных символов граммактики",true);
+			writer.WriteLine(@"--- множество терминальных символов грамматики",true);
 			writer.WriteLine(@"\begin{math}");
 			SaveG(writer);
 			writer.WriteLine(@"\end{math};");			
@@ -1685,7 +1695,7 @@ namespace FLaG.Data.Grammars
 			SaveRules(writer);
 			writer.WriteLine(@"\}");
 			writer.WriteLine(@"\end{math}");
-			writer.WriteLine(@"--- множество правил вывода для данной граммактики;",true);
+			writer.WriteLine(@"--- множество правил вывода для данной грамматики;",true);
 			writer.WriteLine(@"\begin{math}");
 			TargetSymbol.Save(writer,IsLeft);
 			writer.WriteLine(@"\equiv");
