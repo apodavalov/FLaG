@@ -1654,7 +1654,7 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"=");
 			SaveCSet(writer,M);
 			writer.WriteLine(@"\end{math}");
-			writer.WriteLine(@"--- множество нетерминальных символов граммактики",true);
+			writer.WriteLine(@"--- множество нетерминальных символов грамматики",true);
 			writer.WriteLine(@"\begin{math}");
 			SaveG(writer);
 			writer.WriteLine(@"\end{math};");
@@ -1667,7 +1667,7 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"=");
 			SaveAlphabet(writer);
 			writer.WriteLine(@"\end{math}");
-			writer.WriteLine(@"--- множество терминальных символов граммактики",true);
+			writer.WriteLine(@"--- множество терминальных символов грамматики",true);
 			writer.WriteLine(@"\begin{math}");
 			SaveG(writer);
 			writer.WriteLine(@"\end{math};");			
