@@ -325,12 +325,12 @@ namespace FLaG.Data.Grammars
 					}
 				}
 			
-			writer.WriteLine(@"Приведем регулярную грамматику к автоматной, для этого грамматику",true);			
+			writer.WriteLine(@"Приведем регулярную грамматику ",true);			
 			writer.WriteLine(@"\begin{math}");
 			SaveG(writer);
 			writer.WriteLine(@"\end{math}");
 			Number = newGrammarNumber;
-			writer.WriteLine(@"и построим грамматику",true);			
+			writer.WriteLine(@"к автоматному виду, то есть построим грамматику",true);			
 			writer.WriteLine(@"\begin{math}");
 			SaveG(writer);
 			Number = oldGrammarNumber;
@@ -1729,10 +1729,10 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"\begin{math}");
 			SaveG(writer);
 			writer.WriteLine(@"\end{math}");
-			writer.WriteLine(@", не содержащую указанные символы.",true);			
-			writer.WriteLine(@"Для этого нам понадобится дополнительное множество",true);			
+			writer.WriteLine(@".",true);			
+			writer.WriteLine(@"Для этого необходимо дополнительное множество",true);			
 			writer.WriteLine(@"\emph{V},");			
-			writer.WriteLine(@"в которое будем заносить достижимые символы.",true);			
+			writer.WriteLine(@"в которое заносятся достижимые символы.",true);			
 			HashSet<Symbol> V = new HashSet<Symbol>();
 			V.Add(TargetSymbol);
 			int i = 0;
@@ -1754,7 +1754,7 @@ namespace FLaG.Data.Grammars
 			writer.WriteLine(@"\begin{math}");
 			SaveV(writer,i);
 			writer.WriteLine(@"\end{math}");
-			writer.WriteLine(@", содержащее символы из множество, построенного на предыдущем шаге",true);	
+			writer.WriteLine(@", содержащее символы множества, построенного на предыдущем шаге",true);	
 			writer.WriteLine(@"\begin{math}");
 			SaveV(writer,i-1);
 			writer.WriteLine(@"\end{math}");

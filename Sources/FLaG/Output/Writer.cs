@@ -364,10 +364,9 @@ namespace FLaG.Output
 			
 			WriteLine(@"На этом шаге производим преобразования (приведение) грамматики.",true);
 			WriteLine(@"Цель этого преобразования заключается в проверке языка на пустоту,",true);
-			WriteLine(@"в удалении недостижимых символов граммактики, т.е. символов, которые",true);
-			WriteLine(@"не встречаются ни в одной сентенциальной форме грамматики, бесплодных",true);
-			WriteLine(@"символов, для которых в грамматике нет правил вывода, пустых правил",true);
-			WriteLine(@"(правил вида",true);
+			WriteLine(@"в удалении недостижимых символов граммактики, бесплодных",true);
+			WriteLine(@"символов и пустых правил.",true);
+/*			WriteLine(@"(правил вида",true);
 			WriteLine(@"\begin{math}");
 			WriteLine(@"A \rightarrow \varepsilon");
 			WriteLine(@"\end{math})");
@@ -376,7 +375,7 @@ namespace FLaG.Output
 			WriteLine(@"\begin{math}");
 			WriteLine(@"A \rightarrow B");
 			WriteLine(@"\end{math}");
-			WriteLine(@"т.е. правил которые могут привести к зацикливанию алгоритма.");
+			WriteLine(@"т.е. правил которые могут привести к зацикливанию алгоритма."); */
 		}
 		
 		private void Step2_4_1()

@@ -202,7 +202,7 @@ namespace FLaG.Data
 			alter.SaveAsRegularExp(writer, false);
 			writer.WriteLine();
 			writer.WriteLine(@"\end{math}");
-			writer.WriteLine(@", которое является объединением двух выражений с грамматиками", true);
+			writer.WriteLine(@", которое является объединением выражений с грамматиками", true);
 			writer.WriteLine(@"\begin{math}");
 			grammar1.SaveG(writer);			
 			writer.WriteLine();
