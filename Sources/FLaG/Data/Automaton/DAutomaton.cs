@@ -97,7 +97,7 @@ namespace FLaG.Data.Automaton
 		{
 			writer.WriteLine(@"Выполним удаление недостижимых состояний построенного ДКА. Для ",true);
 			writer.WriteLine(@"этого будем использовать два дополнительных множества: ",true);
-			writer.WriteLine(@"множество достижим состояний ",true);
+			writer.WriteLine(@"множество достижимых состояний ",true);
 			writer.WriteLine(@"\begin{math}");
 			SaveR(writer);
 			writer.WriteLine(@"\end{math}");

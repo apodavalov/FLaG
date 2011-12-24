@@ -1091,7 +1091,7 @@ namespace FLaG.Data.Automaton
 			automaton.InitialStatus.Save(writer,automaton.IsLeft,automaton.ProducedFromDFA);
 			writer.WriteLine(@"\end{math}.");			
 			writer.WriteLine();
-			writer.WriteLine(@"Множество заключительных состояний привет вид",true);	
+			writer.WriteLine(@"Множество заключительных состояний примет вид",true);	
 			writer.WriteLine();
 			writer.WriteLine(@"\begin{math}");
 			automaton.SaveS(writer);
