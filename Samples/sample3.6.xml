@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lang xmlns="urn:inputlang">
     <variables>
-		<variable name="k" sign=">" num="0" />
+		<variable name="k" sign=">=" num="0" />
 		<variable name="m" sign=">" num="0" />
     </variables>
 	<content>
-		<concat>
+		<alter>
 			<degree>
 				<base>
 					<degree>
@@ -28,10 +28,10 @@
 				<base>
 					<degree>
 						<base>
-							<alter>
+							<concat>
 							    <symbol>b</symbol>
-							    <symbol>c</symbol>
-							</alter>
+							    <symbol>a</symbol>
+							</concat>
 						</base>
 						<exp>
 							<number>2</number>
@@ -42,10 +42,10 @@
 					<vref>m</vref>
 				</exp>
 			</degree>
-		</concat>
+		</alter>
 	</content>
 	<info>
 	    <author firstname="" secondname="" lastname="" group="" />
-	    <variant>2.7</variant>
+	    <variant>3.6</variant>
 	</info>
 </lang>
