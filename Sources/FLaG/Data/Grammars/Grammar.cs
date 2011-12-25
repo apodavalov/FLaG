@@ -13,7 +13,7 @@ namespace FLaG.Data.Grammars
 			NAutomaton automaton = new NAutomaton();
 			automaton.Number = 1;
 			automaton.IsLeft = IsLeft;
-			writer.WriteLine(@"Выполним простроение конечного автомата по автоматной грамматике,",true);			
+			writer.WriteLine(@"Выполним построение конечного автомата по автоматной грамматике,",true);			
 			writer.WriteLine(@"т.е. определим пятерку вида",true);			
 			writer.WriteLine(@"\begin{math}");
 			automaton.SaveCortege(writer);
