@@ -20,6 +20,7 @@ all: clean pdf
 ./Output/sample5.4.tex: Samples/sample5.4.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample5.4.xml Output/sample5.4.tex
+	[ -f ./Samples/sample5.4.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample5.4.tex.patch
 
 ./Output/sample1.4.tex: Samples/sample1.4.xml
 	[ -d ./Output ] || mkdir ./Output
