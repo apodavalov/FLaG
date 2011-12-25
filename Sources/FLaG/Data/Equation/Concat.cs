@@ -262,7 +262,46 @@ namespace FLaG.Data.Equation
 		
 		public override void Save(Writer writer)
 		{
-            foreach (Expression e in Expressions)
+			List<Expression> list = new List<Expression>();
+			
+			int firstExpressionIndex = -1;
+			
+			for (int i = 0; i < Expressions.Count; i++)
+			{
+				if (firstExpressionIndex == -1)					
+					firstExpressionIndex = i;
+				else
+				{
+					if (!Expressions[firstExpressionIndex].Equals(Expressions[i]))
+					{
+						if (i - firstExpressionIndex <= 1)
+							list.Add(Expressions[firstExpressionIndex]);
+						else
+						{
+							Degree degree = new Degree();
+							degree.Exp = i - firstExpressionIndex;
+							degree.Base = Expressions[firstExpressionIndex];
+							list.Add(degree);
+						}
+						firstExpressionIndex = i;
+					}
+				}
+			}
+			
+			if (firstExpressionIndex >= 0)
+			{
+				if (Expressions.Count - firstExpressionIndex <= 1)
+					list.Add(Expressions[firstExpressionIndex]);
+				else
+				{
+					Degree degree = new Degree();
+					degree.Exp = Expressions.Count - firstExpressionIndex;
+					degree.Base = Expressions[firstExpressionIndex];
+					list.Add(degree);
+				}
+			}
+			
+            foreach (Expression e in list)
 			{
 				if (e is Alter)
 					writer.Write(@"(");
