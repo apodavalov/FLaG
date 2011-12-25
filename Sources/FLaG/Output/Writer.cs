@@ -137,7 +137,7 @@ namespace FLaG.Output
         {			
 			WriteLine(@"\documentclass[a4paper,12pt]{article}");
 			WriteLine(@"\usepackage{indentfirst}");
-			WriteLine(@"\usepackage[a4paper, includefoot, left=3cm, right=1.5cm, " + 
+			WriteLine(@"\usepackage[a4paper, includefoot, left=1.5cm, right=1.5cm, " + 
 				"top=2cm, bottom=2cm, headsep=1cm, footskip=1cm]{geometry}");
 			WriteLine(@"\usepackage{mathtools, mathtext, amssymb}");
 			WriteLine(@"\usepackage[T1,T2A]{fontenc}");			
@@ -182,7 +182,16 @@ namespace FLaG.Output
 			WriteLine(@"\vspace{2em}");
 			WriteLine();
 			WriteLine(@"\begin{center}");
-			WriteLine(@"\textsc{\textbf{Трансляция языков программирования}}");
+			WriteLine(@"\textsc{\textbf{Домашнее задание}}");
+			WriteLine(@"\end{center}");
+			WriteLine(@"\begin{center}");
+			WriteLine(@"по дисциплине");
+			WriteLine(@"\end{center}");
+			WriteLine(@"\begin{center}");
+			WriteLine(@"<<Трансляция языков программирования>>");
+			WriteLine(@"\end{center}");
+			WriteLine(@"\begin{center}");
+			WriteLine(@"Вариант № " + lang.Variant,true);
 			WriteLine(@"\end{center}");
 			WriteLine();
 			WriteLine(@"\vspace{6em}");
@@ -198,7 +207,7 @@ namespace FLaG.Output
 			WriteLine(@"\hfill\parbox{11cm}{");			
 			string fn = lang.FirstName.Length > 0 ? lang.FirstName.Substring(0,1) : "";
 			string sn = lang.SecondName.Length > 0 ? lang.SecondName.Substring(0,1) : "";			
-			Write(@"\hspace*{5cm}\hspace*{-5cm}Студент:\hfill\hbox to\maxl{");
+			Write(@"\hspace*{5cm}\hspace*{-5cm}Выполнил:\hfill\hbox to\maxl{");
 			Write(lang.LastName,true);
 			Write("~");
 			Write(fn,true);
@@ -206,7 +215,9 @@ namespace FLaG.Output
 			Write(sn,true);
 			Write(@".");
 			WriteLine(@"\hfill}\\");
-			WriteLine(@"\hspace*{5cm}\hspace*{-5cm}Преподаватель:\hfill\hbox to\maxl{\hfill}\\");
+			WriteLine(@"\hspace*{5cm}\hspace*{-5cm}Проверил:\hfill\hbox to\maxl{\hfill}\\");
+			WriteLine(@"\hspace*{5cm}\hspace*{-5cm}Дата сдачи:\hfill\hbox to\maxl{\_\_\_\_\_\_\_\_\_\_\_\hfill}\\");
+			WriteLine(@"\hspace*{5cm}\hspace*{-5cm}Оценка:\hfill\hbox to\maxl{\_\_\_\_\_\_\_\_\_\_\_\hfill}\\");
 			WriteLine(@"\\");
 			Write(@"\hspace*{5cm}\hspace*{-5cm}Группа:\hfill\hbox to\maxl{");
 			Write(lang.Group,true);
