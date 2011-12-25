@@ -116,12 +116,12 @@ namespace FLaG.Data
 			writer.Write(@", которое является ", true);
 			if (AtLeastOne)
 				writer.Write("положительной ", true);
-			writer.WriteLine(@"итерацией выражения для которого построена грамматика",true);
+			writer.WriteLine(@"итерацией выражения с грамматикой",true);
 			writer.WriteLine(@"\begin{math}");
 			Entity.Grammar.SaveG(writer);			
 			writer.WriteLine();
 			writer.WriteLine(@"\end{math}");			
-			writer.WriteLine(@", строим грамматику", true);
+			writer.WriteLine(@", построим грамматику", true);
 			writer.WriteLine(@"\begin{math}");
 			Grammar.SaveCortege(writer);			
 			writer.WriteLine();
