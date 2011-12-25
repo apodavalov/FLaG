@@ -275,7 +275,7 @@ namespace FLaG.Data.Equation
 				leftConcat.Expressions.Add(concatA.Expressions[i]);
 			
 			for (int i = 0; i < right; i++)
-				rightConcat.Expressions.Add(concatB.Expressions[concatB.Expressions.Count - 1 - i]);
+				rightConcat.Expressions.Insert(0,concatB.Expressions[concatB.Expressions.Count - 1 - i]);
 			
 			Concat middleConcat = new Concat();
 			
