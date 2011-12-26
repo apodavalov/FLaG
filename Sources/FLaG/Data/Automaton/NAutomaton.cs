@@ -31,7 +31,7 @@ namespace FLaG.Data.Automaton
  			g.Transform = state;
 		}
 		
-		private void DrawLine(Graphics g, float x1, float y1, float x2, float y2, float r, Pen pen, Font font, string text)
+		private void DrawDirectedLine(Graphics g, float x1, float y1, float x2, float y2, float r, Pen pen, Font font, string text, float upped)
         {
             Matrix state = g.Transform;
 
@@ -47,7 +47,9 @@ namespace FLaG.Data.Automaton
 
             Matrix matrix = new Matrix(cos, -sin, sin, cos, 0, 0);
 
-            g.MultiplyTransform(matrix);                     
+            g.MultiplyTransform(matrix);       
+			
+			g.TranslateTransform(0,-upped);
 
             g.DrawLine(pen, 1.25f*r, 0f, len - 1.25f*r, 0f);
 			
@@ -210,7 +212,13 @@ namespace FLaG.Data.Automaton
 						double xB = l * Math.Cos(arrow.B * alpha);
 						double yB = l * Math.Sin(arrow.B * alpha);
 						
-						DrawLine(g, (float)xA, (float)yA, (float)xB, (float)yB, (float)r,pen,transitionFont,arrow.Text);						
+						Arrow rearrow = new Arrow();
+						rearrow.A = arrow.B;
+						rearrow.B = arrow.A;
+						
+						float upped = arrows.BinarySearch(rearrow) >= 0 ? 15.0f : 0.0f;
+						
+						DrawDirectedLine(g, (float)xA, (float)yA, (float)xB, (float)yB, (float)r,pen,transitionFont,arrow.Text, upped);						
 					}
 					// петля
 					else
