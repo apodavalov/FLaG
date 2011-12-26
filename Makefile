@@ -11,6 +11,7 @@ all: clean pdf
 ./Output/sample3.6.tex: Samples/sample3.6.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample3.6.xml Output/sample3.6.tex
+	[ -f ./Samples/sample3.6.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample3.6.tex.patch
 
 ./Output/sample2.7.tex: Samples/sample2.7.xml
 	[ -d ./Output ] || mkdir ./Output
