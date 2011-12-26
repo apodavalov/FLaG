@@ -86,8 +86,14 @@ namespace FLaG.Data
             {
                 if (i != 0)
 					writer.Write(times);
-
+				
+				if (EntityCollection[i] is Alter)
+					writer.Write(@"\left\{");	
+				
                 EntityCollection[i].Save(writer);
+				
+				if (EntityCollection[i] is Alter)
+					writer.Write(@"\right\}");
             }                      
 			
 			writer.Write("}");

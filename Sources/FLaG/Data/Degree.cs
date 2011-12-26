@@ -142,7 +142,7 @@ namespace FLaG.Data
 
         public override void Save(Writer writer)
         {
-			writer.Write("{");
+			writer.Write("{");			
 			writer.Write(@"\left\{");
 			Base.Save(writer);
 			writer.Write(@"\right\}");
