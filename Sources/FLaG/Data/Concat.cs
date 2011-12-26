@@ -115,9 +115,6 @@ namespace FLaG.Data
 		
 		private void SaveAsRegularExpWithUnderbraces(Writer writer)
 		{
-			if (EntityCollection.Count > 1)			
-				writer.Write(@"\left(");					
-			
 			if (EntityCollection.Count < 2)
 			{
 				writer.Write(@"{\underbrace");			
@@ -134,8 +131,14 @@ namespace FLaG.Data
             {
                 if (i != 0)
 					writer.Write(@" \cdot ");
+				
+				if (EntityCollection[i] is Alter)
+					writer.Write(@"\left(");	
 
                 EntityCollection[i].SaveAsRegularExp(writer,true);
+				
+				if (EntityCollection[i] is Alter)
+					writer.Write(@"\right)");
 				
 				if (i > 0)
 				{
@@ -153,28 +156,25 @@ namespace FLaG.Data
 					writer.Write(NumLabel);
 					writer.Write("}}");
 			}
-			
-			if (EntityCollection.Count > 1)
-				writer.Write(@"\right)");
 		}
 		
 		private void SaveAsRegularExpWithoutUnderbraces(Writer writer)
 		{
 			writer.Write("{");
 			
-			if (EntityCollection.Count > 1)			
-				writer.Write(@"\left(");
-
             for (int i = 0; i < EntityCollection.Count; i++)
             {
                 if (i != 0)
 					writer.Write(@" \cdot ");
+				
+				if (EntityCollection[i] is Alter)
+					writer.Write(@"\left(");	
 
                 EntityCollection[i].SaveAsRegularExp(writer,false);
+				
+				if (EntityCollection[i] is Alter)
+					writer.Write(@"\right)");
             }                      
-			
-			if (EntityCollection.Count > 1)
-				writer.Write(@"\right)");
 			
 			writer.Write("}");
 		}

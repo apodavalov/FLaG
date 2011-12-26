@@ -57,15 +57,14 @@ namespace FLaG.Data
 			
 			writer.Write("{");
 			
-			if (Entity is Symbol || Entity is Concat)
-				Entity.SaveAsRegularExp(writer,full);
-			else
-			{
+			if (Entity is Concat || Entity is Alter || Entity is Degree || Entity is Repeat)
 				writer.Write(@"\left(");
-				Entity.SaveAsRegularExp(writer,full);
-				writer.Write(@"\right)");
-			}					
 			
+			Entity.SaveAsRegularExp(writer,full);
+			
+			if (Entity is Concat || Entity is Alter || Entity is Degree || Entity is Repeat)
+				writer.Write(@"\right)");
+
 			writer.Write("^");
 			if (AtLeastOne)
             	writer.Write('+');

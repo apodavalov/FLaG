@@ -158,14 +158,14 @@ namespace FLaG.Data
 			
 			writer.Write("{");
 			
-			if (Base is Symbol || Base is Concat)
-				Base.SaveAsRegularExp(writer,full);
-			else
-			{
+			if (Base is Concat || Base is Alter || Base is Degree || Base is Repeat)
 				writer.Write(@"\left(");
-				Base.SaveAsRegularExp(writer,full);
+			
+			Base.SaveAsRegularExp(writer,full);
+			
+			if (Base is Concat || Base is Alter || Base is Degree || Base is Repeat)
 				writer.Write(@"\right)");
-			}					
+
 			writer.Write("^");
             Exp.SaveAsRegularExp(writer);
 			writer.Write("}");
