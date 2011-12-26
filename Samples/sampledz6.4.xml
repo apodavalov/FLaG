@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lang xmlns="urn:inputlang">
+	<variables>
+		<variable name="k" sign=">" num="0" />
+		<variable name="m" sign=">=" num="2" />
+		<variable name="n" sign=">=" num="0" />
+	</variables>
+	<content>
+	    <concat>
+		<alter>
+		    <degree>
+			<base>
+			    <symbol>a</symbol>
+			</base>
+			<exp>
+			    <vref>n</vref>
+			</exp>
+		    </degree>
+		    <degree>
+			<base>
+			    <symbol>b</symbol>
+			</base>
+			<exp>
+			    <vref>m</vref>
+			</exp>
+		    </degree>
+		</alter>
+		<degree>
+		    <base>
+			<symbol>c</symbol>
+		    </base>
+		    <exp>
+			<vref>k</vref>
+		    </exp>
+		</degree>
+	    </concat>
+	</content>
+	<info>
+	    <author firstname="" secondname="" lastname="" group="" />
+	    <variant>ДЗ6.4</variant>
+	</info>
+</lang>
