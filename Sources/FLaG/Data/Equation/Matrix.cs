@@ -79,123 +79,58 @@ namespace FLaG.Data.Equation
 			}
   			writer.WriteLine(@"\end{array} \right.");
 		}
-
-		private int[] FindWithFreeMemberOnly()
+		
+		private bool IterateSimply(int row, bool isDirect)
 		{
-			List<int> list = new List<int>();
+			bool res = false;
 			
-			for (int i = 0; i < Mx.Length; i++)
+			int first = isDirect ? 0 : row + 1;
+			int last = isDirect ? row - 1 : Mx.Length - 1;
+
+			for (int i = first; i <= last; i++)
 			{
-				bool isAllNull = true;
-				for (int j = 0; j < Mx[i].Length - 1; j++)
-					if (Mx[i][j] != null)
-					{
-						isAllNull = false;
-						break;
-					}
-				
-				if (isAllNull && Mx[i][Mx[i].Length - 1] != null)
-					list.Add(i);
-			}
-			
-			return list.ToArray();
-		}
-
-		private int ChooseWithMinimumFreeMember(int[] rows)
-		{
-			if (rows.Length == 0)
-				return -1;
-			
-			// TODO: сделать правильный выбор самого простого выражения
-			return new Random().Next(rows.Length);
-		}
-
-		private bool IterateSimply()
-		{
-			int[] rows = FindWithFreeMemberOnly();
-			
-			bool res;
-			
-			do
-			{
-				int rowNumInRows = ChooseWithMinimumFreeMember(rows);
-				
-				if (rowNumInRows < 0)
-					return false;
-				
-				int row = rows[rowNumInRows];
-				
-				res = false;
-				
-				Expression expr = Mx[row][Mx[row].Length - 1];
-				
-				for (int i = 0; i < Mx.Length; i++)
+				if (Mx[row][i] != null)
 				{
-					if (Mx[i][row] != null)
+					Expression expr = Mx[row][i];					
+					Mx[row][i] = null;
+					
+					res = true;
+					
+					for (int j = 0; j < Mx[i].Length; j++)
 					{
-						res = true;
-						
-						Concat concat = new Concat();
-						if (IsLeft)
-							concat.Expressions.Add(expr.DeepClone());
-						
-						concat.Expressions.Add(Mx[i][row]);
-						Mx[i][row] = null;
-						
-						if (!IsLeft)
-							concat.Expressions.Add(expr.DeepClone());
-						
-						if (Mx[i][Mx[i].Length - 1] == null)
-							Mx[i][Mx[i].Length - 1] = concat.Optimize();
-						else
+						if (Mx[i][j] != null)
 						{
-							Alter alter = new Alter();
-							alter.Expressions.Add(Mx[i][Mx[i].Length - 1]);
-							alter.Expressions.Add(concat);
-							Mx[i][Mx[i].Length - 1] = alter.Optimize();
+							Concat concat = new Concat();
+							
+							if (!IsLeft)
+								concat.Expressions.Add(expr.DeepClone());
+							
+							concat.Expressions.Add(Mx[i][j].DeepClone());
+							
+							if (IsLeft)
+								concat.Expressions.Add(expr.DeepClone());								
+							
+							if (Mx[row][j] != null)
+							{
+								Alter alter = new Alter();
+								alter.Expressions.Add(Mx[row][j]);
+								alter.Expressions.Add(concat);
+								Mx[row][j] = alter.Optimize();
+							}
+							else
+								Mx[row][j] = concat.Optimize();
 						}
 					}
 				}
-				
-				if (res == false)
-				{
-					List<int> list = new List<int>(rows);
-					list.RemoveAt(rowNumInRows);
-					rows = list.ToArray();
-				}
-				
-			} while (!res);
+			}
+						
 			
-			return true;
+			return res;
 		}
 
-		private int[] FindWithAlphaBetaAllowed()
+		private bool IterateAlphaBeta(int row)
 		{
-			List<int> list = new List<int>();
-			
-			for (int i = 0; i < Mx.Length; i++)
-				if (Mx[i][i] != null)	
-					list.Add(i);
-			
-			return list.ToArray();
-		}
-
-		private int ChooseWithAlphaBeta(int[] rows)
-		{
-			if (rows.Length == 0)
-				return -1;
-			
-			// TODO: сделать правильный выбор самого простого выражения
-			return rows[new Random().Next(rows.Length)];
-		}
-
-		private bool IterateAlphaBeta()
-		{
-			int[] rows = FindWithAlphaBetaAllowed();
-			
-			int row = ChooseWithAlphaBeta(rows);
-			
-			if (row < 0)
+			if (Mx[row][row] == null)
 				return false;
 			
 			Repeat repeat = new Repeat();
@@ -222,161 +157,18 @@ namespace FLaG.Data.Equation
 			return true;
 		}
 
-		private int[][] FindCycles ()
+		private void _Save(Writer writer, ref bool first)
 		{
-			List<int[]> cycles = new List<int[]>(); // циклы
-			
-			int[] titles = new int[Mx.Length]; // номера ячеек в исходной матрице
-			 
-			for (int i = 0; i < titles.Length;i++) // изначально все присутствуют
-				titles[i] = i;
-			
-			while (titles.Length > 0)
-			{
-				int[] labels = new int[titles.Length]; // метки
-				int[] wentFrom = new int[titles.Length]; // из какой вершины мы пришли сюда
+			writer.WriteLine();
+			writer.WriteLine(@"\begin{math}");
 				
-				for (int i = 0; i < labels.Length; i++)
-					wentFrom[i] = labels[i] = -1;
+			if (!first)
+				writer.Write(@"\Rightarrow ");
+			else
+				first = false;
 				
-				int t = 0;
-				
-				labels[0] = t;
-				
-				HashSet<int> V = new HashSet<int>();
-				V.Add(0);
-				
-				HashSet<int> newV = new HashSet<int>();
-				
-				do 
-				{
-					t++;
-					foreach (int v in V)
-					{
-						int row = titles[v]; // определяем ряд в исходной матрице
-						
-						for (int i = 0; i < Mx[row].Length - 1; i++)
-							if (Mx[row][i] != null)
-							{
-								// есть путь - получаем индекс
-								int index = Array.BinarySearch<int>(titles,i);
-								
-								if (index >= 0)
-								{
-									// вершина в множестве
-									if (labels[index] >= 0) 
-									{
-										// найден цикл - формируем и добавляем
-										int[] cycle = new int[t - labels[index]];
-									
-										cycle[cycle.Length - 1] = titles[v];
-										int top = v;									
-									
-										for (int j = 1; j < cycle.Length; j++)									
-										{
-											cycle[cycle.Length - 1 - j] = titles[wentFrom[top]];
-											top = wentFrom[top];
-										}
-									
-										cycles.Add(cycle);
-									}
-									else
-									{
-										labels[index] = t;
-										wentFrom[index] = v;
-										newV.Add(index);
-									}
-								}
-							}
-					}
-					
-					V = newV;
-					newV = new HashSet<int>();
-				} while (V.Count > 0);
-				
-				List<int> titlesNew = new List<int>(titles);
-				
-				for (int i = titles.Length - 1; i >= 0; i--)
-					if (labels[i] >= 0)
-						titlesNew.RemoveAt(i);
-				
-				titles = titlesNew.ToArray();
-			}
-			
-			return cycles.ToArray();
-		}
-
-		private int[] ChooseCycleToRemove (int[][] cycles)
-		{
-			if (cycles.Length == 0)
-				return null;
-			
-			int[] cycle = cycles[0];
-			
-			for (int i = 1; i < cycles.Length; i++)
-				if (cycles[i].Length > cycle.Length)
-					cycle = cycles[i];
-			
-			return cycle;
-		}
-
-		private bool EliminateCycle(Writer writer, ref bool first)
-		{
-			int[][] cycles = FindCycles();
-			
-			int[] cycle = ChooseCycleToRemove(cycles);
-			
-			if (cycle == null || cycle.Length < 2)
-				return false;
-			
-			Expression[] rowToModify = Mx[cycle[0]];
-			
-			for (int i = 1; i < cycle.Length; i++)			
-			{
-				int rowModifyFromNumber = cycle[i];
-				Expression[] rowModifyFrom = Mx[rowModifyFromNumber];
-				
-				Expression expr = rowToModify[rowModifyFromNumber];
-				rowToModify[rowModifyFromNumber] = null;
-				
-				for (int j = 0; j < rowModifyFrom.Length; j++)
-					if (rowModifyFrom[j] != null)
-					{
-						Concat concat = new Concat();
-						if (IsLeft)
-							concat.Expressions.Add(rowModifyFrom[j]);
-						
-						concat.Expressions.Add(expr.DeepClone());
-						
-						if (!IsLeft)
-							concat.Expressions.Add(rowModifyFrom[j]);
-						
-						if (rowToModify[j] == null)
-							rowToModify[j] = concat.Optimize();
-						else
-						{
-							Alter alter = new Alter();
-							alter.Expressions.Add(rowToModify[j]);
-							alter.Expressions.Add(concat);
-							rowToModify[j] = alter.Optimize();
-						}
-					}
-				
-				writer.WriteLine();
-				writer.WriteLine(@"\begin{math}");
-				
-				if (!first)
-					writer.Write(@"\Rightarrow ");
-				else
-					first = false;
-				
-				Save(writer);
-				writer.WriteLine(@"\end{math}");
-			}
-			
-			IterateAlphaBeta();
-			
-			return true;
+			Save(writer);
+			writer.WriteLine(@"\end{math}");
 		}
 		
 		public Expression Solve(Writer writer)
@@ -388,30 +180,34 @@ namespace FLaG.Data.Equation
 			writer.WriteLine();		
 			writer.WriteLine(@"Найдем решение данной системы.", true);
 			
-			bool somethingChanged;
 			bool first = true;
 			
-			do
+			for (int i = 0; i < Mx.Length; i++)
 			{
-				somethingChanged = IterateSimply();
-				if (!somethingChanged)
-					somethingChanged = IterateAlphaBeta();
-				if (!somethingChanged)
-					somethingChanged = EliminateCycle(writer, ref first);
+				if (IterateSimply(i,true))
+					_Save(writer,ref first);
 				
-				writer.WriteLine();
-				writer.WriteLine(@"\begin{math}");
+				if (IterateAlphaBeta(i))
+					_Save(writer,ref first);
+			}
+			
+			for (int i = Mx.Length - 1; i >= 0; i--)
+			{
+				if (IterateSimply(i,false))
+					_Save(writer,ref first);
 				
-				if (!first)
-					writer.Write(@"\Rightarrow ");
-				else
-					first = false;
-				
-				Save(writer);
-				writer.WriteLine(@"\end{math}");
-			} while (somethingChanged);
+				if (IterateAlphaBeta(i))
+					_Save(writer,ref first);
+			}
 			
 			return Mx[TargetSymbolIndex][Mx[TargetSymbolIndex].Length - 1];
+		}
+		
+		public Matrix (Gram.Unterminal[] unterminals, Expression[][] Mx, bool isLeft)
+		{
+			Unterminals = unterminals;
+			this.Mx = Mx;
+			this.IsLeft = isLeft;
 		}
 		
 		public Matrix (Gram.Grammar g)
