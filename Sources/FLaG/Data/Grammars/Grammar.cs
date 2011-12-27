@@ -2205,17 +2205,6 @@ namespace FLaG.Data.Grammars
 			set;
 		}
 		
-		public string Apostrophs
-		{
-			get
-			{
-				if (IsLeft)
-					return "'";
-				else
-					return "''";
-			}
-		}
-		
 		public List<Rule> Rules
 		{
 			get;
@@ -2427,30 +2416,15 @@ namespace FLaG.Data.Grammars
 		public void SaveSigmaWithNum(Writer writer)
 		{
 			writer.Write(@"{");
-			writer.Write(@"{");
 			writer.Write(@"\Sigma");
 			writer.Write("_{");
 			writer.Write(Number);
 			writer.Write(@"}}");
-			writer.Write(Apostrophs);
-			writer.Write(@"}");
-		}
-		
-		private void SaveLetter(char Letter, Writer writer)
-		{
-			writer.Write(@"{");
-			writer.Write(@"{");
-			writer.Write(Letter.ToString(), true);
-			writer.Write("_{");
-			writer.Write(Number);
-			writer.Write(@"}}");
-			writer.Write(Apostrophs);
-			writer.Write(@"}");
 		}
 		
 		public void SaveCortege(Writer writer)
 		{
-			SaveLetter('G',writer);
+			SaveG(writer);
 			writer.Write(@"=");
 			writer.Write(@"\left(");			
 			SaveN(writer);
@@ -2501,17 +2475,35 @@ namespace FLaG.Data.Grammars
 		
 		public void SaveN(Writer writer)
 		{
-			SaveLetter('N',writer);
+			writer.Write(@"{");
+			writer.Write('N'.ToString(), true);
+			writer.Write("_{");
+			writer.Write(Number);
+			writer.Write(@"}}");
 		}
 		
 		public void SaveP(Writer writer)
 		{
-			SaveLetter('P',writer);
+			writer.Write(@"{");
+			writer.Write('P'.ToString(), true);
+			writer.Write("_{");
+			writer.Write(Number);
+			writer.Write(@"}}");
 		}
 		
 		public void SaveG(Writer writer)
 		{
-			SaveLetter('G',writer);
+			writer.Write(@"{");
+			writer.Write(@"{");
+			writer.Write('G'.ToString(), true);
+			writer.Write("_{");
+			writer.Write(Number);
+			writer.Write(@"}}");
+			if (IsLeft)
+				writer.Write("'");
+			else
+				writer.Write("''");
+			writer.Write(@"}");
 		}
 		
 		public Grammar()
