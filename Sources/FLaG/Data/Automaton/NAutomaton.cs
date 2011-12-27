@@ -484,7 +484,7 @@ namespace FLaG.Data.Automaton
 					rule.Chains.Insert(~index,chain);
 			}
 			
-			writer.WriteLine(@"Выполним построение леволинейной грамматики",true);
+			writer.WriteLine(@"Выполним построение праволинейной грамматики",true);
 			writer.WriteLine(@"\begin{math}");
 			g.SaveCortege(writer);
 			writer.WriteLine(@"\end{math}");
