@@ -8,7 +8,6 @@ namespace FLaG.Data.Automaton
 		public void Save(Writer writer, bool isLeft)
 		{
 			writer.Write(@"{");
-			writer.Write(@"{");
 			writer.Write(Value + "", true);
 			
 			if (Number != null)
@@ -17,12 +16,6 @@ namespace FLaG.Data.Automaton
 				writer.Write(Number);
 				writer.Write(@"}");
 			}
-			writer.Write(@"}");
-				
-			if (isLeft)
-				writer.Write("'");
-			else
-				writer.Write("''");
 			writer.Write(@"}");
 		}
 		

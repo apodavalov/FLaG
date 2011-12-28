@@ -500,46 +500,35 @@ namespace FLaG.Data.Automaton
 				SaveStatusesFull(writer, statuses);
 		}
 		
-		public string Apostrophs
-		{
-			get
-			{
-				if (IsLeft)
-					return "'";
-				else
-					return "''";
-			}
-		}
-		
-		private void SaveLetter(char Letter, Writer writer)
+		public void SaveM(Writer writer)
 		{
 			writer.Write(@"{");
 			writer.Write(@"{");
-			writer.Write(Letter.ToString(), true);
+			writer.Write('M'.ToString(), true);
 			writer.Write("_{");
 			writer.Write(Number);
 			writer.Write(@"}}");
-			writer.Write(Apostrophs);
+			if (IsLeft)
+				writer.Write("'");
+			else
+				writer.Write("''");
 			writer.Write(@"}");
-		}
-		
-		public void SaveM(Writer writer)
-		{
-			SaveLetter('M',writer);
 		}
 		
 		public void SaveS(Writer writer)
 		{
-			SaveLetter('S',writer);
+			writer.Write(@"{");
+			writer.Write('S'.ToString(), true);
+			writer.Write("_{");
+			writer.Write(Number);
+			writer.Write(@"}}");
 		}
 		
 		public void SaveQ0(Writer writer)
 		{
-			writer.Write(@"{{{Q_0}_{");
+			writer.Write(@"{{Q_0}_{");
 			writer.Write(Number);
 			writer.Write(@"}}");
-			writer.Write(Apostrophs);
-			writer.Write(@"}");
 		}
 		
 		public void SaveDelta(Writer writer)
@@ -548,8 +537,7 @@ namespace FLaG.Data.Automaton
 			writer.Write(@"{\delta}");
 			writer.Write("_{");
 			writer.Write(Number);
-			writer.Write(@"}");
-			writer.Write(Apostrophs);
+			writer.Write(@"}");			
 			writer.Write(@"}");
 		}
 		
@@ -560,13 +548,16 @@ namespace FLaG.Data.Automaton
 			writer.Write("_{");
 			writer.Write(Number);
 			writer.Write(@"}");
-			writer.Write(Apostrophs);
 			writer.Write(@"}");
 		}
 		
 		public void SaveQ(Writer writer)
 		{
-			SaveLetter('Q',writer);
+			writer.Write(@"{");
+			writer.Write('Q'.ToString(), true);
+			writer.Write("_{");
+			writer.Write(Number);
+			writer.Write(@"}}");			
 		}
 		
 		public void SaveCortege(Writer writer)

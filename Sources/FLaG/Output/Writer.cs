@@ -314,7 +314,9 @@ namespace FLaG.Output
 			WriteLine(@". Собственно, последние (право- и леволинейная) грамматики и будут являться искомыми. Определим ", true);
 			WriteLine(@" совокупность выражений, входящих в состав исходного выражения ", true);
 			Write(@"(\ref{eq:s2b2})");
-			Write(@".");
+			Write(@". ");
+			WriteLine("Символы, помеченные одним апострофом, будут относится",true);
+			WriteLine(@"к леволинейной грамматики, а двумя апострофами --- к праволинейной.",true);
 			WriteLine(@"\begin{equation*}");			
 			lang.SaveAsRegularExp(this,true);		
 			WriteLine();
