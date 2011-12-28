@@ -6,16 +6,16 @@
 		<variable name="n" sign=">=" num="0" />
 	</variables>
 	<content>
-	    <alter>
-		<degree>
-		    <base>
-		        <symbol>a</symbol>
-		    </base>
-		    <exp>
-		        <vref>n</vref>
-		    </exp>
-		</degree>
-		<concat>
+	    <concat>
+		<alter>
+		    <degree>
+			<base>
+			    <symbol>a</symbol>
+			</base>
+			<exp>
+			    <vref>n</vref>
+			</exp>
+		    </degree>
 		    <degree>
 			<base>
 			    <symbol>b</symbol>
@@ -24,16 +24,16 @@
 			    <vref>m</vref>
 			</exp>
 		    </degree>
-		    <degree>
-			<base>
-			    <symbol>c</symbol>
-			</base>
-			<exp>
-			    <vref>k</vref>
-			</exp>
-		    </degree>
-		</concat>
-	    </alter>
+		</alter>
+		<degree>
+		    <base>
+			<symbol>c</symbol>
+		    </base>
+		    <exp>
+			<vref>k</vref>
+		    </exp>
+		</degree>
+	    </concat>
 	</content>
 	<info>
 	    <author firstname="" secondname="" lastname="" group="" />
