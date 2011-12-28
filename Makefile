@@ -11,32 +11,32 @@ all: clean pdf
 ./Output/sample3.6.tex: Samples/sample3.6.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample3.6.xml Output/sample3.6.tex
-#	[ -f ./Samples/sample3.6.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample3.6.tex.patch
+	[ -f ./Samples/sample3.6.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample3.6.tex.patch
 
 ./Output/sample2.7.tex: Samples/sample2.7.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample2.7.xml Output/sample2.7.tex
-#	[ -f ./Samples/sample2.7.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample2.7.tex.patch
+	[ -f ./Samples/sample2.7.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample2.7.tex.patch
 
 ./Output/sample6.3.tex: Samples/sample6.3.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample6.3.xml Output/sample6.3.tex
-#	[ -f ./Samples/sample6.3.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample6.3.tex.patch
+	[ -f ./Samples/sample6.3.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample6.3.tex.patch
 
 ./Output/sample4.4.tex: Samples/sample4.4.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample4.4.xml Output/sample4.4.tex
-#	[ -f ./Samples/sample4.4.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample4.4.tex.patch
+	[ -f ./Samples/sample4.4.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample4.4.tex.patch
 
 ./Output/sample5.4.tex: Samples/sample5.4.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample5.4.xml Output/sample5.4.tex
-#	[ -f ./Samples/sample5.4.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample5.4.tex.patch
+	[ -f ./Samples/sample5.4.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample5.4.tex.patch
 
 ./Output/sample1.4.tex: Samples/sample1.4.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample1.4.xml Output/sample1.4.tex
-#	[ -f ./Samples/sample1.4.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample1.4.tex.patch
+	[ -f ./Samples/sample1.4.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample1.4.tex.patch
 
 ./Output/sample6.2.tex: Samples/sample6.2.xml
 	[ -d ./Output ] || mkdir ./Output
@@ -45,7 +45,7 @@ all: clean pdf
 ./Output/sample7.3.tex: Samples/sample7.3.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample7.3.xml Output/sample7.3.tex
-#	[ -f ./Samples/sample7.3.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample7.3.tex.patch
+	[ -f ./Samples/sample7.3.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample7.3.tex.patch
 	
 ./Output/sample0.0.tex: Samples/sample0.0.xml
 	[ -d ./Output ] || mkdir ./Output
