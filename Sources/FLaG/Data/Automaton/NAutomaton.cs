@@ -1278,16 +1278,10 @@ namespace FLaG.Data.Automaton
 		public void SaveM(Writer writer)
 		{
 			writer.Write(@"{");
-			writer.Write(@"{");
 			writer.Write('M'.ToString(), true);
 			writer.Write("_{");
 			writer.Write(Number);
 			writer.Write(@"}}");
-			if (IsLeft)
-				writer.Write("'");
-			else
-				writer.Write("''");
-			writer.Write(@"}");
 		}
 		
 		public void SaveS(Writer writer)

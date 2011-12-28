@@ -2494,16 +2494,10 @@ namespace FLaG.Data.Grammars
 		public void SaveG(Writer writer)
 		{
 			writer.Write(@"{");
-			writer.Write(@"{");
 			writer.Write('G'.ToString(), true);
 			writer.Write("_{");
 			writer.Write(Number);
 			writer.Write(@"}}");
-			if (IsLeft)
-				writer.Write("'");
-			else
-				writer.Write("''");
-			writer.Write(@"}");
 		}
 		
 		public Grammar()
