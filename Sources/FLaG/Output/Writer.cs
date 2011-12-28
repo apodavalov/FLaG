@@ -13,6 +13,7 @@ namespace FLaG.Output
 {
     class Writer : StreamWriter
     {
+		private List<Entity> entities;
 		private Lang lang;
 		private Grammar LeftSidedGrammar;
 		private Grammar RightSidedGrammar;
@@ -299,31 +300,39 @@ namespace FLaG.Output
 			WriteLine(@"\end{equation}");
 		}
 		
-		private void Step2_3()
-		{
-			List<Entity> entities = lang.MarkDeepest();
+		private void Step2_3(bool isLeft)
+		{			
 			Write(@"\subsection{");
 			Write("Этап 2.3",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
 			WriteLine(@"}");
-			Write("Построим грамматики для выражения ",true);
+			
+			Write("Построим ",true);
+			Write(isLeft ? "леволинейную" : "праволинейную",true);
+			Write(" грамматику для выражения ",true);
 			Write(@"(\ref{eq:s2b2})");
 			WriteLine(@". Воспользуемся рекурсивным определением регулярного выражения ", true);
 			WriteLine(@"для построения последовательности грамматик каждого ", true);
 			WriteLine(@"элементарного регулярного выражения, входящего в состав выражения ", true);
 			Write(@"(\ref{eq:s2b2})");
-			WriteLine(@". Собственно, последние (право- и леволинейная) грамматики и будут являться искомыми. Определим ", true);
+			WriteLine(@". Собственно, последняя ",true);
+			Write(isLeft ? "леволинейная" : "праволинейная",true);
+			WriteLine(@" грамматика и будет являться искомой. Определим ", true);
 			WriteLine(@" совокупность выражений, входящих в состав исходного выражения ", true);
-			Write(@"(\ref{eq:s2b2})");
-			Write(@". ");
-			WriteLine("Символы, помеченные одним апострофом, будут относится",true);
-			WriteLine(@"к леволинейной грамматики, а двумя апострофами --- к праволинейной.",true);
+			WriteLine(@"(\ref{eq:s2b2}).");
 			WriteLine(@"\begin{equation*}");			
 			lang.SaveAsRegularExp(this,true);		
 			WriteLine();
 			WriteLine(@"\end{equation*}");
 			WriteLine();
-			WriteLine(@"Построим лево- и праволинейные грамматики для указанных выражений.",true);
-			WriteLine(@"Для всех грамматик алфавит будет представлять множество вида ",true);
+			Write(@"Построим ",true);
+			Write(isLeft ? "леволинейные" : "праволинейные",true);
+			WriteLine(@" грамматики для указанных выражений.",true);
+			WriteLine(@"Для грамматики алфавит будет представлять множество вида ",true);
 			WriteLine(@"\begin{math}");
 			lang.SaveAlphabet(this);
 			WriteLine(@"\end{math}.");
@@ -332,47 +341,42 @@ namespace FLaG.Output
 			// Все данные для вычисления грамматик в необходимом порядке очередности
 			// Находятся в entities			
 			
+			// Уничтожаем сформированные грамматики 
+			for (int i = 0; i < entities.Count; i++)
+				entities[i].Grammar = null;		
+			
 			WriteLine(@"\begin{enumerate}");
 			
 			int LastUseNumber = entities.Count + 1;
 			int AddionalGrammarsNumber = entities.Count + 1;
 			
-			// Создаем леволинейные грамматики
+			// Создаем грамматики
 			for (int i = 0; i < entities.Count; i++)
-				entities[i].GenerateGrammar(this,true,ref LastUseNumber, ref AddionalGrammarsNumber);
+				entities[i].GenerateGrammar(this,isLeft,ref LastUseNumber, ref AddionalGrammarsNumber);
 			
-			FirstLeftSidedFreeNumber = Math.Max(AddionalGrammarsNumber,LastUseNumber);
-			
-			WriteLine(@"\end{enumerate}");
-			
-			// FIXME: А если нет ни одной?
-			LeftSidedGrammar = entities[entities.Count - 1].Grammar;
-			
-			// Уничтожаем сформированные грамматики 
-			for (int i = 0; i < entities.Count; i++)
-				entities[i].Grammar = null;			
+			if (isLeft)
+				FirstLeftSidedFreeNumber = Math.Max(AddionalGrammarsNumber,LastUseNumber);
+			else
+				FirstRightSidedFreeNumber = Math.Max(AddionalGrammarsNumber,LastUseNumber);
 						
-			WriteLine(@"\begin{enumerate}");
-			
-			LastUseNumber = entities.Count + 1;
-			AddionalGrammarsNumber = entities.Count + 1;
-			
-			// Создаем праволиненые грамматики
-			for (int i = 0; i < entities.Count; i++)
-				entities[i].GenerateGrammar(this,false,ref LastUseNumber,ref AddionalGrammarsNumber);	
-			
-			FirstRightSidedFreeNumber = Math.Max(AddionalGrammarsNumber,LastUseNumber);
-			
 			WriteLine(@"\end{enumerate}");
 			
 			// FIXME: А если нет ни одной?
-			RightSidedGrammar = entities[entities.Count - 1].Grammar;
+			if (isLeft)
+				LeftSidedGrammar = entities[entities.Count - 1].Grammar;
+			else
+				RightSidedGrammar = entities[entities.Count - 1].Grammar;
 		}
 		
-		private void Step2_4()
+		private void Step2_4(bool isLeft)
 		{
 			Write(@"\subsection{");
 			Write("Этап 2.4",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
 			WriteLine(@"}");
 			
 			WriteLine(@"На этом шаге производим преобразования (приведение) грамматики.",true);
@@ -391,16 +395,27 @@ namespace FLaG.Output
 			WriteLine(@"т.е. правил которые могут привести к зацикливанию алгоритма."); */
 		}
 		
-		private void Step2_4_1()
+		private void Step2_4_1(bool isLeft)
 		{
 			Write(@"\subsubsection{");
 			Write("Этап 2.4.1",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
 			WriteLine(@"}");
 			
-			LeftSidedGrammar.Normalize();			
-			LeftSidedGrammar.CheckLangForEmpty(this);
-			RightSidedGrammar.Normalize();
-			RightSidedGrammar.CheckLangForEmpty(this);
+			if (isLeft)
+			{
+				LeftSidedGrammar.Normalize();			
+				LeftSidedGrammar.CheckLangForEmpty(this);
+			}
+			else
+			{
+				RightSidedGrammar.Normalize();
+				RightSidedGrammar.CheckLangForEmpty(this);
+			}
 		}
 		
 		private bool Step2_4_2(bool isLeft, bool again)
@@ -547,10 +562,15 @@ namespace FLaG.Output
 			}		
 		}
 		
-		private void Step2_5()
+		private void Step2_5(bool isLeft)
 		{
 			Write(@"\subsection{");
 			Write("Этап 2.5",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
 			WriteLine(@"}");
 			
 			WriteLine(@"На этом шаге для приведенной грамматики строим конечный автомат.",true);			
@@ -801,11 +821,17 @@ namespace FLaG.Output
 			WriteLine(@"\end{document}");
         }
 
-		public void Step2_10 ()
+		public void Step2_10 (bool isLeft)
 		{
 			Write(@"\subsection{");
 			Write("Этап 2.10",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
 			WriteLine(@"}");
+			
 			WriteLine(@"Для проверки правильности построения конечного автомата выполним",true);
 			WriteLine(@"обратные преобразования, то есть рассмотрим множество каких входных",true);
 			WriteLine(@"цепочек допускает данный конечный автомат.",true);
@@ -895,51 +921,50 @@ namespace FLaG.Output
             Step1();
 			Step2();
             Step2_1();
-			Step2_2();				
-			Step2_3();
-			Step2_4();			
-			Step2_4_1();
-			
+			Step2_2();		
+			entities = lang.MarkDeepest();
+			Step2_3(true);
+			Step2_4(true);			
+			Step2_4_1(true);
 			StepOptimizeGrammatic(true);
-			StepOptimizeGrammatic(false);
-			
-			Step2_5();
-			
+			Step2_5(true);
 			Step2_5_1(true);
-			Step2_5_1(false);
-			
 			Step2_5_2(true);
-			Step2_5_2(false);
-			
 			Step2_5_3(true);
-			Step2_5_3(false);			
-			
 			Step2_6(true);
-			Step2_6(false);
 			
 			if (dLeftAutomaton == null)
 				Step2_7(true);
+			
+			Step2_7_1(true);
+			Step2_7_2(true);
+			Step2_8(true);
+			Step2_9(true);
+			Step2_10(true);
+			Step2_10_1(true);
+			Step2_10_2(true);
+			
+			Step2_3(false);						
+			Step2_4(false);			
+			Step2_4_1(false);
+						
+			StepOptimizeGrammatic(false);
+			
+			Step2_5(false);
+			Step2_5_1(false);			
+			Step2_5_2(false);
+			Step2_5_3(false);
+			Step2_6(false);
+			
 			if (dRightAutomaton == null)
 				Step2_7(false);
 			
-			Step2_7_1(true);
 			Step2_7_1(false);
-			
-			Step2_7_2(true);
 			Step2_7_2(false);
-			
-			Step2_8(true);
 			Step2_8(false);
-			
-			Step2_9(true);
 			Step2_9(false);			
-			
-			Step2_10();
-			
-			Step2_10_1(true);
+			Step2_10(false);
 			Step2_10_1(false);
-			
-			Step2_10_2(true);
 			Step2_10_2(false);
 
             WriteEndDoc();
