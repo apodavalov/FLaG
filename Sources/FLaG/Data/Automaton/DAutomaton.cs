@@ -49,7 +49,19 @@ namespace FLaG.Data.Automaton
 				automaton.AddEndStatus(dictionary[status]);
 			
 			writer.WriteLine();
-			writer.WriteLine(@"Для упрощения дальнейших преобразований выполним переобозначения состояний ДКА. В результате получим автомат",true);
+			writer.WriteLine(@"Для упрощения дальнейших преобразований выполним переобозначения состояний ДКА.");
+			writer.WriteLine(@"Введем новые состояние соответствующие старым.");				
+			foreach (KeyValuePair<DStatus,NStatus> keyvalue in dictionary)
+			{
+				writer.WriteLine();
+				writer.WriteLine(@"\begin{math}");
+				keyvalue.Key.Save(writer,IsLeft,ProducedFromDFA);
+				writer.WriteLine(@"\equiv");
+				keyvalue.Value.Save(writer,IsLeft);
+				writer.WriteLine(@"\end{math}");			
+			}
+			writer.WriteLine();
+			writer.WriteLine(@"В результате получим автомат",true);
 			writer.WriteLine(@"\begin{math}");
 			automaton.SaveCortege(writer);
 			writer.WriteLine(@"\end{math},");
