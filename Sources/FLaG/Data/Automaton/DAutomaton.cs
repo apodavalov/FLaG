@@ -50,7 +50,7 @@ namespace FLaG.Data.Automaton
 			
 			writer.WriteLine();
 			writer.WriteLine(@"Для упрощения дальнейших преобразований выполним переобозначения состояний ДКА.");
-			writer.WriteLine(@"Введем новые состояние соответствующие старым.");				
+			writer.WriteLine(@"Введем новые состояния соответствующие старым.");				
 			foreach (KeyValuePair<DStatus,NStatus> keyvalue in dictionary)
 			{
 				writer.WriteLine();
