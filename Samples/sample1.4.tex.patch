@@ -92,7 +92,7 @@ diff -u old//sample1.4.tex new//sample1.4.tex
 +\end{equation}
 +
 +Теперь рассмотрим цепочки, входящие в полученное множество:
-+\begin{equation}\label{eq:s1023b1}
++\begin{equation}
 +\begin{split}
 +L' &= \left\{{\{a b\}\cdot{\left\{a b\right\}^k}} \cdot {\left\{b c\right\}^m}\mid  \forall k>0,m \geq 0, \text{где } k,m  \text{ --- целые}\right\}= \\
 + &= \left\{{{\left\{{{(ab)^2, (ab)^3, (ab)^4,\dots}}\right\}} \cdot {\left\{{{\varepsilon ,bc, (bc)^2, (bc)^3,\dots}}\right\}}} \right\}
