@@ -57,7 +57,17 @@ namespace FLaG.Data.Automaton
 			
 			SizeF textSize = g.MeasureString(text,font);
 			
-			PointF pointToDraw = new PointF(1.25f * r + (len - 2.5f) / 4.0f - textSize.Width / 2.0f,-textSize.Height);
+			PointF pointToDraw;
+			
+			if (cos > 0)
+				pointToDraw	= new PointF(1.25f * r + 3.0f * (len - 2.5f * r) / 4.0f - textSize.Width / 2.0f,-textSize.Height);
+			else
+			{
+				g.TranslateTransform(len / 2.0f,0);
+				g.RotateTransform(180.0f);
+				g.TranslateTransform(-len / 2.0f,0);
+				pointToDraw	= new PointF(1.25f * r + (len - 2.5f * r) / 4.0f - textSize.Width / 2.0f,0.0f);
+			}
 			
 			g.DrawString(text,font,Brushes.Black,pointToDraw);
 
