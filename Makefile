@@ -18,6 +18,11 @@ all: pdf
 	mono Bin/FLaG.exe Samples/sample2.2.xml Output/sample2.2.tex
 #	[ -f ./Samples/sample2.2.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample2.2.tex.patch
 
+./Output/sample2.3.tex: Samples/sample2.3.xml
+	[ -d ./Output ] || mkdir ./Output
+	mono Bin/FLaG.exe Samples/sample2.3.xml Output/sample2.3.tex
+#	[ -f ./Samples/sample2.3.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample2.3.tex.patch
+
 ./Output/sample2.7.tex: Samples/sample2.7.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample2.7.xml Output/sample2.7.tex
@@ -80,7 +85,7 @@ all: pdf
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample4.1.xml Output/sample4.1.tex
 
-tex: ./Output/sample4.2.tex ./Output/sample1.8.tex ./Output/sample2.2.tex ./Output/sampledz6.4.tex ./Output/sampledz6.tex ./Output/sample3.6.tex ./Output/sample2.7.tex ./Output/sample6.3.tex ./Output/sample4.4.tex ./Output/sample5.4.tex ./Output/sample6.2.tex ./Output/sample4.1.tex ./Output/sample4.3.tex ./Output/sample7.3.tex ./Output/sample1.2.tex ./Output/sample1.7.tex ./Output/sample0.0.tex ./Output/sample1.4.tex
+tex: ./Output/sample2.3.tex ./Output/sample4.2.tex ./Output/sample1.8.tex ./Output/sample2.2.tex ./Output/sampledz6.4.tex ./Output/sampledz6.tex ./Output/sample3.6.tex ./Output/sample2.7.tex ./Output/sample6.3.tex ./Output/sample4.4.tex ./Output/sample5.4.tex ./Output/sample6.2.tex ./Output/sample4.1.tex ./Output/sample4.3.tex ./Output/sample7.3.tex ./Output/sample1.2.tex ./Output/sample1.7.tex ./Output/sample0.0.tex ./Output/sample1.4.tex
 
 ./Output/sampledz6.4.pdf: ./Output/sampledz6.4.tex
 	[ -d ./Output ] || mkdir ./Output
@@ -99,6 +104,12 @@ tex: ./Output/sample4.2.tex ./Output/sample1.8.tex ./Output/sample2.2.tex ./Outp
 	pdflatex --output-directory=./Output ./Output/sample3.6.tex
 # Hack! Make full translation in one time
 	pdflatex --output-directory=./Output ./Output/sample3.6.tex
+
+./Output/sample2.3.pdf: ./Output/sample2.3.tex
+	[ -d ./Output ] || mkdir ./Output
+	pdflatex --output-directory=./Output ./Output/sample2.3.tex
+# Hack! Make full translation in one time
+	pdflatex --output-directory=./Output ./Output/sample2.3.tex
 
 ./Output/sample2.2.pdf: ./Output/sample2.2.tex
 	[ -d ./Output ] || mkdir ./Output
@@ -190,7 +201,7 @@ tex: ./Output/sample4.2.tex ./Output/sample1.8.tex ./Output/sample2.2.tex ./Outp
 # Hack! Make full translation in one time
 	pdflatex --output-directory=./Output ./Output/sample1.2.tex
 
-pdf: ./Output/sample4.2.pdf ./Output/sample1.8.pdf ./Output/sample2.2.pdf ./Output/sampledz6.4.pdf ./Output/sampledz6.pdf ./Output/sample3.6.pdf ./Output/sample2.7.pdf ./Output/sample6.3.pdf ./Output/sample4.4.pdf ./Output/sample5.4.pdf ./Output/sample6.2.pdf ./Output/sample4.1.pdf ./Output/sample4.3.pdf ./Output/sample7.3.pdf ./Output/sample1.2.pdf ./Output/sample1.7.pdf ./Output/sample0.0.pdf ./Output/sample1.4.pdf
+pdf: ./Output/sample2.3.pdf ./Output/sample4.2.pdf ./Output/sample1.8.pdf ./Output/sample2.2.pdf ./Output/sampledz6.4.pdf ./Output/sampledz6.pdf ./Output/sample3.6.pdf ./Output/sample2.7.pdf ./Output/sample6.3.pdf ./Output/sample4.4.pdf ./Output/sample5.4.pdf ./Output/sample6.2.pdf ./Output/sample4.1.pdf ./Output/sample4.3.pdf ./Output/sample7.3.pdf ./Output/sample1.2.pdf ./Output/sample1.7.pdf ./Output/sample0.0.pdf ./Output/sample1.4.pdf
 
 clean:
 	rm -rf ./Output/*
