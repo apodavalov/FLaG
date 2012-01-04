@@ -171,8 +171,27 @@ namespace FLaG.Data.Equation
 			writer.WriteLine(@"\end{math}");
 		}
 		
+		private void Reverse()
+		{
+			Array.Reverse(Unterminals);
+			TargetSymbolIndex = Unterminals.Length - 1 - TargetSymbolIndex;
+			Array.Reverse(Mx);
+			
+			for (int i = 0; i < Mx.Length; i++)
+			{
+				int len = Mx[i].Length - 1;
+				for (int j = 0; j < len / 2; j++)
+				{
+					Expression temp = Mx[i][j];
+					Mx[i][j] = Mx[i][len - 1 - j];
+					Mx[i][len - 1 - j] = temp;
+				}
+			}
+		}
+		
 		public Expression Solve(Writer writer)
 		{
+			//Reverse();
 			writer.WriteLine(@"Система уравнений с регулярными коэффициентами примет следующий вид", true);
 			writer.WriteLine(@"\begin{math}");
 			Save(writer);
