@@ -13,6 +13,7 @@ namespace FLaG.Output
 {
     class Writer : StreamWriter
     {
+		private bool Reverse = false; // this is for HACK
 		private List<Entity> entities;
 		private Lang lang;
 		private Grammar LeftSidedGrammar;
@@ -193,6 +194,8 @@ namespace FLaG.Output
 			WriteLine(@"\end{center}");
 			WriteLine(@"\begin{center}");
 			WriteLine(@"Вариант № " + lang.Variant,true);
+			if (lang.Variant.StartsWith("2."))
+				Reverse = true;
 			WriteLine(@"\end{center}");
 			WriteLine();
 			WriteLine(@"\vspace{6em}");
@@ -880,13 +883,8 @@ namespace FLaG.Output
 			
 			Matrix matrix = new Matrix(g);
 			
-			// !!! HACK !!!
-			bool reverse; 
-			if (lang.Variant.StartsWith("2."))
-				reverse = true;
-			else
-				reverse = false;
-			Expression exp = matrix.Solve(this, reverse);
+			// !!! HACK (reverse) !!!
+			Expression exp = matrix.Solve(this, Reverse);
 			
 			WriteLine();
 			WriteLine(@"Таким образом, мы определили все неизвестные. Доказано, что решение для",true);
