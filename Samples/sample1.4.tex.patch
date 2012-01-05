@@ -82,7 +82,7 @@ diff -u old//sample1.4.tex new//sample1.4.tex
 +
 +\subsubsection{Этап 2.10.4}
 +Сравним полученное множество (\ref{eq:s1023b1}) с исходным (\ref{eq:s0b1}). Для этого рассмотрим множество цепочек исходного множества:
-+\begin{equation}\label{eq:s1b1}
++\begin{equation}
 +\begin{split}
 +L &= \left\{{{\left\{{\left\{{a b}\right\}^k}\right\}^2} \cdot {\left\{{\left\{{b c}\right\}^m}\right\}^2}}\mid  \forall k>0,m \geq 0, \text{где } k,m  \text{ --- целые}\right\}= \\
 +&= \left\{{{\left\{{{a b, (a b)^2, (a b)^3,\dots}}\right\}^2} \cdot {\left\{{{\varepsilon ,bc, (bc)^2, (bc)^3,\dots}}\right\}^2}} \right\}= \\
