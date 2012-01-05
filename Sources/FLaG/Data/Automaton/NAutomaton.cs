@@ -235,10 +235,10 @@ namespace FLaG.Data.Automaton
 					{
 						Matrix state = g.Transform;
 						
-						double beta = arrow.A * alpha;
+						float beta = (float)(arrow.A * alpha * 180 / Math.PI + 90);
 						
-						g.TranslateTransform((float)(l * Math.Cos(arrow.A * alpha)),(float)(l * Math.Sin(arrow.A * alpha)));
-						g.RotateTransform((float)(beta * 180 / Math.PI + 90));
+						g.TranslateTransform((float)(l * Math.Cos(arrow.A * alpha)),(float)(l * Math.Sin(arrow.A * alpha)));						
+						g.RotateTransform(beta);
 						
 						double arcTop = -r * (Math.Sqrt(3) + 1.0);
 						
@@ -252,9 +252,20 @@ namespace FLaG.Data.Automaton
 						
 						SizeF textSize = g.MeasureString(text,transitionFont);
 						
-						PointF pointToDraw = new PointF(-textSize.Width / 2.0f,(float)(arcTop - textSize.Height));
-						
-						g.DrawString(text,transitionFont,Brushes.Black,pointToDraw);
+						if (Math.Cos(beta - Math.PI / 2) >= 0.0f)
+						{
+							PointF pointToDraw = new PointF(-textSize.Width / 2.0f,(float)(arcTop - textSize.Height));
+							
+							g.DrawString(text,transitionFont,Brushes.Black,pointToDraw);
+						}
+						else
+						{
+							g.RotateTransform(180);
+							
+							PointF pointToDraw = new PointF(-textSize.Width / 2.0f,-(float)(arcTop));
+							
+							g.DrawString(text,transitionFont,Brushes.Black,pointToDraw);
+						}
 						
 			            g.Transform = state;
 					}
