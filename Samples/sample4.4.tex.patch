@@ -75,7 +75,7 @@ diff -u old//sample4.4.tex new//sample4.4.tex
 +
 +\subsubsection{Этап 2.10.4}
 +Сравним полученное множество (\ref{eq:s1023b1}) с исходным (\ref{eq:s0b1}). Для этого рассмотрим множество цепочек исходного множества:
-+\begin{equation}\label{eq:s1b1}
++\begin{equation}
 +\begin{split}
 +L &= \left\{{{\left\{{\left\{{a c}\right\}^k}\right\}^2},{\left\{{\left\{{a,c}\right\}^m}\right\}^2}}\mid  \forall k>0,m \geq 0, \text{где } k,m  \text{ --- целые}\right\}= \\
 +&=\left\{{{\left\{{\left\{{a c}\right\}^k}\right\}^2},{\left\{{\left\{{a,c}\right\}^m}\right\}^2}}\mid  \forall k>0,m \geq 0, \text{где } k,m  \text{ --- целые}\right\}= \\
