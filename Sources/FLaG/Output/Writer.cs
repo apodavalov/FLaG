@@ -879,7 +879,14 @@ namespace FLaG.Output
 			WriteLine();
 			
 			Matrix matrix = new Matrix(g);
-			Expression exp = matrix.Solve(this);
+			
+			// !!! HACK !!!
+			bool reverse; 
+			if (lang.Variant.StartsWith("2."))
+				reverse = true;
+			else
+				reverse = false;
+			Expression exp = matrix.Solve(this, reverse);
 			
 			WriteLine();
 			WriteLine(@"Таким образом, мы определили все неизвестные. Доказано, что решение для",true);

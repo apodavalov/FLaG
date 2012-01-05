@@ -189,9 +189,77 @@ namespace FLaG.Data.Equation
 			}
 		}
 		
-		public Expression Solve(Writer writer)
+		private void Sort()
 		{
-			//Reverse();
+			int[] labels = new int[Unterminals.Length];
+			
+			for (int i = 0; i < labels.Length; i++)
+				labels[i] = -1;
+			
+			int t = 0;
+			
+			labels[TargetSymbolIndex] = t;
+			HashSet<int> V,newV;
+			
+			V = new HashSet<int>();
+			V.Add(TargetSymbolIndex);
+			
+			do
+			{
+				t++;
+				newV = new HashSet<int>();
+				
+				foreach (int v in V)					
+					for (int i = 0; i < Mx[v].Length - 1; i++)
+						if (Mx[v][i] != null && labels[i] < 0)
+						{
+							labels[i] = t;
+							newV.Add(i);
+						}
+				
+				V = newV;
+			} while (V.Count > 0);
+
+			for (int j = 0; j < labels.Length; j++)
+				for (int i = 0; i < labels.Length - 1; i++)
+				{
+					if (labels[i] < labels[i + 1])
+					{
+						SwapEquation(i,i+1);
+						int temp = labels[i];
+						labels[i] = labels[i + 1];
+						labels[i + 1] = temp;
+					}
+				}
+		}
+		
+		private void SwapEquation(int index1, int index2)
+		{
+			Gram.Unterminal tempUnterminal = Unterminals[index1];
+			Unterminals[index1] = Unterminals[index2];
+			Unterminals[index2] = tempUnterminal;
+			
+			if (TargetSymbolIndex == index1)
+				TargetSymbolIndex = index2;
+			else if (TargetSymbolIndex == index2)
+				TargetSymbolIndex = index1;
+			
+			Expression[] tempExpressions = Mx[index1];
+			Mx[index1] = Mx[index2];
+			Mx[index2] = tempExpressions;
+			
+			for (int i = 0; i < Mx.Length; i++)
+			{
+				Expression tempExpr = Mx[i][index1];
+				Mx[i][index1] = Mx[i][index2];
+				Mx[i][index2] = tempExpr;
+			}
+		}		
+		
+		public Expression Solve(Writer writer, bool reverse)
+		{
+			if (reverse)
+				Reverse();
 			writer.WriteLine(@"Система уравнений с регулярными коэффициентами примет следующий вид", true);
 			writer.WriteLine(@"\begin{math}");
 			Save(writer);
