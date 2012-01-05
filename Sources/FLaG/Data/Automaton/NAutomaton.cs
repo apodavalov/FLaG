@@ -252,7 +252,7 @@ namespace FLaG.Data.Automaton
 						
 						SizeF textSize = g.MeasureString(text,transitionFont);
 						
-						if (Math.Cos(beta - Math.PI / 2) >= 0.0f)
+						if (Math.Cos(beta * Math.PI / 180) >= 0.0f)
 						{
 							PointF pointToDraw = new PointF(-textSize.Width / 2.0f,(float)(arcTop - textSize.Height));
 							
