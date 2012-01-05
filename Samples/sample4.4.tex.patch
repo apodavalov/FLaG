@@ -19,8 +19,8 @@ diff -u old//sample4.4.tex new//sample4.4.tex
 +L &= \left\{{{\left\{{\left\{{a c}\right\}^k}\right\}^2},{\left\{{\left\{{a,c}\right\}^m}\right\}^2}}\mid  \forall k>0,m \geq 0, \text{где } k,m  \text{ --- целые}\right\}= \\
 +&=\left\{{{\left\{{\left\{{a c}\right\}^k}\right\}^2},{\left\{{\left\{{a,c}\right\}^m}\right\}^2}}\mid  \forall k>0,m \geq 0, \text{где } k,m  \text{ --- целые}\right\}= \\
 +&=\left\{ \left\{ ac, (ac)^2, (ac)^3 \dots \right\}^2 , \left\{ \varepsilon, a, a^2, \dots, c, c^2, \dots, ac, (ac)^2, \dots, ac^2, ac^3, \dots \right\}^2 \right\}= \\
-+&=\left\{ \left\{ (ac)^2, (ac)^4 \dots \right\} , \left\{ \varepsilon, a, a^2, \dots, c, c^2, \dots, ac, (ac)^2, \dots, ac^2, ac^3, \dots \right\} \right\}= \\
-+&=\left\{ \left\{ (ac)^{(2n+2)} \right\} , \left\{ (a^lc^m)^k \right\} \mid \forall k \geq 0,l \geq 0,m \geq 0,n \geq 0, \text{где } k,l,m,n  \text{ --- целые}   \right\}= \\
++&=\left\{ \left\{ (ac)^2, (ac)^3 \dots \right\} , \left\{ \varepsilon, a, a^2, \dots, c, c^2, \dots, ac, (ac)^2, \dots, ac^2, ac^3, \dots \right\} \right\}= \\
++&=\left\{ \left\{ (ac)^{n+2} \right\} , \left\{ (a^lc^m)^k \right\} \mid \forall k \geq 0,l \geq 0,m \geq 0,n \geq 0, \text{где } k,l,m,n  \text{ --- целые}   \right\}= \\
 +&=\left\{ \left\{ (a^lc^m)^k \right\} \mid \forall k \geq 0,l \geq 0,m \geq 0, \text{где } k,l,m  \text{ --- целые} \right\}\end{split}
 +\end{equation}
 +
@@ -80,8 +80,8 @@ diff -u old//sample4.4.tex new//sample4.4.tex
 +L &= \left\{{{\left\{{\left\{{a c}\right\}^k}\right\}^2},{\left\{{\left\{{a,c}\right\}^m}\right\}^2}}\mid  \forall k>0,m \geq 0, \text{где } k,m  \text{ --- целые}\right\}= \\
 +&=\left\{{{\left\{{\left\{{a c}\right\}^k}\right\}^2},{\left\{{\left\{{a,c}\right\}^m}\right\}^2}}\mid  \forall k>0,m \geq 0, \text{где } k,m  \text{ --- целые}\right\}= \\
 +&=\left\{ \left\{ ac, (ac)^2, (ac)^3 \dots \right\}^2 , \left\{ \varepsilon, a, a^2, \dots, c, c^2, \dots, ac, (ac)^2, \dots, ac^2, ac^3, \dots \right\}^2 \right\}= \\
-+&=\left\{ \left\{ (ac)^2, (ac)^4 \dots \right\} , \left\{ \varepsilon, a, a^2, \dots, c, c^2, \dots, ac, (ac)^2, \dots, ac^2, ac^3, \dots \right\} \right\}= \\
-+&=\left\{ \left\{ (ac)^{(2n+2)} \right\} , \left\{ (a^lc^m)^k \right\} \mid \forall k \geq 0,l \geq 0,m \geq 0,n \geq 0, \text{где } k,l,m,n  \text{ --- целые}   \right\}= \\
++&=\left\{ \left\{ (ac)^2, (ac)^3 \dots \right\} , \left\{ \varepsilon, a, a^2, \dots, c, c^2, \dots, ac, (ac)^2, \dots, ac^2, ac^3, \dots \right\} \right\}= \\
++&=\left\{ \left\{ (ac)^{n+2} \right\} , \left\{ (a^lc^m)^k \right\} \mid \forall k \geq 0,l \geq 0,m \geq 0,n \geq 0, \text{где } k,l,m,n  \text{ --- целые}   \right\}= \\
 +&=\left\{ \left\{ (a^lc^m)^k \right\} \mid \forall k \geq 0,l \geq 0,m \geq 0, \text{где } k,l,m  \text{ --- целые} \right\}\end{split}
 +\end{equation}
 +
