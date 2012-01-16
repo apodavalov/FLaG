@@ -38,6 +38,11 @@ all: pdf
 	mono Bin/FLaG.exe Samples/sample4.4.xml Output/sample4.4.tex
 	[ -f ./Samples/sample4.4.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample4.4.tex.patch
 
+./Output/sample5.5.tex: Samples/sample5.5.xml
+	[ -d ./Output ] || mkdir ./Output
+	mono Bin/FLaG.exe Samples/sample5.5.xml Output/sample5.5.tex
+#	[ -f ./Samples/sample5.5.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample5.5.tex.patch
+
 ./Output/sample5.4.tex: Samples/sample5.4.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample5.4.xml Output/sample5.4.tex
@@ -87,7 +92,7 @@ all: pdf
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample4.1.xml Output/sample4.1.tex
 
-tex: ./Output/sample2.3.tex ./Output/sample4.2.tex ./Output/sample1.8.tex ./Output/sample2.2.tex ./Output/sampledz6.4.tex ./Output/sampledz6.tex ./Output/sample3.6.tex ./Output/sample2.7.tex ./Output/sample6.3.tex ./Output/sample4.4.tex ./Output/sample5.4.tex ./Output/sample6.2.tex ./Output/sample4.1.tex ./Output/sample4.3.tex ./Output/sample7.3.tex ./Output/sample1.2.tex ./Output/sample1.7.tex ./Output/sample0.0.tex ./Output/sample1.4.tex
+tex: ./Output/sample5.5.tex ./Output/sample2.3.tex ./Output/sample4.2.tex ./Output/sample1.8.tex ./Output/sample2.2.tex ./Output/sampledz6.4.tex ./Output/sampledz6.tex ./Output/sample3.6.tex ./Output/sample2.7.tex ./Output/sample6.3.tex ./Output/sample4.4.tex ./Output/sample5.4.tex ./Output/sample6.2.tex ./Output/sample4.1.tex ./Output/sample4.3.tex ./Output/sample7.3.tex ./Output/sample1.2.tex ./Output/sample1.7.tex ./Output/sample0.0.tex ./Output/sample1.4.tex
 
 ./Output/sampledz6.4.pdf: ./Output/sampledz6.4.tex
 	[ -d ./Output ] || mkdir ./Output
@@ -136,6 +141,12 @@ tex: ./Output/sample2.3.tex ./Output/sample4.2.tex ./Output/sample1.8.tex ./Outp
 	pdflatex --output-directory=./Output ./Output/sample4.4.tex
 	pdflatex --output-directory=./Output ./Output/sample4.4.tex
 	pdflatex --output-directory=./Output ./Output/sample4.4.tex
+
+./Output/sample5.5.pdf: ./Output/sample5.5.tex
+	[ -d ./Output ] || mkdir ./Output
+	pdflatex --output-directory=./Output ./Output/sample5.5.tex
+	pdflatex --output-directory=./Output ./Output/sample5.5.tex
+	pdflatex --output-directory=./Output ./Output/sample5.5.tex
 
 ./Output/sample5.4.pdf: ./Output/sample5.4.tex
 	[ -d ./Output ] || mkdir ./Output
@@ -203,7 +214,7 @@ tex: ./Output/sample2.3.tex ./Output/sample4.2.tex ./Output/sample1.8.tex ./Outp
 	pdflatex --output-directory=./Output ./Output/sample1.2.tex
 	pdflatex --output-directory=./Output ./Output/sample1.2.tex
 
-pdf: ./Output/sample2.3.pdf ./Output/sample4.2.pdf ./Output/sample1.8.pdf ./Output/sample2.2.pdf ./Output/sampledz6.4.pdf ./Output/sampledz6.pdf ./Output/sample3.6.pdf ./Output/sample2.7.pdf ./Output/sample6.3.pdf ./Output/sample4.4.pdf ./Output/sample5.4.pdf ./Output/sample6.2.pdf ./Output/sample4.1.pdf ./Output/sample4.3.pdf ./Output/sample7.3.pdf ./Output/sample1.2.pdf ./Output/sample1.7.pdf ./Output/sample0.0.pdf ./Output/sample1.4.pdf
+pdf: ./Output/sample5.5.pdf ./Output/sample2.3.pdf ./Output/sample4.2.pdf ./Output/sample1.8.pdf ./Output/sample2.2.pdf ./Output/sampledz6.4.pdf ./Output/sampledz6.pdf ./Output/sample3.6.pdf ./Output/sample2.7.pdf ./Output/sample6.3.pdf ./Output/sample4.4.pdf ./Output/sample5.4.pdf ./Output/sample6.2.pdf ./Output/sample4.1.pdf ./Output/sample4.3.pdf ./Output/sample7.3.pdf ./Output/sample1.2.pdf ./Output/sample1.7.pdf ./Output/sample0.0.pdf ./Output/sample1.4.pdf
 
 clean:
 	rm -rf ./Output/*
