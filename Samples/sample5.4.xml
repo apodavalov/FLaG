@@ -6,7 +6,7 @@
 		<variable name="m" sign=">=" num="0" />
 	</variables>
 	<content>
-		<concat>
+		<alter>
 			<degree>
 				<base>
 					<degree>
@@ -52,7 +52,7 @@
 				    <number>2</number>
 				</exp>
 			</degree>
-		</concat>
+		</alter>
 	</content>
 	<info>
 	    <author firstname="" secondname="" lastname="" group="" />
