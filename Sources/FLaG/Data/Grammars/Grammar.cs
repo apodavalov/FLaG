@@ -2310,20 +2310,20 @@ namespace FLaG.Data.Grammars
 		{
 			Grammar g = DeepClone();
 			
-			g.Number = AdditionalGrammarNumber++;
+			g.Number = ++AdditionalGrammarNumber;
 			
 			Dictionary<Unterminal,Unterminal> replacesDictionary = 
 				new Dictionary<Unterminal, Unterminal>();
 			
 			if (!replacesDictionary.ContainsKey(g.TargetSymbol))
-				replacesDictionary.Add(g.TargetSymbol,Unterminal.GetInstance(LastUseNumber++));
+				replacesDictionary.Add(g.TargetSymbol,Unterminal.GetInstance(++LastUseNumber));
 			
 			g.TargetSymbol = replacesDictionary[g.TargetSymbol];
 			
 			foreach (Rule r in g.Rules)
 			{
 				if (!replacesDictionary.ContainsKey(r.Prerequisite))
-					replacesDictionary.Add(r.Prerequisite,Unterminal.GetInstance(LastUseNumber++));
+					replacesDictionary.Add(r.Prerequisite,Unterminal.GetInstance(++LastUseNumber));
 				
 				r.Prerequisite = replacesDictionary[r.Prerequisite];
 
@@ -2333,7 +2333,7 @@ namespace FLaG.Data.Grammars
 						{
 							Unterminal u = (Unterminal)c.Symbols[i];
 							if (!replacesDictionary.ContainsKey(u))
-								replacesDictionary.Add(u,Unterminal.GetInstance(LastUseNumber++));
+								replacesDictionary.Add(u,Unterminal.GetInstance(++LastUseNumber));
 							c.Symbols[i] = replacesDictionary[u];
 						}
 			}
