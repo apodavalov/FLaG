@@ -19,7 +19,7 @@ diff -u old//sample2.2.tex new//sample2.2.tex
 +L &= \left\{{{\left\{{\left\{{a,b}\right\}^k}\right\}^2} \cdot {\left\{{\left\{{b,c}\right\}^m}\right\}^2}}\mid  \forall k \geq 0,m>0, \text{где } k,m  \text{ --- целые}\right\}=\\
 +&=\left\{{{\left\{{\left\{{a,b}\right\}^k}\right\}^2} \cdot {\left\{{\left\{{b,c}\right\}^m}\right\}^2}}\mid  \forall k \geq 0,m>0, \text{где } k,m  \text{ --- целые}\right\}=\\
 +&=\left\{ \left\{ \varepsilon, a, a^2, \dots, b, b^2, \dots, ab, (ab)^2, \dots, ab^2, ba^2, \dots \right\}^2 \cdot \left\{ b^2, \dots, c^2, \dots, b^2c^2, b^2c^4, \dots, c^2b^2, \dots \right\} \right\}= \\
-+&=\left\{ \left\{ \varepsilon, a^2, a^4, \dots, b^2, \dots, (ab)^2, \dots, (ab^2)^2, \dots \right\} \cdot \left\{ b^2, \dots, c^2, \dots, b^2c^2, b^2c^4, \dots, c^2b^2, \dots \right\} \right\}= \\
++&=\left\{ \left\{ \varepsilon, a, a^2, \dots, b, b^2, \dots, ab, (ab)^2, \dots, ab^2, ba^2, \dots \right\} \cdot \left\{ b^2, \dots, c^2, \dots, b^2c^2, b^2c^4, \dots, c^2b^2, \dots \right\} \right\}= \\
 +&=\left\{ \left\{ (a^kb^l)^{m} \right\} \cdot \left\{ (b+c)^2(b^nc^p)^{q} \right\} \mid \forall k,l,m,n,p,q \geq 0, \text{где } k,l,m,n,p,q \text{ --- целые} \right\}\end{split}
 +\end{equation}
 +
