@@ -13,6 +13,11 @@ all: pdf
 	mono Bin/FLaG.exe Samples/sample3.6.xml Output/sample3.6.tex
 	[ -f ./Samples/sample3.6.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample3.6.tex.patch
 
+./Output/sample2.1.tex: Samples/sample2.1.xml
+	[ -d ./Output ] || mkdir ./Output
+	mono Bin/FLaG.exe Samples/sample2.1.xml Output/sample2.1.tex
+	[ -f ./Samples/sample2.1.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample2.1.tex.patch
+
 ./Output/sample2.2.tex: Samples/sample2.2.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample2.2.xml Output/sample2.2.tex
@@ -124,6 +129,12 @@ tex: ./Output/sample5.5.tex ./Output/sample2.3.tex ./Output/sample4.2.tex ./Outp
 	pdflatex --output-directory=./Output ./Output/sample2.2.tex
 	pdflatex --output-directory=./Output ./Output/sample2.2.tex
 
+./Output/sample2.1.pdf: ./Output/sample2.1.tex
+	[ -d ./Output ] || mkdir ./Output
+	pdflatex --output-directory=./Output ./Output/sample2.1.tex
+	pdflatex --output-directory=./Output ./Output/sample2.1.tex
+	pdflatex --output-directory=./Output ./Output/sample2.1.tex
+
 ./Output/sample2.7.pdf: ./Output/sample2.7.tex
 	[ -d ./Output ] || mkdir ./Output
 	pdflatex --output-directory=./Output ./Output/sample2.7.tex
@@ -214,7 +225,7 @@ tex: ./Output/sample5.5.tex ./Output/sample2.3.tex ./Output/sample4.2.tex ./Outp
 	pdflatex --output-directory=./Output ./Output/sample1.2.tex
 	pdflatex --output-directory=./Output ./Output/sample1.2.tex
 
-pdf: ./Output/sample5.5.pdf ./Output/sample2.3.pdf ./Output/sample4.2.pdf ./Output/sample1.8.pdf ./Output/sample2.2.pdf ./Output/sampledz6.4.pdf ./Output/sampledz6.pdf ./Output/sample3.6.pdf ./Output/sample2.7.pdf ./Output/sample6.3.pdf ./Output/sample4.4.pdf ./Output/sample5.4.pdf ./Output/sample6.2.pdf ./Output/sample4.1.pdf ./Output/sample4.3.pdf ./Output/sample7.3.pdf ./Output/sample1.2.pdf ./Output/sample1.7.pdf ./Output/sample0.0.pdf ./Output/sample1.4.pdf
+pdf: ./Output/sample2.1.pdf ./Output/sample5.5.pdf ./Output/sample2.3.pdf ./Output/sample4.2.pdf ./Output/sample1.8.pdf ./Output/sample2.2.pdf ./Output/sampledz6.4.pdf ./Output/sampledz6.pdf ./Output/sample3.6.pdf ./Output/sample2.7.pdf ./Output/sample6.3.pdf ./Output/sample4.4.pdf ./Output/sample5.4.pdf ./Output/sample6.2.pdf ./Output/sample4.1.pdf ./Output/sample4.3.pdf ./Output/sample7.3.pdf ./Output/sample1.2.pdf ./Output/sample1.7.pdf ./Output/sample0.0.pdf ./Output/sample1.4.pdf
 
 clean:
 	rm -rf ./Output/*
