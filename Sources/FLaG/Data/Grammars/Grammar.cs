@@ -85,6 +85,7 @@ namespace FLaG.Data.Grammars
 				{
 					if (c.Symbols.Count == 0)
 					{
+						
 //						if (IsLeft)	
 //							automaton.AddEndStatus(status);
 //						else
