@@ -206,11 +206,8 @@ namespace FLaG.Data
 			if (oldval == val)
 			{
 				list.Add(this);
-				if (EntityCollection.Count < 3)
-					val++;
-				else
-					val+=EntityCollection.Count - 1;
-				NumLabel = val-1;
+				NumLabel = val;
+				val++;
 			}
 			
 			return val;
@@ -381,7 +378,7 @@ namespace FLaG.Data
 			}
 			else if (EntityCollection.Count == 1)
 			{
-				// TODO: сделать обработку на всякий случай
+				Grammar = EntityCollection[0].Grammar;
 			}
 			else
 			{
