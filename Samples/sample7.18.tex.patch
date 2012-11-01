@@ -1,0 +1,125 @@
+--- a/sample7.18.tex	2012-10-31 22:49:40.067020835 -0700
++++ b/sample7.18.tex	2012-10-31 22:59:17.281163937 -0700
+@@ -82,6 +82,86 @@
+ \tableofcontents
+ 
+ \newpage
++\section{Задание}
++Задан язык:
++\begin{equation}\label{eq:s0b1}
++\begin{split}
++L &= \left\{{{\left\{{\left\{a\right\}^2}\right\}^k},{{\left\{{\left\{b\right\}^2}\right\}^l} \cdot {\left\{{\left\{c\right\}^m}\right\}^2}}}\mid  \forall k \geq 0,l>0,m \geq 0, \text{где } k,l,m  \text{ --- целые}\right\}= \\
++&=\left\{{{\left\{{a a}\right\}^k},{{\left\{{b b}\right\}^l} \cdot {\left\{{\left\{c\right\}^m}\right\}^2}}}\mid  \forall k \geq 0,l>0,m \geq 0, \text{где } k,l,m  \text{ --- целые}\right\}\end{split}
++\end{equation}
++
++\section{Этап 1}
++Рассмотрим, какие цепочки принадлежат искомому множеству \emph{L}.
++\begin{equation}\label{eq:s1b1}
++\begin{split}
++L &= \left\{{{\left\{{\left\{a\right\}^2}\right\}^k},{{\left\{{\left\{b\right\}^2}\right\}^l} \cdot {\left\{{\left\{c\right\}^m}\right\}^2}}}\mid  \forall k \geq 0,l>0,m \geq 0, \text{где } k,l,m  \text{ --- целые}\right\}= \\
++&=\left\{{{\left\{{a a}\right\}^k},{{\left\{{b b}\right\}^l} \cdot {\left\{{\left\{c\right\}^m}\right\}^2}}}\mid  \forall k \geq 0,l>0,m \geq 0, \text{где } k,l,m  \text{ --- целые}\right\}\end{split}
++\end{equation}
++Проверим, к какому типу языков, по классификации Хомского, относится данный язык. Для этого воспользуемся леммой о разрастании
++регулярных языков.
++
++Доказательство разбивается на два этапа, так как язык \emph{L} --- это объединение двух языков, рассмотрим:
++\begin{equation*}
++\begin{split}
++L_1=\left\{{\left\{{a a}\right\}^k}\mid  \forall k \geq 0, \text{где } k \text{ --- целое}\right\}
++\end{split}
++\end{equation*}
++\begin{equation*}
++\begin{split}
++L_2=\left\{{\left\{{b b}\right\}^l} \cdot {\left\{{\left\{c\right\}^m}\right\}^2}\mid \forall l>0,m \geq 0, \text{где } l,m  \text{ --- целые}\right\}
++\end{split}
++\end{equation*}
++
++Итак, возьмем достаточно длинную цепочку символов, принадлежащую языку \begin{math}L_1\end{math}
++\begin{math}
++\alpha=a^{k_1}
++\end{math}, где \begin{math}k_1\end{math} --- константа (Например, цепочку \begin{math}\alpha=a^6\end{math}).
++Согласно лемме о разрастании регулярных языков требуется найти хотя бы одну подцепочку, для которой выполнялись бы условия леммы.
++Представим исходную цепочку \begin{math}\alpha\end{math} в виде \begin{math}\alpha=\gamma\beta\delta\end{math}, где 
++\begin{math}\beta=a^2, \gamma=a^2, \delta=a^2\end{math}. Теперь выполним повторения для выделенной подцепочки
++\begin{math}\beta\end{math}. В итоге получаем
++
++для \begin{math}i=0\end{math} цепочку вида \begin{math}\alpha'=\gamma{\beta}^0\delta=\gamma\delta=a^2a^2=a^4 \in L_1\end{math},
++
++для \begin{math}i=1\end{math} цепочку вида \begin{math}\alpha'=\gamma{\beta}^1\delta=\gamma\beta\delta=a^2a^2a^2=a^6 \in L_1\end{math},
++
++для \begin{math}i=2\end{math} цепочку вида \begin{math}\alpha'=\gamma{\beta}^2\delta=\gamma\beta\beta\delta=a^2a^2a^2a^2=a^8 \in L_1\end{math},
++
++\begin{math}\dots\end{math}
++
++для \begin{math}i=k\end{math} цепочку вида \begin{math}\alpha'=\gamma{\beta}^k\delta=\gamma{\underbrace{\beta\dots\beta}_\text{k раз}}\delta=a^2(a^{2k})a^2=a^{2(k+2)} \in L_1\end{math},
++
++\begin{math}\dots\end{math}
++
++Заметим, что существует такая цепочка, принадлежащая исходному языку, для которой выполняются условия леммы, а это
++значит, что данный язык \begin{math}L_1\end{math} является регулярным.
++
++Итак, возьмем достаточно длинную цепочку символов, принадлежащую языку \begin{math}L_2\end{math}
++\begin{math}\alpha=b^{k_2}c^{k_3}\end{math}, где \begin{math}k_2, k_3\end{math} --- константы 
++(Например, цепочку \begin{math}\alpha=b^6c^8\end{math}).
++Согласно лемме о разрастании регулярных языков требуется найти хотя бы одну подцепочку, для которой выполнялись бы условия леммы.
++Представим исходную цепочку \begin{math}\alpha\end{math} в виде \begin{math}\alpha=\gamma\beta\delta\end{math}, где 
++\begin{math}\beta=b^4, \gamma=b^2, \delta=c^8\end{math}. Теперь выполним повторения для выделенной подцепочки
++\begin{math}\beta\end{math}. В итоге получаем
++
++для \begin{math}i=0\end{math} цепочку вида \begin{math}\alpha'=\gamma{\beta}^0\delta=\gamma\delta=b^2c^8 \in L_2\end{math},
++
++для \begin{math}i=1\end{math} цепочку вида \begin{math}\alpha'=\gamma{\beta}^1\delta=\gamma\beta\delta=b^2b^4c^8=b^6c^8 \in L_2\end{math},
++
++для \begin{math}i=2\end{math} цепочку вида \begin{math}\alpha'=\gamma{\beta}^2\delta=\gamma\beta\beta\delta=b^2b^{8}c^8=b^{10}c^8 \in L_2\end{math},
++
++\begin{math}\dots\end{math}
++
++для \begin{math}i=k\end{math} цепочку вида \begin{math}\alpha'=\gamma{\beta}^k\delta=\gamma{\underbrace{\beta\dots\beta}_\text{k раз}}\delta=b^2(b^{4k})c^8=b^{4k+2}c^8 \in L_2\end{math},
++
++\begin{math}\dots\end{math}
++
++Заметим, что существует такая цепочка, принадлежащая исходному языку, для которой выполняются условия леммы, а это
++значит, что данный язык \begin{math}L_2\end{math} является регулярным.
++
++Языки \begin{math}L_1\end{math} и \begin{math}L_2\end{math} являются регулярными
++следовательно и язык \emph{L} является регулярным.
++
+ \section{Этап 2}
+ \subsection{Этап 2.1}
+ Перед построением регулярной грамматики для регулярного
+@@ -4923,7 +5003,7 @@
+ 
+ \begin{math}
+ {S_{7}}=
+-{{a}^{2}}{{({{a}^{2}})}^{*}} + {{b}^{2}}{{({{b}^{2}})}^{*}}{{c}^{*}}\end{math}.
++{{a}^{2}}{{({{a}^{2}})}^{*}} + {{b}^{2}}{{({{b}^{2}})}^{*}}{{c}^{*}}={({{a}^{2}})}^{+} + {{({{b}^{2}})}^{+}}{{c}^{*}}\end{math}.
+ \subsection{Этап 2.3 (правосторонняя)}
+ Построим праволинейную грамматику для выражения (\ref{eq:s2b2}). Воспользуемся рекурсивным определением регулярного выражения 
+ для построения последовательности грамматик каждого 
+@@ -9605,5 +9685,25 @@
+ 
+ \begin{math}
+ {S_{3}}=
+-{{a}^{2}}{{({{a}^{2}})}^{*}} + {{b}^{2}}{{({{b}^{2}})}^{*}}{{c}^{*}}\end{math}.
++{{a}^{2}}{{({{a}^{2}})}^{*}} + {{b}^{2}}{{({{b}^{2}})}^{*}}{{c}^{*}}={({{a}^{2}})}^{+} + {{({{b}^{2}})}^{+}}{{c}^{*}}\end{math}.
++
++\subsubsection{Этап 2.10.3}
++Так как регулярные выражения для леволинейной и праволинейной грамматик совпали далее не будем подразделять шаги.
++Очевидно, что данное выражение описывает множество почти эквивалентное исходному. Разница лишь в том, что
++множеству описанному данным регулярным выражением не принадлежит пустая цепочка, в отличие от множества, заданного
++исходным регулярным выражением. Докажим это, добавив возможность вывода пустой цепочки к полученному регулярному выражению.
++
++\begin{math}{({{a}^{2}})}^{+} + {{({{b}^{2}})}^{+}}{{c}^{*}} + \varepsilon={{({{a}^{2}})}^{*}} + {{({{b}^{2}})}^{+}}{{({{c}^{*}})}^{2}}\end{math}
++
++Для полученного регулярного выражения построим регулярное множество, которое примет вид
++\begin{equation}\label{eq:s1023b1}
++\begin{split}
++L' &= \left\{{{\left\{{\left\{a\right\}^2}\right\}^k},{{\left\{{\left\{b\right\}^2}\right\}^l} \cdot {\left\{{\left\{c\right\}^m}\right\}^2}}}\mid  \forall k \geq 0,l>0,m \geq 0, \text{где } k,l,m  \text{ --- целые}\right\}= \\
++&=\left\{{{\left\{{a a}\right\}^k},{{\left\{{b b}\right\}^l} \cdot {\left\{{\left\{c\right\}^m}\right\}^2}}}\mid  \forall k \geq 0,l>0,m \geq 0, \text{где } k,l,m  \text{ --- целые}\right\}
++\end{split}
++\end{equation}
++
++\subsubsection{Этап 2.10.4}
++Сравним полученное множество (\ref{eq:s1023b1}) с исходным (\ref{eq:s0b1}). Языки задаются абсолютно одинаково.
++Рассматривать цепочки смысла не имеет. Языки эквивалентны.
+ \end{document}
