@@ -182,8 +182,13 @@ namespace FLaG.Data
 			if (oldval == val)
 			{
 				list.Add(this);
-				NumLabel = val;
-				val++;
+
+	  		    if (EntityCollection.Count < 3)
+                	val++;
+                else
+                    val+=EntityCollection.Count - 1;
+
+				NumLabel = val-1;
 			}
 			
 			return val;
