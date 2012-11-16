@@ -232,7 +232,8 @@ namespace FLaG.Output
 			WriteLine(@"\vspace{\fill}");
 			WriteLine();
 			WriteLine(@"\begin{center}");
-			WriteLine(@"Казань \\2011");
+			Write(@"Казань \\");
+			WriteLine(DateTime.Now.Year);
 			WriteLine(@"\end{center}");			
 			WriteLine();
 			WriteLine(@"\end{titlepage}");
