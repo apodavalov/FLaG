@@ -58,7 +58,7 @@ diff -u old//sample1.8.tex new//sample1.8.tex
  {S_{10}}=
 -abab{{(ab)}^{*}}(\varepsilon  + bcb{{(cbcb)}^{*}}c)\end{math}.
 +abab{{(ab)}^{*}}(\varepsilon  + bcb{{(cbcb)}^{*}}c)=((ab)^{+})^2((bc)^2)^{*}\end{math}.
- \subsection{Этап 2.3 (правосторонняя)}
+ \subsubsection{Этап 2.3.1 (правосторонняя)}
  Построим праволинейную грамматику для выражения (\ref{eq:s2b2}). Воспользуемся рекурсивным определением регулярного выражения 
  для построения последовательности грамматик каждого 
 @@ -11835,5 +11879,18 @@
@@ -68,7 +68,7 @@ diff -u old//sample1.8.tex new//sample1.8.tex
 -abab{{(ab)}^{*}}(\varepsilon  + bcbc{{(bcbc)}^{*}})\end{math}.
 +abab{{(ab)}^{*}}(\varepsilon  + bcbc{{(bcbc)}^{*}})=((ab)^{+})^2((bc)^2)^{*}\end{math}.
 +
-+\subsubsection{Этап 2.10.3}
++\subsubsection{Этап 2.11.4}
 +Так как регулярные выражения для леволинейной и праволинейной грамматик совпали далее не будем подразделять шаги.
 +Для полученного регулярного выражения построим регулярное множество, которое примет вид
 +\begin{equation}\label{eq:s1023b1}
@@ -76,7 +76,7 @@ diff -u old//sample1.8.tex new//sample1.8.tex
 +L' &= \left\{{{\left\{{\left\{{a b}\right\}^k}\right\}^2} \cdot {\left\{{\left\{{b c}\right\}^2}\right\}^m}}\mid  \forall k>0,m \geq 0, \text{где } k,m  \text{ --- целые}\right\}\end{split}
 +\end{equation}
 +
-+\subsubsection{Этап 2.10.4}
++\subsubsection{Этап 2.11.5}
 +Сравним полученное множество (\ref{eq:s1023b1}) с исходным (\ref{eq:s0b1}). Языки задаются абсолютно одинаково.
 +Рассматривать цепочки смысла не имеет. Языки эквивалентны.
 +

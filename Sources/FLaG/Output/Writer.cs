@@ -166,6 +166,7 @@ namespace FLaG.Output
 			WriteLine(@"\renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}.}");
 			// Команда для вставки изображения
 			WriteLine(@"\newcommand{\imgh}[4]{\begin{figure}[h]\center{\includegraphics[width=#1]{#2}}\caption{#3}\label{#4}\end{figure}}");
+			WriteLine(@"\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}\par}");
 			WriteLine(@"\tolerance=10000");			
 			WriteLine(@"\begin{document}");
 			WriteLine(@"\begin{titlepage}");
@@ -239,10 +240,10 @@ namespace FLaG.Output
 			WriteLine(@"\end{titlepage}");
 			WriteLine();
 			WriteLine(@"\newpage");
-			WriteLine(@"\setcounter{tocdepth}{3}");
+			WriteLine(@"\setcounter{tocdepth}{4}");
 			WriteLine(@"\setcounter{secnumdepth}{-1}");
 			WriteLine(@"\newcounter{sectocnonumdepth}");
-			WriteLine(@"\setcounter{sectocnonumdepth}{3}");
+			WriteLine(@"\setcounter{sectocnonumdepth}{4}");
 			WriteLine(@"\tableofcontents");
 			WriteLine();
 			WriteLine(@"\newpage");
@@ -304,10 +305,10 @@ namespace FLaG.Output
 			WriteLine(@"\end{equation}");
 		}
 		
-		private void Step2_3(bool isLeft)
+		private void Step2_3_1(bool isLeft)
 		{			
-			Write(@"\subsection{");
-			Write("Этап 2.3",true);
+			Write(@"\subsubsection{");
+			Write("Этап 2.3.1",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -372,10 +373,10 @@ namespace FLaG.Output
 				RightSidedGrammar = entities[entities.Count - 1].Grammar;
 		}
 		
-		private void Step2_4(bool isLeft)
+		private void Step2_3_2(bool isLeft)
 		{
-			Write(@"\subsection{");
-			Write("Этап 2.4",true);
+			Write(@"\subsubsection{");
+			Write("Этап 2.3.2",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -399,10 +400,10 @@ namespace FLaG.Output
 			WriteLine(@"т.е. правил которые могут привести к зацикливанию алгоритма."); */
 		}
 		
-		private void Step2_4_1(bool isLeft)
+		private void Step2_3_2_1(bool isLeft)
 		{
-			Write(@"\subsubsection{");
-			Write("Этап 2.4.1",true);
+			Write(@"\subsubsubsection{");
+			Write("Этап 2.3.2.1",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -422,10 +423,10 @@ namespace FLaG.Output
 			}
 		}
 		
-		private bool Step2_4_2(bool isLeft, bool again)
+		private bool Step2_3_2_3(bool isLeft, bool again)
 		{
-			Write(@"\subsubsection{");
-			Write("Этап 2.4.2",true);
+			Write(@"\subsubsubsection{");
+			Write("Этап 2.3.2.3",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -441,15 +442,14 @@ namespace FLaG.Output
 				changed = LeftSidedGrammar.RemoveUnreachedSyms(this, FirstLeftSidedFreeNumber++);
 			else
 				changed = RightSidedGrammar.RemoveUnreachedSyms(this, FirstRightSidedFreeNumber++);
-			
 		
 			return changed;
 		}
 		
-		private bool Step2_4_3(bool isLeft)
+		private bool Step2_3_2_2(bool isLeft)
 		{
-			Write(@"\subsubsection{");
-			Write("Этап 2.4.3",true);
+			Write(@"\subsubsubsection{");
+			Write("Этап 2.3.2.2",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -467,10 +467,10 @@ namespace FLaG.Output
 			return changed;
 		}
 		
-		private bool Step2_4_4(bool isLeft)
+		private bool Step2_3_2_4(bool isLeft)
 		{
-			Write(@"\subsubsection{");
-			Write("Этап 2.4.4",true);
+			Write(@"\subsubsubsection{");
+			Write("Этап 2.3.2.4",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -488,10 +488,10 @@ namespace FLaG.Output
 			return changed;
 		}
 		
-		private bool Step2_4_5(bool isLeft)
+		private bool Step2_3_2_5(bool isLeft)
 		{
-			Write(@"\subsubsection{");
-			Write("Этап 2.4.5",true);
+			Write(@"\subsubsubsection{");
+			Write("Этап 2.3.2.5",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -509,10 +509,10 @@ namespace FLaG.Output
 			return changed;
 		}
 		
-		private void Step2_5_1(bool isLeft)
+		private void Step2_3_3_1(bool isLeft)
 		{
-			Write(@"\subsubsection{");
-			Write("Этап 2.5.1",true);
+			Write(@"\subsubsubsection{");
+			Write("Этап 2.3.3.1",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -533,24 +533,24 @@ namespace FLaG.Output
 		{
 			bool somethingChanged;
 			
-			Step2_4_2(isLeft,false);
+			Step2_3_2_3(isLeft,false);
 			
 			WriteLine(@"После удаления недостижимых символов следующим шагом приведения",true);
 			WriteLine(@"грамматики является удаление бесплодных (бесполезных) символов.",true);		
 			
-			somethingChanged = Step2_4_3(isLeft);
+			somethingChanged = Step2_3_2_2(isLeft);
 			
 			WriteLine(@"После удаления бесплодных символов следующим шагом приведения",true);
 			WriteLine(@"грамматики является удаление пустых правил (или",true);
 			WriteLine(@"\begin{math}\varepsilon\end{math}");
 			WriteLine(@"-правил).",true);
 			
-			somethingChanged |=	Step2_4_4(isLeft);
+			somethingChanged |=	Step2_3_2_4(isLeft);
 			
 			WriteLine(@"После удаления пустых правил следующим шагом приведения",true);
 			WriteLine(@"грамматики является удаление цепных правил.",true);
 			
-			somethingChanged |= Step2_4_5(isLeft);
+			somethingChanged |= Step2_3_2_5(isLeft);
 			
 			if (!somethingChanged)
 			{
@@ -561,15 +561,15 @@ namespace FLaG.Output
 			{
 				WriteLine(@"Итак, так как в результате приведения грамматики произошло",true);
 				WriteLine(@"ее изменение, то мы должны повторить алгоритм приведения снова.",true);
-				Step2_4_2(isLeft,true);
+				Step2_3_2_3(isLeft,true);
 				WriteLine(@"Переходим к построению конечного автомата для данной грамматики.",true);
 			}		
 		}
 		
-		private void Step2_5(bool isLeft)
+		private void Step2_3_3(bool isLeft)
 		{
-			Write(@"\subsection{");
-			Write("Этап 2.5",true);
+			Write(@"\subsubsection{");
+			Write("Этап 2.3.3",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -580,10 +580,10 @@ namespace FLaG.Output
 			WriteLine(@"На этом шаге для приведенной грамматики строим конечный автомат.",true);			
 		}
 		
-		private void Step2_5_2(bool isLeft)
+		private void Step2_3_3_2(bool isLeft)
 		{
-			Write(@"\subsubsection{");
-			Write("Этап 2.5.2",true);
+			Write(@"\subsubsubsection{");
+			Write("Этап 2.3.3.2",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -601,10 +601,10 @@ namespace FLaG.Output
 				nRightAutomaton = automaton;		
 		}
 		
-		private void Step2_5_3(bool isLeft)
+		private void Step2_3_3_3(bool isLeft)
 		{
-			Write(@"\subsubsection{");
-			Write("Этап 2.5.3",true);
+			Write(@"\subsubsubsection{");
+			Write("Этап 2.3.3.3",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -666,10 +666,10 @@ namespace FLaG.Output
 			WriteLine(@".",true);
 		}
 		
-		private void Step2_6(bool isLeft)
+		private void Step2_5(bool isLeft)
 		{
 			Write(@"\subsection{");
-			Write("Этап 2.6",true);
+			Write("Этап 2.5",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -706,10 +706,10 @@ namespace FLaG.Output
 				WriteLine("НКА т.к. не каждое состояние имеет ровно одну функцию перехода для каждого возможного символа.", true);
 		}
 	
-		private void Step2_7(bool isLeft)
+		private void Step2_6(bool isLeft)
 		{
 			Write(@"\subsection{");
-			Write("Этап 2.7",true);
+			Write("Этап 2.6",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -726,10 +726,10 @@ namespace FLaG.Output
 				dRightAutomaton = newAutomaton;
 		}
 		
-		private void Step2_7_1(bool isLeft)
+		private void Step2_7(bool isLeft)
 		{
-			Write(@"\subsubsection{");
-			Write("Этап 2.7.1",true);
+			Write(@"\subsection{");
+			Write("Этап 2.7",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -746,10 +746,10 @@ namespace FLaG.Output
 				nRightAutomaton = nAutomaton;
 		}
 		
-		private void Step2_7_2(bool isLeft)
+		private void Step2_8(bool isLeft)
 		{
-			Write(@"\subsubsection{");
-			Write("Этап 2.7.2",true);
+			Write(@"\subsection{");
+			Write("Этап 2.8",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -775,10 +775,10 @@ namespace FLaG.Output
 				InsertImage(image,OutputFileNamePrefix + fileSuffix,label,caption);
 		}
 		
-		private void Step2_8(bool isLeft)
+		private void Step2_9(bool isLeft)
 		{
 			Write(@"\subsection{");
-			Write("Этап 2.8",true);
+			Write("Этап 2.9",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -791,10 +791,10 @@ namespace FLaG.Output
 			automaton.Minimize(this);
 		}
 		
-		private void Step2_9(bool isLeft)
+		private void Step2_10(bool isLeft)
 		{
 			Write(@"\subsection{");
-			Write("Этап 2.9",true);
+			Write("Этап 2.10",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -825,10 +825,10 @@ namespace FLaG.Output
 			WriteLine(@"\end{document}");
         }
 
-		public void Step2_10 (bool isLeft)
+		public void Step2_11 (bool isLeft)
 		{
 			Write(@"\subsection{");
-			Write("Этап 2.10",true);
+			Write("Этап 2.11",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -841,10 +841,10 @@ namespace FLaG.Output
 			WriteLine(@"цепочек допускает данный конечный автомат.",true);
 		}
 
-		public void Step2_10_1 (bool isLeft)
+		public void Step2_11_1 (bool isLeft)
 		{
 			Write(@"\subsubsection{");
-			Write("Этап 2.10.1",true);
+			Write("Этап 2.11.1",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -862,10 +862,10 @@ namespace FLaG.Output
 				RightSidedGrammar = grammar;
 		}
 		
-		public void Step2_10_2(bool isLeft)
+		public void Step2_11_2(bool isLeft)
 		{
 			Write(@"\subsubsection{");
-			Write("Этап 2.10.2",true);
+			Write("Этап 2.11.2",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -927,51 +927,51 @@ namespace FLaG.Output
             Step1();
 			Step2();
             Step2_1();
-			Step2_2();		
+			Step2_2();
 			entities = lang.MarkDeepest();
-			Step2_3(true);
-			Step2_4(true);			
-			Step2_4_1(true);
+			Step2_3_1(true);
+			Step2_3_2(true);
+			Step2_3_2_1(true);
 			StepOptimizeGrammatic(true);
+			Step2_3_3(true);
+			Step2_3_3_1(true);
+			Step2_3_3_2(true);
+			Step2_3_3_3(true);
 			Step2_5(true);
-			Step2_5_1(true);
-			Step2_5_2(true);
-			Step2_5_3(true);
-			Step2_6(true);
 			
 			if (dLeftAutomaton == null)
-				Step2_7(true);
+				Step2_6(true);
 			
-			Step2_7_1(true);
-			Step2_7_2(true);
+			Step2_7(true);
 			Step2_8(true);
 			Step2_9(true);
 			Step2_10(true);
-			Step2_10_1(true);
-			Step2_10_2(true);
+			Step2_11(true);
+			Step2_11_1(true);
+			Step2_11_2(true);
 			
-			Step2_3(false);						
-			Step2_4(false);			
-			Step2_4_1(false);
+			Step2_3_1(false);
+			Step2_3_2(false);
+			Step2_3_2_1(false);
 						
 			StepOptimizeGrammatic(false);
 			
+			Step2_3_3(false);
+			Step2_3_3_1(false);
+			Step2_3_3_2(false);
+			Step2_3_3_3(false);
 			Step2_5(false);
-			Step2_5_1(false);			
-			Step2_5_2(false);
-			Step2_5_3(false);
-			Step2_6(false);
 			
 			if (dRightAutomaton == null)
-				Step2_7(false);
+				Step2_6(false);
 			
-			Step2_7_1(false);
-			Step2_7_2(false);
+			Step2_7(false);
 			Step2_8(false);
-			Step2_9(false);			
+			Step2_9(false);
 			Step2_10(false);
-			Step2_10_1(false);
-			Step2_10_2(false);
+			Step2_11(false);
+			Step2_11_1(false);
+			Step2_11_2(false);
 
             WriteEndDoc();
 		}
