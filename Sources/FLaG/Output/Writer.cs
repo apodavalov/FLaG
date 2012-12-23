@@ -446,7 +446,7 @@ namespace FLaG.Output
 			return changed;
 		}
 		
-		private bool Step2_3_2_2(bool isLeft)
+		private bool Step2_3_2_2(bool isLeft, bool again)
 		{
 			Write(@"\subsubsubsection{");
 			Write("Этап 2.3.2.2",true);
@@ -454,6 +454,8 @@ namespace FLaG.Output
 				Write(" (левосторонняя",true);
 			else
 				Write(" (правосторонняя",true);
+			if (again)
+				Write(", повтор",true);
 			Write(")",true);
 			WriteLine(@"}");
 			
@@ -531,16 +533,14 @@ namespace FLaG.Output
 		
 		public void StepOptimizeGrammatic(bool isLeft)
 		{
-			bool somethingChanged;
-			
-			Step2_3_2_3(isLeft,false);
-			
-			WriteLine(@"После удаления недостижимых символов следующим шагом приведения",true);
-			WriteLine(@"грамматики является удаление бесплодных (бесполезных) символов.",true);		
-			
-			somethingChanged = Step2_3_2_2(isLeft);
-			
+			bool somethingChanged = Step2_3_2_2(isLeft,false);
+
 			WriteLine(@"После удаления бесплодных символов следующим шагом приведения",true);
+			WriteLine(@"грамматики является удаление недостижимых символов.",true);
+
+			somethingChanged |= Step2_3_2_3(isLeft,false);
+
+			WriteLine(@"После удаления недостижимых символов следующим шагом приведения",true);
 			WriteLine(@"грамматики является удаление пустых правил (или",true);
 			WriteLine(@"\begin{math}\varepsilon\end{math}");
 			WriteLine(@"-правил).",true);
@@ -560,7 +560,8 @@ namespace FLaG.Output
 			else
 			{
 				WriteLine(@"Итак, так как в результате приведения грамматики произошло",true);
-				WriteLine(@"ее изменение, то мы должны повторить алгоритм приведения снова.",true);
+				WriteLine(@"ее изменение, то мы должны повторить удаление бесплодных и недостижимых символов.",true);
+				Step2_3_2_2(isLeft,true);
 				Step2_3_2_3(isLeft,true);
 				WriteLine(@"Переходим к построению конечного автомата для данной грамматики.",true);
 			}		
@@ -928,6 +929,9 @@ namespace FLaG.Output
 			Step2();
             Step2_1();
 			Step2_2();
+			Write(@"\subsection{");
+			Write("Этап 2.3 (левосторонняя)",true);
+			WriteLine(@"}");
 			entities = lang.MarkDeepest();
 			Step2_3_1(true);
 			Step2_3_2(true);
@@ -949,7 +953,11 @@ namespace FLaG.Output
 			Step2_11(true);
 			Step2_11_1(true);
 			Step2_11_2(true);
-			
+
+			Write(@"\subsection{");
+			Write("Этап 2.3 (правосторонняя)",true);
+			WriteLine(@"}");
+
 			Step2_3_1(false);
 			Step2_3_2(false);
 			Step2_3_2_1(false);
