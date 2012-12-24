@@ -284,7 +284,8 @@ namespace FLaG.Data.Automaton
 				arrow.AddSymbol(func.Symbol);
 			}
 			
-			double r = MakeRByFontAndStatuses(stateFont,subscriptFont, statuses); 
+			double r = MakeRByFontAndStatuses(stateFont,subscriptFont, statuses);
+			double startStateR = r - 10.0;
 			
 			double alpha = 2 * Math.PI / statuses.Length;
 			
@@ -322,6 +323,16 @@ namespace FLaG.Data.Automaton
 					
 					g.DrawEllipse(drawPen, rect);
 					
+					if (InitialStatus.CompareTo(statuses[i]) == 0)
+					{
+						lc = l * Math.Cos(i * alpha) - startStateR;
+						tc = l * Math.Sin(i * alpha) - startStateR;
+
+						rect = new RectangleF((float)lc,(float)tc,(float)(2 * startStateR),(float)(2 * startStateR));
+
+						g.DrawEllipse(pen,rect);
+					}
+
 					DrawCenteredStatusName(g, stateFont, subscriptFont, rect, statuses[i]);
 				}
 			
