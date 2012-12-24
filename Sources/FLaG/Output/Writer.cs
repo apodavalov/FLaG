@@ -18,8 +18,12 @@ namespace FLaG.Output
 		private Lang lang;
 		private Grammar LeftSidedGrammar;
 		private Grammar RightSidedGrammar;
+		private NAutomaton LeftSidedAutomaton;
+		private NAutomaton RightSidedAutomaton;
 		private int FirstLeftSidedFreeNumber;
 		private int FirstRightSidedFreeNumber;
+		private int FirstLeftSidedAutomatonFreeNumber;
+		private int FirstRightSidedAutomatonFreeNumber;
 		private NAutomaton nLeftAutomaton;
 		private NAutomaton nRightAutomaton;
 		
@@ -906,6 +910,65 @@ namespace FLaG.Output
 			exp.Save(this);
 			WriteLine(@"\end{math}.");
 		}
+
+		public void Step2_4(bool isLeft)
+		{
+			Write(@"\subsection{");
+			Write("Этап 2.4",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
+			WriteLine(@"}");
+			
+			Write("Построим конечный автомат по регулярному выражению ",true);
+			Write(@"(\ref{eq:s2b2})");
+			WriteLine(@". Воспользуемся рекурсивным определением регулярного выражения ", true);
+			WriteLine(@"для построения последовательности конечных автоматов каждого ", true);
+			WriteLine(@"элементарного регулярного выражения, входящего в состав выражения ", true);
+			Write(@"(\ref{eq:s2b2})");
+			WriteLine(@". Собственно, последний конечный автомат",true);
+			WriteLine(@" и будет являться искомым. Определим ", true);
+			WriteLine(@" совокупность выражений, входящих в состав исходного выражения ", true);
+			WriteLine(@"(\ref{eq:s2b2}).");
+			WriteLine(@"\begin{equation*}");			
+			lang.SaveAsRegularExp(this,true);		
+			WriteLine();
+			WriteLine(@"\end{equation*}");
+			WriteLine();
+			WriteLine(@"Построим конечные автоматы для указанных выражений.",true);
+
+			// Вычисляем автоматы для регулярного выражения.
+			// Все данные для вычисления грамматик в необходимом порядке очередности
+			// Находятся в entities			
+			
+			// Уничтожаем сформированные грамматики 
+			for (int i = 0; i < entities.Count; i++)
+				entities[i].Automaton = null;		
+			
+			WriteLine(@"\begin{enumerate}");
+			
+			int LastUseNumber = entities.Count + 1;
+			int AddionalAutomatonsNumber = entities.Count + 1;
+			
+			// Создаем грамматики
+			for (int i = 0; i < entities.Count; i++)
+				entities[i].GenerateAutomaton(this,isLeft,ref LastUseNumber, ref AddionalAutomatonsNumber);
+			
+			if (isLeft)
+				FirstLeftSidedAutomatonFreeNumber = Math.Max(AddionalAutomatonsNumber,LastUseNumber);
+			else
+				FirstRightSidedAutomatonFreeNumber = Math.Max(AddionalAutomatonsNumber,LastUseNumber);
+						
+			WriteLine(@"\end{enumerate}");
+			
+			// FIXME: А если нет ни одной?
+			if (isLeft)
+				LeftSidedAutomaton = entities[entities.Count - 1].Automaton;
+			else
+				RightSidedAutomaton = entities[entities.Count - 1].Automaton;
+		}
 		
 		public void InsertImage(Image image, string fileName, string label, string caption)
 		{
@@ -941,6 +1004,7 @@ namespace FLaG.Output
 			Step2_3_3_1(true);
 			Step2_3_3_2(true);
 			Step2_3_3_3(true);
+			Step2_4(true);
 			Step2_5(true);
 			
 			if (dLeftAutomaton == null)
@@ -968,6 +1032,7 @@ namespace FLaG.Output
 			Step2_3_3_1(false);
 			Step2_3_3_2(false);
 			Step2_3_3_3(false);
+			Step2_4(false);
 			Step2_5(false);
 			
 			if (dRightAutomaton == null)

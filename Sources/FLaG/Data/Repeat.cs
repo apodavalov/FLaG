@@ -98,6 +98,126 @@ namespace FLaG.Data
 			
 			return val;
 		}
+
+		public override void GenerateAutomaton (Writer writer, bool isLeft, ref int LastUseNumber, ref int AddionalAutomatonsNum)
+		{
+			Automaton = new FLaG.Data.Automaton.NAutomaton ();
+			Automaton.IsLeft = isLeft;
+			Automaton.Number = NumLabel.Value;
+
+			int num = 1;
+
+			foreach (FLaG.Data.Automaton.NStatus s in Entity.Automaton.Statuses)
+				if (num < s.Number)
+					num = s.Number.Value;
+
+			num++;
+
+			Automaton.InitialStatus = new FLaG.Data.Automaton.NStatus ('S', num);
+
+			foreach (FLaG.Data.Automaton.NTransitionFunc f in Entity.Automaton.Functions) {
+				if (Entity.Automaton.EndStatuses.BinarySearch (f.OldStatus) < 0)
+					Automaton.AddFunc (f);
+			}
+
+			foreach (FLaG.Data.Automaton.NTransitionFunc f in Entity.Automaton.Functions)
+			{
+				if (f.OldStatus.CompareTo(Entity.Automaton.InitialStatus) == 0)
+				{
+					foreach (FLaG.Data.Automaton.NStatus s in Entity.Automaton.EndStatuses) 
+					{
+						Automaton.AddFunc(new FLaG.Data.Automaton.NTransitionFunc(
+							s,f.Symbol,f.NewStatus));
+					}
+				}
+			}
+
+			foreach (FLaG.Data.Automaton.NTransitionFunc f in Entity.Automaton.Functions)
+			{
+				if (f.OldStatus.CompareTo(Entity.Automaton.InitialStatus) == 0)
+				{
+					Automaton.AddFunc(new FLaG.Data.Automaton.NTransitionFunc(
+						Automaton.InitialStatus,f.Symbol,f.NewStatus));
+				}
+			}
+
+			foreach (FLaG.Data.Automaton.NStatus s in Entity.Automaton.EndStatuses) 
+				Automaton.AddEndStatus(s);
+
+			if (!AtLeastOne)
+				Automaton.AddEndStatus(Automaton.InitialStatus);
+
+			writer.WriteLine(@"\item");
+			writer.WriteLine("Для выражения" , true);
+			writer.WriteLine(@"\begin{math}");
+			SaveAsRegularExp(writer, false);
+			writer.WriteLine();
+			writer.WriteLine(@"\end{math}");
+			writer.Write(@", которое является ", true);
+			if (AtLeastOne)
+				writer.Write("положительной ", true);
+			writer.WriteLine(@"итерацией выражения с построенным конечным автоматом",true);
+			writer.WriteLine(@"\begin{math}");
+			Entity.Automaton.SaveCortege(writer);			
+			writer.WriteLine(@"\end{math}");			
+			writer.WriteLine(@", построим конечный автомат", true);
+			writer.WriteLine(@"\begin{math}");
+			Automaton.SaveCortege(writer);			
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine (@"где", true);			
+			writer.WriteLine (@"\begin{math}");
+			Automaton.SaveQ (writer);
+			writer.WriteLine (@"=");
+			Entity.Automaton.SaveQ(writer);
+			writer.WriteLine (@"\cup");
+			Automaton.InitialStatus.Save(writer,isLeft);
+			writer.WriteLine (@"=");
+			Entity.Automaton.SaveStatuses(writer);
+			writer.WriteLine (@"\cup");
+			Automaton.InitialStatus.Save(writer,isLeft);
+			writer.WriteLine (@"=");
+			Automaton.SaveStatuses (writer);
+			writer.WriteLine (@"\end{math}");
+			writer.WriteLine (@"--- конечное множество состояний автомата,", true);
+			writer.WriteLine (@"\begin{math}");
+			Automaton.SaveSigma (writer);
+			writer.WriteLine (@"=");
+			Entity.Automaton.SaveSigma (writer);
+			writer.WriteLine (@"=");
+			Automaton.SaveAlphabet (writer);
+			writer.WriteLine (@"\end{math}");
+			writer.WriteLine (@"--- входной алфавит автомата (конечное множество допустимых входных символов),", true);
+			writer.WriteLine (@"\begin{math}");
+			Automaton.SaveDelta (writer);
+			writer.WriteLine (@"=");
+			Automaton.SaveFunctions (writer);
+			writer.WriteLine (@"\end{math}");
+			writer.WriteLine (@"--- множество функций переходов,", true);
+			writer.WriteLine (@"\begin{math}");
+			Automaton.SaveQ0 (writer);
+			writer.WriteLine (@"=");
+			Automaton.InitialStatus.Save (writer, isLeft);
+			writer.WriteLine (@"\end{math}");
+			writer.WriteLine (@"--- начальное состояние автомата.", true);
+			writer.WriteLine (@"\begin{math}");
+			Automaton.SaveS (writer);
+			writer.WriteLine (@"=");
+			Entity.Automaton.SaveS(writer);
+			if (!AtLeastOne) 
+			{
+				writer.WriteLine (@"\cup");
+				Automaton.InitialStatus.Save(writer,isLeft);
+				writer.WriteLine (@"=");
+				Entity.Automaton.SaveEndStatuses(writer);
+				writer.WriteLine (@"\cup");
+				Automaton.InitialStatus.Save(writer,isLeft);
+			}
+			writer.WriteLine (@"=");
+			Automaton.SaveEndStatuses(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- заключительное состояние (конечное множество заключительных состояний).",true);
+			writer.WriteLine();
+		}
 		
 		public override void GenerateGrammar(Writer writer, bool isLeft, ref int LastUseNumber, ref int AddionalGrammarsNum)
 		{

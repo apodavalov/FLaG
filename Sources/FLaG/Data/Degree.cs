@@ -196,6 +196,83 @@ namespace FLaG.Data
 			
 			return val;
 		}
+
+		public override void GenerateAutomaton (Writer writer, bool isLeft, ref int LastUseNumber, ref int AddionalAutomatonsNum)
+		{
+			if (!(Exp is Number))
+				return;
+			
+			Number number = (Number)Exp;
+
+			int degree = number.Value;
+			
+			if (degree <= 0) 
+			{
+				// TODO: обработать на всякий случай
+			}
+			else if (degree == 1) 
+			{
+				// TODO: обработать на всякий случай
+			}
+			else 
+			{
+				writer.WriteLine(@"\item");
+				writer.WriteLine(@"Выполним построение в несколько подэтапов.",true);
+				writer.WriteLine(@"\begin{enumerate}");				
+				writer.WriteLine(@"\item");
+				writer.WriteLine(@"Для выражения",true);
+				writer.WriteLine(@"\begin{math}");
+				SaveAsRegularExp(writer,false);
+				writer.WriteLine();
+				writer.WriteLine(@"\end{math}");
+				writer.Write(@", которое является конкатенацией ",true);
+				writer.WriteLine(@" выражений вида",true);
+				writer.WriteLine(@"\begin{math}");
+				Base.SaveAsRegularExp(writer,false);
+				writer.WriteLine();
+				writer.WriteLine(@"\end{math}");
+				writer.WriteLine(@"и для которых построены конечные автоматы ",true);
+				
+				Concat concat = new Concat();
+				concat.EntityCollection.Add(Base);
+				
+				for (int i = 1; i < degree; i++)
+				{
+					Entity e = Base.DeepClone();
+					e.Automaton = Base.Automaton.MakeMirror(ref LastUseNumber, ref AddionalAutomatonsNum);
+					concat.EntityCollection.Add(e);
+				}
+				
+				concat.NumLabel = NumLabel;
+
+				writer.WriteLine(@"\begin{math}");
+				for (int i = 0; i < concat.EntityCollection.Count; i++)
+				{
+					if (i != 0)
+						writer.Write(@",");
+					
+					concat.EntityCollection[i].Automaton.SaveCortege(writer);
+				}
+				writer.WriteLine(@"\end{math}");
+				writer.WriteLine(@"построим конечный автомат ");
+				
+				writer.WriteLine(@"\begin{math}");
+				// Создаем временно автомат
+				Automaton = new FLaG.Data.Automaton.NAutomaton();
+				Automaton.IsLeft = isLeft;
+				Automaton.Number = NumLabel.Value;
+				Automaton.SaveCortege(writer);
+				Automaton = null;
+				writer.WriteLine(@"\end{math}.");
+				writer.WriteLine();
+
+				concat.GenerateAutomaton(writer,isLeft,ref LastUseNumber, ref AddionalAutomatonsNum);
+				
+				Automaton = concat.Automaton;
+				
+				writer.WriteLine(@"\end{enumerate}");
+			}
+		}
 		
 		public override void GenerateGrammar(Writer writer, bool isLeft, ref int LastUseNumber, ref int AddionalGrammarsNum)
 		{

@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml;
 using FLaG.Output;
 using FLaG.Data.Grammars;
+using FLaG.Data.Automaton;
 
 namespace FLaG.Data
 {
@@ -21,8 +22,16 @@ namespace FLaG.Data
 			get;
 			set;
 		}
+
+		public NAutomaton Automaton
+		{
+			get;
+			set;
+		}
 		
 		public abstract void GenerateGrammar(Writer writer, bool isLeft, ref int LastUseNumber, ref int AddionalGrammarsNum);
+
+		public abstract void GenerateAutomaton(Writer writer, bool isLeft, ref int LastUseNumber, ref int AdditionalAutomatonsNum);
 		
 		public abstract Entity DeepClone();
 		

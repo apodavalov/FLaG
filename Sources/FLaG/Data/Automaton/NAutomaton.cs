@@ -11,6 +11,120 @@ namespace FLaG.Data.Automaton
 {
 	class NAutomaton
 	{
+		public NAutomaton DeepClone ()
+		{
+			NAutomaton a = new NAutomaton();
+
+			a.InitialStatus = InitialStatus;
+
+			foreach (NTransitionFunc func in Functions)
+				a.AddFunc(func);
+
+			foreach (NStatus endStatus in EndStatuses)
+				a.AddEndStatus(endStatus);
+
+			return a;
+		}
+
+		public FLaG.Data.Automaton.NAutomaton MakeMirror (ref int LastUseNumber, ref int AddionalAutomatonsNum)
+		{
+			NAutomaton a = DeepClone();
+			
+			a.Number = ++AddionalAutomatonsNum;
+						
+			return a;
+		}
+
+		public void MakeNonIntersectStatusesWith (Writer writer, NAutomaton other)
+		{
+			if (other.Statuses.Length == 0)
+				return;
+
+			if (Statuses.Length == 0)
+				return;
+
+			int minStatus = -1;
+			int maxStatus = -1;
+
+			foreach (NStatus status in other.Statuses) 
+				if (maxStatus < status.Number)
+					maxStatus = status.Number.Value;
+
+			foreach (NStatus status in Statuses) 
+				if (minStatus > status.Number || minStatus < 0)
+					minStatus = status.Number.Value;
+
+			if (minStatus > maxStatus) 
+				return;
+
+			int v = maxStatus - minStatus + 1;
+
+			writer.WriteLine (@"Переименуем состояния автомата", true);
+			writer.WriteLine (@"\begin{math}");
+			SaveCortege (writer);
+			writer.WriteLine (@"\end{math},");
+			writer.WriteLine (@"так, чтобы наименования состояний не пересекались с автоматом", true);
+			writer.WriteLine (@"\begin{math}");
+			other.SaveCortege (writer);
+			writer.WriteLine (@"\end{math}.");
+
+			List<NTransitionFunc> funcs = Functions;
+
+			Functions = new List<NTransitionFunc> ();
+
+			foreach (NTransitionFunc func in funcs) 
+				AddFunc (new NTransitionFunc (new NStatus(func.OldStatus.Value, func.OldStatus.Number.Value + v), func.Symbol,
+			            new NStatus (func.NewStatus.Value, func.NewStatus.Number.Value + v))
+				);
+
+			List<NStatus> endStatuses = EndStatuses;
+
+			EndStatuses = new List<NStatus> ();
+
+			foreach (NStatus st in endStatuses)
+				AddEndStatus(new NStatus(st.Value,st.Number.Value + v));
+
+	        InitialStatus = new NStatus(InitialStatus.Value,InitialStatus.Number.Value + v);
+
+			writer.WriteLine (@"Таким образом, получаем автомат", true);
+			writer.WriteLine(@"\begin{math}");
+			SaveCortege(writer);
+			writer.WriteLine(@"\end{math},");
+			writer.WriteLine(@"где",true);			
+			writer.WriteLine(@"\begin{math}");
+			SaveQ(writer);
+			writer.WriteLine(@"=");
+			SaveStatuses(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- конечное множество состояний автомата,",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveSigma(writer);
+			writer.WriteLine(@"=");
+			SaveAlphabet(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- входной алфавит автомата (конечное множество допустимых входных символов),",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveDelta(writer);
+			writer.WriteLine(@"=");
+			SaveFunctions(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- множество функций переходов,",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveQ0(writer);
+			writer.WriteLine(@"=");
+			InitialStatus.Save(writer,IsLeft);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- начальное состояние автомата,",true);
+			writer.WriteLine(@"\begin{math}");
+			SaveS(writer);
+			writer.WriteLine(@"=");
+			SaveEndStatuses(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- заключительное состояние (конечное множество заключительных состояний).",true);
+			writer.WriteLine();
+
+		}
+
 		void DrawArrow (Graphics g, PointF point, float angle)
 		{
 			Matrix state = g.Transform;
@@ -28,7 +142,7 @@ namespace FLaG.Data.Automaton
 			
 			g.FillPolygon(Brushes.Black,pp);
 			
- 			g.Transform = state;
+			g.Transform = state;
 		}
 		
 		private void DrawDirectedLine(Graphics g, float x1, float y1, float x2, float y2, float r, Pen pen, Font font, string text, float upped)

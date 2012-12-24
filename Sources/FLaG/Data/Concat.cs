@@ -374,6 +374,173 @@ namespace FLaG.Data
 			writer.WriteLine(@"\end{math}.");
 			return grammar;
 		}
+
+		private FLaG.Data.Automaton.NAutomaton MergeAutomatons (FLaG.Data.Automaton.NAutomaton automaton1, FLaG.Data.Automaton.NAutomaton automaton2, Concat concat, int Number, Writer writer, bool isLeft)
+		{
+			FLaG.Data.Automaton.NAutomaton automaton = new FLaG.Data.Automaton.NAutomaton ();
+			
+			writer.WriteLine (@"\item");
+			writer.WriteLine ("Для выражения вида", true);
+			writer.WriteLine (@"\begin{math}");
+			concat.SaveAsRegularExp (writer, false);
+			writer.WriteLine ();
+			writer.WriteLine (@"\end{math}");
+			writer.WriteLine (@", являющегося конкатенацией выражений с построенными конечными автоматами ", true);
+			writer.WriteLine (@"\begin{math}");
+			automaton1.SaveCortege (writer);			
+			writer.WriteLine (@"\end{math}");
+			writer.WriteLine (@",", true);
+			writer.WriteLine (@"\begin{math}");
+			automaton2.SaveCortege (writer);			
+			writer.WriteLine (@"\end{math}");
+			writer.WriteLine ("соответственно, строим конечный автомат ", true);
+			
+			automaton.Number = Number;
+			automaton.IsLeft = isLeft;
+
+			writer.WriteLine (@"\begin{math}");
+			automaton.SaveCortege (writer);			
+			writer.WriteLine (@"\end{math}.");
+
+			automaton2.MakeNonIntersectStatusesWith (writer, automaton1);
+
+			foreach (FLaG.Data.Automaton.NTransitionFunc f in automaton1.Functions) 
+				if (automaton1.EndStatuses.BinarySearch (f.OldStatus) < 0)
+					automaton.AddFunc (f);
+
+			foreach (FLaG.Data.Automaton.NTransitionFunc f in automaton2.Functions) 
+			{
+				if (f.OldStatus.CompareTo(automaton2.InitialStatus) == 0)
+				{
+					foreach (FLaG.Data.Automaton.NStatus s in automaton1.EndStatuses)
+						automaton.AddFunc(new FLaG.Data.Automaton.NTransitionFunc(s,f.Symbol,f.NewStatus));
+				}
+			}
+
+			foreach (FLaG.Data.Automaton.NTransitionFunc f in automaton2.Functions) 
+				automaton.AddFunc (f);
+
+			foreach (FLaG.Data.Automaton.NStatus s in automaton2.EndStatuses)
+				automaton.AddEndStatus (s);
+
+			bool flag = automaton2.EndStatuses.BinarySearch (automaton2.InitialStatus) >= 0;
+
+			if (flag) 
+			{
+				foreach (FLaG.Data.Automaton.NStatus s in automaton1.EndStatuses)
+					automaton.AddEndStatus (s);
+			}
+
+			automaton.InitialStatus = automaton1.InitialStatus;
+
+			writer.WriteLine ("Строим конечный автомат ", true);
+			writer.WriteLine (@"\begin{math}");
+			automaton.SaveCortege (writer);
+			writer.WriteLine (@"\end{math},");
+			writer.WriteLine (@"где", true);			
+			writer.WriteLine (@"\begin{math}");
+			automaton.SaveQ (writer);
+			writer.WriteLine (@"=");
+			automaton1.SaveQ (writer);
+			writer.WriteLine (@"\cup");
+			automaton2.SaveQ (writer);
+			writer.WriteLine (@"=");
+			automaton1.SaveStatuses (writer);
+			writer.WriteLine (@"\cup");
+			automaton2.SaveStatuses (writer);
+			writer.WriteLine (@"=");
+			automaton.SaveStatuses (writer);
+			writer.WriteLine (@"\end{math}");
+			writer.WriteLine (@"--- конечное множество состояний автомата,", true);
+			writer.WriteLine (@"\begin{math}");
+			automaton.SaveSigma (writer);
+			writer.WriteLine (@"=");
+			automaton1.SaveSigma (writer);
+			writer.WriteLine (@"\cup");
+			automaton2.SaveSigma (writer);
+			writer.WriteLine (@"=");
+			automaton1.SaveAlphabet (writer);
+			writer.WriteLine (@"\cup");
+			automaton2.SaveAlphabet (writer);
+			writer.WriteLine (@"=");
+			automaton.SaveAlphabet (writer);
+			writer.WriteLine (@"\end{math}");
+			writer.WriteLine (@"--- входной алфавит автомата (конечное множество допустимых входных символов),", true);
+			writer.WriteLine (@"\begin{math}");
+			automaton.SaveDelta (writer);
+			writer.WriteLine (@"=");
+			automaton.SaveFunctions (writer);
+			writer.WriteLine (@"\end{math}");
+			writer.WriteLine (@"--- множество функций переходов,", true);
+			writer.WriteLine (@"\begin{math}");
+			automaton.SaveQ0 (writer);
+			writer.WriteLine (@"=");
+			automaton.InitialStatus.Save (writer, isLeft);
+			writer.WriteLine (@"\end{math}");
+			writer.WriteLine (@"--- начальное состояние автомата.", true);
+			writer.WriteLine (@"Так как начальное состояние автомата ");
+			writer.WriteLine (@"\begin{math}");
+			automaton2.SaveCortege(writer);
+			writer.WriteLine (@"\end{math}");
+			if (flag) 
+				writer.WriteLine(@"входит в множество конечных состояних, то ", true);
+			else
+				writer.WriteLine(@"не входит в множество конечных состояних, то ", true);
+			writer.WriteLine (@"\begin{math}");
+			automaton.SaveS (writer);
+			writer.WriteLine (@"=");
+			if (flag) 
+			{
+				automaton1.SaveS(writer);
+				writer.WriteLine (@"\cup");
+				automaton2.SaveS(writer);
+				writer.WriteLine (@"=");
+				automaton1.SaveEndStatuses(writer);
+				writer.WriteLine (@"\cup");
+				automaton2.SaveEndStatuses(writer);
+			}
+			else 
+			{
+				automaton2.SaveS(writer);			
+			}
+			writer.WriteLine (@"=");
+			automaton.SaveEndStatuses(writer);
+			writer.WriteLine(@"\end{math}");
+			writer.WriteLine(@"--- заключительное состояние (конечное множество заключительных состояний).",true);
+			writer.WriteLine();
+
+			return automaton;
+		}
+
+		public override void GenerateAutomaton(Writer writer, bool isLeft, ref int LastUseNumber, ref int AddionalAutomatonsNum)
+		{
+			if (EntityCollection.Count == 0)
+			{
+				// TODO: сделать обработку на всякий случай
+			}
+			else if (EntityCollection.Count == 1)
+			{
+				Automaton = EntityCollection[0].Automaton;
+			}
+			else
+			{
+				Automaton = EntityCollection[0].Automaton;				
+				
+				for (int i = 1; i < EntityCollection.Count; i++)	
+				{
+					int Number = NumLabel.Value - EntityCollection.Count + 1 + i;	
+					
+					FLaG.Data.Automaton.NAutomaton concatAutomaton = EntityCollection[i].Automaton;
+					
+					Concat concat = new Concat();
+					
+					for (int j = 0; j <= i; j++)
+						concat.EntityCollection.Add(EntityCollection[j]);
+					
+					Automaton = MergeAutomatons(Automaton, concatAutomaton, concat, Number, writer, isLeft);
+				}				
+			}
+		}
 		
 		public override void GenerateGrammar(Writer writer, bool isLeft, ref int LastUseNumber, ref int AddionalGrammarsNum)
 		{
