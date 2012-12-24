@@ -115,8 +115,14 @@ namespace FLaG.Data
 
 			Automaton.InitialStatus = new FLaG.Data.Automaton.NStatus ('S', num);
 
+			foreach (FLaG.Data.Automaton.NStatus s in Entity.Automaton.EndStatuses) 
+				Automaton.AddEndStatus(s);
+
+			if (!AtLeastOne)
+				Automaton.AddEndStatus(Automaton.InitialStatus);
+
 			foreach (FLaG.Data.Automaton.NTransitionFunc f in Entity.Automaton.Functions) {
-				if (Entity.Automaton.EndStatuses.BinarySearch (f.OldStatus) < 0)
+				//if (Automaton.EndStatuses.BinarySearch (f.OldStatus) < 0)
 					Automaton.AddFunc (f);
 			}
 
@@ -140,12 +146,6 @@ namespace FLaG.Data
 						Automaton.InitialStatus,f.Symbol,f.NewStatus));
 				}
 			}
-
-			foreach (FLaG.Data.Automaton.NStatus s in Entity.Automaton.EndStatuses) 
-				Automaton.AddEndStatus(s);
-
-			if (!AtLeastOne)
-				Automaton.AddEndStatus(Automaton.InitialStatus);
 
 			writer.WriteLine(@"\item");
 			writer.WriteLine("Для выражения" , true);

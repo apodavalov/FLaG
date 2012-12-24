@@ -358,6 +358,18 @@ namespace FLaG.Data
 
 			automaton.InitialStatus = new FLaG.Data.Automaton.NStatus('S',num);
 
+			bool flag = automaton1.EndStatuses.BinarySearch(automaton1.InitialStatus) >= 0 ||
+				automaton2.EndStatuses.BinarySearch(automaton2.InitialStatus) >= 0;
+
+			if (flag)
+				automaton.AddEndStatus(automaton.InitialStatus);
+
+			foreach (FLaG.Data.Automaton.NStatus s in automaton1.EndStatuses)
+				automaton.AddEndStatus (s);
+
+			foreach (FLaG.Data.Automaton.NStatus s in automaton2.EndStatuses)
+				automaton.AddEndStatus (s);
+
 			foreach (FLaG.Data.Automaton.NTransitionFunc f in automaton1.Functions) 
 			{
 				automaton.AddFunc (f);
@@ -377,18 +389,6 @@ namespace FLaG.Data
 				if (f.OldStatus.CompareTo(automaton2.InitialStatus) == 0)
 					automaton.AddFunc(new FLaG.Data.Automaton.NTransitionFunc(automaton.InitialStatus,f.Symbol,f.NewStatus));
 			}
-
-			bool flag = automaton1.EndStatuses.BinarySearch(automaton1.InitialStatus) >= 0 ||
-				automaton2.EndStatuses.BinarySearch(automaton2.InitialStatus) >= 0;
-
-			if (flag)
-				automaton.AddEndStatus(automaton.InitialStatus);
-
-			foreach (FLaG.Data.Automaton.NStatus s in automaton1.EndStatuses)
-				automaton.AddEndStatus (s);
-
-			foreach (FLaG.Data.Automaton.NStatus s in automaton2.EndStatuses)
-				automaton.AddEndStatus (s);
 
 			writer.WriteLine ("Строим конечный автомат ", true);
 			writer.WriteLine (@"\begin{math}");

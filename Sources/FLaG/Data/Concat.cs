@@ -404,9 +404,20 @@ namespace FLaG.Data
 
 			automaton2.MakeNonIntersectStatusesWith (writer, automaton1);
 
-			foreach (FLaG.Data.Automaton.NTransitionFunc f in automaton1.Functions) 
-				if (automaton1.EndStatuses.BinarySearch (f.OldStatus) < 0)
+			foreach (FLaG.Data.Automaton.NStatus s in automaton2.EndStatuses)
+				automaton.AddEndStatus (s);
+
+			bool flag = automaton2.EndStatuses.BinarySearch (automaton2.InitialStatus) >= 0;
+
+			if (flag) {
+				foreach (FLaG.Data.Automaton.NStatus s in automaton1.EndStatuses)
+					automaton.AddEndStatus (s);
+			}
+
+			foreach (FLaG.Data.Automaton.NTransitionFunc f in automaton1.Functions) {
+			//	if (automaton1.EndStatuses.BinarySearch (f.OldStatus) < 0)
 					automaton.AddFunc (f);
+			}
 
 			foreach (FLaG.Data.Automaton.NTransitionFunc f in automaton2.Functions) 
 			{
@@ -419,17 +430,6 @@ namespace FLaG.Data
 
 			foreach (FLaG.Data.Automaton.NTransitionFunc f in automaton2.Functions) 
 				automaton.AddFunc (f);
-
-			foreach (FLaG.Data.Automaton.NStatus s in automaton2.EndStatuses)
-				automaton.AddEndStatus (s);
-
-			bool flag = automaton2.EndStatuses.BinarySearch (automaton2.InitialStatus) >= 0;
-
-			if (flag) 
-			{
-				foreach (FLaG.Data.Automaton.NStatus s in automaton1.EndStatuses)
-					automaton.AddEndStatus (s);
-			}
 
 			automaton.InitialStatus = automaton1.InitialStatus;
 

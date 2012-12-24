@@ -29,6 +29,9 @@ namespace FLaG.Output
 		
 		private DAutomaton dLeftAutomaton;
 		private DAutomaton dRightAutomaton;
+
+		private DAutomaton DLeftSidedAutomaton;
+		private DAutomaton DRightSidedAutomaton;
 		
 		public string OutputFileNamePrefix
 		{
@@ -682,53 +685,103 @@ namespace FLaG.Output
 			Write(")",true);
 			WriteLine(@"}");
 			
-			WriteLine(@"На этом шаге проверяем, является ли построенный конечный автомат детерминированным.",true);
-			WriteLine(@"Если он недетерминированный, то строим для него детерминированный конечный автомат (ДКА).",true);
+			WriteLine(@"На этом шаге проверяем, являются ли построенные конечные автоматы детерминированным.",true);
+			WriteLine(@"Если автомат недетерминированный, то строим для него детерминированный конечный автомат (ДКА).",true);
 			WriteLine(@"Один из наиболее важных результатов теории конечных автоматов состоит в том, что класс языков,",true);
 			WriteLine(@"определяемых нетерминированными конечными автоматами, совпадает с классом языков, определяемых",true);
 			WriteLine(@"детерминированными конечными автоматами. Это означает, что для любого недерминированного конечного",true);
 			WriteLine(@"автомата (НКА) всегда можно построить детерминированный конечный автомат, определяющий тот же язык.",true);
-			
+
+			WriteLine();
+
 			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;
-			
-			bool dfa = automaton.IsDFA();
-			
-			WriteLine(@"Рассматривая множество функций переходов построенного конечного автомата",true);
-			WriteLine(@"\begin{math}");
-			automaton.SaveM(this);
-			WriteLine(@"\end{math}.");
-			Write(@"Видим, что автомат является ",true);
-			if (dfa)
+			DAutomaton newAutomaton = StepAutomatonDFA(automaton);
+
+			if (newAutomaton != null)
 			{
-				WriteLine("ДКА т.к. каждое состояние имеет ровно одну функцию перехода для каждого возможного символа.",true);
-				DAutomaton newAutomaton = automaton.MakeSimpliest();
 				if (isLeft)
 					dLeftAutomaton = newAutomaton;
 				else
 					dRightAutomaton = newAutomaton;
 			}
-			else
-				WriteLine("НКА т.к. не каждое состояние имеет ровно одну функцию перехода для каждого возможного символа.", true);
+
+			WriteLine();
+
+			automaton = isLeft ? LeftSidedAutomaton : RightSidedAutomaton;
+			newAutomaton = StepAutomatonDFA(automaton);
+
+			if (newAutomaton != null)
+			{
+				if (isLeft)
+					DLeftSidedAutomaton = newAutomaton;
+				else
+					DRightSidedAutomaton = newAutomaton;
+			}
+		}
+
+		private DAutomaton StepAutomatonDFA (NAutomaton automaton)
+		{
+			bool dfa = automaton.IsDFA ();
+			
+			WriteLine (@"Рассматривая множество функций переходов построенного конечного автомата", true);
+			WriteLine (@"\begin{math}");
+			automaton.SaveM (this);
+			WriteLine (@"\end{math}.");
+			Write (@"Видим, что автомат является ", true);
+			if (dfa) {
+				WriteLine ("ДКА т.к. каждое состояние имеет ровно одну функцию перехода для каждого возможного символа.", true);
+				DAutomaton newAutomaton = automaton.MakeSimpliest ();
+				return newAutomaton;
+			} else {
+				WriteLine ("НКА т.к. не каждое состояние имеет ровно одну функцию перехода для каждого возможного символа.", true);
+				return null;
+			}
 		}
 	
-		private void Step2_6(bool isLeft)
+		private void Step2_6 (bool isLeft)
 		{
-			Write(@"\subsection{");
-			Write("Этап 2.6",true);
+			if (isLeft) {
+				if (dLeftAutomaton != null && DLeftSidedAutomaton != null)
+					return;
+			} else {
+				if (dRightAutomaton != null && DRightSidedAutomaton != null)
+					return;			
+			}
+
+			Write (@"\subsection{");
+			Write ("Этап 2.6", true);
 			if (isLeft)
-				Write(" (левосторонняя",true);
+				Write (" (левосторонняя", true);
 			else
-				Write(" (правосторонняя",true);
-			Write(")",true);
-			WriteLine(@"}");
-			
+				Write (" (правосторонняя", true);
+			Write (")", true);
+			WriteLine (@"}");
+
 			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;
-			DAutomaton newAutomaton = automaton.MakeDeterministic(this);
+			DAutomaton newAutomaton = isLeft ? dLeftAutomaton : dRightAutomaton;
+
+			if (newAutomaton == null) {
+				newAutomaton = automaton.MakeDeterministic (this);
 			
-			if (isLeft)
-				dLeftAutomaton = newAutomaton;
-			else
-				dRightAutomaton = newAutomaton;
+				if (isLeft)
+					dLeftAutomaton = newAutomaton;
+				else
+					dRightAutomaton = newAutomaton;
+			}
+
+			WriteLine();
+
+			automaton = isLeft ? LeftSidedAutomaton : RightSidedAutomaton;
+			newAutomaton = isLeft ? DLeftSidedAutomaton : DRightSidedAutomaton;
+
+			if (newAutomaton == null) {
+				newAutomaton = automaton.MakeDeterministic (this);
+			
+				if (isLeft)
+					DLeftSidedAutomaton = newAutomaton;
+				else
+					DRightSidedAutomaton = newAutomaton;
+			}
 		}
 		
 		private void Step2_7(bool isLeft)
@@ -749,6 +802,16 @@ namespace FLaG.Output
 				nLeftAutomaton = nAutomaton;
 			else
 				nRightAutomaton = nAutomaton;
+
+			WriteLine();
+
+			automaton = isLeft ? DLeftSidedAutomaton : DRightSidedAutomaton;
+			nAutomaton = automaton.RemoveUnreachedStates(this);
+			
+			if (isLeft)
+				LeftSidedAutomaton = nAutomaton;
+			else
+				RightSidedAutomaton = nAutomaton;
 		}
 		
 		private void Step2_8(bool isLeft)
@@ -794,6 +857,13 @@ namespace FLaG.Output
 			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;
 			
 			automaton.Minimize(this);
+
+			WriteLine ();
+
+			automaton = isLeft ? LeftSidedAutomaton : RightSidedAutomaton;
+			
+			automaton.Minimize(this);
+
 		}
 		
 		private void Step2_10(bool isLeft)
@@ -921,7 +991,8 @@ namespace FLaG.Output
 				Write(" (правосторонняя",true);
 			Write(")",true);
 			WriteLine(@"}");
-			
+
+			WriteLine(@"В данному пункте будем использовать изолированную от остальных пунктов нумерацию автоматов.");			
 			Write("Построим конечный автомат по регулярному выражению ",true);
 			Write(@"(\ref{eq:s2b2})");
 			WriteLine(@". Воспользуемся рекурсивным определением регулярного выражения ", true);
@@ -962,7 +1033,15 @@ namespace FLaG.Output
 				FirstRightSidedAutomatonFreeNumber = Math.Max(AddionalAutomatonsNumber,LastUseNumber);
 						
 			WriteLine(@"\end{enumerate}");
-			
+
+			entities[entities.Count - 1].Automaton.Number = 5;
+
+			WriteLine();
+			WriteLine(@"Далее (на следующих этапах) будем использовать следующее обозначение полученного автомата",true);
+			WriteLine(@"\begin{math}");
+			entities[entities.Count - 1].Automaton.SaveCortege(this);
+			WriteLine(@"\end{math}.");
+
 			// FIXME: А если нет ни одной?
 			if (isLeft)
 				LeftSidedAutomaton = entities[entities.Count - 1].Automaton;
@@ -1005,11 +1084,8 @@ namespace FLaG.Output
 			Step2_3_3_2(true);
 			Step2_3_3_3(true);
 			Step2_4(true);
-			Step2_5(true);
-			
-			if (dLeftAutomaton == null)
-				Step2_6(true);
-			
+			Step2_5(true);			
+			Step2_6(true);			
 			Step2_7(true);
 			Step2_8(true);
 			Step2_9(true);
@@ -1034,10 +1110,7 @@ namespace FLaG.Output
 			Step2_3_3_3(false);
 			Step2_4(false);
 			Step2_5(false);
-			
-			if (dRightAutomaton == null)
-				Step2_6(false);
-			
+			Step2_6(false);
 			Step2_7(false);
 			Step2_8(false);
 			Step2_9(false);
