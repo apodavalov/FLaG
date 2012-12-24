@@ -723,7 +723,7 @@ namespace FLaG.Output
 		{
 			bool dfa = automaton.IsDFA ();
 			
-			WriteLine (@"Рассматривая множество функций переходов построенного конечного автомата", true);
+			WriteLine (@"{\bf Рассматриваем множество функций переходов построенного конечного автомата}");
 			WriteLine (@"\begin{math}");
 			automaton.SaveM (this);
 			WriteLine (@"\end{math}.");
@@ -794,6 +794,19 @@ namespace FLaG.Output
 				Write(" (правосторонняя",true);
 			Write(")",true);
 			WriteLine(@"}");
+
+			WriteLine(@"Выполним удаление недостижимых состояний построенных ДКА. Для ",true);
+			WriteLine(@"этого будем использовать два дополнительных множества: ",true);
+			WriteLine(@"множество достижимых состояний ",true);
+			WriteLine(@"\begin{math}");
+			WriteLine("R");
+			WriteLine(@"\end{math}");
+			WriteLine(@"и множество текущих активных состояний на каждом шаге алгоритма ",true);
+			WriteLine(@"\begin{math}");
+			WriteLine("P_i");
+			WriteLine(@"\end{math}.");
+			WriteLine(@"Результатом работы алгоритма является полное множество достижимых состояний.",true);
+			WriteLine();
 			
 			DAutomaton automaton = isLeft ? dLeftAutomaton : dRightAutomaton;
 			NAutomaton nAutomaton = automaton.RemoveUnreachedStates(this);
@@ -853,6 +866,14 @@ namespace FLaG.Output
 				Write(" (правосторонняя",true);
 			Write(")",true);
 			WriteLine(@"}");
+
+			WriteLine(@"Алгоритм минимизации конечного автомата заключается в следующем:",true);
+			WriteLine(@"из автомата исключаются все недостижимые состояния; строятся классы",true);
+			WriteLine(@"эквивалентности автомата; классы эквивалентности состояний исходного ДКА",true);
+			WriteLine(@"становятся состояниями результирующего конечного автомата; множество функций",true);
+			WriteLine(@"переходов результирующего конечного автомата строятся на основе",true);
+			WriteLine(@"множества функций переходов исходного ДКА.",true);
+			WriteLine();
 			
 			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;
 			

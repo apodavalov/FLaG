@@ -107,18 +107,11 @@ namespace FLaG.Data.Automaton
 		
 		public NAutomaton RemoveUnreachedStates (Writer writer)
 		{
-			writer.WriteLine(@"Выполним удаление недостижимых состояний построенного ДКА. Для ",true);
-			writer.WriteLine(@"этого будем использовать два дополнительных множества: ",true);
-			writer.WriteLine(@"множество достижимых состояний ",true);
+			writer.WriteLine(@"{\bf Выполним удаление недостижимых символов автомата}");
 			writer.WriteLine(@"\begin{math}");
-			SaveR(writer);
-			writer.WriteLine(@"\end{math}");
-			writer.WriteLine(@"и множество текущих активных состояний на каждом шаге алгоритма ",true);
-			writer.WriteLine(@"\begin{math}");
-			writer.WriteLine("P_i");
+			SaveCortege(writer);
 			writer.WriteLine(@"\end{math}.");
-			writer.WriteLine(@"Результатом работы алгоритма является полное множество достижимых состояний.",true);
-			writer.WriteLine();
+
 			writer.WriteLine(@"На первом шаге работы алгоритма получаем",true);
 			
 			int i = 0;

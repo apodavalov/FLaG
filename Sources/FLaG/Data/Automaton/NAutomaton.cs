@@ -719,7 +719,7 @@ namespace FLaG.Data.Automaton
 		
 		public void Minimize(Writer writer)
 		{
-			writer.WriteLine(@"Выполним минимизацию состояний для построенного детерминированного автомата",true);
+			writer.WriteLine(@"{\bf Выполним минимизацию состояний для построенного детерминированного автомата}");
 			writer.WriteLine(@"\begin{math}");
 			SaveCortege(writer);
 			writer.WriteLine(@"\end{math},");
@@ -728,13 +728,6 @@ namespace FLaG.Data.Automaton
 			writer.WriteLine(@"\begin{math}");
 			SaveCortege(writer);
 			writer.WriteLine(@"\end{math}.");
-			writer.WriteLine();
-			writer.WriteLine(@"Алгоритм минимизации конечного автомата заключается в следующем:",true);
-			writer.WriteLine(@"из автомата исключаются все недостижимые состояния; строятся классы",true);
-			writer.WriteLine(@"эквивалентности автомата; классы эквивалентности состояний исходного ДКА",true);
-			writer.WriteLine(@"становятся состояниями результирующего конечного автомата; множество функций",true);
-			writer.WriteLine(@"переходов результирующего конечного автомата строятся на основе",true);
-			writer.WriteLine(@"множества функций переходов исходного ДКА.",true);
 			writer.WriteLine();
 			writer.WriteLine(@"Выполним по шагам приведенный алгоритм минимизации количества состояний ДКА.",true);
 			writer.WriteLine(@"На первом шаге этого алгоритма нужно выполнить удаление недостижимых состояний.",true);
@@ -1143,7 +1136,7 @@ namespace FLaG.Data.Automaton
 		{
 			DAutomaton automaton = _MakeDeterministic();
 			
-			writer.WriteLine(@"Построим для недетерминированного конечного автомата детерминированный конечный автомат", true);
+			writer.WriteLine(@"{\bf Построим для недетерминированного конечного автомата детерминированный конечный автомат}");
 			writer.WriteLine(@"\begin{math}");
 			automaton.SaveCortege(writer);
 			writer.WriteLine(@"\end{math}.");
