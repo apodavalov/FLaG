@@ -668,6 +668,7 @@ namespace FLaG.Output
 
 			using (Image image = automaton.MakeDiagram())
 				InsertImage(image,OutputFileNamePrefix + fileSuffix,label,caption);
+
 			WriteLine();
 			Write(@"Диаграмма состояний конечного автомата представлена на рис. ",true);
 			Write(@"\ref{" + label + "}");
@@ -837,23 +838,50 @@ namespace FLaG.Output
 				Write(" (правосторонняя",true);
 			Write(")",true);
 			WriteLine(@"}");
-			
+
+			string caption = "Диаграмма состояний детерминированного конечного автомата";
+
 			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;	
 			
 			string fileSuffix = isLeft ? "2l.png" : "2r.png";
 			string label = isLeft ? "img:rl2" : "img:rr2";
-			string caption = "Диаграмма состояний детерминированного конечного автомата";
+
+			DiagramOutput(automaton,fileSuffix,label,caption);
+
+			WriteLine ();
+
+			automaton = isLeft ? LeftSidedAutomaton : RightSidedAutomaton;	
 			
-			WriteLine(@"Построим диаграмму состояний детерминированного конечного автомата",true);
-			WriteLine(@"\begin{math}");
-			automaton.SaveM(this);
-			WriteLine(@"\end{math}");
-			Write(@"(см. рис. ",true);
-			Write(@"\ref{" + label + "}");
-			WriteLine(@").",true);
+			fileSuffix = isLeft ? "4l.png" : "4r.png";
+			label = isLeft ? "img:rl4" : "img:rr4";
+
+			DiagramOutput(automaton,fileSuffix,label,caption);
+		}
+
+		private void DiagramOutput (NAutomaton automaton, string fileName, string label, string caption)
+		{
+			WriteLine (@"Построим диаграмму состояний конечного автомата", true);
+			WriteLine (@"\begin{math}");
+			automaton.SaveM (this);
+			WriteLine (@"\end{math}");
+			Write (@"(см. рис. ", true);
+			Write (@"\ref{" + label + "}");
+			WriteLine (@").", true);
 			
-			using (Image image = automaton.MakeDiagram())
-				InsertImage(image,OutputFileNamePrefix + fileSuffix,label,caption);
+			using (Image image = automaton.MakeDiagram()) 
+			{
+				FileInfo fileInfo = new FileInfo(OutputFileNamePrefix + fileName);
+				image.Save(fileInfo.FullName); 		
+				int widthInInches = (int)(image.Width / image.HorizontalResolution * 25.4);			
+				if (widthInInches > 160) widthInInches = 160;
+				Write(@"\imgh{" + widthInInches + "mm}{");
+				Write(Path.Combine("Output",fileInfo.Name),true);
+				Write(@"}{");
+				WriteLine(caption,true);
+				Write(@"}{");
+				Write(label,true);
+				WriteLine(@"}");
+			}
 		}
 		
 		private void Step2_9(bool isLeft)
@@ -887,33 +915,34 @@ namespace FLaG.Output
 
 		}
 		
-		private void Step2_10(bool isLeft)
+		private void Step2_10 (bool isLeft)
 		{
-			Write(@"\subsection{");
-			Write("Этап 2.10",true);
+			Write (@"\subsection{");
+			Write ("Этап 2.10", true);
 			if (isLeft)
-				Write(" (левосторонняя",true);
+				Write (" (левосторонняя", true);
 			else
-				Write(" (правосторонняя",true);
-			Write(")",true);
-			WriteLine(@"}");
+				Write (" (правосторонняя", true);
+			Write (")", true);
+			WriteLine (@"}");
+
+			string caption = "Диаграмма состояний минимального ДКА";
 			
-			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;		
+			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;	
 			
 			string fileSuffix = isLeft ? "3l.png" : "3r.png";
 			string label = isLeft ? "img:rl3" : "img:rr3";
-			string caption = "Диаграмма состояний минимального ДКА";
+
+			DiagramOutput(automaton,fileSuffix,label,caption);
+
+			WriteLine ();
+
+			automaton = isLeft ? LeftSidedAutomaton : RightSidedAutomaton;	
 			
-			WriteLine(@"Построим диаграмму состояний минимального автомата",true);
-			WriteLine(@"\begin{math}");
-			automaton.SaveM(this);
-			WriteLine(@"\end{math}");
-			Write(@"(см. рис. ",true);
-			Write(@"\ref{" + label + "}");
-			WriteLine(@").",true);
-			
-			using (Image image = automaton.MakeDiagram())
-				InsertImage(image,OutputFileNamePrefix + fileSuffix,label,caption);
+			fileSuffix = isLeft ? "5l.png" : "5r.png";
+			label = isLeft ? "img:rl5" : "img:rr5";
+
+			DiagramOutput(automaton,fileSuffix,label,caption);
 		}
 
         private void WriteEndDoc()
