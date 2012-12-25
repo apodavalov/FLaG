@@ -1074,7 +1074,7 @@ namespace FLaG.Data.Automaton
 		
 		private DAutomaton _MakeDeterministic()
 		{
-			RemoveUnreachedStates();
+			// RemoveUnreachedStates();
 			DAutomaton automaton = new DAutomaton();
 			automaton.Number = Number + 1;
 			automaton.IsLeft = IsLeft;
