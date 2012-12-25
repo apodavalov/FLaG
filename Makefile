@@ -75,7 +75,7 @@ all: pdf
 ./Output/sample6.63.tex: Samples/sample6.63.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample6.63.xml Output/sample6.63.tex
-#	[ -f ./Samples/sample6.63.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample6.63.tex.patch
+	[ -f ./Samples/sample6.63.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample6.63.tex.patch
 
 ./Output/sample5.16.tex: Samples/sample5.16.xml
 	[ -d ./Output ] || mkdir ./Output
