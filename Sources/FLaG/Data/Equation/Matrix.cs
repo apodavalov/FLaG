@@ -352,6 +352,10 @@ namespace FLaG.Data.Equation
 					if (automaton.EndStatuses.BinarySearch(statuses[i]) >= 0)
 					{
 						Mx[Mx.Length - 1][i] = new Empty();
+					}
+
+					if (automaton.InitialStatus.CompareTo(statuses[i]) == 0)
+					{
 						Mx[i][Mx[i].Length - 1] = new Empty();
 					}
 				}
