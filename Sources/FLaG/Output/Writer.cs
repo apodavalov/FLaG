@@ -22,8 +22,6 @@ namespace FLaG.Output
 		private NAutomaton RightSidedAutomaton;
 		private int FirstLeftSidedFreeNumber;
 		private int FirstRightSidedFreeNumber;
-		private int FirstLeftSidedAutomatonFreeNumber;
-		private int FirstRightSidedAutomatonFreeNumber;
 		private NAutomaton nLeftAutomaton;
 		private NAutomaton nRightAutomaton;
 		
@@ -1120,12 +1118,7 @@ namespace FLaG.Output
 			// Создаем грамматики
 			for (int i = 0; i < entities.Count; i++)
 				entities[i].GenerateAutomaton(this,isLeft,ref LastUseNumber, ref AddionalAutomatonsNumber);
-			
-			if (isLeft)
-				FirstLeftSidedAutomatonFreeNumber = Math.Max(AddionalAutomatonsNumber,LastUseNumber);
-			else
-				FirstRightSidedAutomatonFreeNumber = Math.Max(AddionalAutomatonsNumber,LastUseNumber);
-						
+
 			WriteLine(@"\end{enumerate}");
 
 			entities[entities.Count - 1].Automaton.Number = 5;
