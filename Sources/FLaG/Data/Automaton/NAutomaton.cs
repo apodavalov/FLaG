@@ -232,6 +232,62 @@ namespace FLaG.Data.Automaton
 			return r;
 		}
 
+		public void RemoveUnreachedStates ()
+		{
+			List<NStatus> R = new List<NStatus>();
+			List<NStatus> P = new List<NStatus>();
+			
+			AddStatus(R,InitialStatus);
+			AddStatus(P,InitialStatus);
+			
+			bool somethingChanged;
+			
+			do
+			{
+				somethingChanged = false;
+				
+				List<NStatus> newP = new List<NStatus>();
+				
+				foreach (NTransitionFunc func in Functions)
+					if (P.BinarySearch(func.OldStatus) >= 0)
+						AddStatus(newP,func.NewStatus);
+
+				foreach (NStatus status in R)
+				{
+					int index = newP.BinarySearch(status);
+					
+					if (index >= 0)
+						newP.RemoveAt(index);
+				}
+					
+				if (newP.Count != 0)
+				{
+					foreach (NStatus status in newP)
+						AddStatus(R,status);
+
+					somethingChanged = true;
+					P = newP;
+				}
+			} while (somethingChanged);
+			
+			for (int i = 0; i < Functions.Count; i++)
+			{
+				if (R.BinarySearch(Functions[i].OldStatus) < 0)
+				{
+					Functions.RemoveAt(i);
+					i--;
+				}
+			}
+			
+			NStatus[] oldEndStatuses = EndStatuses.ToArray();
+			EndStatuses.Clear();
+			NStatus[] currentStatuses = Statuses;
+			
+			foreach (NStatus status in oldEndStatuses)
+				if (Array.BinarySearch<NStatus>(currentStatuses,status) >= 0)
+					AddEndStatus(status);
+		}
+
 		public void DrawCenteredStatusName (Graphics g, Font stateFont, Font subscriptFont, RectangleF rect, NStatus status)
 		{
 			SizeF labelSize = GetStatusLabelSize(g,stateFont,subscriptFont,status);
@@ -1018,6 +1074,7 @@ namespace FLaG.Data.Automaton
 		
 		private DAutomaton _MakeDeterministic()
 		{
+			RemoveUnreachedStates();
 			DAutomaton automaton = new DAutomaton();
 			automaton.Number = Number + 1;
 			automaton.IsLeft = IsLeft;
