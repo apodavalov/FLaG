@@ -22,8 +22,6 @@ namespace FLaG.Output
 		private NAutomaton RightSidedAutomaton;
 		private int FirstLeftSidedFreeNumber;
 		private int FirstRightSidedFreeNumber;
-		private int FirstLeftSidedAutomatonFreeNumber;
-		private int FirstRightSidedAutomatonFreeNumber;
 		private NAutomaton nLeftAutomaton;
 		private NAutomaton nRightAutomaton;
 		
@@ -668,6 +666,7 @@ namespace FLaG.Output
 
 			using (Image image = automaton.MakeDiagram())
 				InsertImage(image,OutputFileNamePrefix + fileSuffix,label,caption);
+
 			WriteLine();
 			Write(@"Диаграмма состояний конечного автомата представлена на рис. ",true);
 			Write(@"\ref{" + label + "}");
@@ -837,23 +836,50 @@ namespace FLaG.Output
 				Write(" (правосторонняя",true);
 			Write(")",true);
 			WriteLine(@"}");
-			
+
+			string caption = "Диаграмма состояний детерминированного конечного автомата";
+
 			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;	
 			
 			string fileSuffix = isLeft ? "2l.png" : "2r.png";
 			string label = isLeft ? "img:rl2" : "img:rr2";
-			string caption = "Диаграмма состояний детерминированного конечного автомата";
+
+			DiagramOutput(automaton,fileSuffix,label,caption);
+
+			WriteLine ();
+
+			automaton = isLeft ? LeftSidedAutomaton : RightSidedAutomaton;	
 			
-			WriteLine(@"Построим диаграмму состояний детерминированного конечного автомата",true);
-			WriteLine(@"\begin{math}");
-			automaton.SaveM(this);
-			WriteLine(@"\end{math}");
-			Write(@"(см. рис. ",true);
-			Write(@"\ref{" + label + "}");
-			WriteLine(@").",true);
+			fileSuffix = isLeft ? "4l.png" : "4r.png";
+			label = isLeft ? "img:rl4" : "img:rr4";
+
+			DiagramOutput(automaton,fileSuffix,label,caption);
+		}
+
+		private void DiagramOutput (NAutomaton automaton, string fileName, string label, string caption)
+		{
+			WriteLine (@"Построим диаграмму состояний конечного автомата", true);
+			WriteLine (@"\begin{math}");
+			automaton.SaveM (this);
+			WriteLine (@"\end{math}");
+			Write (@"(см. рис. ", true);
+			Write (@"\ref{" + label + "}");
+			WriteLine (@").", true);
 			
-			using (Image image = automaton.MakeDiagram())
-				InsertImage(image,OutputFileNamePrefix + fileSuffix,label,caption);
+			using (Image image = automaton.MakeDiagram()) 
+			{
+				FileInfo fileInfo = new FileInfo(OutputFileNamePrefix + fileName);
+				image.Save(fileInfo.FullName); 		
+				int widthInInches = (int)(image.Width / image.HorizontalResolution * 25.4);			
+				if (widthInInches > 160) widthInInches = 160;
+				Write(@"\imgh{" + widthInInches + "mm}{");
+				Write(Path.Combine("Output",fileInfo.Name),true);
+				Write(@"}{");
+				WriteLine(caption,true);
+				Write(@"}{");
+				Write(label,true);
+				WriteLine(@"}");
+			}
 		}
 		
 		private void Step2_9(bool isLeft)
@@ -887,33 +913,34 @@ namespace FLaG.Output
 
 		}
 		
-		private void Step2_10(bool isLeft)
+		private void Step2_10 (bool isLeft)
 		{
-			Write(@"\subsection{");
-			Write("Этап 2.10",true);
+			Write (@"\subsection{");
+			Write ("Этап 2.10", true);
 			if (isLeft)
-				Write(" (левосторонняя",true);
+				Write (" (левосторонняя", true);
 			else
-				Write(" (правосторонняя",true);
-			Write(")",true);
-			WriteLine(@"}");
+				Write (" (правосторонняя", true);
+			Write (")", true);
+			WriteLine (@"}");
+
+			string caption = "Диаграмма состояний минимального ДКА";
 			
-			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;		
+			NAutomaton automaton = isLeft ? nLeftAutomaton : nRightAutomaton;	
 			
 			string fileSuffix = isLeft ? "3l.png" : "3r.png";
 			string label = isLeft ? "img:rl3" : "img:rr3";
-			string caption = "Диаграмма состояний минимального ДКА";
+
+			DiagramOutput(automaton,fileSuffix,label,caption);
+
+			WriteLine ();
+
+			automaton = isLeft ? LeftSidedAutomaton : RightSidedAutomaton;	
 			
-			WriteLine(@"Построим диаграмму состояний минимального автомата",true);
-			WriteLine(@"\begin{math}");
-			automaton.SaveM(this);
-			WriteLine(@"\end{math}");
-			Write(@"(см. рис. ",true);
-			Write(@"\ref{" + label + "}");
-			WriteLine(@").",true);
-			
-			using (Image image = automaton.MakeDiagram())
-				InsertImage(image,OutputFileNamePrefix + fileSuffix,label,caption);
+			fileSuffix = isLeft ? "5l.png" : "5r.png";
+			label = isLeft ? "img:rl5" : "img:rr5";
+
+			DiagramOutput(automaton,fileSuffix,label,caption);
 		}
 
         private void WriteEndDoc()
@@ -1002,6 +1029,50 @@ namespace FLaG.Output
 			WriteLine(@"\end{math}.");
 		}
 
+		public void Step2_11_3 (bool isLeft)
+		{
+			Write(@"\subsubsection{");
+			Write("Этап 2.11.3",true);
+			if (isLeft)
+				Write(" (левосторонняя",true);
+			else
+				Write(" (правосторонняя",true);
+			Write(")",true);
+			WriteLine(@"}");
+			
+			NAutomaton g = isLeft ? LeftSidedAutomaton : RightSidedAutomaton;
+			
+			WriteLine(@"Используя теорию уравнений с регулярными коэффициентами, выполним построение",true);
+			WriteLine(@"регулярного выражения для автомата",true);
+			WriteLine(@"\begin{math}");
+			g.SaveCortege(this);
+			WriteLine(@"\end{math}.");
+			WriteLine();
+			
+			Matrix matrix = new Matrix(g,isLeft);
+			
+			// !!! HACK (reverse) !!!
+			Expression exp = matrix.Solve(this, Reverse);
+			
+			WriteLine();
+			WriteLine(@"Таким образом, мы определили все неизвестные. Доказано, что решение для",true);
+			WriteLine(@"\begin{math}");
+			matrix.Unterminals[matrix.TargetSymbolIndex].Save(this,isLeft);
+			WriteLine(@"\end{math}");
+			WriteLine(@"будет представлять собой искомое регулярное выражение, обозначающее язык,",true);
+			WriteLine(@"заданный автоматом",true);
+			WriteLine(@"\begin{math}");
+			g.SaveCortege(this);
+			WriteLine(@"\end{math}.");
+			WriteLine(@"Таким образом искомое регулярное выражение примет вид",true);
+			WriteLine();
+			WriteLine(@"\begin{math}");
+			matrix.Unterminals[matrix.TargetSymbolIndex].Save(this,isLeft);
+			WriteLine(@"=");
+			exp.Save(this);
+			WriteLine(@"\end{math}.");
+		}
+
 		public void Step2_4(bool isLeft)
 		{
 			Write(@"\subsection{");
@@ -1047,12 +1118,7 @@ namespace FLaG.Output
 			// Создаем грамматики
 			for (int i = 0; i < entities.Count; i++)
 				entities[i].GenerateAutomaton(this,isLeft,ref LastUseNumber, ref AddionalAutomatonsNumber);
-			
-			if (isLeft)
-				FirstLeftSidedAutomatonFreeNumber = Math.Max(AddionalAutomatonsNumber,LastUseNumber);
-			else
-				FirstRightSidedAutomatonFreeNumber = Math.Max(AddionalAutomatonsNumber,LastUseNumber);
-						
+
 			WriteLine(@"\end{enumerate}");
 
 			entities[entities.Count - 1].Automaton.Number = 5;
@@ -1114,6 +1180,7 @@ namespace FLaG.Output
 			Step2_11(true);
 			Step2_11_1(true);
 			Step2_11_2(true);
+			Step2_11_3(true);
 
 			Write(@"\subsection{");
 			Write("Этап 2.3 (правосторонняя)",true);
@@ -1139,6 +1206,8 @@ namespace FLaG.Output
 			Step2_11(false);
 			Step2_11_1(false);
 			Step2_11_2(false);
+			Step2_11_3(false);
+
 
             WriteEndDoc();
 		}

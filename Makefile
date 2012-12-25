@@ -65,12 +65,12 @@ all: pdf
 ./Output/sample7.3.tex: Samples/sample7.3.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample7.3.xml Output/sample7.3.tex
-	[ -f ./Samples/sample7.3.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample7.3.tex.patch
+#	[ -f ./Samples/sample7.3.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample7.3.tex.patch
 
 ./Output/sample7.18.tex: Samples/sample7.18.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample7.18.xml Output/sample7.18.tex
-	[ -f ./Samples/sample7.18.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample7.18.tex.patch
+#	[ -f ./Samples/sample7.18.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample7.18.tex.patch
 
 ./Output/sample6.63.tex: Samples/sample6.63.xml
 	[ -d ./Output ] || mkdir ./Output

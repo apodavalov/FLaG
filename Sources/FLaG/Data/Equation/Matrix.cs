@@ -2,6 +2,7 @@ using System;
 using FLaG.Output;
 using Gram=FLaG.Data.Grammars;
 using System.Collections.Generic;
+using Machine=FLaG.Data.Automaton;
 
 namespace FLaG.Data.Equation
 {
@@ -295,6 +296,110 @@ namespace FLaG.Data.Equation
 			Unterminals = unterminals;
 			this.Mx = Mx;
 			this.IsLeft = isLeft;
+		}
+
+		public Matrix (Machine.NAutomaton automaton, bool isLeft)
+		{
+			this.IsLeft = isLeft;
+
+			if (isLeft) 
+			{
+				Machine.NStatus[] statuses = automaton.Statuses;
+
+				Unterminals = new Gram.Unterminal[statuses.Length + 1];
+
+				int max = 1;
+
+				for (int i = 0; i < statuses.Length; i++)
+				{
+					Unterminals [i] = Gram.Unterminal.GetInstance (statuses [i].Number.Value);
+					if (max < Unterminals[i].Number)
+						max = Unterminals[i].Number;
+				}
+
+				max++;
+
+				Unterminals[Unterminals.Length - 1] = Gram.Unterminal.GetInstance(max);
+
+				Mx = new Expression[Unterminals.Length][];
+				
+				for (int i = 0; i < Unterminals.Length; i++)
+					Mx [i] = new Expression[Unterminals.Length + 1];
+
+				for (int i = 0; i < Mx.Length - 1; i++)
+				{
+					for (int j = 0; j < Mx[i].Length - 2; j++)
+					{
+						Alter alter = new Alter();
+
+						foreach (Machine.NTransitionFunc func in automaton.Functions)
+						{
+							if (statuses[j].CompareTo(func.OldStatus) == 0 && statuses[i].CompareTo(func.NewStatus) == 0)
+								alter.Expressions.Add(new Symbol(func.Symbol.Value));
+						}
+
+						if (alter.Expressions.Count == 0)
+							Mx[i][j] = null;
+						else
+							Mx[i][j] = alter.Optimize();
+					}
+				}
+
+				TargetSymbolIndex = Unterminals.Length - 1;
+
+				for (int i = 0; i < statuses.Length; i++)
+				{
+					if (automaton.EndStatuses.BinarySearch(statuses[i]) >= 0)
+					{
+						Mx[Mx.Length - 1][i] = new Empty();
+					}
+
+					if (automaton.InitialStatus.CompareTo(statuses[i]) == 0)
+					{
+						Mx[i][Mx[i].Length - 1] = new Empty();
+					}
+				}
+			}
+			else 
+			{
+				Machine.NStatus[] statuses = automaton.Statuses;
+				Unterminals = new Gram.Unterminal[statuses.Length];
+
+				for (int i = 0; i < statuses.Length; i++) {
+					Unterminals [i] = Gram.Unterminal.GetInstance (statuses [i].Number.Value);
+					if (automaton.InitialStatus.CompareTo (statuses [i]) == 0)
+						TargetSymbolIndex = i;
+				}
+
+				Mx = new Expression[Unterminals.Length][];
+				
+				for (int i = 0; i < Unterminals.Length; i++)
+					Mx [i] = new Expression[Unterminals.Length + 1];
+
+				for (int i = 0; i < Mx.Length; i++) {
+					if (automaton.EndStatuses.BinarySearch (statuses [i]) >= 0)
+						Mx [i] [Mx [i].Length - 1] = new Empty ();
+				}
+
+				for (int i = 0; i < Mx.Length; i++)
+				{
+					for (int j = 0; j < Mx[i].Length - 1; j++)
+					{
+						Alter alter = new Alter();
+
+						foreach (Machine.NTransitionFunc func in automaton.Functions)
+						{
+							if (statuses[i].CompareTo(func.OldStatus) == 0 && statuses[j].CompareTo(func.NewStatus) == 0)
+								alter.Expressions.Add(new Symbol(func.Symbol.Value));
+						}
+
+						if (alter.Expressions.Count == 0)
+							Mx[i][j] = null;
+						else
+							Mx[i][j] = alter.Optimize();
+					}
+				}
+			}
 		}
 		
 		public Matrix (Gram.Grammar g)
