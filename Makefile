@@ -100,7 +100,7 @@ all: pdf
 ./Output/sample3.16.tex: Samples/sample3.16.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample3.16.xml Output/sample3.16.tex
-#	[ -f ./Samples/sample3.16.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample3.16.tex.patch
+	[ -f ./Samples/sample3.16.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample3.16.tex.patch
 
 ./Output/sample2.14.tex: Samples/sample2.14.xml
 	[ -d ./Output ] || mkdir ./Output
