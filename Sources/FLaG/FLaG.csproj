@@ -10,7 +10,6 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>FLaG</RootNamespace>
     <AssemblyName>FLaG</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -75,7 +74,6 @@
     <Compile Include="Data\Automaton\DAutomaton.cs" />
     <Compile Include="Data\Automaton\DTransitionFunc.cs" />
     <Compile Include="Data\Helpers\NTransitionFuncBySymbolComparer.cs" />
-    <Compile Include="Data\Automaton\NTransitionFuncCluster.cs" />
     <Compile Include="Data\Automaton\EqualitySet.cs" />
     <Compile Include="Data\Automaton\EqualitySetCollection.cs" />
     <Compile Include="Data\Automaton\ClassEquality.cs" />

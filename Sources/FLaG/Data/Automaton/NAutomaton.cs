@@ -232,62 +232,6 @@ namespace FLaG.Data.Automaton
 			return r;
 		}
 
-		public void RemoveUnreachedStates ()
-		{
-			List<NStatus> R = new List<NStatus>();
-			List<NStatus> P = new List<NStatus>();
-			
-			AddStatus(R,InitialStatus);
-			AddStatus(P,InitialStatus);
-			
-			bool somethingChanged;
-			
-			do
-			{
-				somethingChanged = false;
-				
-				List<NStatus> newP = new List<NStatus>();
-				
-				foreach (NTransitionFunc func in Functions)
-					if (P.BinarySearch(func.OldStatus) >= 0)
-						AddStatus(newP,func.NewStatus);
-
-				foreach (NStatus status in R)
-				{
-					int index = newP.BinarySearch(status);
-					
-					if (index >= 0)
-						newP.RemoveAt(index);
-				}
-					
-				if (newP.Count != 0)
-				{
-					foreach (NStatus status in newP)
-						AddStatus(R,status);
-
-					somethingChanged = true;
-					P = newP;
-				}
-			} while (somethingChanged);
-			
-			for (int i = 0; i < Functions.Count; i++)
-			{
-				if (R.BinarySearch(Functions[i].OldStatus) < 0)
-				{
-					Functions.RemoveAt(i);
-					i--;
-				}
-			}
-			
-			NStatus[] oldEndStatuses = EndStatuses.ToArray();
-			EndStatuses.Clear();
-			NStatus[] currentStatuses = Statuses;
-			
-			foreach (NStatus status in oldEndStatuses)
-				if (Array.BinarySearch<NStatus>(currentStatuses,status) >= 0)
-					AddEndStatus(status);
-		}
-
 		public void DrawCenteredStatusName (Graphics g, Font stateFont, Font subscriptFont, RectangleF rect, NStatus status)
 		{
 			SizeF labelSize = GetStatusLabelSize(g,stateFont,subscriptFont,status);
@@ -1057,121 +1001,57 @@ namespace FLaG.Data.Automaton
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine(@"--- множество заключительных состояний.",true);
 		}
-		
-		private void PassToNewState(bool[] statusesOn)
+
+		private DAutomaton _MakeDeterministic ()
 		{
-			for (int i = 0; i < statusesOn.Length; i++)
-			{
-				if (statusesOn[i])
-					statusesOn[i] = false;
-				else
-				{
-					statusesOn[i] = true;
-					break;
-				}
-			}
-		}
-		
-		private DAutomaton _MakeDeterministic()
-		{
-			RemoveUnreachedStates();
-			DAutomaton automaton = new DAutomaton();
+			DAutomaton automaton = new DAutomaton ();
 			automaton.Number = Number + 1;
 			automaton.IsLeft = IsLeft;
 			automaton.ProducedFromDFA = false;
-			
-			// получаем функции перехода
-			NTransitionFunc[] functions = Functions.ToArray();
-			
-			// сортируем их по символу перехода
-			NTransitionFuncBySymbolComparer symbolComparer = new NTransitionFuncBySymbolComparer();
-			Array.Sort<NTransitionFunc>(functions,symbolComparer);
-			
-			// получаем алфавит
-			Symbol[] alphabet = Alphabet;
-			
-			// разбиваем функции на кластеры по полученному алфавиту	
-			
-			NTransitionFuncCluster[] clusters = new NTransitionFuncCluster[alphabet.Length];
-			int oldIndex = -1;
-			
-			int m = 0;
-			Symbol prev = null;
-			
-			// цикл по всем кроме последнего
-			foreach (Symbol s in alphabet)
+
+			HashSet<DStatus> wasThere = new HashSet<DStatus>();
+
+			DStatus initial = new DStatus ();
+			initial.AddStatus (InitialStatus);
+
+			wasThere.Add(initial);
+
+			Queue<DStatus> queue = new Queue<DStatus>();
+
+			queue.Enqueue(initial);
+
+			do
 			{
-				NTransitionFunc funcToSearch = new NTransitionFunc(null,s,null);				
-				int index = ~Array.BinarySearch<NTransitionFunc>(functions,funcToSearch,symbolComparer);
-				
-				if (oldIndex >= 0)
+				DStatus status = queue.Dequeue();
+
+				Dictionary<Symbol,DStatus> trans = new Dictionary<Symbol, DStatus>();
+
+				foreach (NTransitionFunc fnc in Functions)
 				{
-					NTransitionFuncCluster cluster = new NTransitionFuncCluster();
-					cluster.Symbol = prev;
-					cluster.Functions = new NTransitionFunc[index - oldIndex];
-					for (int i = oldIndex; i < index; i++)
-						cluster.Functions[i - oldIndex] = functions[i];
-					clusters[m++] = cluster;
-				}
-				
-				prev = s;
-				oldIndex = index;
-			}
-			
-			// последний отдельно рассматриваем
-			if (oldIndex >= 0)
-			{
-				NTransitionFuncCluster cluster = new NTransitionFuncCluster();
-				cluster.Symbol = prev;
-				cluster.Functions = new NTransitionFunc[functions.Length - oldIndex];
-				for (int i = oldIndex; i < functions.Length; i++)
-					cluster.Functions[i - oldIndex] = functions[i];	
-				clusters[m++] = cluster;
-			}
-			
-			NStatus[] statuses = Statuses;
-			bool[] statusesOn = new bool[statuses.Length];
-			
-			// проходимся по кластеру
-			foreach (NTransitionFuncCluster cluster in clusters)
-			{
-				for (int i = 0; i < statusesOn.Length; i++)
-					statusesOn[i] = false;
-				
-				do
-				{
-					PassToNewState(statusesOn);
-					
-					List<NStatus> newStatuses = new List<NStatus>();
-					
-					foreach (NTransitionFunc func in cluster.Functions)
+					if (status.Set.BinarySearch(fnc.OldStatus) >= 0)
 					{
-						int index = Array.BinarySearch<NStatus>(statuses,func.OldStatus);
-						if (statusesOn[index])
-							AddStatus(newStatuses,func.NewStatus);
+						DStatus newStatus;
+						if (trans.ContainsKey(fnc.Symbol))
+							newStatus = trans[fnc.Symbol];
+						else
+							trans[fnc.Symbol] = newStatus = new DStatus();
+
+						newStatus.AddStatus(fnc.NewStatus);
 					}
-					
-					DStatus oldStatus = new DStatus();
-					
-					for (int i = 0; i < statuses.Length; i++)
-						if (statusesOn[i])
-							oldStatus.AddStatus(statuses[i]);
-					
-					DStatus newStatus = new DStatus();
-					
-					foreach (NStatus st in newStatuses)
-						newStatus.AddStatus(st);
-					
-					if (newStatus.Set.Count != 0)					
-						automaton.AddFunc(new DTransitionFunc(oldStatus,cluster.Symbol,newStatus));
-					
-				} while (!Array.TrueForAll<bool>(statusesOn, x => x));
-			}
-			
-			DStatus initialStatus = new DStatus();
-			initialStatus.AddStatus(InitialStatus);
-			automaton.InitialStatus = initialStatus;
-			
+				}
+
+				foreach (KeyValuePair<Symbol,DStatus> kvp in trans)
+				{
+					automaton.AddFunc(new DTransitionFunc(status,kvp.Key,kvp.Value));
+					if (wasThere.Add(kvp.Value))
+					{
+						queue.Enqueue(kvp.Value);
+					}
+				}
+			} while (queue.Count > 0);
+
+			automaton.InitialStatus = initial;
+
 			foreach (DStatus status in automaton.Statuses)
 			{
 				bool atLeastOneFromEnd = false;
@@ -1185,7 +1065,7 @@ namespace FLaG.Data.Automaton
 				if (atLeastOneFromEnd)
 					automaton.AddEndStatus(status);
 			}
-				
+		
 			return automaton;
 		}
 		
@@ -1264,7 +1144,7 @@ namespace FLaG.Data.Automaton
 			writer.WriteLine(@"\begin{math}");
 			automaton.SaveQ(writer);
 			writer.WriteLine(@"=");
-			automaton.SaveStatuses(writer, true);
+			automaton.SaveStatuses(writer, true); // TODO: заменить на полный вывод
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine();
 			writer.WriteLine(@"Входной алфавит детерминированного конечного автомата совпадает с входным алфавитом ",true);	
@@ -1300,7 +1180,7 @@ namespace FLaG.Data.Automaton
 			writer.WriteLine(@"\begin{math}");
 			automaton.SaveS(writer);
 			writer.WriteLine(@"=");
-			automaton.SaveEndStatuses(writer,true);
+			automaton.SaveEndStatuses(writer,true); // TODO: заменить на полный вывод
 			writer.WriteLine(@"\end{math}");			
 			
 			return automaton;
