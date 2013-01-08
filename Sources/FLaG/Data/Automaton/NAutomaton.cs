@@ -1141,7 +1141,90 @@ namespace FLaG.Data.Automaton
 				}
 				writer.WriteLine(@"\}");
 			}
-		}		
+		}
+
+		private IEnumerable<DStatus> GenerateEndStatuses(NStatus[] statuses, NStatus[] endStatuses, int statusesCount, int outputCount)
+		{
+			int[] indices = new int[statusesCount];
+
+			for (int i = 0; i < indices.Length; i++)
+				indices[i] = i;
+
+			int output = 0;
+
+			while (output < outputCount) 
+			{
+				DStatus status = new DStatus();
+
+				foreach (int i in indices)
+					status.AddStatus(statuses[i]);
+
+				foreach (NStatus endStatus in endStatuses)
+				{
+					if (status.Set.BinarySearch(endStatus) >= 0)
+					{
+						yield return status;
+
+						output++;
+
+						break;
+					}
+				}
+
+				int j = indices.Length - 1;
+
+				while (j >= 0 && indices[j] >= statuses.Length - (indices.Length - j)) j--;
+
+				if (j < 0)
+					yield break;
+
+				indices[j]++;
+
+				for (j++; j < indices.Length; j++)
+					indices[j] = indices[j - 1] + 1;
+			}
+		}
+
+		private void SaveAsEndStatuses (Writer writer, bool isLeft, bool producedFromDFA)
+		{
+			int count = 0;
+			int outputCount = 4;
+
+			NStatus[] statuses = Statuses;
+			NStatus[] endStatuses = EndStatuses.ToArray();
+			
+			if (statuses.Length == 0)
+				writer.WriteLine(@"\varnothing");
+			else
+			{
+				writer.WriteLine(@"\{");
+				for (int i = 0; i < statuses.Length; i++)
+				{
+					count = 0;
+
+					foreach (DStatus status in GenerateEndStatuses(statuses, endStatuses, i + 1,outputCount + 1))
+					{
+						if (count < outputCount)
+						{
+							if (i != 0 || count != 0)		
+								writer.Write(", \\end{math}\r\n\r\n\\begin{math} ");					
+							
+							status.Save(writer,isLeft,producedFromDFA);
+							count++;
+						}
+						else if (count == outputCount)
+						{
+							if (i != 0 || count != 0)		
+								writer.Write(", \\end{math}\r\n\r\n\\begin{math} ");
+							
+							writer.WriteLine(@"\dots");
+							count++;
+						}
+					}
+				}
+				writer.WriteLine(@"\}");
+			}
+		}
 
 		public DAutomaton MakeDeterministic(Writer writer)
 		{
@@ -1251,7 +1334,7 @@ namespace FLaG.Data.Automaton
 			writer.WriteLine(@"\begin{math}");
 			automaton.SaveS(writer);
 			writer.WriteLine(@"=");
-			automaton.SaveEndStatuses(writer,true); // TODO: заменить на полный вывод
+			SaveAsEndStatuses(writer, automaton.IsLeft, automaton.ProducedFromDFA);
 			writer.WriteLine(@"\end{math}");			
 			
 			return automaton;
