@@ -1210,10 +1210,7 @@ namespace FLaG.Data.Automaton
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine(@"состояний.",true);			
 			writer.WriteLine(@"В результате получаем следующее множество всех состояний детерминированного",true);	
-			writer.WriteLine(@"конечного автомата (здесь исключены состояния, которые не встречаются в функциях перехода,",true);
-			writer.WriteLine(@"не являются начальным и конечным состоянием автомата, всего таких состояний",true);				
-			writer.Write(maxCountStatuses - automaton.Statuses.Length);
-			writer.WriteLine(@")",true);
+			writer.WriteLine(@"конечного автомата",true);
 			writer.WriteLine();
 			writer.WriteLine(@"\begin{math}");
 			automaton.SaveQ(writer);
