@@ -1068,7 +1068,81 @@ namespace FLaG.Data.Automaton
 		
 			return automaton;
 		}
-		
+
+		private IEnumerable<DStatus> GenerateStatuses (NStatus[] statuses, int statusesCount, int outputCount)
+		{
+			int[] indices = new int[statusesCount];
+
+			for (int i = 0; i < indices.Length; i++)
+				indices[i] = i;
+
+			int output = 0;
+
+			while (output < outputCount) 
+			{
+				DStatus status = new DStatus();
+
+				foreach (int i in indices)
+					status.AddStatus(statuses[i]);
+
+				yield return status;
+
+				int j = indices.Length - 1;
+
+				while (j >= 0 && indices[j] >= statuses.Length - (indices.Length - j)) j--;
+
+				if (j < 0)
+					yield break;
+
+				indices[j]++;
+
+				for (j++; j < indices.Length; j++)
+					indices[j] = indices[j - 1] + 1;
+
+				output++;
+			}
+		}
+
+		private void SaveAsDStatuses (Writer writer, bool isLeft, bool producedFromDFA)
+		{
+			int count = 0;
+			int outputCount = 4;
+
+			NStatus[] statuses = Statuses;
+			
+			if (statuses.Length == 0)
+				writer.WriteLine(@"\varnothing");
+			else
+			{
+				writer.WriteLine(@"\{");
+				for (int i = 0; i < statuses.Length; i++)
+				{
+					count = 0;
+
+					foreach (DStatus status in GenerateStatuses(statuses,i + 1,outputCount + 1))
+					{
+						if (count < outputCount)
+						{
+							if (i != 0 || count != 0)		
+								writer.Write(", \\end{math}\r\n\r\n\\begin{math} ");					
+							
+							status.Save(writer,isLeft,producedFromDFA);
+							count++;
+						}
+						else if (count == outputCount)
+						{
+							if (i != 0 || count != 0)		
+								writer.Write(", \\end{math}\r\n\r\n\\begin{math} ");
+							
+							writer.WriteLine(@"\dots");
+							count++;
+						}
+					}
+				}
+				writer.WriteLine(@"\}");
+			}
+		}		
+
 		public DAutomaton MakeDeterministic(Writer writer)
 		{
 			DAutomaton automaton = _MakeDeterministic();
@@ -1144,7 +1218,7 @@ namespace FLaG.Data.Automaton
 			writer.WriteLine(@"\begin{math}");
 			automaton.SaveQ(writer);
 			writer.WriteLine(@"=");
-			automaton.SaveStatuses(writer, true); // TODO: заменить на полный вывод
+			SaveAsDStatuses(writer, automaton.IsLeft, automaton.ProducedFromDFA);
 			writer.WriteLine(@"\end{math}");
 			writer.WriteLine();
 			writer.WriteLine(@"Входной алфавит детерминированного конечного автомата совпадает с входным алфавитом ",true);	
