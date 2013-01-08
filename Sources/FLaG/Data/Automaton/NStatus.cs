@@ -3,7 +3,7 @@ using FLaG.Output;
 
 namespace FLaG.Data.Automaton
 {
-	class NStatus : IComparable<NStatus>
+	class NStatus : IComparable<NStatus>, IEquatable<NStatus>
 	{
 		public void Save(Writer writer, bool isLeft)
 		{
@@ -59,6 +59,24 @@ namespace FLaG.Data.Automaton
 				return 0;
 			
 			return Number.Value.CompareTo(other.Number.Value);
+		}
+
+		public bool Equals (NStatus other)
+		{
+			if (other == null)
+				return false;
+
+			return CompareTo(other) == 0;
+		}
+
+		public override bool Equals (object obj)
+		{
+			return Equals(obj as NStatus);
+		}
+
+		public override int GetHashCode ()
+		{
+			return (Number == null ? 0 : Number.GetHashCode()) ^ Value.GetHashCode();
 		}
 	}
 }

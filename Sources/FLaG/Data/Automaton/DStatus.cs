@@ -4,7 +4,7 @@ using FLaG.Output;
 
 namespace FLaG.Data.Automaton
 {
-	class DStatus : IComparable<DStatus>
+	class DStatus : IComparable<DStatus>, IEquatable<DStatus>
 	{
 		public void Save(Writer writer, bool isLeft, bool producedFromDFA)
 		{
@@ -37,22 +37,31 @@ namespace FLaG.Data.Automaton
 			
 			return index < 0;
 		}		
+
+		public bool Equals (DStatus other)
+		{
+			return CompareTo(other) == 0;
+		}
 		
 		public override bool Equals (object obj)
 		{
-			if (!(obj is DStatus))
-				return false;
-			
-			return CompareTo((DStatus)obj) == 0;
+			return Equals(obj as DStatus);
 		}
 		
 		public override int GetHashCode ()
 		{
-			return 0;
+			int hash = 0;
+			foreach (NStatus s in Set)
+				hash ^= s.GetHashCode();
+
+			return hash;
 		}
 		
 		public int CompareTo(DStatus other)
 		{
+			if (other == null)
+				return 1;
+
 			int res = Set.Count.CompareTo(other.Set.Count);
 			
 			if (res != 0)
