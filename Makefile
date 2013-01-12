@@ -347,7 +347,6 @@ tex: ./Output/sample5.5.tex ./Output/sample2.3.tex ./Output/sample4.2.tex ./Outp
 	pdflatex --output-directory=./Output ./Output/sample1.2.tex
 
 pdf: ./Output/sample5.5.pdf ./Output/sample2.1.pdf ./Output/sample2.1.pdf ./Output/sample2.3.pdf ./Output/sample4.2.pdf ./Output/sample1.16.pdf ./Output/sample1.8.pdf ./Output/sample2.2.pdf ./Output/sampledz6.4.pdf ./Output/sampledz6.pdf ./Output/sample3.6.pdf ./Output/sample2.7.pdf ./Output/sample6.3.pdf ./Output/sample4.4.pdf ./Output/sample5.4.pdf ./Output/sample6.2.pdf ./Output/sample4.1.pdf ./Output/sample4.3.pdf ./Output/sample7.18.pdf ./Output/sample7.3.pdf ./Output/sample1.2.pdf ./Output/sample1.7.pdf ./Output/sample0.0.pdf ./Output/sample1.4.pdf ./Output/sample6.63.pdf ./Output/sample5.16.pdf ./Output/sample3.14.pdf ./Output/sample5.17.pdf ./Output/sample4.14.pdf ./Output/sample4.13.pdf ./Output/sample1.13.pdf ./Output/sample3.16.pdf ./Output/sample2.14.pdf
-  
 
 clean:
 	rm -rf ./Output/*
