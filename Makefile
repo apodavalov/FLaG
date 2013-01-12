@@ -129,6 +129,11 @@ all: pdf
 	mono Bin/FLaG.exe Samples/sample1.8.xml Output/sample1.8.tex
 	[ -f ./Samples/sample1.8.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample1.8.tex.patch
 
+./Output/sample1.16.tex: Samples/sample1.16.xml
+	[ -d ./Output ] || mkdir ./Output
+	mono Bin/FLaG.exe Samples/sample1.16.xml Output/sample1.16.tex
+#	[ -f ./Samples/sample1.16.tex.patch ] && patch -p1 -d ./Output < ./Samples/sample1.16.tex.patch
+
 ./Output/sample4.3.tex: Samples/sample4.3.xml
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample4.3.xml Output/sample4.3.tex
@@ -142,7 +147,7 @@ all: pdf
 	[ -d ./Output ] || mkdir ./Output
 	mono Bin/FLaG.exe Samples/sample4.1.xml Output/sample4.1.tex
 
-tex: ./Output/sample5.5.tex ./Output/sample2.3.tex ./Output/sample4.2.tex ./Output/sample1.8.tex ./Output/sample2.2.tex ./Output/sampledz6.4.tex ./Output/sampledz6.tex ./Output/sample3.6.tex ./Output/sample2.7.tex ./Output/sample6.3.tex ./Output/sample4.4.tex ./Output/sample5.4.tex ./Output/sample6.2.tex ./Output/sample4.1.tex ./Output/sample4.3.tex ./Output/sample7.18.tex ./Output/sample7.3.tex ./Output/sample1.2.tex ./Output/sample1.7.tex ./Output/sample0.0.tex ./Output/sample1.4.tex ./Output/sample6.63.tex ./Output/sample5.16.tex ./Output/sample3.14.tex ./Output/sample5.17.tex ./Output/sample4.13.tex ./Output/sample1.13.tex ./Output/sample3.16.tex ./Output/sample2.14.tex
+tex: ./Output/sample5.5.tex ./Output/sample2.3.tex ./Output/sample4.2.tex ./Output/sample1.16.tex ./Output/sample1.8.tex ./Output/sample2.2.tex ./Output/sampledz6.4.tex ./Output/sampledz6.tex ./Output/sample3.6.tex ./Output/sample2.7.tex ./Output/sample6.3.tex ./Output/sample4.4.tex ./Output/sample5.4.tex ./Output/sample6.2.tex ./Output/sample4.1.tex ./Output/sample4.3.tex ./Output/sample7.18.tex ./Output/sample7.3.tex ./Output/sample1.2.tex ./Output/sample1.7.tex ./Output/sample0.0.tex ./Output/sample1.4.tex ./Output/sample6.63.tex ./Output/sample5.16.tex ./Output/sample3.14.tex ./Output/sample5.17.tex ./Output/sample4.13.tex ./Output/sample1.13.tex ./Output/sample3.16.tex ./Output/sample2.14.tex
 
 ./Output/sampledz6.4.pdf: ./Output/sampledz6.4.tex
 	[ -d ./Output ] || mkdir ./Output
@@ -318,13 +323,19 @@ tex: ./Output/sample5.5.tex ./Output/sample2.3.tex ./Output/sample4.2.tex ./Outp
 	pdflatex --output-directory=./Output ./Output/sample1.8.tex
 	pdflatex --output-directory=./Output ./Output/sample1.8.tex
 
+./Output/sample1.16.pdf: ./Output/sample1.16.tex
+	[ -d ./Output ] || mkdir ./Output
+	pdflatex --output-directory=./Output ./Output/sample1.16.tex
+	pdflatex --output-directory=./Output ./Output/sample1.16.tex
+	pdflatex --output-directory=./Output ./Output/sample1.16.tex
+
 ./Output/sample1.2.pdf: ./Output/sample1.2.tex
 	[ -d ./Output ] || mkdir ./Output
 	pdflatex --output-directory=./Output ./Output/sample1.2.tex
 	pdflatex --output-directory=./Output ./Output/sample1.2.tex
 	pdflatex --output-directory=./Output ./Output/sample1.2.tex
 
-pdf: ./Output/sample5.5.pdf ./Output/sample2.1.pdf ./Output/sample2.1.pdf ./Output/sample2.3.pdf ./Output/sample4.2.pdf ./Output/sample1.8.pdf ./Output/sample2.2.pdf ./Output/sampledz6.4.pdf ./Output/sampledz6.pdf ./Output/sample3.6.pdf ./Output/sample2.7.pdf ./Output/sample6.3.pdf ./Output/sample4.4.pdf ./Output/sample5.4.pdf ./Output/sample6.2.pdf ./Output/sample4.1.pdf ./Output/sample4.3.pdf ./Output/sample7.18.pdf ./Output/sample7.3.pdf ./Output/sample1.2.pdf ./Output/sample1.7.pdf ./Output/sample0.0.pdf ./Output/sample1.4.pdf ./Output/sample6.63.pdf ./Output/sample5.16.pdf ./Output/sample3.14.pdf ./Output/sample5.17.pdf ./Output/sample4.13.pdf ./Output/sample1.13.pdf ./Output/sample3.16.pdf ./Output/sample2.14.pdf
+pdf: ./Output/sample5.5.pdf ./Output/sample2.1.pdf ./Output/sample2.1.pdf ./Output/sample2.3.pdf ./Output/sample4.2.pdf ./Output/sample1.16.pdf ./Output/sample1.8.pdf ./Output/sample2.2.pdf ./Output/sampledz6.4.pdf ./Output/sampledz6.pdf ./Output/sample3.6.pdf ./Output/sample2.7.pdf ./Output/sample6.3.pdf ./Output/sample4.4.pdf ./Output/sample5.4.pdf ./Output/sample6.2.pdf ./Output/sample4.1.pdf ./Output/sample4.3.pdf ./Output/sample7.18.pdf ./Output/sample7.3.pdf ./Output/sample1.2.pdf ./Output/sample1.7.pdf ./Output/sample0.0.pdf ./Output/sample1.4.pdf ./Output/sample6.63.pdf ./Output/sample5.16.pdf ./Output/sample3.14.pdf ./Output/sample5.17.pdf ./Output/sample4.13.pdf ./Output/sample1.13.pdf ./Output/sample3.16.pdf ./Output/sample2.14.pdf
   
 
 clean:
