@@ -1073,10 +1073,10 @@ namespace FLaG.Output
 			WriteLine(@"\end{math}.");
 		}
 
-		public void Step2_4(bool isLeft)
+		public void Step2_4_1(bool isLeft)
 		{
-			Write(@"\subsection{");
-			Write("Этап 2.4",true);
+			Write(@"\subsubsection{");
+			Write("Этап 2.4.1",true);
 			if (isLeft)
 				Write(" (левосторонняя",true);
 			else
@@ -1150,7 +1150,28 @@ namespace FLaG.Output
 			Write(label,true);
 			WriteLine(@"}");
 		}
-		
+
+		void Step2_4_2 (bool isLeft)
+		{
+			Write (@"\subsubsection{");
+			Write ("Этап 2.4.2", true);
+			if (isLeft)
+				Write (" (левосторонняя", true);
+			else
+				Write (" (правосторонняя", true);
+			Write (")", true);
+			WriteLine (@"}");
+
+			string caption = "Диаграмма состояний конечного автомата построенного по регулярному выражению";
+			
+			NAutomaton automaton = isLeft ? LeftSidedAutomaton : RightSidedAutomaton;	
+			
+			string fileSuffix = isLeft ? "1al.png" : "1ar.png";
+			string label = isLeft ? "img:rl1a" : "img:rr1a";
+
+			DiagramOutput(automaton,fileSuffix,label,caption);
+		}
+
 		public void Out()
 		{
         	WriteStartDoc();
@@ -1170,7 +1191,13 @@ namespace FLaG.Output
 			Step2_3_3_1(true);
 			Step2_3_3_2(true);
 			Step2_3_3_3(true);
-			Step2_4(true);
+
+			Write(@"\subsection{");
+			Write("Этап 2.4 (левосторонняя)",true);
+			WriteLine(@"}");
+
+			Step2_4_1(true);
+			Step2_4_2(true);
 			Step2_5(true);			
 			Step2_6(true);			
 			Step2_7(true);
@@ -1196,7 +1223,13 @@ namespace FLaG.Output
 			Step2_3_3_1(false);
 			Step2_3_3_2(false);
 			Step2_3_3_3(false);
-			Step2_4(false);
+
+			Write(@"\subsection{");
+			Write("Этап 2.4 (правосторонняя)",true);
+			WriteLine(@"}");
+
+			Step2_4_1(false);
+			Step2_4_2(false);
 			Step2_5(false);
 			Step2_6(false);
 			Step2_7(false);
