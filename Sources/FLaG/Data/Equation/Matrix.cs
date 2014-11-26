@@ -453,29 +453,29 @@ namespace FLaG.Data.Equation
 							}
 							break;
 						case 2:
-							Gram.Unterminal u = null;								
-							Gram.Terminal t = null;
+							Gram.Unterminal u1 = null;								
+							Gram.Terminal t1 = null;
 						
 							if (chain.Symbols[0] is Gram.Unterminal)
-								u = (Gram.Unterminal)chain.Symbols[0];
+								u1 = (Gram.Unterminal)chain.Symbols[0];
 						
 							if (chain.Symbols[0] is Gram.Terminal)
-								t = (Gram.Terminal)chain.Symbols[0];
+								t1 = (Gram.Terminal)chain.Symbols[0];
 						
 							if (chain.Symbols[1] is Gram.Unterminal)
-								u = (Gram.Unterminal)chain.Symbols[1];
+								u1 = (Gram.Unterminal)chain.Symbols[1];
 						
 							if (chain.Symbols[1] is Gram.Terminal)
-								t = (Gram.Terminal)chain.Symbols[1];
+								t1 = (Gram.Terminal)chain.Symbols[1];
 						
-							if (u != null && t != null)
+							if (u1 != null && t1 != null)
 							{
-								colNum = Array.BinarySearch<Gram.Unterminal>(Unterminals,u);
+								colNum = Array.BinarySearch<Gram.Unterminal>(Unterminals,u1);
 								
 								if (alters[colNum] == null)
 									alters[colNum] = new Alter();
 							
-								alters[colNum].Expressions.Add(new Symbol(t.Value));
+								alters[colNum].Expressions.Add(new Symbol(t1.Value));
 							}
 						
 							break;

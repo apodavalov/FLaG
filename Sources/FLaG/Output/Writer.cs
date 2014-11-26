@@ -196,7 +196,7 @@ namespace FLaG.Output
 			WriteLine(@"по дисциплине");
 			WriteLine(@"\end{center}");
 			WriteLine(@"\begin{center}");
-			WriteLine(@"<<Трансляция языков программирования>>");
+			WriteLine(@"<<Теория автоматов и формальных языков>>");
 			WriteLine(@"\end{center}");
 			WriteLine(@"\begin{center}");
 			WriteLine(@"Вариант № " + lang.Variant,true);
