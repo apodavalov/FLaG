@@ -1,0 +1,93 @@
+--- a/sample4.3.tex	2014-11-26 03:32:56.000000000 -0500
++++ b/sample4.3.tex	2014-11-27 01:04:46.114787823 -0500
+@@ -83,6 +83,51 @@
+ \tableofcontents
+ 
+ \newpage
++\section{Задание}
++Задан язык:
++\begin{equation}\label{eq:s0b1}
++\begin{split}
++L &= \left\{{{\left\{{\left\{{a c}\right\}^k}\right\}^2},{\left\{{\left\{{a,c}\right\}^m}\right\}^2}}\mid  \forall k>0,m>0, \text{где } k,m  \text{ --- целые}\right\}\end{split}
++\end{equation}
++
++\section{Этап 1}
++Рассмотрим, какие цепочки принадлежат искомому множеству \emph{L}.
++\begin{equation}\label{eq:s1b1}
++\begin{split}
++L &= \left\{{{\left\{{\left\{{a c}\right\}^k}\right\}^2},{\left\{{\left\{{a,c}\right\}^m}\right\}^2}}\mid  \forall k>0,m>0, \text{где } k,m  \text{ --- целые}\right\}= \\
++&=\left\{ \left\{ ac, (ac)^2 \dots \right\}^2 , \left\{ a, a^2, \dots, c, c^2, \dots, ac, (ac)^2, \dots, ac^2, ac^3, \dots \right\}^2 \right\}= \\
++&=\left\{ \left\{ (ac)^2, (ac)^4 \dots \right\} , \left\{ a^2, a^4, \dots, c^2, c^4, \dots, ac, (ac)^2, \dots, ac^2, ac^3, \dots \right\} \right\}= \\
++&=\left\{ \left\{ acac(ac)^{2n} \right\}, \left\{ (a+c)(a+c)(a^lc^m)^k \right\} \mid \forall k \geq 0,l \geq 0,m \geq 0,n \geq 0, \text{где } k,l,m,n  \text{ --- целые}\right\}= \\
++&=\left\{ \left\{ (a+c)(a+c)(a^lc^m)^k \right\} \mid \forall k \geq 0,l \geq 0,m \geq 0, \text{где } k,l,m  \text{ --- целые}\right\}\end{split}
++\end{equation}
++
++Проверим, к какому типу языков, по классификации Хомского, относится данный язык. Для этого воспользуемся леммой о разрастании
++регулярных языков.
++
++Итак, возьмем достаточно длинную цепочку символов, принадлежащую языку \begin{math}L\end{math}
++\begin{math}
++\alpha=(a^{k_1}c^{k_2})^{k_3}
++\end{math}, где \begin{math}k_1,k_2,k_3\end{math} --- константы (Например, цепочку \begin{math}\alpha=acacacaccca\end{math}).
++Согласно лемме о разрастании регулярных языков требуется найти хотя бы одну подцепочку, для которой выполнялись бы условия леммы.
++Представим исходную цепочку \begin{math}\alpha\end{math} в виде \begin{math}\alpha=\gamma\beta\delta\end{math}, где 
++\begin{math}\beta=ac, \gamma=ac, \delta=acaccca\end{math}. Теперь выполним повторения для выделенной подцепочки
++\begin{math}\beta\end{math}. В итоге получаем
++
++для \begin{math}i=0\end{math} цепочку вида \begin{math}\alpha'=\gamma{\beta}^0\delta=\gamma\delta=acacaccca=(ac)^3c^2a \in L\end{math},
++
++для \begin{math}i=1\end{math} цепочку вида \begin{math}\alpha'=\gamma{\beta}^1\delta=\gamma\delta=acacacaccca=(ac)^4c^2a \in L\end{math},
++
++для \begin{math}i=2\end{math} цепочку вида \begin{math}\alpha'=\gamma{\beta}^2\delta=\gamma\delta=ac(ac)^2acaccca=(ac)^5c^2a \in L\end{math},
++
++\begin{math}\dots\end{math}
++
++для \begin{math}i=k\end{math} цепочку вида \begin{math}\alpha'=\gamma{\beta}^k\delta=\gamma{\underbrace{\beta\dots\beta}_\text{k раз}}\delta=ac(ac)^kacaccca=(ac)^{k+3}c^2a \in L\end{math},
++
++\begin{math}\dots\end{math}
++
++Заметим, что существует такая цепочка, принадлежащая исходному языку, для которой выполняются условия леммы, а это
++значит, что данный язык \begin{math}L\end{math} является регулярным.
++
+ \section{Этап 2}
+ \subsection{Этап 2.1}
+ Перед построением регулярной грамматики для регулярного
+@@ -19540,4 +19585,36 @@
+ \begin{math}
+ {S_{2}}=
+ (a + c){{(a + c)}^{+}}\end{math}.
+-\end{document}
++
++\subsubsection{Этап 2.11.4}
++Так как регулярные выражения для леволинейной и праволинейной грамматик совпали далее не будем подразделять шаги.
++
++Для полученного регулярного выражения построим регулярное множество, которое примет вид
++\begin{equation}\label{eq:s1023b1}
++\begin{split}
++L' &= \left\{{{\left\{{\left\{{a,c}\right\}^k}\right\}^2}}\mid  \forall k>0, \text{где } k  \text{ --- целые}\right\}\end{split}
++\end{equation}
++
++\subsubsection{Этап 2.11.5}
++Сравним полученное множество (\ref{eq:s1023b1}) с исходным (\ref{eq:s0b1}). Для этого рассмотрим множество цепочек исходного множества:
++\begin{equation}
++\begin{split}
++L &= \left\{{{\left\{{\left\{{a c}\right\}^k}\right\}^2},{\left\{{\left\{{a,c}\right\}^m}\right\}^2}}\mid  \forall k>0,m>0, \text{где } k,m  \text{ --- целые}\right\}= \\
++&=\left\{ \left\{ ac, (ac)^2 \dots \right\}^2 , \left\{ a, a^2, \dots, c, c^2, \dots, ac, (ac)^2, \dots, ac^2, ac^3, \dots \right\}^2 \right\}= \\
++&=\left\{ \left\{ (ac)^2, (ac)^4 \dots \right\} , \left\{ a^2, a^4, \dots, c^2, c^4, \dots, ac, (ac)^2, \dots, ac^2, ac^3, \dots \right\} \right\}= \\
++&=\left\{ \left\{ acac(ac)^{2n} \right\}, \left\{ (a+c)(a+c)(a^lc^m)^k \right\} \mid \forall k \geq 0,l \geq 0,m \geq 0,n \geq 0, \text{где } k,l,m,n  \text{ --- целые}\right\}= \\
++&=\left\{ \left\{ (a+c)(a+c)(a^lc^m)^k \right\} \mid \forall k \geq 0,l \geq 0,m \geq 0, \text{где } k,l,m  \text{ --- целые}\right\}\end{split}
++\end{equation}
++
++Теперь рассмотрим цепочки, входящие в полученное множество:
++\begin{equation}
++\begin{split}
++L' &= \left\{{ {\left\{{\left\{{a,c}\right\}^k}\right\}^2} }\mid  \forall k>0, \text{где } k  \text{ --- целые}\right\}= \\
++&=\left\{ \left\{ a, a^2, \dots, c, c^2, \dots, ac, (ac)^2, \dots, ac^2, ac^3, \dots \right\}^2 \right\}= \\
++&=\left\{ \left\{ a^2, a^4, \dots, c^2, c^4, \dots, ac, (ac)^2, \dots, ac^2, ac^3, \dots \right\} \right\}= \\
++&=\left\{ \left\{ (a+c)(a+c)(a^lc^m)^k \right\} \mid \forall k \geq 0,l \geq 0,m \geq 0, \text{где } k,l,m  \text{ --- целые}\right\}\end{split}
++\end{equation}
++
++Видно, что полученные множества совпадают, а значит языки \begin{math}L\end{math} и \begin{math}L'\end{math} эквивалентны.
++
++\end{document}
+\ No newline at end of file
