@@ -26,6 +26,11 @@ namespace FLaGLib.Data
                 throw new ArgumentNullException("sublabels");
             }
 
+            if (!sublabels.Any())
+            {
+                throw new ArgumentException("Parameter sublabels contains no labels.");
+            }
+
             foreach (SingleLabel label in sublabels)
             {
                 if (label == null)
@@ -208,6 +213,38 @@ namespace FLaGLib.Data
             }
 
             return builder.ToString();
+        }
+
+        public Label Next()
+        {
+            if (LabelType != LabelType.Simple)
+            {
+                throw new InvalidOperationException("Cannot produce next label for non simple label type.");
+            }
+
+            SingleLabel label = Sublabels.Single();
+
+            return new Label(label.Next());
+        }
+
+        public Label ConvertToComplex()
+        {
+            if (LabelType != LabelType.Simple)
+            {
+                throw new InvalidOperationException("Cannot convert label to complex for non simple label type.");
+            }
+
+            return new Label(new HashSet<SingleLabel>(Sublabels));
+        }
+
+        public SingleLabel ExtractSingleLabel()
+        {
+            if (LabelType != LabelType.Simple)
+            {
+                throw new InvalidOperationException("Cannot extract single label from non simple label type.");
+            }
+
+            return Sublabels.Single();
         }
     }
 }

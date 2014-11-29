@@ -168,5 +168,14 @@ namespace FLaGLib.Data
                 (object)SupIndex ?? "null", 
                 (object)SubIndex ?? "null");
         }
+
+        public SingleLabel Next()
+        {
+            if (!SubIndex.HasValue)
+            {
+                throw new InvalidOperationException("Property SubIndex has no value.");
+            }
+            return new SingleLabel(Sign, SignIndex, SupIndex, SubIndex + 1);
+        }
     }
 }

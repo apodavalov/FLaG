@@ -12,6 +12,12 @@ namespace FLaGLib.Data.StateMachines
             private set;
         }
 
+        public int Number
+        {
+            get;
+            private set;
+        }
+
         public IReadOnlyList<Label> FinalStates
         {
             get;
@@ -53,11 +59,114 @@ namespace FLaGLib.Data.StateMachines
             return true;
         }
 
-        public StateMachine(Label initialState, ISet<Label> finalStates, ISet<Transition> transitions)
+        public StateMachine ConvertToDeterministicIfNot(int? number = null)
+        {
+            if (IsDeterministic())
+            {
+                return this;
+            }
+
+            int newNumber = number == null ? Number + 1 : number.Value;
+
+            HashSet<Transition> newTransitions = new HashSet<Transition>();
+
+            HashSet<Label> visitedNewStates = new HashSet<Label>();
+
+            Label newInitialState = InitialState.ConvertToComplex();
+
+            visitedNewStates.Add(newInitialState);
+
+            Queue<Label> queue = new Queue<Label>();
+
+            queue.Enqueue(newInitialState);
+
+            do
+            {
+                Label currentState = queue.Dequeue();
+                List<SingleLabel> currentStateSingleLabels = currentState.Sublabels.ToList();
+
+                Dictionary<char, HashSet<SingleLabel>> symbolSingleLabelsDictionary = new Dictionary<char, HashSet<SingleLabel>>();
+
+                foreach (Transition transition in Transitions)
+                {
+                    SingleLabel currentStateSingleLabel = transition.CurrentState.ExtractSingleLabel();
+
+                    if (currentStateSingleLabels.BinarySearch(currentStateSingleLabel) >= 0)
+                    {
+                        HashSet<SingleLabel> singleLabels;
+
+                        if (symbolSingleLabelsDictionary.ContainsKey(transition.Symbol))
+                        {
+                            singleLabels = symbolSingleLabelsDictionary[transition.Symbol];
+                        }
+                        else
+                        {
+                            symbolSingleLabelsDictionary[transition.Symbol] = singleLabels = new HashSet<SingleLabel>();
+                        }
+
+                        SingleLabel nextStateSingleLabel = transition.NextState.ExtractSingleLabel();
+
+                        singleLabels.Add(nextStateSingleLabel);
+                    }
+                }
+
+                foreach (KeyValuePair<char, HashSet<SingleLabel>> entry in symbolSingleLabelsDictionary)
+                {
+                    Label nextState = new Label(entry.Value);
+                    newTransitions.Add(new Transition(currentState, entry.Key, nextState));
+
+                    if (visitedNewStates.Add(nextState))
+                    {
+                        queue.Enqueue(nextState);
+                    }
+                }
+
+            } while (queue.Count > 0);
+
+            HashSet<Label> newFinalStates = new HashSet<Label>();
+
+            foreach (Label state in ExtractStates(newTransitions))
+            {
+                List<SingleLabel> stateSingleLabels = state.Sublabels.ToList();
+
+                bool atLeastOneFromFinalStates = false;
+
+                foreach (Label finalState in FinalStates)
+                {
+                    if (stateSingleLabels.BinarySearch(finalState.ExtractSingleLabel()) >= 0)
+                    {
+                        atLeastOneFromFinalStates = true;
+                        break;
+                    }
+                }
+
+                if (atLeastOneFromFinalStates)
+                {
+                    newFinalStates.Add(state);
+                }
+            }
+
+            return new StateMachine(newInitialState,newFinalStates,newTransitions,newNumber);
+        }
+
+        private ISet<Label> ExtractStates(IEnumerable<Transition> transitions)
+        {
+            ISet<Label> states = new HashSet<Label>();
+
+            foreach (Transition transition in transitions)
+            {
+                states.Add(transition.CurrentState);
+                states.Add(transition.NextState);
+            }
+
+            return states;
+        }
+
+        public StateMachine(Label initialState, ISet<Label> finalStates, ISet<Transition> transitions, int number = 0)
         {
             if (initialState == null)
             {
-                throw new ArgumentNullException("state");
+                throw new ArgumentNullException("initialState");
             }
 
             if (finalStates == null)
@@ -86,13 +195,11 @@ namespace FLaGLib.Data.StateMachines
                 }
             }
 
-            ISet<Label> states = new HashSet<Label>();
+            ISet<Label> states = ExtractStates(transitions);
             ISet<char> alphabet = new HashSet<char>();
 
             foreach (Transition transition in transitions)
             {
-                states.Add(transition.CurrentState);
-                states.Add(transition.NextState);
                 alphabet.Add(transition.Symbol);
             }
 
@@ -103,7 +210,7 @@ namespace FLaGLib.Data.StateMachines
 
             if (!states.IsSupersetOf(finalStates))
             {
-                throw new ArgumentException("Set of states doesn't the superset of final states.");
+                throw new ArgumentException("Set of states isn't the superset of final states.");
             }
 
             List<Label> stateList = states.ToList();
@@ -127,6 +234,10 @@ namespace FLaGLib.Data.StateMachines
             alphabetList.Sort();
 
             Alphabet = alphabetList.AsReadOnly();
+
+            InitialState = initialState;
+
+            Number = number;
         }
     }
 }
