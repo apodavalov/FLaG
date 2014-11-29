@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Data\LabelTest.cs" />
     <Compile Include="Data\SingleLabelTest.cs" />
+    <Compile Include="Data\StateMachines\StateMachineTest.cs" />
     <Compile Include="Data\StateMachines\TransitionTest.cs" />
     <Compile Include="Extensions\ObjectExtensionsTest.cs" />
     <Compile Include="Extensions\NullableExtensionsTest.cs" />

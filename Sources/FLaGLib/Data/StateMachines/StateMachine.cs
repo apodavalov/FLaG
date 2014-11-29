@@ -12,22 +12,45 @@ namespace FLaGLib.Data.StateMachines
             private set;
         }
 
-        public IReadOnlyCollection<Label> FinalStates
+        public IReadOnlyList<Label> FinalStates
         {
             get;
             private set;
         }
 
-        public IReadOnlyCollection<Transition> Transitions
+        public IReadOnlyList<Transition> Transitions
         {
             get;
             private set;
         }
 
-        public IReadOnlyCollection<Label> States
+        public IReadOnlyList<Label> States
         {
             get;
             private set;
+        }
+
+        public IReadOnlyList<char> Alphabet
+        {
+            get;
+            private set;
+        }
+
+        public bool IsDeterministic()
+        {
+            Transition prevTransition = null;
+
+            foreach (Transition transition in Transitions)
+            {
+                if (prevTransition != null && prevTransition.CurrentState == transition.CurrentState && prevTransition.Symbol == transition.Symbol)
+                {
+                    return false;
+                }
+
+                prevTransition = transition;
+            }
+
+            return true;
         }
 
         public StateMachine(Label initialState, ISet<Label> finalStates, ISet<Transition> transitions)
@@ -64,11 +87,13 @@ namespace FLaGLib.Data.StateMachines
             }
 
             ISet<Label> states = new HashSet<Label>();
+            ISet<char> alphabet = new HashSet<char>();
 
             foreach (Transition transition in transitions)
             {
                 states.Add(transition.CurrentState);
                 states.Add(transition.NextState);
+                alphabet.Add(transition.Symbol);
             }
 
             if (!states.Contains(initialState))
@@ -80,11 +105,28 @@ namespace FLaGLib.Data.StateMachines
             {
                 throw new ArgumentException("Set of states doesn't the superset of final states.");
             }
-            
-            States = states.ToList().AsReadOnly();
 
-            FinalStates = finalStates.ToList().AsReadOnly();
-            Transitions = transitions.ToList().AsReadOnly();
+            List<Label> stateList = states.ToList();
+
+            stateList.Sort();
+
+            States = stateList.AsReadOnly();
+
+            List<Label> finalStateList = finalStates.ToList();
+
+            FinalStates = finalStateList.AsReadOnly();
+
+            List<Transition> transitionList = transitions.ToList();
+
+            transitionList.Sort();
+
+            Transitions = transitionList.AsReadOnly();
+
+            List<char> alphabetList = alphabet.ToList();
+
+            alphabetList.Sort();
+
+            Alphabet = alphabetList.AsReadOnly();
         }
     }
 }

@@ -23,7 +23,7 @@ namespace FLaGLib.Data.StateMachines
             private set;
         }
 
-        public Transition(Label currentState, Label nextState, char symbol)
+        public Transition(Label currentState, char symbol, Label nextState)
         {
             if (currentState == null)
             {
@@ -139,14 +139,14 @@ namespace FLaGLib.Data.StateMachines
                 return result;
             }
 
-            result = NextState.CompareTo(other.NextState);
+            result = Symbol.CompareTo(other.Symbol);
 
             if (result != 0)
             {
                 return result;
             }
 
-            return Symbol.CompareTo(other.Symbol);
+            return NextState.CompareTo(other.NextState);
         }
 
         public override string ToString()
