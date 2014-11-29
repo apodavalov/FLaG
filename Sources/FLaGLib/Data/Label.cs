@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace FLaG.Data
+namespace FLaGLib.Data
 {
     public class Label : IComparable<Label>, IEquatable<Label>
     {
@@ -19,7 +19,7 @@ namespace FLaG.Data
             private set;
         }
 
-        public Label(IReadOnlyList<SingleLabel> sublabels)
+        public Label(ISet<SingleLabel> sublabels)
         {
             if (sublabels == null)
             {
@@ -30,16 +30,25 @@ namespace FLaG.Data
             {
                 if (label == null)
                 {
-                    throw new ArgumentException("One of the Sublabels is null.");
+                    throw new ArgumentException("One of the sublabels is null.");
                 }
             }
 
-            Sublabels = sublabels;
+            List<SingleLabel> labels = sublabels.ToList();
+
+            labels.Sort();
+
+            Sublabels = labels.AsReadOnly();
             LabelType = LabelType.Complex;
         }
 
         public Label(SingleLabel singleLabel)
         {
+            if (singleLabel == null)
+            {
+                throw new ArgumentNullException("singleLabel");
+            }
+
             Sublabels = new SingleLabel[] { singleLabel }.ToList().AsReadOnly();
             LabelType = LabelType.Simple;
         }
@@ -195,7 +204,7 @@ namespace FLaG.Data
 
             if (LabelType == LabelType.Complex)
             {
-                builder.Append("])");
+                builder.Append("]");
             }
 
             return builder.ToString();

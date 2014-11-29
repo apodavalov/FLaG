@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FLaG.Extensions
+namespace FLaGLib.Extensions
 {
     public static class ObjectExtensions
     {

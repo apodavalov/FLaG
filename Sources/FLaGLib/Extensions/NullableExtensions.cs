@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FLaG.Extensions
+namespace FLaGLib.Extensions
 {
-    public static class NullableExtensions<T> where T : IComparable<T>
+    public static class NullableExtensions 
     {
-        public static int CompareToNullable(this Nullable<T> objA, Nullable<T> objB)
+        public static int CompareToNullable<T>(this Nullable<T> objA, Nullable<T> objB) where T : struct, IComparable<T>
         {
             if (objA.HasValue && objB.HasValue)
             {

@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FLaG.Extensions
+namespace FLaGLib.Extensions
 {
-    public static class IComparableExtensions<T> where T : IComparable<T>
+    public static class IComparableExtensions
     {
-        public static int CompareToNullable(this T objA, T objB)
+        public static int CompareToNullable<T>(this T objA, T objB) where T : IComparable<T>
         {
             if (objA != null && objB != null)
             {

@@ -48,20 +48,14 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\Label.cs" />
     <Compile Include="Data\Entity.cs" />
     <Compile Include="Data\Concat.cs" />
     <Compile Include="Data\Degree.cs" />
-    <Compile Include="Data\LabelType.cs" />
     <Compile Include="Data\Lang.cs" />
     <Compile Include="Data\Number.cs" />
     <Compile Include="Data\Quantity.cs" />
     <Compile Include="Data\SignEnum.cs" />
     <Compile Include="Data\Symbol.cs" />
-    <Compile Include="Extensions\IComparableExtensions.cs" />
-    <Compile Include="Extensions\IntNullableExtensions.cs" />
-    <Compile Include="Extensions\NullableExtensions.cs" />
-    <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Output\Writer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -98,7 +92,6 @@
     <Compile Include="Data\Equation\Empty.cs" />
     <Compile Include="Data\Equation\Degree.cs" />
     <Compile Include="Data\Automaton\Diagrams\Arrow.cs" />
-    <Compile Include="Data\SimpleLabel.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Schema\lang.xsd">

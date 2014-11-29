@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{962FFF11-557E-4656-998A-0C249C08CE74}</ProjectGuid>
+    <ProjectGuid>{A38B3605-4351-427A-BEF9-E11BBA4C40A7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FLaG.Test</RootNamespace>
-    <AssemblyName>FLaG.Test</AssemblyName>
+    <RootNamespace>FLaGLib.Test</RootNamespace>
+    <AssemblyName>FLaGLib.Test</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -51,11 +51,26 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="Data\LabelTest.cs" />
+    <Compile Include="Data\SingleLabelTest.cs" />
+    <Compile Include="Data\StateMachines\TransitionTest.cs" />
+    <Compile Include="Extensions\ObjectExtensionsTest.cs" />
+    <Compile Include="Extensions\NullableExtensionsTest.cs" />
+    <Compile Include="Extensions\IntNullableExtensionsTest.cs" />
+    <Compile Include="Extensions\IComparableExtensionsTest.cs" />
+    <Compile Include="Helpers\ComparableEquatableHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FLaGLib\FLaGLib.csproj">
+      <Project>{7e7ef604-e8db-4c77-9078-64fdbe430e4a}</Project>
+      <Name>FLaGLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

@@ -1,8 +1,8 @@
 ﻿using System;
-using FLaG.Extensions;
+using FLaGLib.Extensions;
 using System.Globalization;
 
-namespace FLaG.Data
+namespace FLaGLib.Data
 {
     public class SingleLabel : IEquatable<SingleLabel>, IComparable<SingleLabel>
     {
@@ -151,19 +151,22 @@ namespace FLaG.Data
                 return result;
             }
 
-            result = SubIndex.CompareTo(other.SubIndex);
+            result = SupIndex.CompareTo(other.SupIndex);
 
             if (result != 0)
             {
                 return result;
             }
 
-            return SupIndex.CompareTo(other.SupIndex);
+            return SubIndex.CompareTo(other.SubIndex);
         }
 
         public override string ToString()
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2}_{3}",Sign, SignIndex, SubIndex, SupIndex);
+            return string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2}_{3}", Sign, 
+                (object)SignIndex ?? "null", 
+                (object)SupIndex ?? "null", 
+                (object)SubIndex ?? "null");
         }
     }
 }
