@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<task xmlns="urn:inputlang">
+    <variables>
+		<variable name="k" sign=">" num="0" />
+		<variable name="m" sign=">" num="0" />
+    </variables>
+	<language>
+		<concat>
+			<degree>
+				<base>
+					<degree>
+						<base>
+							<concat>
+							    <symbol>a</symbol>
+							    <symbol>b</symbol>
+							</concat>
+						</base>
+						<exp>
+							<vref>k</vref>
+						</exp>
+					</degree>
+				</base>
+				<exp>
+					<number>2</number>
+				</exp>
+			</degree>
+			<degree>
+				<base>
+					<degree>
+						<base>
+							<concat>
+							    <symbol>b</symbol>
+							    <symbol>c</symbol>
+							</concat>
+						</base>
+						<exp>
+							<vref>m</vref>
+						</exp>
+					</degree>
+				</base>
+				<exp>
+					<number>2</number>
+				</exp>
+			</degree>
+		</concat>
+	</language>
+	<info>
+	    <author firstname="" secondname="" lastname="" group="" />
+	    <variant>1.3</variant>
+	</info>
+</task>
