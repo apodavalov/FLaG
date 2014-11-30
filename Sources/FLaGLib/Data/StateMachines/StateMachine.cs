@@ -12,12 +12,6 @@ namespace FLaGLib.Data.StateMachines
             private set;
         }
 
-        public int Number
-        {
-            get;
-            private set;
-        }
-
         public IReadOnlyList<Label> FinalStates
         {
             get;
@@ -59,14 +53,12 @@ namespace FLaGLib.Data.StateMachines
             return true;
         }
 
-        public StateMachine ConvertToDeterministicIfNot(int? number = null)
+        public StateMachine ConvertToDeterministicIfNot()
         {
             if (IsDeterministic())
             {
                 return this;
             }
-
-            int newNumber = number == null ? Number + 1 : number.Value;
 
             HashSet<Transition> newTransitions = new HashSet<Transition>();
 
@@ -146,7 +138,7 @@ namespace FLaGLib.Data.StateMachines
                 }
             }
 
-            return new StateMachine(newInitialState,newFinalStates,newTransitions,newNumber);
+            return new StateMachine(newInitialState,newFinalStates,newTransitions);
         }
 
         private ISet<Label> ExtractStates(IEnumerable<Transition> transitions)
@@ -162,7 +154,7 @@ namespace FLaGLib.Data.StateMachines
             return states;
         }
 
-        public StateMachine(Label initialState, ISet<Label> finalStates, ISet<Transition> transitions, int number = 0)
+        public StateMachine(Label initialState, ISet<Label> finalStates, ISet<Transition> transitions)
         {
             if (initialState == null)
             {
@@ -239,8 +231,6 @@ namespace FLaGLib.Data.StateMachines
             Alphabet = alphabetList.AsReadOnly();
 
             InitialState = initialState;
-
-            Number = number;
         }
     }
 }
