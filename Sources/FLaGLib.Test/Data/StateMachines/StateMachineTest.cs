@@ -1,6 +1,7 @@
 ﻿using FLaGLib.Data;
 using FLaGLib.Data.StateMachines;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 
 namespace FLaGLib.Test.Data.StateMachines
@@ -132,9 +133,140 @@ namespace FLaGLib.Test.Data.StateMachines
                 hState
             };
 
+            Label _s11_State = new Label(new HashSet<SingleLabel>(new SingleLabel[]
+            {
+                s11State.ExtractSingleLabel()
+            }));
+            Label _s8_s16_State = new Label(new HashSet<SingleLabel>(new SingleLabel[]
+            {
+                s8State.ExtractSingleLabel(),
+                s16State.ExtractSingleLabel(),
+            }));
+            Label _h_s8_s16_State = new Label(new HashSet<SingleLabel>(new SingleLabel[]
+            {
+                hState.ExtractSingleLabel(),
+                s8State.ExtractSingleLabel(),
+                s16State.ExtractSingleLabel()
+            }));
+            Label _s2_s8_s16_State = new Label(new HashSet<SingleLabel>(new SingleLabel[]
+            {
+                s2State.ExtractSingleLabel(),
+                s8State.ExtractSingleLabel(),
+                s16State.ExtractSingleLabel()
+            }));
+            Label _h_s2_s8_s15_s16_State = new Label(new HashSet<SingleLabel>(new SingleLabel[]
+            {
+                hState.ExtractSingleLabel(),
+                s2State.ExtractSingleLabel(),
+                s8State.ExtractSingleLabel(),
+                s15State.ExtractSingleLabel(),
+                s16State.ExtractSingleLabel()
+            }));
+            Label _h_s7_s8_s13_s16_State = new Label(new HashSet<SingleLabel>(new SingleLabel[]
+            {
+                hState.ExtractSingleLabel(),
+                s7State.ExtractSingleLabel(),
+                s8State.ExtractSingleLabel(),
+                s13State.ExtractSingleLabel(),
+                s16State.ExtractSingleLabel()
+            }));
+
+            Label[] expectedStates = new Label[]
+            {
+                _s11_State,
+                _s8_s16_State,
+                _h_s8_s16_State,
+                _s2_s8_s16_State,
+                _h_s2_s8_s15_s16_State,
+                _h_s7_s8_s13_s16_State
+            };
+
+            Label expectedInitialState = _s11_State;
+
+            Label[] expectedFinalStates = new Label[]
+            {
+                _h_s8_s16_State,
+                _h_s2_s8_s15_s16_State,
+                _h_s7_s8_s13_s16_State
+            };
+
+            Transition[] expectedTransitions = new Transition[]
+            {
+                new Transition(_s11_State,'a',_s2_s8_s16_State),
+                new Transition(_s11_State,'c',_s8_s16_State),
+                new Transition(_s8_s16_State,'a',_h_s8_s16_State),
+                new Transition(_s8_s16_State,'c',_h_s8_s16_State),
+                new Transition(_h_s8_s16_State,'a',_h_s8_s16_State),
+                new Transition(_h_s8_s16_State,'c',_h_s8_s16_State),
+                new Transition(_s2_s8_s16_State,'a',_h_s8_s16_State),
+                new Transition(_s2_s8_s16_State,'c',_h_s7_s8_s13_s16_State),
+                new Transition(_h_s2_s8_s15_s16_State,'a',_h_s8_s16_State),
+                new Transition(_h_s2_s8_s15_s16_State,'c',_h_s7_s8_s13_s16_State),
+                new Transition(_h_s7_s8_s13_s16_State,'a',_h_s2_s8_s15_s16_State),
+                new Transition(_h_s7_s8_s13_s16_State,'c',_h_s8_s16_State)
+            };
+
             StateMachine stateMachine = new StateMachine(initialState, new HashSet<Label>(finalStates), new HashSet<Transition>(transitions));
 
-            StateMachine stateMachine1 = stateMachine.ConvertToDeterministicIfNot();
+            StateMachine actualStateMachine = stateMachine.ConvertToDeterministicIfNot();
+
+            CollectionAssert.AreEquivalent(expectedStates, actualStateMachine.States);
+            CollectionAssert.AreEquivalent(expectedFinalStates, actualStateMachine.FinalStates);
+            CollectionAssert.AreEquivalent(expectedTransitions, actualStateMachine.Transitions);
+            Assert.AreEqual(expectedInitialState, actualStateMachine.InitialState);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CctorTest_InitialStateNull_Fail()
+        {
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CctorTest_FinalStatesNull_Fail()
+        {
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CctorTest_TransitionsNull_Fail()
+        {
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CctorTest_OneFinalStateNull_Fail()
+        {
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CctorTest_OneTransitionNull_Fail()
+        {
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CctorTest_FinalStatesSetIsNotSupersetOfStates_Fail()
+        {
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CctorTest_InitialStateDoesNotBelongToStates_Fail()
+        {
+
+        }
+
+        public void Cctor_Ok()
+        {
         }
     }
 }

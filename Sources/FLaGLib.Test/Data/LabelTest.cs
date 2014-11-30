@@ -28,20 +28,20 @@ namespace FLaGLib.Test.Data
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void Cctor_ComplexNull_Fail()
+        public void CctorTest_ComplexNull_Fail()
         {
             new Label((ISet<SingleLabel>)null);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void Cctor_SimpleNull_Fail()
+        public void CctorTest_SimpleNull_Fail()
         {
             new Label((SingleLabel)null);
         }
 
         [Test]
-        public void CCtor_Complex_Ok()
+        public void CCtorTest_Complex_Ok()
         {
             List<SingleLabel> expectedLabels = new SingleLabel[]
             {
@@ -58,7 +58,7 @@ namespace FLaGLib.Test.Data
         }
 
         [Test]
-        public void CCtor_Simple_Ok()
+        public void CCtorTest_Simple_Ok()
         {
             SingleLabel singleLabel = new SingleLabel('b');
             IReadOnlyList<SingleLabel> expectedLabels = new SingleLabel[]
@@ -98,6 +98,24 @@ namespace FLaGLib.Test.Data
             Label label = new Label(new SingleLabel('b'));
 
             Assert.AreEqual("{b_null_null_null}", label.ToString());
+        }
+
+        [Test]
+        public void NextTest()
+        {
+            Assert.Fail();
+        }
+
+        [Test]
+        public void ConvertToComplexTest()
+        {
+            Assert.Fail();
+        }
+
+        [Test]
+        public void ExtractSingleLabelTest()
+        {
+            Assert.Fail();
         }
     }
 }

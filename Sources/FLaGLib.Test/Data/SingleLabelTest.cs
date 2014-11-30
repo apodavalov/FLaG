@@ -44,5 +44,11 @@ namespace FLaGLib.Test.Data
             Assert.AreEqual("b_5_6_null", new SingleLabel('b', 5, 6).ToString());
             Assert.AreEqual("b_5_6_7", new SingleLabel('b', 5, 6, 7).ToString());
         }
+
+        [Test]
+        public void NextTest()
+        {
+            Assert.Fail();
+        }
     }
 }

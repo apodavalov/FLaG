@@ -31,14 +31,14 @@ namespace FLaGLib.Test.Data.StateMachines
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void Cctor_CurrentStateNull_Fail()
+        public void CctorTest_CurrentStateNull_Fail()
         {
             new Transition(null, 'c', new Label(new SingleLabel('S', subIndex: 1)));
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void Cctor_NextStateNull_Fail()
+        public void CctorTest_NextStateNull_Fail()
         {
             new Transition(new Label(new SingleLabel('S', subIndex: 1)), 'c', null);
         }
