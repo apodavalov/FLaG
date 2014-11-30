@@ -220,53 +220,144 @@ namespace FLaGLib.Test.Data.StateMachines
         [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_InitialStateNull_Fail()
         {
+            ISet<Transition> transitions = new HashSet<Transition>(new Transition[] { new Transition(new Label(new SingleLabel('c')),'a', new Label(new SingleLabel('b'))) });
+            ISet<Label> finalStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('b')) });
 
+            new StateMachine(null, finalStates, transitions);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_FinalStatesNull_Fail()
         {
+            ISet<Transition> transitions = new HashSet<Transition>(new Transition[] { new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))) });
+            Label initialState = new Label(new SingleLabel('c'));
 
+            new StateMachine(initialState, null, transitions);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_TransitionsNull_Fail()
         {
+            ISet<Label> finalStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('b')) });
+            Label initialState = new Label(new SingleLabel('c'));
 
+            new StateMachine(initialState, finalStates, null);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_OneFinalStateNull_Fail()
         {
+            ISet<Transition> transitions = new HashSet<Transition>(new Transition[] { new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))) });
+            ISet<Label> finalStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('b')), null });
+            Label initialState = new Label(new SingleLabel('c'));
 
+            new StateMachine(initialState, finalStates, transitions);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_OneTransitionNull_Fail()
         {
+            ISet<Transition> transitions = new HashSet<Transition>(new Transition[] { new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))), null });
+            ISet<Label> finalStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('b'))});
+            Label initialState = new Label(new SingleLabel('c'));
 
+            new StateMachine(initialState, finalStates, transitions);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_FinalStatesSetIsNotSupersetOfStates_Fail()
         {
+            ISet<Transition> transitions = new HashSet<Transition>(new Transition[] { new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))) });
+            ISet<Label> finalStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('b')), new Label(new SingleLabel('d')) });
+            Label initialState = new Label(new SingleLabel('c'));
 
+            new StateMachine(initialState, finalStates, transitions);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_InitialStateDoesNotBelongToStates_Fail()
         {
+            ISet<Transition> transitions = new HashSet<Transition>(new Transition[] { new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))) });
+            ISet<Label> finalStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('b')) });
+            Label initialState = new Label(new SingleLabel('d'));
 
+            new StateMachine(initialState, finalStates, transitions);
         }
 
+        [Test]
         public void Cctor_Ok()
         {
+            Label sState = new Label(new SingleLabel('S'));
+            Label dState = new Label(new SingleLabel('D'));
+            Label pState = new Label(new SingleLabel('P'));
+            Label kState = new Label(new SingleLabel('K'));
+            Label aState = new Label(new SingleLabel('A'));
+
+            Label[] expectedStates = new Label[]
+            {
+                aState,
+                dState,
+                kState,
+                pState,
+                sState
+            };
+
+            char[] expectedAlphabet = new char[]
+            {
+                'a',
+                'b',
+                'c',
+                'd'
+            };
+
+            Label expectedInitialState = kState;
+
+            Transition s_a_kTranstition = new Transition(sState, 'a', kState);
+            Transition k_b_pTranstition = new Transition(kState, 'b', pState);
+            Transition p_c_aTranstition = new Transition(pState, 'c', aState);
+            Transition a_d_dTranstition = new Transition(aState, 'd', dState);
+
+            Transition[] expectedTransitions = new Transition[]
+            {
+                a_d_dTranstition,
+                k_b_pTranstition,
+                p_c_aTranstition,
+                s_a_kTranstition
+            };
+
+            Label[] expectedfinalStates = new Label[]
+            {
+                kState,
+                pState
+            };
+
+            ISet<Transition> transitions = new HashSet<Transition>(new Transition[]
+            {
+                s_a_kTranstition,
+                k_b_pTranstition,
+                p_c_aTranstition,
+                a_d_dTranstition
+            });
+
+            ISet<Label> finalStates = new HashSet<Label>(new Label[]
+            {
+                pState,
+                kState
+            });
+
+            StateMachine stateMachine = new StateMachine(expectedInitialState, finalStates, transitions);
+
+            CollectionAssert.AreEqual(expectedAlphabet, stateMachine.Alphabet);
+            CollectionAssert.AreEqual(expectedStates, stateMachine.States);
+            CollectionAssert.AreEqual(expectedTransitions, stateMachine.Transitions);
+            CollectionAssert.AreEqual(expectedfinalStates, stateMachine.FinalStates);
+            Assert.AreEqual(expectedInitialState, stateMachine.InitialState);
         }
     }
 }

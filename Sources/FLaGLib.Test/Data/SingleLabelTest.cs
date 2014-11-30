@@ -46,9 +46,18 @@ namespace FLaGLib.Test.Data
         }
 
         [Test]
-        public void NextTest()
+        public void NextTest_Ok()
         {
-            Assert.Fail();
+            SingleLabel expectedLabel = new SingleLabel('b', 0, 1, 1);
+            SingleLabel actualLabel = new SingleLabel('b', 0, 1,0).Next();
+            Assert.AreEqual(expectedLabel, actualLabel);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void NextTest_SubIndexHasNoValue_Fail()
+        {
+            new SingleLabel('b', 0, 1).Next();
         }
     }
 }

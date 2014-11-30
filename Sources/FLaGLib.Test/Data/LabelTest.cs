@@ -95,27 +95,61 @@ namespace FLaGLib.Test.Data
         [Test]
         public void ToStringTest_Simple()
         {
-            Label label = new Label(new SingleLabel('b'));
+            string actual = new Label(new SingleLabel('b')).ToString();
+            string expected = "{b_null_null_null}";
 
-            Assert.AreEqual("{b_null_null_null}", label.ToString());
+            Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public void NextTest()
+        public void NextTest_Ok()
         {
-            Assert.Fail();
+            Label expectedLabel = new Label(new SingleLabel('b', subIndex: 4));
+            Label actualLabel = new Label(new SingleLabel('b', subIndex: 3)).Next();
+
+            Assert.AreEqual(expectedLabel, actualLabel);
         }
 
         [Test]
-        public void ConvertToComplexTest()
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void NextTest_NonSimple_Fail()
         {
-            Assert.Fail();
+            new Label(new HashSet<SingleLabel>(
+                new SingleLabel[] { new SingleLabel('b', 0, 1, 2), new SingleLabel('c', 0, 1, 2) })).Next();
         }
 
         [Test]
-        public void ExtractSingleLabelTest()
+        public void ConvertToComplexTest_Ok()
         {
-            Assert.Fail();
+            Label expectedLabel = new Label(new HashSet<SingleLabel>(new SingleLabel[] { new SingleLabel('b') }));
+            Label actualLabel = new Label(new SingleLabel('b')).ConvertToComplex();
+            
+            Assert.AreEqual(expectedLabel, actualLabel);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ConvertToComplexTest_NonSimple_Fail()
+        {
+            new Label(new HashSet<SingleLabel>(
+                new SingleLabel[] { new SingleLabel('b'), new SingleLabel('c') })).ConvertToComplex();
+        }
+
+        [Test]
+        public void ExtractSingleLabelTest_Ok()
+        {
+            SingleLabel actualSingleLabel = new Label(new SingleLabel('b')).ExtractSingleLabel();
+            SingleLabel expectedSingleLabel = new SingleLabel('b');
+
+            Assert.AreEqual(expectedSingleLabel, actualSingleLabel);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ExtractSingleLabelTest_NonSimple_Fail()
+        {
+            new Label(new HashSet<SingleLabel>(
+                new SingleLabel[] { new SingleLabel('b'), new SingleLabel('c') })).ExtractSingleLabel();
         }
     }
 }

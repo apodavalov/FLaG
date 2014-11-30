@@ -196,12 +196,6 @@ namespace FLaGLib.Data.StateMachines
             }
 
             ISet<Label> states = ExtractStates(transitions);
-            ISet<char> alphabet = new HashSet<char>();
-
-            foreach (Transition transition in transitions)
-            {
-                alphabet.Add(transition.Symbol);
-            }
 
             if (!states.Contains(initialState))
             {
@@ -213,6 +207,13 @@ namespace FLaGLib.Data.StateMachines
                 throw new ArgumentException("Set of states isn't the superset of final states.");
             }
 
+            ISet<char> alphabet = new HashSet<char>();
+
+            foreach (Transition transition in transitions)
+            {
+                alphabet.Add(transition.Symbol);
+            }
+
             List<Label> stateList = states.ToList();
 
             stateList.Sort();
@@ -220,6 +221,8 @@ namespace FLaGLib.Data.StateMachines
             States = stateList.AsReadOnly();
 
             List<Label> finalStateList = finalStates.ToList();
+
+            finalStateList.Sort();
 
             FinalStates = finalStateList.AsReadOnly();
 
