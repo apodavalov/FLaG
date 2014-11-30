@@ -80,6 +80,132 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
+        public void ReorganizeTest()
+        {
+            Label s11State = new Label(new SingleLabel('S', subIndex: 11));
+            Label s8State = new Label(new SingleLabel('S', subIndex: 8));
+            Label s7State = new Label(new SingleLabel('S', subIndex: 7));
+            Label s2State = new Label(new SingleLabel('S', subIndex: 2));
+            Label s16State = new Label(new SingleLabel('S', subIndex: 16));
+            Label s15State = new Label(new SingleLabel('S', subIndex: 15));
+            Label s13State = new Label(new SingleLabel('S', subIndex: 13));
+            Label hState = new Label(new SingleLabel('H', subIndex: 11));
+
+            Label[] states = new Label[] 
+            {
+                hState,
+                s2State,
+                s7State,
+                s8State,
+                s11State,
+                s13State,
+                s15State,
+                s16State
+            };
+
+            Label initialState = s11State;
+
+            Transition[] transitions = new Transition[] 
+            {
+                new Transition(s11State, 'a', s8State),
+                new Transition(s11State, 'c', s8State),
+                new Transition(s11State, 'a', s16State),
+                new Transition(s11State, 'c', s16State),
+                new Transition(s11State, 'a', s2State),
+                new Transition(s8State, 'a', s8State),
+                new Transition(s8State, 'c', s8State),
+                new Transition(s8State, 'a', s16State),
+                new Transition(s8State, 'c', s16State),
+                new Transition(s7State, 'a', s2State),
+                new Transition(s2State, 'c', s7State),
+                new Transition(s2State, 'c', s13State),
+                new Transition(s16State, 'a', hState),
+                new Transition(s16State, 'c', hState),
+                new Transition(s16State, 'a', s16State),
+                new Transition(s16State, 'c', s16State),
+                new Transition(s15State, 'c', hState),
+                new Transition(s15State, 'c', s13State),
+                new Transition(s13State, 'a', s15State)
+            };
+
+            Label[] finalStates = new Label[]
+            {
+                hState
+            };
+
+            StateMachine stateMachine = new StateMachine(initialState, new HashSet<Label>(finalStates), new HashSet<Transition>(transitions));
+
+            Tuple<StateMachine, IReadOnlyDictionary<Label, Label>> actualTuple = stateMachine.Reorganize();
+
+            Label s1NewState = new Label(new SingleLabel('S', subIndex: 1));
+            Label s2NewState = new Label(new SingleLabel('S', subIndex: 2));
+            Label s3NewState = new Label(new SingleLabel('S', subIndex: 3));
+            Label s4NewState = new Label(new SingleLabel('S', subIndex: 4));
+            Label s5NewState = new Label(new SingleLabel('S', subIndex: 5));
+            Label s6NewState = new Label(new SingleLabel('S', subIndex: 6));
+            Label s7NewState = new Label(new SingleLabel('S', subIndex: 7));
+            Label s8NewState = new Label(new SingleLabel('S', subIndex: 8));
+
+            KeyValuePair<Label, Label>[] expectedDictionary = new KeyValuePair<Label, Label>[]
+            {
+                new KeyValuePair<Label,Label>(hState,s1NewState),
+                new KeyValuePair<Label,Label>(s2State,s2NewState),
+                new KeyValuePair<Label,Label>(s7State,s3NewState),
+                new KeyValuePair<Label,Label>(s8State,s4NewState),
+                new KeyValuePair<Label,Label>(s11State,s5NewState),
+                new KeyValuePair<Label,Label>(s13State,s6NewState),
+                new KeyValuePair<Label,Label>(s15State,s7NewState),
+                new KeyValuePair<Label,Label>(s16State,s8NewState)
+            };
+
+            Label[] expectedStates = new Label[]
+            {
+                s1NewState,
+                s2NewState,
+                s3NewState,
+                s4NewState,
+                s5NewState,
+                s6NewState,
+                s7NewState,
+                s8NewState
+            };
+
+            Label[] expectedFinalStates = new Label[]
+            {
+                s1NewState
+            };
+
+            Transition[] expectedTransitions = new Transition[] 
+            {
+                new Transition(s2NewState, 'c', s3NewState),
+                new Transition(s2NewState, 'c', s6NewState),
+                new Transition(s3NewState, 'a', s2NewState),
+                new Transition(s4NewState, 'a', s4NewState),
+                new Transition(s4NewState, 'a', s8NewState),
+                new Transition(s4NewState, 'c', s4NewState),
+                new Transition(s4NewState, 'c', s8NewState),
+                new Transition(s5NewState, 'a', s2NewState),
+                new Transition(s5NewState, 'a', s4NewState),
+                new Transition(s5NewState, 'a', s8NewState),
+                new Transition(s5NewState, 'c', s4NewState),
+                new Transition(s5NewState, 'c', s8NewState),
+                new Transition(s6NewState, 'a', s7NewState),
+                new Transition(s7NewState, 'c', s1NewState),
+                new Transition(s7NewState, 'c', s6NewState),
+                new Transition(s8NewState, 'a', s1NewState),
+                new Transition(s8NewState, 'a', s8NewState),
+                new Transition(s8NewState, 'c', s1NewState),
+                new Transition(s8NewState, 'c', s8NewState)
+            };
+
+            CollectionAssert.AreEqual(stateMachine.Alphabet, actualTuple.Item1.Alphabet);
+            CollectionAssert.AreEqual(expectedStates, actualTuple.Item1.States);
+            CollectionAssert.AreEqual(expectedTransitions, actualTuple.Item1.Transitions);
+            CollectionAssert.AreEqual(expectedFinalStates, actualTuple.Item1.FinalStates);
+            CollectionAssert.AreEquivalent(expectedDictionary, actualTuple.Item2);
+        }
+
+        [Test]
         public void ConvertToDeterministicIfNotTest()
         {
             Label s11State = new Label(new SingleLabel('S',subIndex: 11));

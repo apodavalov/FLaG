@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace FLaGLib.Data.StateMachines
@@ -51,6 +52,37 @@ namespace FLaGLib.Data.StateMachines
             }
 
             return true;
+        }
+
+        public Tuple<StateMachine,IReadOnlyDictionary<Label,Label>> Reorganize()
+        {
+            Dictionary<Label, Label> dictionary = new Dictionary<Label, Label>();
+
+            int i = 1;
+
+            foreach (Label state in States)
+            {
+                dictionary.Add(state, new Label(new SingleLabel('S', subIndex: i++)));
+            }
+
+            Label newInitialState = dictionary[InitialState];
+            ISet<Label> newFinalStates = new HashSet<Label>();
+            
+            foreach (Label state in FinalStates)
+            {
+                newFinalStates.Add(dictionary[state]);
+            }
+
+            ISet<Transition> newTransitions = new HashSet<Transition>();
+
+            foreach (Transition transition in Transitions)
+            {
+                newTransitions.Add(new Transition(dictionary[transition.CurrentState],transition.Symbol,dictionary[transition.NextState]));
+            }
+
+            return new Tuple<StateMachine, IReadOnlyDictionary<Label, Label>>(
+                new StateMachine(newInitialState, newFinalStates, newTransitions), 
+                new ReadOnlyDictionary<Label,Label>(dictionary));
         }
 
         public StateMachine ConvertToDeterministicIfNot()
