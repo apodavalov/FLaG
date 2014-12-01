@@ -53,8 +53,10 @@
   <ItemGroup>
     <Compile Include="Data\LabelTest.cs" />
     <Compile Include="Data\SingleLabelTest.cs" />
+    <Compile Include="Data\StateMachines\RemovingUnreachableStatesPostReportTest.cs" />
     <Compile Include="Data\StateMachines\StateMachineTest.cs" />
     <Compile Include="Data\StateMachines\TransitionTest.cs" />
+    <Compile Include="Extensions\ISetExtensionsTest.cs" />
     <Compile Include="Extensions\ObjectExtensionsTest.cs" />
     <Compile Include="Extensions\NullableExtensionsTest.cs" />
     <Compile Include="Extensions\IntNullableExtensionsTest.cs" />

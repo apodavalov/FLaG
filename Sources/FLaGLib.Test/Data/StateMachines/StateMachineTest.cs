@@ -2,6 +2,7 @@
 using FLaGLib.Data.StateMachines;
 using NUnit.Framework;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace FLaGLib.Test.Data.StateMachines
@@ -206,6 +207,205 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
+        public void RemoveUnreachableStatesTest()
+        {
+            Label s1State = new Label(new SingleLabel('S', subIndex: 1));
+            Label s2State = new Label(new SingleLabel('S', subIndex: 2));
+            Label s3State = new Label(new SingleLabel('S', subIndex: 3));
+            Label s4State = new Label(new SingleLabel('S', subIndex: 4));
+            Label s5State = new Label(new SingleLabel('S', subIndex: 5));
+            Label s6State = new Label(new SingleLabel('S', subIndex: 6));
+            Label s7State = new Label(new SingleLabel('S', subIndex: 7));
+            Label s8State = new Label(new SingleLabel('S', subIndex: 8));
+            Label s9State = new Label(new SingleLabel('S', subIndex: 9));
+            Label s10State = new Label(new SingleLabel('S', subIndex: 10));
+            Label s11State = new Label(new SingleLabel('S', subIndex: 11));
+            Label s12State = new Label(new SingleLabel('S', subIndex: 12));
+            Label s13State = new Label(new SingleLabel('S', subIndex: 13));
+            Label s14State = new Label(new SingleLabel('S', subIndex: 14));
+            Label s15State = new Label(new SingleLabel('S', subIndex: 15));
+            Label s16State = new Label(new SingleLabel('S', subIndex: 16));
+
+            Transition[] transitions = new Transition[]
+            {
+                new Transition(s1State, 'a',s2State),
+                new Transition(s2State, 'a',s4State),
+                new Transition(s3State, 'a',s4State),
+                new Transition(s4State, 'a',s2State),
+                new Transition(s5State, 'a',s2State),
+                new Transition(s6State, 'b',s7State),
+                new Transition(s7State, 'b',s9State),
+                new Transition(s8State, 'b',s9State),
+                new Transition(s9State, 'b',s7State),
+                new Transition(s9State, 'c',s12State),
+                new Transition(s10State,'b',s7State),
+                new Transition(s10State,'c',s12State),
+                new Transition(s11State,'c',s12State),
+                new Transition(s12State,'c',s14State),
+                new Transition(s13State,'c',s14State),
+                new Transition(s14State,'c',s12State),
+                new Transition(s15State,'c',s12State),
+                new Transition(s16State,'a',s2State),
+                new Transition(s16State,'b',s7State),
+                new Transition(s16State,'c',s12State)
+            };
+
+            Label[] finalStates = new Label[] 
+            {
+                s4State,s5State,s9State,s10State,s14State,s15State,s16State
+            };
+
+            Label expectedInitialState = s16State;
+
+            Transition[] expectedTransitions = new Transition[]
+            {
+                new Transition(s2State, 'a',s4State),
+                new Transition(s4State, 'a',s2State),
+                new Transition(s7State, 'b',s9State),
+                new Transition(s9State, 'b',s7State),
+                new Transition(s9State, 'c',s12State),
+                new Transition(s12State,'c',s14State),
+                new Transition(s14State,'c',s12State),
+                new Transition(s16State,'a',s2State),
+                new Transition(s16State,'b',s7State),
+                new Transition(s16State,'c',s12State)
+            };
+
+            Label[] expectedFinalStates = new Label[]
+            {
+                s4State,s9State,s14State,s16State
+            };
+
+            Label[] expectedStates = new Label[]
+            {
+                s2State,s4State,s7State,s9State,s12State,s14State,s16State
+            };
+
+            char[] expectedAlphabet = new char[] { 'a', 'b', 'c' };
+
+            StateMachine stateMachine = new StateMachine(expectedInitialState, new HashSet<Label>(finalStates), new HashSet<Transition>(transitions));
+
+            RemovingUnreachableStatesPostReport[] expectedSequence = new RemovingUnreachableStatesPostReport[]
+            {
+                new RemovingUnreachableStatesPostReport(
+                    new Label[] 
+                    {
+                        s16State
+                    },
+                    new Label[] 
+                    {
+                        s16State
+                    },
+                    new Label[] 
+                    {
+                        s16State
+                    },
+                    new Label[] 
+                    {
+                        s16State
+                    },
+                    0),
+                new RemovingUnreachableStatesPostReport(
+                    new Label[] 
+                    {
+                        s16State
+                    },
+                    new Label[] 
+                    {
+                        s2State,s7State,s12State,s16State
+                    },
+                    new Label[] 
+                    {
+                        s2State,s7State,s12State
+                    },
+                    new Label[] 
+                    {
+                        s2State,s7State,s12State
+                    },
+                    1),
+                new RemovingUnreachableStatesPostReport(
+                    new Label[] 
+                    {
+                        s2State,s7State,s12State,s16State
+                    },
+                    new Label[] 
+                    {
+                        s2State,s4State,s7State,s9State,s12State,s14State,s16State
+                    },
+                    new Label[] 
+                    {
+                        s4State,s9State,s14State
+                    },
+                    new Label[] 
+                    {
+                        s4State,s9State,s14State
+                    },
+                    2),
+                new RemovingUnreachableStatesPostReport(
+                    new Label[] 
+                    {
+                        s2State,s4State,s7State,s9State,s12State,s14State,s16State
+                    },
+                    new Label[] 
+                    {
+                        s2State,s4State,s7State,s9State,s12State,s14State,s16State
+                    },
+                    new Label[] 
+                    {
+                        s2State,s7State,s12State
+                    },
+                    new Label[] { },
+                    3),
+            };
+
+            int actualPostReportCount = 0;
+            bool onBeginInvoked = false;
+            bool onEndInvoked = false;
+
+            StateMachine actualStateMachine = stateMachine.RemoveUnreachableStates(
+                tuple =>
+                {
+                    onBeginInvoked = true;
+                    actualPostReportCount = OnTuple(tuple, expectedSequence, actualPostReportCount);    
+                },
+                tuple =>
+                {
+                    actualPostReportCount = OnTuple(tuple, expectedSequence, actualPostReportCount);    
+                },
+                tuple =>
+                {
+                    onEndInvoked = true;
+                    actualPostReportCount = OnTuple(tuple, expectedSequence, actualPostReportCount);    
+                }
+            );
+
+            Assert.AreEqual(expectedSequence.Length, actualPostReportCount);
+            Assert.IsTrue(onBeginInvoked);
+            Assert.IsTrue(onEndInvoked);
+            CollectionAssert.AreEquivalent(expectedStates, actualStateMachine.States);
+            CollectionAssert.AreEquivalent(expectedAlphabet, actualStateMachine.Alphabet);
+            CollectionAssert.AreEquivalent(expectedFinalStates, actualStateMachine.FinalStates);
+            CollectionAssert.AreEquivalent(expectedTransitions, actualStateMachine.Transitions);
+            Assert.AreEqual(expectedInitialState, actualStateMachine.InitialState);
+        }
+
+        private int OnTuple(RemovingUnreachableStatesPostReport tuple, RemovingUnreachableStatesPostReport[] expectedSequence, int actualPostReportProcessedCount)
+        {
+            Assert.IsTrue(actualPostReportProcessedCount < expectedSequence.Length);
+
+            RemovingUnreachableStatesPostReport current = expectedSequence[actualPostReportProcessedCount];
+
+            Assert.AreEqual(current.Iteration, tuple.Iteration);
+
+            CollectionAssert.AreEqual(current.CurrentApproachedStates, tuple.CurrentApproachedStates);
+            CollectionAssert.AreEqual(current.NextApproachedStates, tuple.NextApproachedStates);
+            CollectionAssert.AreEqual(current.CurrentReachableStates, tuple.CurrentReachableStates);
+            CollectionAssert.AreEqual(current.NextReachableStates, tuple.NextReachableStates);
+
+            return actualPostReportProcessedCount + 1;
+        }
+
+        [Test]
         public void ConvertToDeterministicIfNotTest()
         {
             Label s11State = new Label(new SingleLabel('S',subIndex: 11));
@@ -332,10 +532,13 @@ namespace FLaGLib.Test.Data.StateMachines
                 new Transition(_h_s7_s8_s13_s16_State,'c',_h_s8_s16_State)
             };
 
+            char[] expectedAlphabet = new char[] { 'a', 'c' };
+
             StateMachine stateMachine = new StateMachine(initialState, new HashSet<Label>(finalStates), new HashSet<Transition>(transitions));
 
             StateMachine actualStateMachine = stateMachine.ConvertToDeterministicIfNot();
 
+            CollectionAssert.AreEquivalent(expectedAlphabet, actualStateMachine.Alphabet);
             CollectionAssert.AreEquivalent(expectedStates, actualStateMachine.States);
             CollectionAssert.AreEquivalent(expectedFinalStates, actualStateMachine.FinalStates);
             CollectionAssert.AreEquivalent(expectedTransitions, actualStateMachine.Transitions);
@@ -417,7 +620,7 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
-        public void Cctor_Ok()
+        public void CctorTest_Ok()
         {
             Label sState = new Label(new SingleLabel('S'));
             Label dState = new Label(new SingleLabel('D'));

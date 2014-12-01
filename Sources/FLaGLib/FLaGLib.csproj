@@ -42,8 +42,10 @@
     <Compile Include="Data\Label.cs" />
     <Compile Include="Data\LabelType.cs" />
     <Compile Include="Data\SingleLabel.cs" />
+    <Compile Include="Data\StateMachines\RemovingUnreachableStatesInfo.cs" />
     <Compile Include="Extensions\IComparableExtensions.cs" />
     <Compile Include="Extensions\IntNullableExtensions.cs" />
+    <Compile Include="Extensions\ISetExtensions.cs" />
     <Compile Include="Extensions\NullableExtensions.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

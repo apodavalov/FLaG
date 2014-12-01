@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using FLaGLib.Extensions;
 
 namespace FLaGLib.Data.StateMachines
 {
@@ -52,6 +53,104 @@ namespace FLaGLib.Data.StateMachines
             }
 
             return true;
+        }
+
+        public StateMachine RemoveUnreachableStates(
+            Action<RemovingUnreachableStatesPostReport> onBegin = null, 
+            Action<RemovingUnreachableStatesPostReport> onIterate = null, 
+            Action<RemovingUnreachableStatesPostReport> onEnd = null)
+        {
+            ISet<Label> currentReachableStatesSet = new HashSet<Label>();
+            ISet<Label> currentApproachedStatesSet = new HashSet<Label>();
+
+            int i = 0;
+
+            currentReachableStatesSet.Add(InitialState);
+            currentApproachedStatesSet.Add(InitialState);
+
+            ISet<Label> nextApproachedStatesSet = new HashSet<Label>();
+
+            if (onBegin != null)
+            {
+                IReadOnlyList<Label> currentReachableStatesList = currentReachableStatesSet.ConvertToReadOnlyListAndSort();
+                IReadOnlyList<Label> nextApproachedStatesList = currentApproachedStatesSet.ConvertToReadOnlyListAndSort();
+
+                onBegin(new RemovingUnreachableStatesPostReport(
+                    currentReachableStatesList,
+                    currentReachableStatesList,
+                    nextApproachedStatesList,
+                    nextApproachedStatesList,
+                    i));
+            }
+
+            do
+            {
+                i++;
+
+                foreach (Transition transition in Transitions)
+                {
+                    if (currentApproachedStatesSet.Contains(transition.CurrentState))
+                    {
+                       nextApproachedStatesSet.Add(transition.NextState);
+                    }
+                }
+
+                IReadOnlyList<Label> currentReachableStates = currentReachableStatesSet.ConvertToReadOnlyListAndSort();
+                IReadOnlyList<Label> currentApproachedStates = nextApproachedStatesSet.ConvertToReadOnlyListAndSort();
+
+                nextApproachedStatesSet.ExceptWith(currentReachableStatesSet);
+                currentReachableStatesSet.UnionWith(nextApproachedStatesSet);
+
+                IReadOnlyList<Label> nextReachableStates = currentReachableStatesSet.ConvertToReadOnlyListAndSort();
+                IReadOnlyList<Label> nextApproachedStates = nextApproachedStatesSet.ConvertToReadOnlyListAndSort();
+
+                if (nextApproachedStatesSet.Count > 0)
+                {
+                    if (onIterate != null)
+                    {
+                        onIterate(new RemovingUnreachableStatesPostReport(
+                            currentReachableStates,
+                            nextReachableStates,
+                            currentApproachedStates,
+                            nextApproachedStates,
+                            i));
+                    }
+                }
+                else
+                {
+                    if (onEnd != null)
+                    {
+                        onEnd(new RemovingUnreachableStatesPostReport(
+                            currentReachableStates,
+                            nextReachableStates,
+                            currentApproachedStates,
+                            nextApproachedStates,
+                            i));
+                    }
+                }
+
+                ISet<Label> temp = currentApproachedStatesSet;                
+                currentApproachedStatesSet = nextApproachedStatesSet;
+                nextApproachedStatesSet = temp;
+
+                nextApproachedStatesSet.Clear();
+            } while (currentApproachedStatesSet.Count > 0);
+
+            ISet<Transition> newTransitions = new HashSet<Transition>();
+
+            foreach (Transition transition in Transitions)
+            {
+                if (currentReachableStatesSet.Contains(transition.CurrentState))
+                {
+                    newTransitions.Add(transition);
+                }
+            }
+
+            currentReachableStatesSet.IntersectWith(FinalStates);
+
+            ISet<Label> newFinalStates = currentReachableStatesSet;
+
+            return new StateMachine(InitialState, newFinalStates, newTransitions);            
         }
 
         public Tuple<StateMachine,IReadOnlyDictionary<Label,Label>> Reorganize()
@@ -238,29 +337,13 @@ namespace FLaGLib.Data.StateMachines
                 alphabet.Add(transition.Symbol);
             }
 
-            List<Label> stateList = states.ToList();
+            States = states.ConvertToReadOnlyListAndSort();
 
-            stateList.Sort();
+            FinalStates = finalStates.ConvertToReadOnlyListAndSort();
 
-            States = stateList.AsReadOnly();
+            Transitions = transitions.ConvertToReadOnlyListAndSort();
 
-            List<Label> finalStateList = finalStates.ToList();
-
-            finalStateList.Sort();
-
-            FinalStates = finalStateList.AsReadOnly();
-
-            List<Transition> transitionList = transitions.ToList();
-
-            transitionList.Sort();
-
-            Transitions = transitionList.AsReadOnly();
-
-            List<char> alphabetList = alphabet.ToList();
-
-            alphabetList.Sort();
-
-            Alphabet = alphabetList.AsReadOnly();
+            Alphabet = alphabet.ConvertToReadOnlyListAndSort();
 
             InitialState = initialState;
         }
