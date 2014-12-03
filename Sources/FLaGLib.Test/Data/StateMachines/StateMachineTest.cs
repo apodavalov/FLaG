@@ -138,8 +138,6 @@ namespace FLaGLib.Test.Data.StateMachines
 
             StateMachine stateMachine = new StateMachine(initialState, new HashSet<Label>(finalStates), new HashSet<Transition>(transitions));
 
-            Tuple<StateMachine, IReadOnlyDictionary<Label, Label>> actualTuple = stateMachine.Reorganize();
-
             Label s1NewState = new Label(new SingleLabel('S', subIndex: 1));
             Label s2NewState = new Label(new SingleLabel('S', subIndex: 2));
             Label s3NewState = new Label(new SingleLabel('S', subIndex: 3));
@@ -201,15 +199,28 @@ namespace FLaGLib.Test.Data.StateMachines
                 new Transition(s8NewState, 'c', s8NewState)
             };
 
-            CollectionAssert.AreEqual(stateMachine.Alphabet, actualTuple.Item1.Alphabet);
-            CollectionAssert.AreEqual(expectedStates, actualTuple.Item1.States);
-            CollectionAssert.AreEqual(expectedTransitions, actualTuple.Item1.Transitions);
-            CollectionAssert.AreEqual(expectedFinalStates, actualTuple.Item1.FinalStates);
-            CollectionAssert.AreEquivalent(expectedDictionary, actualTuple.Item2);
+            bool onStateMapInvoked = false;
+
+            StateMachine actualStateMachine = stateMachine.Reorganize('S', 
+                stateMap => 
+                {
+                    Assert.IsFalse(onStateMapInvoked);
+                    CollectionAssert.AreEquivalent(expectedDictionary, stateMap);
+                    onStateMapInvoked = true;
+                }
+                );
+
+            Assert.IsTrue(onStateMapInvoked);
+
+            CollectionAssert.AreEqual(stateMachine.Alphabet, actualStateMachine.Alphabet);
+            CollectionAssert.AreEqual(expectedStates, actualStateMachine.States);
+            CollectionAssert.AreEqual(expectedTransitions, actualStateMachine.Transitions);
+            CollectionAssert.AreEqual(expectedFinalStates, actualStateMachine.FinalStates);
+            
         }
 
         [Test]
-            public void RemoveUnreachableStatesTest()
+        public void RemoveUnreachableStatesTest()
         {
             Label s1State = new Label(new SingleLabel('S', subIndex: 1));
             Label s2State = new Label(new SingleLabel('S', subIndex: 2));

@@ -154,7 +154,7 @@ namespace FLaGLib.Data.StateMachines
             return new StateMachine(InitialState, newFinalStates, newTransitions);            
         }
 
-        public Tuple<StateMachine,IReadOnlyDictionary<Label,Label>> Reorganize()
+        public StateMachine Reorganize(char stateSign, Action<IReadOnlyDictionary<Label,Label>> onStateMap = null)
         {
             Dictionary<Label, Label> dictionary = new Dictionary<Label, Label>();
 
@@ -162,7 +162,7 @@ namespace FLaGLib.Data.StateMachines
 
             foreach (Label state in States)
             {
-                dictionary.Add(state, new Label(new SingleLabel('S', subIndex: i++)));
+                dictionary.Add(state, new Label(new SingleLabel(stateSign, subIndex: i++)));
             }
 
             Label newInitialState = dictionary[InitialState];
@@ -180,9 +180,12 @@ namespace FLaGLib.Data.StateMachines
                 newTransitions.Add(new Transition(dictionary[transition.CurrentState],transition.Symbol,dictionary[transition.NextState]));
             }
 
-            return new Tuple<StateMachine, IReadOnlyDictionary<Label, Label>>(
-                new StateMachine(newInitialState, newFinalStates, newTransitions), 
-                new ReadOnlyDictionary<Label,Label>(dictionary));
+            if (onStateMap != null)
+            {
+                onStateMap(new ReadOnlyDictionary<Label,Label>(dictionary));
+            }
+
+            return new StateMachine(newInitialState, newFinalStates, newTransitions);
         }
 
         public StateMachine ConvertToDeterministicIfNot()
