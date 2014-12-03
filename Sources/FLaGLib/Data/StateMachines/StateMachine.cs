@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using FLaGLib.Extensions;
+using FLaGLib.Collections;
 
 namespace FLaGLib.Data.StateMachines
 {
@@ -14,25 +15,25 @@ namespace FLaGLib.Data.StateMachines
             private set;
         }
 
-        public IReadOnlyList<Label> FinalStates
+        public IReadOnlySet<Label> FinalStates
         {
             get;
             private set;
         }
 
-        public IReadOnlyList<Transition> Transitions
+        public IReadOnlySet<Transition> Transitions
         {
             get;
             private set;
         }
 
-        public IReadOnlyList<Label> States
+        public IReadOnlySet<Label> States
         {
             get;
             private set;
         }
 
-        public IReadOnlyList<char> Alphabet
+        public IReadOnlySet<char> Alphabet
         {
             get;
             private set;
@@ -60,20 +61,20 @@ namespace FLaGLib.Data.StateMachines
             Action<RemovingUnreachableStatesPostReport> onIterate = null, 
             Action<RemovingUnreachableStatesPostReport> onEnd = null)
         {
-            ISet<Label> currentReachableStatesSet = new HashSet<Label>();
-            ISet<Label> currentApproachedStatesSet = new HashSet<Label>();
+            ISet<Label> currentReachableStatesSet = new SortedSet<Label>();
+            ISet<Label> currentApproachedStatesSet = new SortedSet<Label>();
 
             int i = 0;
 
             currentReachableStatesSet.Add(InitialState);
             currentApproachedStatesSet.Add(InitialState);
 
-            ISet<Label> nextApproachedStatesSet = new HashSet<Label>();
+            ISet<Label> nextApproachedStatesSet = new SortedSet<Label>();
 
             if (onBegin != null)
             {
-                IReadOnlyList<Label> currentReachableStatesList = currentReachableStatesSet.ConvertToReadOnlyListAndSort();
-                IReadOnlyList<Label> nextApproachedStatesList = currentApproachedStatesSet.ConvertToReadOnlyListAndSort();
+                IReadOnlySet<Label> currentReachableStatesList = new SortedSet<Label>(currentReachableStatesSet).AsReadOnly();
+                IReadOnlySet<Label> nextApproachedStatesList = new SortedSet<Label>(currentApproachedStatesSet).AsReadOnly();
 
                 onBegin(new RemovingUnreachableStatesPostReport(
                     currentReachableStatesList,
@@ -95,14 +96,14 @@ namespace FLaGLib.Data.StateMachines
                     }
                 }
 
-                IReadOnlyList<Label> currentReachableStates = currentReachableStatesSet.ConvertToReadOnlyListAndSort();
-                IReadOnlyList<Label> currentApproachedStates = nextApproachedStatesSet.ConvertToReadOnlyListAndSort();
+                IReadOnlySet<Label> currentReachableStates = new SortedSet<Label>(currentReachableStatesSet).AsReadOnly();
+                IReadOnlySet<Label> currentApproachedStates = new SortedSet<Label>(nextApproachedStatesSet).AsReadOnly();
 
                 nextApproachedStatesSet.ExceptWith(currentReachableStatesSet);
                 currentReachableStatesSet.UnionWith(nextApproachedStatesSet);
 
-                IReadOnlyList<Label> nextReachableStates = currentReachableStatesSet.ConvertToReadOnlyListAndSort();
-                IReadOnlyList<Label> nextApproachedStates = nextApproachedStatesSet.ConvertToReadOnlyListAndSort();
+                IReadOnlySet<Label> nextReachableStates = new SortedSet<Label>(currentReachableStatesSet).AsReadOnly();
+                IReadOnlySet<Label> nextApproachedStates = new SortedSet<Label>(nextApproachedStatesSet).AsReadOnly();
 
                 if (nextApproachedStatesSet.Count > 0)
                 {
@@ -191,9 +192,9 @@ namespace FLaGLib.Data.StateMachines
                 return this;
             }
 
-            HashSet<Transition> newTransitions = new HashSet<Transition>();
+            SortedSet<Transition> newTransitions = new SortedSet<Transition>();
 
-            HashSet<Label> visitedNewStates = new HashSet<Label>();
+            SortedSet<Label> visitedNewStates = new SortedSet<Label>();
 
             Label newInitialState = InitialState.ConvertToComplex();
 
@@ -206,7 +207,6 @@ namespace FLaGLib.Data.StateMachines
             do
             {
                 Label currentState = queue.Dequeue();
-                List<SingleLabel> currentStateSingleLabels = currentState.Sublabels.ToList();
 
                 Dictionary<char, HashSet<SingleLabel>> symbolSingleLabelsDictionary = new Dictionary<char, HashSet<SingleLabel>>();
 
@@ -214,7 +214,7 @@ namespace FLaGLib.Data.StateMachines
                 {
                     SingleLabel currentStateSingleLabel = transition.CurrentState.ExtractSingleLabel();
 
-                    if (currentStateSingleLabels.BinarySearch(currentStateSingleLabel) >= 0)
+                    if (currentState.Sublabels.Contains(currentStateSingleLabel))
                     {
                         HashSet<SingleLabel> singleLabels;
 
@@ -250,13 +250,11 @@ namespace FLaGLib.Data.StateMachines
 
             foreach (Label state in ExtractStates(newTransitions))
             {
-                List<SingleLabel> stateSingleLabels = state.Sublabels.ToList();
-
                 bool atLeastOneFromFinalStates = false;
 
                 foreach (Label finalState in FinalStates)
                 {
-                    if (stateSingleLabels.BinarySearch(finalState.ExtractSingleLabel()) >= 0)
+                    if (state.Sublabels.Contains(finalState.ExtractSingleLabel()))
                     {
                         atLeastOneFromFinalStates = true;
                         break;
@@ -274,7 +272,7 @@ namespace FLaGLib.Data.StateMachines
 
         private ISet<Label> ExtractStates(IEnumerable<Transition> transitions)
         {
-            ISet<Label> states = new HashSet<Label>();
+            ISet<Label> states = new SortedSet<Label>();
 
             foreach (Transition transition in transitions)
             {
@@ -330,20 +328,20 @@ namespace FLaGLib.Data.StateMachines
                 throw new ArgumentException("Set of states isn't the superset of final states.");
             }
 
-            ISet<char> alphabet = new HashSet<char>();
+            ISet<char> alphabet = new SortedSet<char>();
 
             foreach (Transition transition in transitions)
             {
                 alphabet.Add(transition.Symbol);
             }
 
-            States = states.ConvertToReadOnlyListAndSort();
+            States = states.AsReadOnly();
 
-            FinalStates = finalStates.ConvertToReadOnlyListAndSort();
+            FinalStates = new SortedSet<Label>(finalStates).AsReadOnly();
 
-            Transitions = transitions.ConvertToReadOnlyListAndSort();
+            Transitions = new SortedSet<Transition>(transitions).AsReadOnly();
 
-            Alphabet = alphabet.ConvertToReadOnlyListAndSort();
+            Alphabet = alphabet.AsReadOnly();
 
             InitialState = initialState;
         }

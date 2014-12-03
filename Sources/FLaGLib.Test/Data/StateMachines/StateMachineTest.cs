@@ -1,5 +1,7 @@
 ﻿using FLaGLib.Data;
 using FLaGLib.Data.StateMachines;
+using FLaGLib.Collections;
+using FLaGLib.Extensions;
 using NUnit.Framework;
 using System;
 using System.Linq;
@@ -207,7 +209,7 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
-        public void RemoveUnreachableStatesTest()
+            public void RemoveUnreachableStatesTest()
         {
             Label s1State = new Label(new SingleLabel('S', subIndex: 1));
             Label s2State = new Label(new SingleLabel('S', subIndex: 2));
@@ -288,74 +290,74 @@ namespace FLaGLib.Test.Data.StateMachines
             RemovingUnreachableStatesPostReport[] expectedSequence = new RemovingUnreachableStatesPostReport[]
             {
                 new RemovingUnreachableStatesPostReport(
-                    new Label[] 
+                    new SortedSet<Label>(new Label[] 
                     {
                         s16State
-                    },
-                    new Label[] 
+                    }).AsReadOnly(),
+                    new SortedSet<Label>(new Label[] 
                     {
                         s16State
-                    },
-                    new Label[] 
+                    }).AsReadOnly(),
+                    new SortedSet<Label>(new Label[] 
                     {
                         s16State
-                    },
-                    new Label[] 
+                    }).AsReadOnly(),
+                    new SortedSet<Label>(new Label[] 
                     {
                         s16State
-                    },
+                    }).AsReadOnly(),
                     0),
                 new RemovingUnreachableStatesPostReport(
-                    new Label[] 
+                    new SortedSet<Label>(new Label[] 
                     {
                         s16State
-                    },
-                    new Label[] 
+                    }).AsReadOnly(),
+                    new SortedSet<Label>(new Label[] 
                     {
                         s2State,s7State,s12State,s16State
-                    },
-                    new Label[] 
+                    }).AsReadOnly(),
+                    new SortedSet<Label>(new Label[] 
                     {
                         s2State,s7State,s12State
-                    },
-                    new Label[] 
+                    }).AsReadOnly(),
+                    new SortedSet<Label>(new Label[] 
                     {
                         s2State,s7State,s12State
-                    },
+                    }).AsReadOnly(),
                     1),
                 new RemovingUnreachableStatesPostReport(
-                    new Label[] 
+                    new SortedSet<Label>(new Label[] 
                     {
                         s2State,s7State,s12State,s16State
-                    },
-                    new Label[] 
+                    }).AsReadOnly(),
+                    new SortedSet<Label>(new Label[] 
                     {
                         s2State,s4State,s7State,s9State,s12State,s14State,s16State
-                    },
-                    new Label[] 
+                    }).AsReadOnly(),
+                    new SortedSet<Label>(new Label[] 
                     {
                         s4State,s9State,s14State
-                    },
-                    new Label[] 
+                    }).AsReadOnly(),
+                    new SortedSet<Label>(new Label[] 
                     {
                         s4State,s9State,s14State
-                    },
+                    }).AsReadOnly(),
                     2),
                 new RemovingUnreachableStatesPostReport(
-                    new Label[] 
+                    new SortedSet<Label>(new Label[] 
                     {
                         s2State,s4State,s7State,s9State,s12State,s14State,s16State
-                    },
-                    new Label[] 
+                    }).AsReadOnly(),
+                    new SortedSet<Label>(new Label[] 
                     {
                         s2State,s4State,s7State,s9State,s12State,s14State,s16State
-                    },
-                    new Label[] 
+                    }).AsReadOnly(),
+                    new SortedSet<Label>(new Label[] 
                     {
                         s2State,s7State,s12State
-                    },
-                    new Label[] { },
-                    3),
+                    }).AsReadOnly(),
+                    new SortedSet<Label>(new Label[] { }).AsReadOnly(),
+                    3)
             };
 
             int actualPostReportCount = 0;

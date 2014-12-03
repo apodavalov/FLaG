@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FLaGLib.Collections;
+using FLaGLib.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +9,7 @@ namespace FLaGLib.Data
 {
     public class Label : IComparable<Label>, IEquatable<Label>
     {
-        public IReadOnlyList<SingleLabel> Sublabels
+        public IReadOnlySet<SingleLabel> Sublabels
         {
             get;
             private set;        
@@ -39,11 +41,8 @@ namespace FLaGLib.Data
                 }
             }
 
-            List<SingleLabel> labels = sublabels.ToList();
+            Sublabels = new SortedSet<SingleLabel>(sublabels).AsReadOnly();
 
-            labels.Sort();
-
-            Sublabels = labels.AsReadOnly();
             LabelType = LabelType.Complex;
         }
 
@@ -54,7 +53,7 @@ namespace FLaGLib.Data
                 throw new ArgumentNullException("singleLabel");
             }
 
-            Sublabels = new SingleLabel[] { singleLabel }.ToList().AsReadOnly();
+            Sublabels = new SortedSet<SingleLabel>(new SingleLabel[] { singleLabel } ).AsReadOnly();
             LabelType = LabelType.Simple;
         }
 
@@ -167,24 +166,31 @@ namespace FLaGLib.Data
                 return result;
             }
 
-            int minCount = Math.Min(Sublabels.Count, other.Sublabels.Count);
+            IEnumerator<SingleLabel> sublabels1 = Sublabels.GetEnumerator();
+            IEnumerator<SingleLabel> sublabels2 = other.Sublabels.GetEnumerator();
 
-            for (int i = 0; i < minCount; i++)
+            bool hasNext1 = sublabels1.MoveNext();
+            bool hasNext2 = sublabels2.MoveNext();
+
+            while (hasNext1 && hasNext2)
             {
-                result = Sublabels[i].CompareTo(other.Sublabels[i]);
+                result = sublabels1.Current.CompareTo(sublabels2.Current);
 
                 if (result != 0)
                 {
                     return result;
                 }
+
+                hasNext1 = sublabels1.MoveNext();
+                hasNext2 = sublabels2.MoveNext();
             }
 
-            if (Sublabels.Count > other.Sublabels.Count)
+            if (hasNext1)
             {
                 return 1;
             }
 
-            if (Sublabels.Count < other.Sublabels.Count)
+            if (hasNext2)
             {
                 return -1;
             }

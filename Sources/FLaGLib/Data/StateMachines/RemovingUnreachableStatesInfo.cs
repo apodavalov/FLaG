@@ -1,29 +1,30 @@
-﻿using System;
+﻿using FLaGLib.Collections;
+using System;
 using System.Collections.Generic;
 
 namespace FLaGLib.Data.StateMachines
 {
     public class RemovingUnreachableStatesPostReport
     {
-        public IReadOnlyList<Label> CurrentReachableStates
+        public IReadOnlySet<Label> CurrentReachableStates
         {
             get;
             private set;
         }
 
-        public IReadOnlyList<Label> CurrentApproachedStates
+        public IReadOnlySet<Label> CurrentApproachedStates
         {
             get;
             private set;
         }
 
-        public IReadOnlyList<Label> NextApproachedStates
+        public IReadOnlySet<Label> NextApproachedStates
         {
             get;
             private set;
         }
 
-        public IReadOnlyList<Label> NextReachableStates
+        public IReadOnlySet<Label> NextReachableStates
         {
             get;
             private set;
@@ -36,10 +37,10 @@ namespace FLaGLib.Data.StateMachines
         }
 
         public RemovingUnreachableStatesPostReport(
-            IReadOnlyList<Label> currentReachableStates,
-            IReadOnlyList<Label> nextReachableStates,
-            IReadOnlyList<Label> currentApproachedStates,
-            IReadOnlyList<Label> nextApproachedStates,             
+            IReadOnlySet<Label> currentReachableStates,
+            IReadOnlySet<Label> nextReachableStates,
+            IReadOnlySet<Label> currentApproachedStates,
+            IReadOnlySet<Label> nextApproachedStates,             
             int iteration)
         {
             if (currentReachableStates == null)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FLaGLib.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,11 @@ namespace FLaGLib.Extensions
             list.Sort();
 
             return list.AsReadOnly();
+        }
+
+        public static IReadOnlySet<T> AsReadOnly<T>(this ISet<T> obj)
+        {
+            return new ReadOnlySet<T>(obj);
         }
     }
 }

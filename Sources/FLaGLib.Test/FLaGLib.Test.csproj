@@ -51,6 +51,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="Collections\ReadOnlySetTest.cs" />
     <Compile Include="Data\LabelTest.cs" />
     <Compile Include="Data\SingleLabelTest.cs" />
     <Compile Include="Data\StateMachines\RemovingUnreachableStatesPostReportTest.cs" />

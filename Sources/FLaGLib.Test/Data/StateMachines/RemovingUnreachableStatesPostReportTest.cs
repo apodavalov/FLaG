@@ -1,7 +1,10 @@
 ﻿using FLaGLib.Data;
+using FLaGLib.Extensions;
+using FLaGLib.Collections;
 using FLaGLib.Data.StateMachines;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 
 namespace FLaGLib.Test.Data.StateMachines
 {
@@ -12,37 +15,52 @@ namespace FLaGLib.Test.Data.StateMachines
         [ExpectedException(typeof(ArgumentNullException))]
         public void Cctor_CurrentReachableStatesNull_Fail()
         {
-            new RemovingUnreachableStatesPostReport(null, new Label[] { }, new Label[] { }, new Label[] { }, 0);
+            new RemovingUnreachableStatesPostReport(
+                null, 
+                new HashSet<Label>(new Label[] { }).AsReadOnly(), 
+                new HashSet<Label>(new Label[] { }).AsReadOnly(), 
+                new HashSet<Label>(new Label[] { }).AsReadOnly(), 0);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Cctor_CurrentApproachedStatesNull_Fail()
         {
-            new RemovingUnreachableStatesPostReport(new Label[] { }, new Label[] { }, null, new Label[] { }, 0);
+            new RemovingUnreachableStatesPostReport(
+                new HashSet<Label>(new Label[] { }).AsReadOnly(),
+                new HashSet<Label>(new Label[] { }).AsReadOnly(), 
+                null,
+                new HashSet<Label>(new Label[] { }).AsReadOnly(), 0);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Cctor_NextReachableStatesNull_Fail()
         {
-            new RemovingUnreachableStatesPostReport(new Label[] { }, null, new Label[] { }, new Label[] { }, 0);
+            new RemovingUnreachableStatesPostReport(
+                new HashSet<Label>(new Label[] { }).AsReadOnly(), 
+                null,
+                new HashSet<Label>(new Label[] { }).AsReadOnly(),
+                new HashSet<Label>(new Label[] { }).AsReadOnly(), 0);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Cctor_NextApproachedStatesNull_Fail()
         {
-            new RemovingUnreachableStatesPostReport(new Label[] { }, new Label[] { }, new Label[] { }, null, 0);
+            new RemovingUnreachableStatesPostReport(
+                new HashSet<Label>(new Label[] { }).AsReadOnly(),
+                new HashSet<Label>(new Label[] { }).AsReadOnly(),
+                new HashSet<Label>(new Label[] { }).AsReadOnly(), null, 0);
         }
 
         [Test]
         public void CctorTest_Ok()
         {
-            Label[] expectedCurrentReachableStates = new Label[] { new Label(new SingleLabel('b')), new Label(new SingleLabel('c')) };
-            Label[] expectedNextReachableStates = new Label[] { new Label(new SingleLabel('d')), new Label(new SingleLabel('e')) };
-            Label[] expectedCurrentApproachedStates = new Label[] { new Label(new SingleLabel('f')), new Label(new SingleLabel('g')) };
-            Label[] expectedNextApproachedStates = new Label[] { new Label(new SingleLabel('h')), new Label(new SingleLabel('i')) };
+            IReadOnlySet<Label> expectedCurrentReachableStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('b')), new Label(new SingleLabel('c')) }).AsReadOnly();
+            IReadOnlySet<Label> expectedNextReachableStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('d')), new Label(new SingleLabel('e')) }).AsReadOnly();
+            IReadOnlySet<Label> expectedCurrentApproachedStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('f')), new Label(new SingleLabel('g')) }).AsReadOnly();
+            IReadOnlySet<Label> expectedNextApproachedStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('h')), new Label(new SingleLabel('i')) }).AsReadOnly();
             int expectedIteration = 45;
 
             RemovingUnreachableStatesPostReport actual =

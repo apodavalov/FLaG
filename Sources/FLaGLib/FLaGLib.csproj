@@ -39,6 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\IReadOnlySet.cs" />
+    <Compile Include="Collections\ReadOnlySet.cs" />
     <Compile Include="Data\Label.cs" />
     <Compile Include="Data\LabelType.cs" />
     <Compile Include="Data\SingleLabel.cs" />
