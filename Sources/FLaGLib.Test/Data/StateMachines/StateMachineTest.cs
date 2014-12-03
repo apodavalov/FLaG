@@ -215,8 +215,7 @@ namespace FLaGLib.Test.Data.StateMachines
             CollectionAssert.AreEqual(stateMachine.Alphabet, actualStateMachine.Alphabet);
             CollectionAssert.AreEqual(expectedStates, actualStateMachine.States);
             CollectionAssert.AreEqual(expectedTransitions, actualStateMachine.Transitions);
-            CollectionAssert.AreEqual(expectedFinalStates, actualStateMachine.FinalStates);
-            
+            CollectionAssert.AreEqual(expectedFinalStates, actualStateMachine.FinalStates);            
         }
 
         [Test]
