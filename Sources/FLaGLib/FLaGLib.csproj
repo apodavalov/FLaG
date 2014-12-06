@@ -44,7 +44,16 @@
     <Compile Include="Data\Label.cs" />
     <Compile Include="Data\LabelType.cs" />
     <Compile Include="Data\SingleLabel.cs" />
-    <Compile Include="Data\StateMachines\RemovingUnreachableStatesInfo.cs" />
+    <Compile Include="Data\StateMachines\SetsOfEquivalencePostReport.cs" />
+    <Compile Include="Data\StateMachines\SetOfEquivalenceTransitionsPostReport.cs" />
+    <Compile Include="Data\StateMachines\ClassOfEquivalence.cs" />
+    <Compile Include="Data\StateMachines\ClassOfEquivalenceSet.cs" />
+    <Compile Include="Data\StateMachines\RemovingUnreachablePostReport.cs" />
+    <Compile Include="Data\StateMachines\SetsOfEquivalence.cs" />
+    <Compile Include="Data\StateMachines\SetOfEquivalence.cs" />
+    <Compile Include="Data\StateMachines\SetOfEquivalenceTransition.cs" />
+    <Compile Include="Data\StateMachines\SetsOfEquivalenceResult.cs" />
+    <Compile Include="Helpers\EnumerateHelper.cs" />
     <Compile Include="Extensions\IComparableExtensions.cs" />
     <Compile Include="Extensions\IntNullableExtensions.cs" />
     <Compile Include="Extensions\ISetExtensions.cs" />

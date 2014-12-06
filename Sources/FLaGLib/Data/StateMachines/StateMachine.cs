@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using FLaGLib.Extensions;
 using FLaGLib.Collections;
+using FLaGLib.Helpers;
 
 namespace FLaGLib.Data.StateMachines
 {
@@ -271,6 +272,140 @@ namespace FLaGLib.Data.StateMachines
             }
 
             return new StateMachine(newInitialState,newFinalStates,newTransitions);
+        }
+
+        public StateMachine Minimize(
+            Action<SetsOfEquivalencePostReport> onSetsOfEquivalence = null,
+            Action<SetOfEquivalenceTransitionsPostReport> onSetOfEquivalenceTransitions = null,
+            Action<SetsOfEquivalenceResult> onSetsOfEquivalenceResult = null)
+        {
+            ILookup<Label, Transition> transitionsByCurrentState = Transitions.ToLookup(transition => transition.CurrentState);
+
+            ISet<Label> nonFinalStates = new SortedSet<Label>(States);
+            nonFinalStates.ExceptWith(FinalStates);
+
+            SetsOfEquivalence setsOfEquivalence = new SetsOfEquivalence(
+                new SortedSet<SetOfEquivalence>(
+                    EnumerateHelper.Sequence(
+                    new SetOfEquivalence(new SortedSet<Label>(nonFinalStates)), 
+                    new SetOfEquivalence(new SortedSet<Label>(FinalStates)))));
+
+            int i = 0;
+
+            if (onSetsOfEquivalence != null)
+            {
+                onSetsOfEquivalence(new SetsOfEquivalencePostReport(setsOfEquivalence, i));
+            }
+
+            bool somethingChanged;
+
+            do
+            {
+                somethingChanged = false;
+
+                i++;
+
+                List<SetOfEquivalence> buildingSetsOfEquivalence = new List<SetOfEquivalence>();
+
+                List<SetOfEquivalenceTransition> setOfEquivalenceTransitions = new List<SetOfEquivalenceTransition>();
+
+                IDictionary<Label, int> statesMap = setsOfEquivalence.GetStatesMap();
+
+                List<SetOfEquivalence> setsOfEquivalenceList = setsOfEquivalence.ToList();
+
+                foreach (SetOfEquivalence setOfEquivalence in setsOfEquivalenceList)
+                {
+                    IDictionary<ClassOfEquivalenceSet, ISet<Label>> classEquivalenceSetMap = new Dictionary<ClassOfEquivalenceSet, ISet<Label>>();
+                    
+                    foreach (Label state in setOfEquivalence)
+                    {
+                        IDictionary<int, ISet<char>> groupMap = new Dictionary<int, ISet<char>>();
+
+                        foreach (Transition transition in transitionsByCurrentState[state])
+                        {
+                            int groupNum = statesMap[transition.NextState];
+
+                            ISet<char> equality;
+
+                            if (groupMap.ContainsKey(groupNum))
+                            {
+                                equality = groupMap[groupNum];
+                            }
+                            else
+                            {
+                                groupMap[groupNum] = equality = new SortedSet<char>();
+                            }
+
+                            equality.Add(transition.Symbol);
+                        }
+
+                        ClassOfEquivalenceSet classOfEquivalenceSet =
+                            new ClassOfEquivalenceSet(new SortedSet<ClassOfEquivalence>(groupMap.Select(item => new ClassOfEquivalence(item.Key, item.Value.AsReadOnly()))));
+
+                        ISet<Label> states;
+
+                        if (classEquivalenceSetMap.ContainsKey(classOfEquivalenceSet))
+                        {
+                            states = classEquivalenceSetMap[classOfEquivalenceSet];
+                        }
+                        else
+                        {
+                            classEquivalenceSetMap[classOfEquivalenceSet] = states = new SortedSet<Label>();
+                        }
+
+                        states.Add(state); 
+                    }
+
+                    foreach (KeyValuePair<ClassOfEquivalenceSet,ISet<Label>> entry in classEquivalenceSetMap)
+                    {
+                        SetOfEquivalence set = new SetOfEquivalence(entry.Value);
+                        buildingSetsOfEquivalence.Add(set);
+
+                        foreach (ClassOfEquivalence clazz in entry.Key)
+                        {
+                            setOfEquivalenceTransitions.Add(new SetOfEquivalenceTransition(set, clazz.Symbols, setsOfEquivalenceList[clazz.SetNum], clazz.SetNum));
+                        }
+                    }
+                }
+
+                if (onSetOfEquivalenceTransitions != null)
+                {
+                    onSetOfEquivalenceTransitions(new SetOfEquivalenceTransitionsPostReport(setOfEquivalenceTransitions.AsReadOnly(), i));
+                }
+
+                SetsOfEquivalence nextSetsOfEquivalence = new SetsOfEquivalence(new SortedSet<SetOfEquivalence>(buildingSetsOfEquivalence));
+
+                somethingChanged = setsOfEquivalence != nextSetsOfEquivalence;
+
+                setsOfEquivalence = nextSetsOfEquivalence;
+
+                if (onSetsOfEquivalence != null)
+                {
+                    onSetsOfEquivalence(new SetsOfEquivalencePostReport(setsOfEquivalence, i));
+                }
+            } while (somethingChanged);
+
+            if (onSetsOfEquivalenceResult != null)
+            {
+                onSetsOfEquivalenceResult(new SetsOfEquivalenceResult(setsOfEquivalence.Count != States.Count,i));
+            }
+
+            if (setsOfEquivalence.Count == States.Count)
+            {
+                return this;
+            }
+
+            IDictionary<Label, Label> newStatesMap = setsOfEquivalence.GetOldNewStatesMap();
+
+            ISet<Transition> transitions = new HashSet<Transition>(
+                Transitions.Select(
+                item => new Transition(newStatesMap[item.CurrentState], item.Symbol, newStatesMap[item.NextState])));
+
+            ISet<Label> finalStates = new HashSet<Label>(FinalStates.Select(item => newStatesMap[item]));
+
+            Label initialState = newStatesMap[InitialState];
+
+            return new StateMachine(initialState, finalStates, transitions);
         }
 
         private ISet<Label> ExtractStates(IEnumerable<Transition> transitions)

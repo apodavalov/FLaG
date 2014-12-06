@@ -558,6 +558,101 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
+        public void MinimizeTest()
+        {
+            Label s1State = new Label(new SingleLabel('S', subIndex: 1));
+            Label s2State = new Label(new SingleLabel('S', subIndex: 2));
+            Label s3State = new Label(new SingleLabel('S', subIndex: 3));
+            Label s4State = new Label(new SingleLabel('S', subIndex: 4));
+            Label s5State = new Label(new SingleLabel('S', subIndex: 5));
+            Label s6State = new Label(new SingleLabel('S', subIndex: 6));
+
+            Label[] states = new Label[] 
+            {
+                s1State,
+                s2State,
+                s3State,
+                s4State,
+                s5State,
+                s6State
+            };
+
+            Label initialState = s1State;
+
+            Transition[] transitions = new Transition[] 
+            {
+                new Transition(s1State, 'a', s4State),
+                new Transition(s1State, 'c', s2State),
+                new Transition(s2State, 'a', s3State),
+                new Transition(s2State, 'c', s3State),
+                new Transition(s3State, 'a', s3State),
+                new Transition(s3State, 'c', s3State),
+                new Transition(s4State, 'a', s3State),
+                new Transition(s4State, 'c', s6State),
+                new Transition(s5State, 'a', s3State),
+                new Transition(s5State, 'c', s6State),
+                new Transition(s6State, 'a', s5State),
+                new Transition(s6State, 'c', s3State)
+            };
+
+            Label[] finalStates = new Label[]
+            {
+                s3State,
+                s5State,
+                s6State
+            };
+
+
+            Label[] expectedStates = new Label[]
+            {
+                s1State,
+                s2State,
+                s3State
+            };
+
+            Label expectedInitialState = s1State;
+
+            Label[] expectedFinalStates = new Label[]
+            {
+                s3State
+            };
+
+            Transition[] expectedTransitions = new Transition[]
+            {
+                new Transition(s1State, 'a', s2State),
+                new Transition(s1State, 'c', s2State),
+                new Transition(s2State, 'a', s3State),
+                new Transition(s2State, 'c', s3State),
+                new Transition(s3State, 'a', s3State),
+                new Transition(s3State, 'c', s3State)
+            };
+
+            char[] expectedAlphabet = new char[] { 'a', 'c' };
+
+            StateMachine stateMachine = new StateMachine(initialState, new HashSet<Label>(finalStates), new HashSet<Transition>(transitions));
+
+            StateMachine actualStateMachine = stateMachine.Minimize(
+                setsOfEquivalenceReport =>
+                {
+                    
+                },
+                setOfEquivalenceTransitionsReport =>
+                {
+                    
+                },
+                setOfEquivalenceResult =>
+                {
+                    
+                });
+
+            CollectionAssert.AreEquivalent(expectedAlphabet, actualStateMachine.Alphabet);
+            CollectionAssert.AreEquivalent(expectedStates, actualStateMachine.States);
+            CollectionAssert.AreEquivalent(expectedFinalStates, actualStateMachine.FinalStates);
+            CollectionAssert.AreEquivalent(expectedTransitions, actualStateMachine.Transitions);
+            Assert.AreEqual(expectedInitialState, actualStateMachine.InitialState);
+        }
+
+        [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_InitialStateNull_Fail()
         {
