@@ -6,6 +6,7 @@ using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using FLaGLib.Helpers;
 
 namespace FLaGLib.Test.Data.StateMachines
 {
@@ -376,7 +377,9 @@ namespace FLaGLib.Test.Data.StateMachines
 
             StateMachine actualStateMachine = stateMachine.RemoveUnreachableStates(
                 tuple =>
-                {
+                {   
+                    Assert.IsFalse(onBeginInvoked);
+                    Assert.AreEqual(0, actualPostReportCount);
                     onBeginInvoked = true;
                     actualPostReportCount = OnTuple(tuple, expectedSequence, actualPostReportCount);    
                 },
@@ -386,8 +389,10 @@ namespace FLaGLib.Test.Data.StateMachines
                 },
                 tuple =>
                 {
+                    Assert.IsFalse(onEndInvoked);
                     onEndInvoked = true;
-                    actualPostReportCount = OnTuple(tuple, expectedSequence, actualPostReportCount);    
+                    actualPostReportCount = OnTuple(tuple, expectedSequence, actualPostReportCount);
+                    Assert.AreEqual(expectedSequence.Length, actualPostReportCount);
                 }
             );
 
@@ -631,25 +636,198 @@ namespace FLaGLib.Test.Data.StateMachines
 
             StateMachine stateMachine = new StateMachine(initialState, new HashSet<Label>(finalStates), new HashSet<Transition>(transitions));
 
+            SetOfEquivalence[] setsOfEquivalence = new SetOfEquivalence[]
+            {
+                new SetOfEquivalence(
+                    new SortedSet<Label>(
+                        EnumerateHelper.Sequence(
+                            s1State,
+                            s2State,
+                            s4State
+                        )
+                    )
+                ),
+                new SetOfEquivalence(
+                    new SortedSet<Label>(
+                        EnumerateHelper.Sequence(
+                            s3State,
+                            s5State,
+                            s6State
+                        )
+                    )
+                ),
+                new SetOfEquivalence(
+                    new SortedSet<Label>(
+                        EnumerateHelper.Sequence(
+                            s1State
+                        )
+                    )
+                ),
+                new SetOfEquivalence(
+                    new SortedSet<Label>(
+                        EnumerateHelper.Sequence(
+                            s2State,
+                            s4State
+                        )
+                    )
+                )
+            };
+
+            IReadOnlySet<char>[] charsSet = new IReadOnlySet<char>[]
+            {
+                new SortedSet<char>(EnumerateHelper.Sequence('a','c')).AsReadOnly()
+            };
+
+            SetsOfEquivalencePostReport[] expectedSetsOfEquivalencePostReports = new SetsOfEquivalencePostReport[] 
+            {
+                new SetsOfEquivalencePostReport(
+                    new SetsOfEquivalence(
+                        new SortedSet<SetOfEquivalence>(
+                            EnumerateHelper.Sequence(
+                                setsOfEquivalence[0],
+                                setsOfEquivalence[1]
+                            )
+                        )
+                    ),0
+                 ),
+                new SetsOfEquivalencePostReport(
+                    new SetsOfEquivalence(
+                        new SortedSet<SetOfEquivalence>(
+                            EnumerateHelper.Sequence(
+                                setsOfEquivalence[2],
+                                setsOfEquivalence[3],
+                                setsOfEquivalence[1]                               
+                            )
+                        )
+                    ),1
+                 ),
+                new SetsOfEquivalencePostReport(
+                    new SetsOfEquivalence(
+                        new SortedSet<SetOfEquivalence>(
+                            EnumerateHelper.Sequence(
+                                setsOfEquivalence[2],
+                                setsOfEquivalence[3],
+                                setsOfEquivalence[1]    
+                            )
+                        )
+                    ),2
+                 )
+            };
+
+            SetOfEquivalenceTransitionsPostReport[] expectedSetOfEquivalenceTransitionsPostReports = new SetOfEquivalenceTransitionsPostReport[] 
+            {
+               new SetOfEquivalenceTransitionsPostReport(
+                   new List<SetOfEquivalenceTransition>(
+                       EnumerateHelper.Sequence(
+                            new SetOfEquivalenceTransition(setsOfEquivalence[2],charsSet[0],setsOfEquivalence[0],0),
+                            new SetOfEquivalenceTransition(setsOfEquivalence[3],charsSet[0],setsOfEquivalence[1],1),
+                            new SetOfEquivalenceTransition(setsOfEquivalence[1],charsSet[0],setsOfEquivalence[1],1)
+                       )
+                   ).AsReadOnly(),1
+               ),
+               new SetOfEquivalenceTransitionsPostReport(
+                   new List<SetOfEquivalenceTransition>(
+                       EnumerateHelper.Sequence(
+                            new SetOfEquivalenceTransition(setsOfEquivalence[2],charsSet[0],setsOfEquivalence[3],1),
+                            new SetOfEquivalenceTransition(setsOfEquivalence[3],charsSet[0],setsOfEquivalence[1],2),
+                            new SetOfEquivalenceTransition(setsOfEquivalence[1],charsSet[0],setsOfEquivalence[1],2)
+                       )
+                   ).AsReadOnly(),2
+               )
+            };
+
+            bool onResultInvoked = false;
+            int actualSetsOfEquivalencePostReportCount = 0;
+            int actualSetOfEquivalenceTransitionsPostReportCount = 0;
+
             StateMachine actualStateMachine = stateMachine.Minimize(
                 setsOfEquivalenceReport =>
                 {
-                    
+                    actualSetsOfEquivalencePostReportCount = 
+                        OnSetsOfEquivalnceReport(
+                        setsOfEquivalenceReport, 
+                        expectedSetsOfEquivalencePostReports, 
+                        actualSetsOfEquivalencePostReportCount, 
+                        actualSetOfEquivalenceTransitionsPostReportCount);
                 },
                 setOfEquivalenceTransitionsReport =>
                 {
-                    
+                    actualSetOfEquivalenceTransitionsPostReportCount = 
+                        OnSetOfEquivalnceTransitionsReport(
+                        setOfEquivalenceTransitionsReport,
+                        expectedSetOfEquivalenceTransitionsPostReports, 
+                        actualSetsOfEquivalencePostReportCount, 
+                        actualSetOfEquivalenceTransitionsPostReportCount);
                 },
                 setOfEquivalenceResult =>
                 {
-                    
+                    Assert.IsFalse(onResultInvoked);
+                    onResultInvoked = true;
+                    Assert.AreEqual(expectedSetsOfEquivalencePostReports.Length, actualSetsOfEquivalencePostReportCount);
+                    Assert.AreEqual(expectedSetOfEquivalenceTransitionsPostReports.Length, actualSetOfEquivalenceTransitionsPostReportCount);
+                    Assert.IsTrue(setOfEquivalenceResult.IsStatesCombined);
+                    Assert.AreEqual(expectedSetOfEquivalenceTransitionsPostReports.Length, setOfEquivalenceResult.LastIteration);
                 });
+
+            Assert.IsTrue(onResultInvoked);
+            Assert.AreEqual(expectedSetsOfEquivalencePostReports.Length, actualSetsOfEquivalencePostReportCount);
+            Assert.AreEqual(expectedSetOfEquivalenceTransitionsPostReports.Length, actualSetOfEquivalenceTransitionsPostReportCount);
 
             CollectionAssert.AreEquivalent(expectedAlphabet, actualStateMachine.Alphabet);
             CollectionAssert.AreEquivalent(expectedStates, actualStateMachine.States);
             CollectionAssert.AreEquivalent(expectedFinalStates, actualStateMachine.FinalStates);
             CollectionAssert.AreEquivalent(expectedTransitions, actualStateMachine.Transitions);
             Assert.AreEqual(expectedInitialState, actualStateMachine.InitialState);
+        }
+
+        private int OnSetsOfEquivalnceReport(
+            SetsOfEquivalencePostReport actualReport, SetsOfEquivalencePostReport[] expectedSequence, 
+            int actualSetsOfEquivalencePostReportCount, int actualSetOfEquivalenceTransitionsPostReportCount)
+        {
+            Assert.IsTrue(actualSetsOfEquivalencePostReportCount < expectedSequence.Length);
+
+            SetsOfEquivalencePostReport expected = expectedSequence[actualSetsOfEquivalencePostReportCount];
+
+            Assert.AreEqual(expected.Iteration, actualReport.Iteration);
+
+            Assert.AreEqual(expected.SetsOfEquivalence, actualReport.SetsOfEquivalence);
+
+            Assert.AreEqual(actualSetsOfEquivalencePostReportCount, actualSetOfEquivalenceTransitionsPostReportCount);
+            return actualSetsOfEquivalencePostReportCount + 1;
+        }
+
+        private int OnSetOfEquivalnceTransitionsReport(SetOfEquivalenceTransitionsPostReport actualReport, SetOfEquivalenceTransitionsPostReport[] expectedSequence,
+            int actualSetsOfEquivalencePostReportCount, int actualSetOfEquivalenceTransitionsPostReportCount)
+        {
+            Assert.IsTrue(actualSetOfEquivalenceTransitionsPostReportCount < expectedSequence.Length);
+
+            SetOfEquivalenceTransitionsPostReport expected = expectedSequence[actualSetOfEquivalenceTransitionsPostReportCount];
+
+            Assert.AreEqual(expected.Iteration, actualReport.Iteration);
+
+            Assert.AreEqual(expected.SetOfEquivalenceTransitions.Count, actualReport.SetOfEquivalenceTransitions.Count);
+
+            IEnumerator<SetOfEquivalenceTransition> currentSetOfEquivalenceTransitionsEnumerator = expected.SetOfEquivalenceTransitions.GetEnumerator();
+            IEnumerator<SetOfEquivalenceTransition> actualSetOfEquivalenceTransitionsEnumerator = actualReport.SetOfEquivalenceTransitions.GetEnumerator();
+
+            while (currentSetOfEquivalenceTransitionsEnumerator.MoveNext() && actualSetOfEquivalenceTransitionsEnumerator.MoveNext())
+            {
+                Assert.AreEqual(currentSetOfEquivalenceTransitionsEnumerator.Current.IndexOfCurrentSetOfEquivalence,
+                    actualSetOfEquivalenceTransitionsEnumerator.Current.IndexOfCurrentSetOfEquivalence);
+
+                CollectionAssert.AreEqual(
+                    currentSetOfEquivalenceTransitionsEnumerator.Current.Symbols,
+                    actualSetOfEquivalenceTransitionsEnumerator.Current.Symbols);
+
+                Assert.AreEqual(currentSetOfEquivalenceTransitionsEnumerator.Current.CurrentSetOfEquivalence,
+                    actualSetOfEquivalenceTransitionsEnumerator.Current.CurrentSetOfEquivalence);
+
+                Assert.AreEqual(currentSetOfEquivalenceTransitionsEnumerator.Current.NextSetOfEquivalence,
+                    actualSetOfEquivalenceTransitionsEnumerator.Current.NextSetOfEquivalence);
+            }
+
+            Assert.AreEqual(actualSetsOfEquivalencePostReportCount, actualSetOfEquivalenceTransitionsPostReportCount + 1);
+            return actualSetOfEquivalenceTransitionsPostReportCount + 1;
         }
 
         [Test]

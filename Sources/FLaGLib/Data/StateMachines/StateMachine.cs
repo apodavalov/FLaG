@@ -297,11 +297,11 @@ namespace FLaGLib.Data.StateMachines
                 onSetsOfEquivalence(new SetsOfEquivalencePostReport(setsOfEquivalence, i));
             }
 
-            bool somethingChanged;
+            bool changed;
 
             do
             {
-                somethingChanged = false;
+                changed = false;
 
                 i++;
 
@@ -309,7 +309,7 @@ namespace FLaGLib.Data.StateMachines
 
                 List<SetOfEquivalenceTransition> setOfEquivalenceTransitions = new List<SetOfEquivalenceTransition>();
 
-                IDictionary<Label, int> statesMap = setsOfEquivalence.GetStatesMap();
+                IDictionary<Label, int> statesMap = GetStatesMap(setsOfEquivalence);
 
                 List<SetOfEquivalence> setsOfEquivalenceList = setsOfEquivalence.ToList();
 
@@ -375,7 +375,7 @@ namespace FLaGLib.Data.StateMachines
 
                 SetsOfEquivalence nextSetsOfEquivalence = new SetsOfEquivalence(new SortedSet<SetOfEquivalence>(buildingSetsOfEquivalence));
 
-                somethingChanged = setsOfEquivalence != nextSetsOfEquivalence;
+                changed = setsOfEquivalence != nextSetsOfEquivalence;
 
                 setsOfEquivalence = nextSetsOfEquivalence;
 
@@ -383,7 +383,7 @@ namespace FLaGLib.Data.StateMachines
                 {
                     onSetsOfEquivalence(new SetsOfEquivalencePostReport(setsOfEquivalence, i));
                 }
-            } while (somethingChanged);
+            } while (changed);
 
             if (onSetsOfEquivalenceResult != null)
             {
@@ -395,7 +395,7 @@ namespace FLaGLib.Data.StateMachines
                 return this;
             }
 
-            IDictionary<Label, Label> newStatesMap = setsOfEquivalence.GetOldNewStatesMap();
+            IDictionary<Label, Label> newStatesMap = GetOldNewStatesMap(setsOfEquivalence);
 
             ISet<Transition> transitions = new HashSet<Transition>(
                 Transitions.Select(
@@ -406,6 +406,18 @@ namespace FLaGLib.Data.StateMachines
             Label initialState = newStatesMap[InitialState];
 
             return new StateMachine(initialState, finalStates, transitions);
+        }
+
+        private IDictionary<Label, int> GetStatesMap(SetsOfEquivalence setsOfEquivalence)
+        {
+            return setsOfEquivalence.SelectMany((set, index) => set.Select(item => new Tuple<Label, int>(item, index))).
+                    ToDictionary(item => item.Item1, item => item.Item2);
+        }
+
+        private IDictionary<Label, Label> GetOldNewStatesMap(SetsOfEquivalence setsOfEquivalence)
+        {
+            return setsOfEquivalence.SelectMany(item => item.Select(subitem => new Tuple<Label, Label>(subitem, item.First()))).
+               ToDictionary(item => item.Item1, item => item.Item2);
         }
 
         private ISet<Label> ExtractStates(IEnumerable<Transition> transitions)

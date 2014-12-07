@@ -9,7 +9,7 @@ namespace FLaGLib.Data.StateMachines
 {
     public class SetsOfEquivalence : ReadOnlySet<SetOfEquivalence>, IComparable<SetsOfEquivalence>, IEquatable<SetsOfEquivalence>
     {
-        internal SetsOfEquivalence(ISet<SetOfEquivalence> set) : base(set) { }
+        public SetsOfEquivalence(ISet<SetOfEquivalence> set) : base(set) { }
 
         public static bool operator ==(SetsOfEquivalence objA, SetsOfEquivalence objB)
         {
@@ -140,18 +140,6 @@ namespace FLaGLib.Data.StateMachines
             }
 
             return 0;
-        }
-
-        internal IDictionary<Label, int> GetStatesMap()
-        {
-            return this.SelectMany((set, index) => set.Select(item => new Tuple<Label, int>(item, index))).
-                    ToDictionary(item => item.Item1, item => item.Item2);
-        }
-
-        internal IDictionary<Label, Label> GetOldNewStatesMap()
-        {
-            return this.SelectMany(item => item.Select(subitem => new Tuple<Label,Label>(subitem, item.First()))).
-               ToDictionary(item => item.Item1, item => item.Item2);
         }
     }
 }
