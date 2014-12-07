@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace FLaGLib.Test.Data.StateMachines
 {
     [TestFixture]
-    public class SetOfEquivalenceTransitionsTest
+    public class ClassOfEquivalenceSetTest
     {
         [Test]
         public void NoOneTestHasBeenImplemented()

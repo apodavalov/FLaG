@@ -54,10 +54,15 @@
     <Compile Include="Collections\ReadOnlySetTest.cs" />
     <Compile Include="Data\LabelTest.cs" />
     <Compile Include="Data\SingleLabelTest.cs" />
+    <Compile Include="Data\StateMachines\ClassOfEquivalenceSetTest.cs" />
+    <Compile Include="Data\StateMachines\ClassOfEquivalenceTest.cs" />
+    <Compile Include="Data\StateMachines\SetOfEquivalenceTest.cs" />
     <Compile Include="Data\StateMachines\SetsOfEquivalencePostReportTest.cs" />
     <Compile Include="Data\StateMachines\SetOfEquivalenceTransitionsPostReportTest.cs" />
     <Compile Include="Data\StateMachines\RemovingUnreachableStatesPostReportTest.cs" />
-    <Compile Include="Data\StateMachines\SetOfEquivalenceTransitionsTest.cs" />
+    <Compile Include="Data\StateMachines\SetOfEquivalenceTransitionTest.cs" />
+    <Compile Include="Data\StateMachines\SetsOfEquivalenceResultTest.cs" />
+    <Compile Include="Data\StateMachines\SetsOfEquivalenceTest.cs" />
     <Compile Include="Data\StateMachines\StateMachineTest.cs" />
     <Compile Include="Data\StateMachines\TransitionTest.cs" />
     <Compile Include="Extensions\ISetExtensionsTest.cs" />

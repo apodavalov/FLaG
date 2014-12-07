@@ -117,7 +117,7 @@ namespace FLaGLib.Data.StateMachines
 
             while (hasNext1 && hasNext2)
             {
-                result = states1.Current.CompareTo(states2.Current);
+                result = states1.Current.CompareToNullable(states2.Current);
 
                 if (result != 0)
                 {

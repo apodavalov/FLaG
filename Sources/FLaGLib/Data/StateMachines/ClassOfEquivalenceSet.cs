@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FLaGLib.Extensions;
 
 namespace FLaGLib.Data.StateMachines
 {
@@ -116,7 +117,7 @@ namespace FLaGLib.Data.StateMachines
 
             while (hasNext1 && hasNext2)
             {
-                result = classOfEquivalence1.Current.CompareTo(classOfEquivalence2.Current);
+                result = classOfEquivalence1.Current.CompareToNullable(classOfEquivalence2.Current);
 
                 if (result != 0)
                 {
