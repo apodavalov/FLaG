@@ -4,7 +4,6 @@ using FLaGLib.Collections;
 using FLaGLib.Extensions;
 using NUnit.Framework;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using FLaGLib.Helpers;
 
