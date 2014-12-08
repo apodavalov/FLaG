@@ -70,7 +70,8 @@
     <Compile Include="Extensions\NullableExtensionsTest.cs" />
     <Compile Include="Extensions\IntNullableExtensionsTest.cs" />
     <Compile Include="Extensions\IComparableExtensionsTest.cs" />
-    <Compile Include="Helpers\ComparableEquatableHelper.cs" />
+    <Compile Include="Helpers\EnumerateHelperTest.cs" />
+    <Compile Include="TestHelpers\ComparableEquatableHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

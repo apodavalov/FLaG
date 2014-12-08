@@ -1,7 +1,7 @@
 ﻿using FLaGLib.Data;
 using FLaGLib.Data.StateMachines;
 using FLaGLib.Helpers;
-using FLaGLib.Test.Helpers;
+using FLaGLib.Test.TestHelpers;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;

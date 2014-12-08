@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using NUnit.Framework;
 using FLaGLib.Data;
-using FLaGLib.Test.Helpers;
+using FLaGLib.Test.TestHelpers;
 
 namespace FLaGLib.Test.Data
 {

@@ -1,5 +1,5 @@
 ﻿using FLaGLib.Data;
-using FLaGLib.Test.Helpers;
+using FLaGLib.Test.TestHelpers;
 using NUnit.Framework;
 using System;
 
