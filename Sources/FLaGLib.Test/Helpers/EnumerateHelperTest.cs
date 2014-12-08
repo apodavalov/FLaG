@@ -1,12 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FLaGLib.Helpers;
+using NUnit.Framework;
 
 namespace FLaGLib.Test.Helpers
 {
-    class EnumerateHelperTest
+    [TestFixture]
+    public class EnumerateHelperTest
     {
+        [Test]
+        public void SequenceTest()
+        {
+            int[] expected = new int[] { 3, 6, 2 };
+
+            int actualCount = 0;
+
+            foreach (int v in EnumerateHelper.Sequence(3,6,2))
+            {
+                Assert.IsTrue(actualCount < expected.Length);
+                Assert.AreEqual(expected[actualCount],v);
+                actualCount++;
+            }
+
+            Assert.AreEqual(expected.Length, actualCount);
+        }
     }
 }
