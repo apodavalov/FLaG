@@ -893,14 +893,27 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
-        public void CctorTest_InitialStateDoesNotBelongToStates_Fail()
+        public void CctorTest_NoTransitions_Ok()
         {
-            ISet<Transition> transitions = new HashSet<Transition>(new Transition[] { new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))) });
-            ISet<Label> finalStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('b')) });
-            Label initialState = new Label(new SingleLabel('d'));
+            ISet<Transition> transitions = new HashSet<Transition>();
+            Label expectedInitialState = new Label(new SingleLabel('b'));
+            ISet<Label> finalStates = new HashSet<Label>(new Label[] { expectedInitialState });
 
-            new StateMachine(initialState, finalStates, transitions);
+            StateMachine stateMachine = new StateMachine(expectedInitialState, finalStates, transitions);
+
+            Label[] expectedStates = new Label[] { expectedInitialState };
+
+            char[] expectedAlphabet = new char[] { };
+
+            Transition[] expectedTransitions = new Transition[] { };
+
+            Label[] expectedFinalStates = new Label[] { expectedInitialState };
+
+            CollectionAssert.AreEqual(expectedAlphabet, stateMachine.Alphabet);
+            CollectionAssert.AreEqual(expectedStates, stateMachine.States);
+            CollectionAssert.AreEqual(expectedTransitions, stateMachine.Transitions);
+            CollectionAssert.AreEqual(expectedFinalStates, stateMachine.FinalStates);
+            Assert.AreEqual(expectedInitialState, stateMachine.InitialState);
         }
 
         [Test]

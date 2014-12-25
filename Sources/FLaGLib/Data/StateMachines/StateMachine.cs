@@ -468,10 +468,7 @@ namespace FLaGLib.Data.StateMachines
 
             ISet<Label> states = ExtractStates(transitions);
 
-            if (!states.Contains(initialState))
-            {
-                throw new ArgumentException("Set of states doesn't contain initial state.");
-            }
+            states.Add(initialState);
 
             if (!states.IsSupersetOf(finalStates))
             {
