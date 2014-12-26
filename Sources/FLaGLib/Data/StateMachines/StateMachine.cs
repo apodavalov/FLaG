@@ -458,6 +458,11 @@ namespace FLaGLib.Data.StateMachines
                 }
             }
 
+            if (finalStates.Count == 0)
+            {
+                throw new ArgumentException("Final states set is empty.");
+            }
+
             foreach (Label finalState in finalStates)
             {
                 if (finalState == null)

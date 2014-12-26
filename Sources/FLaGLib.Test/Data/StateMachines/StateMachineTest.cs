@@ -917,6 +917,17 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CctorTest_NoFinalStates_Fail()
+        {
+            ISet<Transition> transitions = new HashSet<Transition>();
+            Label initialState = new Label(new SingleLabel('b'));
+            ISet<Label> finalStates = new HashSet<Label>(new Label[] { });
+
+            StateMachine stateMachine = new StateMachine(initialState, finalStates, transitions);
+        }
+
+        [Test]
         public void CctorTest_Ok()
         {
             Label sState = new Label(new SingleLabel('S'));
