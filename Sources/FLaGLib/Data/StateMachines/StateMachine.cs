@@ -5,6 +5,7 @@ using System.Linq;
 using FLaGLib.Extensions;
 using FLaGLib.Collections;
 using FLaGLib.Helpers;
+using System.Collections;
 
 namespace FLaGLib.Data.StateMachines
 {
@@ -406,6 +407,217 @@ namespace FLaGLib.Data.StateMachines
             Label initialState = newStatesMap[InitialState];
 
             return new StateMachine(initialState, finalStates, transitions);
+        }
+
+        public void GetMetaStates()
+        {
+
+        }
+
+        public void GetMetaFinalStates()
+        {
+
+        }
+
+        public IReadOnlySet<MetaTransition> GetMetaTransitions()
+        {
+            foreach (Label state in States)
+            {
+                if (state.LabelType != LabelType.Simple)
+                {
+                    throw new InvalidOperationException("Meta transitions cannot be obtained for non simple states.");
+                }
+            }
+
+            IDictionary<char, IDictionary<Label, SortedSet<Label>>> map = 
+                new Dictionary<char, IDictionary<Label, SortedSet<Label>>>();
+
+            foreach (Transition transition in Transitions)
+            {
+                IDictionary<Label, SortedSet<Label>> value;
+                if (map.ContainsKey(transition.Symbol))
+                {
+                    value = map[transition.Symbol];
+                }
+                else
+                {
+                    map[transition.Symbol] = value = new Dictionary<Label, SortedSet<Label>>();
+                }
+
+                SortedSet<Label> set;
+
+                if (value.ContainsKey(transition.CurrentState))
+                {
+                    set = value[transition.CurrentState];
+                }
+                else
+                {
+                    value[transition.CurrentState] = set = new SortedSet<Label>();
+                }
+
+                set.Add(transition.NextState);
+            }
+
+            IDictionary<char, IDictionary<SortedSet<Label>, IList<SortedSet<Label>>>> metaTransitions = 
+                new Dictionary<char, IDictionary<SortedSet<Label>, IList<SortedSet<Label>>>>();
+
+            IDictionary<char, IList<Tuple<SortedSet<Label>,SortedSet<Label>>>> values = 
+                new Dictionary<char,IList<Tuple<SortedSet<Label>,SortedSet<Label>>>>();
+
+            foreach (KeyValuePair<char, IDictionary<Label, SortedSet<Label>>> symbolStateStatesMap in map)
+            {
+                foreach (KeyValuePair<Label,SortedSet<Label>> stateStatesMap in symbolStateStatesMap.Value)
+                {
+                    IList<Tuple<SortedSet<Label>, SortedSet<Label>>> list;
+
+                    if (values.ContainsKey(symbolStateStatesMap.Key))
+                    {
+                        list = values[symbolStateStatesMap.Key];
+                    }
+                    else
+                    {
+                        values[symbolStateStatesMap.Key] = list = new List<Tuple<SortedSet<Label>, SortedSet<Label>>>();
+                    }
+
+                    Tuple<SortedSet<Label>, SortedSet<Label>> tuple = 
+                        new Tuple<SortedSet<Label>, SortedSet<Label>>(
+                            new SortedSet<Label>(EnumerateHelper.Sequence(stateStatesMap.Key)), 
+                            stateStatesMap.Value);
+
+                    list.Add(tuple);
+
+                    AddMetaTransition(symbolStateStatesMap.Key, tuple, metaTransitions);
+                }
+            }
+
+            do
+            {
+                IDictionary<char, IList<Tuple<SortedSet<Label>, SortedSet<Label>>>> newValues = 
+                    new Dictionary<char, IList<Tuple<SortedSet<Label>, SortedSet<Label>>>>();
+
+                foreach (KeyValuePair<char, IList<Tuple<SortedSet<Label>,SortedSet<Label>>>> symbolStateStatesMap in values)
+                {
+                    foreach (KeyValuePair<Label, SortedSet<Label>> stateStatesMap in map[symbolStateStatesMap.Key])
+                    {
+                        foreach (Tuple<SortedSet<Label>,SortedSet<Label>> metaTransition in symbolStateStatesMap.Value)
+                        {
+                            if (!stateStatesMap.Value.IsSupersetOf(metaTransition.Item2) &&
+                                !metaTransition.Item2.IsSupersetOf(stateStatesMap.Value))
+                            {
+                                SortedSet<Label> currentState = new SortedSet<Label>(metaTransition.Item1);
+                                currentState.Add(stateStatesMap.Key);
+
+                                SortedSet<Label> nextState = new SortedSet<Label>(metaTransition.Item2);
+                                nextState.UnionWith(stateStatesMap.Value);
+
+                                Tuple<SortedSet<Label>, SortedSet<Label>> tuple =
+                                    new Tuple<SortedSet<Label>, SortedSet<Label>>(currentState, nextState);
+
+                                if (!IsMetaTransitionAbsorbed(symbolStateStatesMap.Key,tuple,metaTransitions))
+                                {
+                                    IList<Tuple<SortedSet<Label>, SortedSet<Label>>> list;
+                                
+                                    if (newValues.ContainsKey(symbolStateStatesMap.Key))
+                                    {
+                                        list = newValues[symbolStateStatesMap.Key];
+                                    }
+                                    else
+                                    {
+                                        newValues[symbolStateStatesMap.Key] = list = 
+                                            new List<Tuple<SortedSet<Label>, SortedSet<Label>>>();
+                                    }
+
+                                    list.Add(tuple);
+
+                                    AddMetaTransition(symbolStateStatesMap.Key, tuple, metaTransitions);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                values = newValues;
+            } while (values.Count > 0);
+
+            SortedSet<MetaTransition> metaTransitionSet = new SortedSet<MetaTransition>();
+
+            foreach (KeyValuePair<char, IDictionary<SortedSet<Label>, IList<SortedSet<Label>>>> transitionMap in metaTransitions)
+            {
+                foreach (KeyValuePair<SortedSet<Label>, IList<SortedSet<Label>>> currentNextStatesMap in transitionMap.Value)
+                {
+                    foreach (SortedSet<Label> currentState in currentNextStatesMap.Value)
+                    {
+                        metaTransitionSet.Add(ToMetaTransition(transitionMap.Key, currentState, currentNextStatesMap.Key));
+                    }
+                }
+            }
+
+            return metaTransitionSet.AsReadOnly();
+        }
+
+        private bool IsMetaTransitionAbsorbed(char symbol, Tuple<SortedSet<Label>, SortedSet<Label>> tuple, 
+            IDictionary<char, IDictionary<SortedSet<Label>, IList<SortedSet<Label>>>> metaTransitions)
+        {
+            if (!metaTransitions.ContainsKey(symbol))
+            {
+                return false;
+            }
+
+            IDictionary<SortedSet<Label>, IList<SortedSet<Label>>> map = metaTransitions[symbol];
+
+            if (!map.ContainsKey(tuple.Item2))
+            {
+                return false;
+            }
+
+            IList<SortedSet<Label>> list = map[tuple.Item2];
+
+            foreach (SortedSet<Label> set in list)
+            {
+                if (set.IsSubsetOf(tuple.Item1))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void AddMetaTransition(char symbol, Tuple<SortedSet<Label>, SortedSet<Label>> tuple,
+            IDictionary<char, IDictionary<SortedSet<Label>, IList<SortedSet<Label>>>> metaTransitions)
+        {
+            IDictionary<SortedSet<Label>, IList<SortedSet<Label>>> map;
+
+            if (metaTransitions.ContainsKey(symbol))
+            {
+                map = metaTransitions[symbol];
+            }
+            else
+            {
+                metaTransitions[symbol] = map = new Dictionary<SortedSet<Label>,IList<SortedSet<Label>>>(LabelSetEqualityComparer.Instance);
+            }
+
+            IList<SortedSet<Label>> list;
+
+            if (map.ContainsKey(tuple.Item2))
+            {
+                list = map[tuple.Item2];
+            }
+            else
+            {
+                map[tuple.Item2] = list = new List<SortedSet<Label>>();
+            }
+
+            list.Add(tuple.Item1);
+        }
+
+        private MetaTransition ToMetaTransition(char symbol, SortedSet<Label> currentState, SortedSet<Label> nextState)
+        {
+            SortedSet<Label> metaCurrentOptionalStates = new SortedSet<Label>(States);
+            metaCurrentOptionalStates.ExceptWith(currentState);
+
+            return new MetaTransition(currentState.AsReadOnly(), metaCurrentOptionalStates.AsReadOnly(), 
+                symbol, nextState.AsReadOnly());
         }
 
         private IDictionary<Label, int> GetStatesMap(SetsOfEquivalence setsOfEquivalence)

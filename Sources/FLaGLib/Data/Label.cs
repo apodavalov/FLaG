@@ -166,36 +166,7 @@ namespace FLaGLib.Data
                 return result;
             }
 
-            IEnumerator<SingleLabel> sublabels1 = Sublabels.GetEnumerator();
-            IEnumerator<SingleLabel> sublabels2 = other.Sublabels.GetEnumerator();
-
-            bool hasNext1 = sublabels1.MoveNext();
-            bool hasNext2 = sublabels2.MoveNext();
-
-            while (hasNext1 && hasNext2)
-            {
-                result = sublabels1.Current.CompareTo(sublabels2.Current);
-
-                if (result != 0)
-                {
-                    return result;
-                }
-
-                hasNext1 = sublabels1.MoveNext();
-                hasNext2 = sublabels2.MoveNext();
-            }
-
-            if (hasNext1)
-            {
-                return 1;
-            }
-
-            if (hasNext2)
-            {
-                return -1;
-            }
-
-            return 0;
+            return Sublabels.SequenceCompare(other.Sublabels);
         }
 
         public override string ToString()

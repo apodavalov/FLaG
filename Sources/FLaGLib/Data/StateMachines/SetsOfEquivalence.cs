@@ -80,14 +80,7 @@ namespace FLaGLib.Data.StateMachines
 
         public override int GetHashCode()
         {
-            int hash = 0;
-
-            foreach (SetOfEquivalence set in this)
-            {
-                hash ^= set.GetHashCodeNullable();
-            }
-
-            return hash;
+            return this.GetSequenceHashCode();
         }
 
         public bool Equals(SetsOfEquivalence other)
@@ -102,43 +95,7 @@ namespace FLaGLib.Data.StateMachines
 
         public int CompareTo(SetsOfEquivalence other)
         {
-            if (other == null)
-            {
-                return 1;
-            }
-
-            int result = 0;
-
-            IEnumerator<SetOfEquivalence> states1 = GetEnumerator();
-            IEnumerator<SetOfEquivalence> states2 = other.GetEnumerator();
-
-            bool hasNext1 = states1.MoveNext();
-            bool hasNext2 = states2.MoveNext();
-
-            while (hasNext1 && hasNext2)
-            {
-                result = states1.Current.CompareToNullable(states2.Current);
-
-                if (result != 0)
-                {
-                    return result;
-                }
-
-                hasNext1 = states1.MoveNext();
-                hasNext2 = states2.MoveNext();
-            }
-
-            if (hasNext1)
-            {
-                return 1;
-            }
-
-            if (hasNext2)
-            {
-                return -1;
-            }
-
-            return 0;
+            return this.SequenceCompare(other);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FLaGLib.Collections;
+using FLaGLib.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -100,14 +101,7 @@ namespace FLaGLib.Data.StateMachines
 
         public override int GetHashCode()
         {
-            int hash = SetNum.GetHashCode();
-
-            foreach (char symbol in Symbols)
-            {
-                hash ^= symbol.GetHashCode();
-            }
-
-            return hash;
+            return SetNum.GetHashCode() ^ Symbols.GetSequenceHashCode();
         }
 
         public bool Equals(ClassOfEquivalence other)
@@ -139,36 +133,7 @@ namespace FLaGLib.Data.StateMachines
                 return result;
             }
 
-            IEnumerator<char> symbols1 = Symbols.GetEnumerator();
-            IEnumerator<char> symbols2 = other.Symbols.GetEnumerator();
-
-            bool hasNext1 = symbols1.MoveNext();
-            bool hasNext2 = symbols2.MoveNext();
-
-            while (hasNext1 && hasNext2)
-            {
-                result = symbols1.Current.CompareTo(symbols2.Current);
-
-                if (result != 0)
-                {
-                    return result;
-                }
-
-                hasNext1 = symbols1.MoveNext();
-                hasNext2 = symbols2.MoveNext();
-            }
-
-            if (hasNext1)
-            {
-                return 1;
-            }
-
-            if (hasNext2)
-            {
-                return -1;
-            }
-
-            return 0;
+            return Symbols.SequenceCompare(other.Symbols);
         }
     }
 }
