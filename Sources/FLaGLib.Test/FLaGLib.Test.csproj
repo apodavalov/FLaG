@@ -65,6 +65,7 @@
     <Compile Include="Data\StateMachines\SetsOfEquivalenceTest.cs" />
     <Compile Include="Data\StateMachines\StateMachineTest.cs" />
     <Compile Include="Data\StateMachines\TransitionTest.cs" />
+    <Compile Include="Extensions\IEnumerableExtensionTest.cs" />
     <Compile Include="Extensions\ISetExtensionsTest.cs" />
     <Compile Include="Extensions\ObjectExtensionsTest.cs" />
     <Compile Include="Extensions\NullableExtensionsTest.cs" />
