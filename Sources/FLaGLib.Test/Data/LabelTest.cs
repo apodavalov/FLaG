@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using FLaGLib.Data;
 using FLaGLib.Test.TestHelpers;
+using FLaGLib.Helpers;
 
 namespace FLaGLib.Test.Data
 {
@@ -31,6 +32,28 @@ namespace FLaGLib.Test.Data
         public void CctorTest_ComplexNull_Fail()
         {
             new Label((ISet<SingleLabel>)null);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CctorTest_ComplexEmpty_Fail()
+        {
+            new Label(new SortedSet<SingleLabel>());
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void CctorTest_AtLeastOneSingleLabelIsNull_Fail()
+        {
+            new Label(
+                new SortedSet<SingleLabel>(
+                    EnumerateHelper.Sequence(
+                        new SingleLabel('S'),
+                        null,
+                        new SingleLabel('D')
+                    )
+                )
+            );
         }
 
         [Test]

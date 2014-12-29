@@ -10,10 +10,6 @@ namespace FLaGLib.Test.Collections
     [TestFixture]
     public class ReadOnlySetTest
     {
-        [Test]
-        public void NoOneTestHasBeenImplemented()
-        {
-            throw new NotImplementedException();
-        }
+
     }
 }

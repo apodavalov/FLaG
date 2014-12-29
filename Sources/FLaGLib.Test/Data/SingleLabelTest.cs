@@ -21,7 +21,8 @@ namespace FLaGLib.Test.Data
             new Tuple<SingleLabel, SingleLabel, int>(new SingleLabel('b',5,6,7), new SingleLabel('b',5,6,7), 0),
             new Tuple<SingleLabel, SingleLabel, int>(new SingleLabel('b',4,3,2), new SingleLabel('c',4,3,2), -1),
             new Tuple<SingleLabel, SingleLabel, int>(new SingleLabel('b',5,3,2), new SingleLabel('b',6,3,2), -1),
-            new Tuple<SingleLabel, SingleLabel, int>(new SingleLabel('b',5,6,7), new SingleLabel('b',5,6,2), 1)
+            new Tuple<SingleLabel, SingleLabel, int>(new SingleLabel('b',5,6,7), new SingleLabel('b',5,6,2), 1),
+            new Tuple<SingleLabel, SingleLabel, int>(new SingleLabel('b',5,7,6), new SingleLabel('b',5,2,6), 1)
         };
 
         [Test]

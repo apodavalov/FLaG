@@ -26,7 +26,15 @@ namespace FLaGLib.Test.Data.StateMachines
            new Tuple<Transition, Transition, int>(
                 new Transition(new Label(new SingleLabel('S', subIndex: 1)), 'd', new Label(new SingleLabel('S', subIndex: 2))),
                 new Transition(new Label(new SingleLabel('P', subIndex: 1)), 'e', new Label(new SingleLabel('O', subIndex: 2))),
-                3)
+                3),
+           new Tuple<Transition, Transition, int>(
+                new Transition(new Label(new SingleLabel('S', subIndex: 1)), 'd', new Label(new SingleLabel('S', subIndex: 2))),
+                null,
+                1),
+           new Tuple<Transition, Transition, int>(
+                null,
+                null,
+                0)
         };
 
         [Test]

@@ -10,10 +10,6 @@ namespace FLaGLib.Test.Data.StateMachines
     [TestFixture]
     public class ClassOfEquivalenceSetTest
     {
-        [Test]
-        public void NoOneTestHasBeenImplemented()
-        {
-            throw new NotImplementedException();
-        }
+
     }
 }
