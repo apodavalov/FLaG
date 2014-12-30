@@ -409,25 +409,38 @@ namespace FLaGLib.Data.StateMachines
             return new StateMachine(initialState, finalStates, transitions);
         }
 
-        public void GetMetaStates()
+        public IReadOnlySet<Label> GetMetaState()
         {
+            CheckStatesSimple("Meta state cannot be obtained for non simple states.");
 
+            return States;
         }
 
-        public void GetMetaFinalStates()
+        public MetaFinalState GetMetaFinalState()
         {
+            CheckStatesSimple("Meta final state cannot be obtained for non simple states.");
 
+            SortedSet<Label> optionalStates = new SortedSet<Label>(States);
+            
+            optionalStates.ExceptWith(FinalStates);
+
+            return new MetaFinalState(FinalStates, optionalStates.AsReadOnly());
         }
 
-        public IReadOnlySet<MetaTransition> GetMetaTransitions()
+        private void CheckStatesSimple(string message)
         {
             foreach (Label state in States)
             {
                 if (state.LabelType != LabelType.Simple)
                 {
-                    throw new InvalidOperationException("Meta transitions cannot be obtained for non simple states.");
+                    throw new InvalidOperationException(message);
                 }
             }
+        }
+
+        public IReadOnlySet<MetaTransition> GetMetaTransitions()
+        {
+            CheckStatesSimple("Meta transitions cannot be obtained for non simple states.");
 
             IDictionary<char, IDictionary<Label, SortedSet<Label>>> map = 
                 new Dictionary<char, IDictionary<Label, SortedSet<Label>>>();

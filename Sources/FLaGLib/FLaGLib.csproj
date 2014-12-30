@@ -45,6 +45,7 @@
     <Compile Include="Data\LabelType.cs" />
     <Compile Include="Data\SingleLabel.cs" />
     <Compile Include="Data\StateMachines\LabelSetEqualityComparer.cs" />
+    <Compile Include="Data\StateMachines\MetaFinalState.cs" />
     <Compile Include="Data\StateMachines\MetaTransition.cs" />
     <Compile Include="Data\StateMachines\SetsOfEquivalencePostReport.cs" />
     <Compile Include="Data\StateMachines\SetOfEquivalenceTransitionsPostReport.cs" />

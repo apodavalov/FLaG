@@ -422,7 +422,211 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
-        public void GetMetaTransitionsTest()
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GetMetaTransitionsTest_AtLeastOneNonSimpleLabel_Fail()
+        {
+            Label s11State = new Label(new SingleLabel('S', subIndex: 11));
+            Label s8s16State = new Label(
+                new SortedSet<SingleLabel>(
+                    EnumerateHelper.Sequence(
+                        new SingleLabel('S', subIndex: 8),
+                        new SingleLabel('S', subIndex: 16)
+                    )
+                )
+            );
+
+            Label[] states = new Label[] 
+            {
+                s11State,
+                s8s16State 
+            };
+
+            Transition[] transitions = new Transition[] 
+            {
+                new Transition(s11State, 'a', s8s16State)
+            };
+
+            Label[] finalStates = new Label[]
+            {
+                s8s16State
+            };
+
+            Label initialState = s11State;
+
+            new StateMachine(
+                initialState, 
+                new SortedSet<Label>(finalStates), 
+                new SortedSet<Transition>(transitions)
+            ).GetMetaTransitions();
+        }
+
+        [Test]
+        public void GetMetaStateTest_Ok()
+        {
+            Label s1State = new Label(new SingleLabel('S', subIndex: 1));
+            Label s2State = new Label(new SingleLabel('S', subIndex: 2));
+            Label s3State = new Label(new SingleLabel('S', subIndex: 3));
+
+            Label initialState = s1State;
+
+            Label[] states = new Label[] 
+            {
+                s1State,
+                s2State,
+                s3State
+            };
+
+            Label[] finalStates = new Label[]
+            {
+                s3State
+            };
+
+            Transition[] transitions = new Transition[] 
+            {
+                new Transition(s1State, 'a', s2State),
+                new Transition(s2State, 'c', s3State),
+                new Transition(s1State, 'c', s3State)
+            };
+
+            StateMachine stateMachine = new StateMachine(
+                initialState,
+                new SortedSet<Label>(finalStates),
+                new SortedSet<Transition>(transitions));
+
+            IReadOnlySet<Label> metaState = stateMachine.GetMetaState();
+
+            CollectionAssert.AreEqual(states, metaState);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GetMetaStateTest_AtLeastOneNonSimpleLabel_Fail()
+        {
+            Label s11State = new Label(new SingleLabel('S', subIndex: 11));
+            Label s8s16State = new Label(
+                new SortedSet<SingleLabel>(
+                    EnumerateHelper.Sequence(
+                        new SingleLabel('S', subIndex: 8),
+                        new SingleLabel('S', subIndex: 16)
+                    )
+                )
+            );
+
+            Label[] states = new Label[] 
+            {
+                s11State,
+                s8s16State 
+            };
+
+            Transition[] transitions = new Transition[] 
+            {
+                new Transition(s11State, 'a', s8s16State)
+            };
+
+            Label[] finalStates = new Label[]
+            {
+                s8s16State
+            };
+
+            Label initialState = s11State;
+
+            new StateMachine(
+                initialState,
+                new SortedSet<Label>(finalStates),
+                new SortedSet<Transition>(transitions)
+            ).GetMetaState();
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GetMetaFinalStateTest_AtLeastOneNonSimpleLabel_Fail()
+        {
+            Label s11State = new Label(new SingleLabel('S', subIndex: 11));
+            Label s8s16State = new Label(
+                new SortedSet<SingleLabel>(
+                    EnumerateHelper.Sequence(
+                        new SingleLabel('S', subIndex: 8),
+                        new SingleLabel('S', subIndex: 16)
+                    )
+                )
+            );
+
+            Label[] states = new Label[] 
+            {
+                s11State,
+                s8s16State 
+            };
+
+            Transition[] transitions = new Transition[] 
+            {
+                new Transition(s11State, 'a', s8s16State)
+            };
+
+            Label[] finalStates = new Label[]
+            {
+                s8s16State
+            };
+
+            Label initialState = s11State;
+
+            new StateMachine(
+                initialState,
+                new SortedSet<Label>(finalStates),
+                new SortedSet<Transition>(transitions)
+            ).GetMetaFinalState();
+        }
+
+        [Test]
+        public void GetMetaFinalStateTest_Ok()
+        {
+            Label s1State = new Label(new SingleLabel('S', subIndex: 1));
+            Label s2State = new Label(new SingleLabel('S', subIndex: 2));
+            Label s3State = new Label(new SingleLabel('S', subIndex: 3));
+
+            Label initialState = s1State;
+
+            Label[] states = new Label[] 
+            {
+                s1State,
+                s2State,
+                s3State
+            };
+
+            Label[] finalStates = new Label[]
+            {
+                s3State
+            };
+
+            Transition[] transitions = new Transition[] 
+            {
+                new Transition(s1State, 'a', s2State),
+                new Transition(s2State, 'c', s3State),
+                new Transition(s1State, 'c', s3State)
+            };
+
+            StateMachine stateMachine = new StateMachine(
+                initialState, 
+                new SortedSet<Label>(finalStates), 
+                new SortedSet<Transition>(transitions));
+
+            Label[] expectedOptionalStates = new Label[]
+            {
+                s1State, s2State
+            };
+
+            Label[] expectedRequiredStates = new Label[]
+            {
+                s3State
+            };
+
+            MetaFinalState metaFinalState = stateMachine.GetMetaFinalState();
+
+            CollectionAssert.AreEqual(expectedOptionalStates, metaFinalState.OptionalStates);
+            CollectionAssert.AreEqual(expectedRequiredStates, metaFinalState.RequiredStates);
+        }
+
+        [Test]
+        public void GetMetaTransitionsTest_Ok()
         {
             Label s11State = new Label(new SingleLabel('S',subIndex: 11));
             Label s8State = new Label(new SingleLabel('S', subIndex: 8));
@@ -435,7 +639,7 @@ namespace FLaGLib.Test.Data.StateMachines
 
             Label[] states = new Label[] 
             {
-                 s11State,
+                s11State,
                 s8State,
                 s7State,
                 s2State,
@@ -479,7 +683,7 @@ namespace FLaGLib.Test.Data.StateMachines
 
             MetaTransition[] expectedMetaTransitions = new MetaTransition[]
             {
-                               new MetaTransition(
+                new MetaTransition(
                     new SortedSet<Label>(EnumerateHelper.Sequence(
                         s16State
                     )).AsReadOnly(),
