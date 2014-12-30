@@ -39,9 +39,9 @@ namespace FLaGLib.Data.StateMachines
             char symbol,
             IReadOnlySet<Label> metaNextStates)
         {
-            if (metaCurrentOptionalStates == null)
+            if (metaCurrentRequiredStates == null)
             {
-                throw new ArgumentNullException("metaCurrentOptionalStates");
+                throw new ArgumentNullException("metaCurrentRequiredStates");
             }
 
             if (metaCurrentOptionalStates == null)
