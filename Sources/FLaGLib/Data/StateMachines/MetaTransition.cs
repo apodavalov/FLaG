@@ -194,9 +194,9 @@ namespace FLaGLib.Data.StateMachines
 
             sb.Append("q_1 ... q_");
             sb.Append(CurrentOptionalStates.Count);
-            sb.Append(",");
+            sb.Append("], ");
             sb.Append(Symbol);
-            sb.Append("] -> [");
+            sb.Append(") -> [");
 
             foreach (Label l in NextStates)
             {

@@ -316,5 +316,61 @@ namespace FLaGLib.Test.Data.StateMachines
         {
             ComparableEquatableHelper.TestEquals(_Expectations);
         }
+
+        [Test]
+        public void GetHashCodeTest()
+        {
+            MetaTransition metaTransition = 
+                new MetaTransition(
+                    new SortedSet<Label>(
+                        EnumerateHelper.Sequence(
+                            new Label(new SingleLabel('e')),
+                            new Label(new SingleLabel('r'))
+                        )
+                    ).AsReadOnly(), 
+                    new SortedSet<Label>(
+                        EnumerateHelper.Sequence(
+                            new Label(new SingleLabel('e')),
+                            new Label(new SingleLabel('r'))
+                        )
+                    ).AsReadOnly(), 
+                    'a', 
+                    new SortedSet<Label>(
+                        EnumerateHelper.Sequence(
+                            new Label(new SingleLabel('e')),
+                            new Label(new SingleLabel('r'))
+                        )
+                   ).AsReadOnly());
+
+            Assert.AreEqual(7733366,metaTransition.GetHashCode());
+        }
+
+        [Test]
+        public void ToStringTest()
+        {
+            MetaTransition metaTransition =
+                new MetaTransition(
+                    new SortedSet<Label>(
+                        EnumerateHelper.Sequence(
+                            new Label(new SingleLabel('e')),
+                            new Label(new SingleLabel('r'))
+                        )
+                    ).AsReadOnly(),
+                    new SortedSet<Label>(
+                        EnumerateHelper.Sequence(
+                            new Label(new SingleLabel('e')),
+                            new Label(new SingleLabel('r'))
+                        )
+                    ).AsReadOnly(),
+                    'a',
+                    new SortedSet<Label>(
+                        EnumerateHelper.Sequence(
+                            new Label(new SingleLabel('e')),
+                            new Label(new SingleLabel('r'))
+                        )
+                   ).AsReadOnly());
+
+            Assert.AreEqual("δ([{e_null_null_null} {r_null_null_null} q_1 ... q_2], a) -> [ {e_null_null_null} {r_null_null_null}], q_1 ... q_2 : {e_null_null_null} {r_null_null_null}", metaTransition.ToString());
+        }
     }
 }
