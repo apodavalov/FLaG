@@ -2,7 +2,6 @@
 using FLaGLib.Extensions;
 using System.Linq;
 using System;
-using System.Globalization;
 using System.Text;
 
 namespace FLaGLib.Data.StateMachines
