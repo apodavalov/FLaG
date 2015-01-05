@@ -44,11 +44,22 @@ namespace FLaGLib.Test.Extensions
             Assert.AreEqual(0, ((string[])null).GetSequenceHashCode());
             Assert.AreEqual(0, new string[0].GetSequenceHashCode());
 
-            string[] sequence = new string[] { "4j9dneh3", "d9end", "djeheb,gf" };
+            string[] sequence1 = new string[] { "4j9dneh3", "d9end", "djeheb,gf" };
+            string[] sequence2 = new string[] { "4j9dneh3", "d9end", "djeheb,gf" };
+            string[] sequence3 = new string[] { "erg34g", "3ghg6", "7g33g" };
+            string[] sequence4 = new string[] { "erg34g", "3ghg6", "7g33g" };
 
-            int expectedHash = -1864936153;
+            int hash1 = sequence1.GetSequenceHashCode();
+            int hash2 = sequence2.GetSequenceHashCode();
+            int hash3 = sequence3.GetSequenceHashCode();
+            int hash4 = sequence4.GetSequenceHashCode();
 
-            Assert.AreEqual(expectedHash, sequence.GetSequenceHashCode());
+            Assert.AreEqual(hash1, hash2);
+            Assert.AreNotEqual(hash1, hash3);
+            Assert.AreNotEqual(hash1, hash4);
+            Assert.AreNotEqual(hash2, hash3);
+            Assert.AreNotEqual(hash2, hash4);
+            Assert.AreEqual(hash3, hash4);
         }
     }
 }
