@@ -1098,7 +1098,42 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
-        public void ConvertToDeterministicIfNotTest()
+        public void ConvertToDeterministicIfNotTest_Deterministic()
+        {
+            Label s11State = new Label(new SingleLabel('S', subIndex: 11));
+            Label s8State = new Label(new SingleLabel('S', subIndex: 8));
+            Label s7State = new Label(new SingleLabel('S', subIndex: 7));
+
+            Label[] states = new Label[] 
+            {
+                s11State,
+                s8State,
+                s7State
+            };
+
+            Transition[] transitions = new Transition[] 
+            {
+                new Transition(s11State, 'a', s8State),
+                new Transition(s11State, 'c', s8State),
+                new Transition(s8State, 'a', s8State),
+                new Transition(s8State, 'c', s8State),
+                new Transition(s8State, 'b', s7State),
+            };
+
+            Label initialState = s11State;
+
+            Label[] finalStates = new Label[]
+            {
+                s7State
+            };
+
+            StateMachine stateMachine = new StateMachine(initialState, new HashSet<Label>(finalStates), new HashSet<Transition>(transitions));
+
+            Assert.IsTrue(object.ReferenceEquals(stateMachine, stateMachine.ConvertToDeterministicIfNot()));
+        }
+
+        [Test]
+        public void ConvertToDeterministicIfNotTest_NonDeterministic()
         {
             Label s11State = new Label(new SingleLabel('S',subIndex: 11));
             Label s8State = new Label(new SingleLabel('S', subIndex: 8));
@@ -1238,7 +1273,42 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
-        public void MinimizeTest()
+        public void MinimizeTest_AlreadyMinimized()
+        {
+            Label s11State = new Label(new SingleLabel('S', subIndex: 11));
+            Label s8State = new Label(new SingleLabel('S', subIndex: 8));
+            Label s7State = new Label(new SingleLabel('S', subIndex: 7));
+
+            Label[] states = new Label[] 
+            {
+                s11State,
+                s8State,
+                s7State
+            };
+
+            Transition[] transitions = new Transition[] 
+            {
+                new Transition(s11State, 'a', s8State),
+                new Transition(s11State, 'c', s8State),
+                new Transition(s8State, 'a', s8State),
+                new Transition(s8State, 'c', s8State),
+                new Transition(s8State, 'b', s7State),
+            };
+
+            Label initialState = s11State;
+
+            Label[] finalStates = new Label[]
+            {
+                s7State
+            };
+
+            StateMachine stateMachine = new StateMachine(initialState, new HashSet<Label>(finalStates), new HashSet<Transition>(transitions));
+
+            Assert.IsTrue(object.ReferenceEquals(stateMachine, stateMachine.Minimize()));
+        }
+
+        [Test]
+        public void MinimizeTest_NotMinimized()
         {
             Label s1State = new Label(new SingleLabel('S', subIndex: 1));
             Label s2State = new Label(new SingleLabel('S', subIndex: 2));
