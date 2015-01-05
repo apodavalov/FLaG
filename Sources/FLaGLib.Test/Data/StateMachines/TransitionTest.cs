@@ -66,9 +66,7 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void GetHashCodeTest()
         {
-            Transition transition = new Transition(new Label(new SingleLabel('S', subIndex: 1)), 'd', new Label(new SingleLabel('S', subIndex: 2)));
-
-            Assert.AreEqual(6553703,transition.GetHashCode());
+            ComparableEquatableHelper.TestGetHashCode(_Expectations);
         }
 
         [Test]

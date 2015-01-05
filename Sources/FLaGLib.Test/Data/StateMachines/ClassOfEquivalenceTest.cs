@@ -116,13 +116,7 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void GetHashCodeTest()
         {
-            ClassOfEquivalence classOfEquivalence = new ClassOfEquivalence(
-                2, 
-                new SortedSet<char>(
-                    EnumerateHelper.Sequence('a', 'b')
-                ).AsReadOnly());
-
-            Assert.AreEqual(196609,classOfEquivalence.GetHashCode());
+            ComparableEquatableHelper.TestGetHashCode(_Expectations);
         }
 
         [Test]

@@ -51,6 +51,24 @@ namespace FLaGLib.Test.TestHelpers
             }
         }
 
+        public static void TestGetHashCode<T>(IEnumerable<Tuple<T, T, int>> expectations)
+        {
+            foreach (Tuple<T, T, int> expectation in expectations)
+            {
+                Type typeofT = typeof(T);
+
+                MethodInfo method = GetMethod(false, typeofT, "GetHashCode", new Type[] { }, typeof(int));
+
+                if (method != null && expectation.Item1 != null && expectation.Item2 != null)
+                {
+                    int hashCode1 = (int)method.Invoke(expectation.Item1, new object[] { });
+                    int hashCode2 = (int)method.Invoke(expectation.Item2, new object[] { });
+
+                    Assert.AreEqual(expectation.Item3 == 0, hashCode1 == hashCode2);
+                }
+            }
+        }
+
         public static void TestCompare<T>(IEnumerable<Tuple<T, T, int>> expectations) where T : IComparable<T>
         {
             foreach (Tuple<T, T, int> expectation in expectations)
@@ -111,9 +129,14 @@ namespace FLaGLib.Test.TestHelpers
 
         private static MethodInfo GetStaticMethod(Type type, string name, Type[] types, Type returnType)
         {
+            return GetMethod(true, type, name, types, returnType);
+        }
+
+        private static MethodInfo GetMethod(bool mustBeStatic, Type type, string name, Type[] types, Type returnType)
+        {
             MethodInfo method = type.GetMethod(name, types);
 
-            if (method != null && !method.IsStatic)
+            if (method != null && method.IsStatic != mustBeStatic)
             {
                 method = null;
             }

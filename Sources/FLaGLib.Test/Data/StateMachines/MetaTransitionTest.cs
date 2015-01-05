@@ -317,29 +317,7 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void GetHashCodeTest()
         {
-            MetaTransition metaTransition = 
-                new MetaTransition(
-                    new SortedSet<Label>(
-                        EnumerateHelper.Sequence(
-                            new Label(new SingleLabel('e')),
-                            new Label(new SingleLabel('r'))
-                        )
-                    ).AsReadOnly(), 
-                    new SortedSet<Label>(
-                        EnumerateHelper.Sequence(
-                            new Label(new SingleLabel('e')),
-                            new Label(new SingleLabel('r'))
-                        )
-                    ).AsReadOnly(), 
-                    'a', 
-                    new SortedSet<Label>(
-                        EnumerateHelper.Sequence(
-                            new Label(new SingleLabel('e')),
-                            new Label(new SingleLabel('r'))
-                        )
-                   ).AsReadOnly());
-
-            Assert.AreEqual(7733366,metaTransition.GetHashCode());
+            ComparableEquatableHelper.TestGetHashCode(_Expectations);
         }
 
         [Test]
