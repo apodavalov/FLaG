@@ -227,7 +227,7 @@ namespace FLaGLib.Test.Data.StateMachines
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void CctorTest_MetaCurrentOptionalStatesIsNull_Fail()
+        public void CctorTest_MetaCurrentOptionalStatesNull_Fail()
         {
             new MetaTransition(
                 new SortedSet<Label>().AsReadOnly(), 
@@ -238,7 +238,7 @@ namespace FLaGLib.Test.Data.StateMachines
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void CctorTest_MetaCurrentRequiredStatesIsNull_Fail()
+        public void CctorTest_MetaCurrentRequiredStatesNull_Fail()
         {
             new MetaTransition(
                 null,
@@ -249,7 +249,7 @@ namespace FLaGLib.Test.Data.StateMachines
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void CctorTest_MetaNextStatesIsNull_Fail()
+        public void CctorTest_MetaNextStatesNull_Fail()
         {
             new MetaTransition(
                 new SortedSet<Label>().AsReadOnly(),

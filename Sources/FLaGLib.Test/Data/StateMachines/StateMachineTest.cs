@@ -423,7 +423,7 @@ namespace FLaGLib.Test.Data.StateMachines
 
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void GetMetaTransitionsTest_AtLeastOneNonSimpleLabel_Fail()
+        public void GetMetaTransitionsTest_AnyNonSimpleLabel_Fail()
         {
             Label s11State = new Label(new SingleLabel('S', subIndex: 11));
             Label s8s16State = new Label(
@@ -500,7 +500,7 @@ namespace FLaGLib.Test.Data.StateMachines
 
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void GetMetaStateTest_AtLeastOneNonSimpleLabel_Fail()
+        public void GetMetaStateTest_AnyNonSimpleLabel_Fail()
         {
             Label s11State = new Label(new SingleLabel('S', subIndex: 11));
             Label s8s16State = new Label(
@@ -539,7 +539,7 @@ namespace FLaGLib.Test.Data.StateMachines
 
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void GetMetaFinalStateTest_AtLeastOneNonSimpleLabel_Fail()
+        public void GetMetaFinalStateTest_AnyNonSimpleLabel_Fail()
         {
             Label s11State = new Label(new SingleLabel('S', subIndex: 11));
             Label s8s16State = new Label(

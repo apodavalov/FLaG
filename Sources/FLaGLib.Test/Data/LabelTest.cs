@@ -43,7 +43,7 @@ namespace FLaGLib.Test.Data
 
         [Test]
         [ExpectedException(typeof(ArgumentException))]
-        public void CctorTest_AtLeastOneSingleLabelIsNull_Fail()
+        public void CctorTest_AnySingleLabelNull_Fail()
         {
             new Label(
                 new SortedSet<SingleLabel>(

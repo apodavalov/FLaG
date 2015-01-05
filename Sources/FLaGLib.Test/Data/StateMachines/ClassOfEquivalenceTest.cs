@@ -93,7 +93,7 @@ namespace FLaGLib.Test.Data.StateMachines
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void CctorTest_SymbolsIsNull_Failed()
+        public void CctorTest_SymbolsNull_Fail()
         {
             new ClassOfEquivalence(2, null);
         }
