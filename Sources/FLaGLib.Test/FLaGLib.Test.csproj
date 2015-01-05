@@ -56,6 +56,7 @@
     <Compile Include="Data\SingleLabelTest.cs" />
     <Compile Include="Data\StateMachines\ClassOfEquivalenceSetTest.cs" />
     <Compile Include="Data\StateMachines\ClassOfEquivalenceTest.cs" />
+    <Compile Include="Data\StateMachines\MetaFinalStateTest.cs" />
     <Compile Include="Data\StateMachines\MetaTransitionTest.cs" />
     <Compile Include="Data\StateMachines\SetOfEquivalenceTest.cs" />
     <Compile Include="Data\StateMachines\SetsOfEquivalencePostReportTest.cs" />
