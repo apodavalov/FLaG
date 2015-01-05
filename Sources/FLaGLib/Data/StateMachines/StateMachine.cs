@@ -571,11 +571,6 @@ namespace FLaGLib.Data.StateMachines
         private bool IsMetaTransitionAbsorbed(char symbol, Tuple<SortedSet<Label>, SortedSet<Label>> tuple, 
             IDictionary<char, IDictionary<SortedSet<Label>, IList<SortedSet<Label>>>> metaTransitions)
         {
-            if (!metaTransitions.ContainsKey(symbol))
-            {
-                return false;
-            }
-
             IDictionary<SortedSet<Label>, IList<SortedSet<Label>>> map = metaTransitions[symbol];
 
             if (!map.ContainsKey(tuple.Item2))
