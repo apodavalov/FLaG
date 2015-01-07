@@ -40,9 +40,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Collections\IReadOnlySet.cs" />
+    <Compile Include="Collections\ReadOnlyList.cs" />
     <Compile Include="Collections\ReadOnlySet.cs" />
     <Compile Include="Data\Label.cs" />
     <Compile Include="Data\LabelType.cs" />
+    <Compile Include="Data\Languages\Concat.cs" />
+    <Compile Include="Data\Languages\Exponent.cs" />
+    <Compile Include="Data\Languages\Quantity.cs" />
+    <Compile Include="Data\Languages\Union.cs" />
+    <Compile Include="Data\Languages\Entity.cs" />
+    <Compile Include="Data\Languages\Degree.cs" />
+    <Compile Include="Data\Languages\Symbol.cs" />
+    <Compile Include="Data\Languages\Variable.cs" />
     <Compile Include="Data\SingleLabel.cs" />
     <Compile Include="Data\StateMachines\LabelSetEqualityComparer.cs" />
     <Compile Include="Data\StateMachines\MetaFinalState.cs" />
@@ -57,6 +66,7 @@
     <Compile Include="Data\StateMachines\SetOfEquivalenceTransition.cs" />
     <Compile Include="Data\StateMachines\SetsOfEquivalenceResult.cs" />
     <Compile Include="Extensions\IEnumerableExtension.cs" />
+    <Compile Include="Extensions\IListExtensions.cs" />
     <Compile Include="Helpers\EnumerateHelper.cs" />
     <Compile Include="Extensions\IComparableExtensions.cs" />
     <Compile Include="Extensions\IntNullableExtensions.cs" />
