@@ -104,8 +104,8 @@ namespace FLaGLib.Data.StateMachines
 
         public override bool Equals(object obj)
         {
-            Transition Transition = obj as Transition;
-            return Equals(Transition);
+            Transition transition = obj as Transition;
+            return Equals(transition);
         }
 
         public override int GetHashCode()
