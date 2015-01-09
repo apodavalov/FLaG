@@ -11,7 +11,6 @@ namespace FLaGLib.Data.Languages
         }
 
         public Quantity(int count)
-            : base()
         {
             if (count < 0)
             {

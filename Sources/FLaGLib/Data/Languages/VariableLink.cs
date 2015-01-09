@@ -2,7 +2,7 @@
 
 namespace FLaGLib.Data.Languages
 {
-    public class Variable : Exponent, IEquatable<Variable>, IComparable<Variable>
+    public class VariableLink : Exponent, IEquatable<VariableLink>, IComparable<VariableLink>
     {
         public char Name
         {
@@ -10,8 +10,7 @@ namespace FLaGLib.Data.Languages
             private set;
         }
 
-        public Variable(char name)
-            : base()
+        public VariableLink(char name)
         {
             if (name < 'a' || name > 'z')
             {
@@ -21,37 +20,37 @@ namespace FLaGLib.Data.Languages
             Name = name;
         }
 
-        public static bool operator ==(Variable objA, Variable objB)
+        public static bool operator ==(VariableLink objA, VariableLink objB)
         {
             return Equals(objA, objB);
         }
 
-        public static bool operator !=(Variable objA, Variable objB)
+        public static bool operator !=(VariableLink objA, VariableLink objB)
         {
             return !Equals(objA, objB);
         }
 
-        public static bool operator <(Variable objA, Variable objB)
+        public static bool operator <(VariableLink objA, VariableLink objB)
         {
             return Compare(objA, objB) < 0;
         }
 
-        public static bool operator >(Variable objA, Variable objB)
+        public static bool operator >(VariableLink objA, VariableLink objB)
         {
             return Compare(objA, objB) > 0;
         }
 
-        public static bool operator >=(Variable objA, Variable objB)
+        public static bool operator >=(VariableLink objA, VariableLink objB)
         {
             return Compare(objA, objB) > -1;
         }
 
-        public static bool operator <=(Variable objA, Variable objB)
+        public static bool operator <=(VariableLink objA, VariableLink objB)
         {
             return Compare(objA, objB) < 1;
         }
 
-        public static bool Equals(Variable objA, Variable objB)
+        public static bool Equals(VariableLink objA, VariableLink objB)
         {
             if ((object)objA == null)
             {
@@ -67,7 +66,7 @@ namespace FLaGLib.Data.Languages
             return objA.Equals(objB);
         }
 
-        public static int Compare(Variable objA, Variable objB)
+        public static int Compare(VariableLink objA, VariableLink objB)
         {
             if (objA == null)
             {
@@ -85,8 +84,8 @@ namespace FLaGLib.Data.Languages
 
         public override bool Equals(object obj)
         {
-            Variable variable = obj as Variable;
-            return Equals(variable);
+            VariableLink variableLink = obj as VariableLink;
+            return Equals(variableLink);
         }
 
         public override int GetHashCode()
@@ -94,27 +93,27 @@ namespace FLaGLib.Data.Languages
             return Name.GetHashCode();
         }
 
-        public bool Equals(Variable other)
+        public bool Equals(VariableLink other)
         {
             return Name.Equals(other.Name);            
         }
 
-        public int CompareTo(Variable other)
+        public int CompareTo(VariableLink other)
         {
             return Name.CompareTo(other.Name);
         }
 
         public override bool Equals(Exponent other)
         {
-            Variable variable = other as Variable;
+            VariableLink variable = other as VariableLink;
             return Equals(variable);
         }
 
         public override int CompareTo(Exponent other)
         {
-            if (other == null || other is Variable)
+            if (other == null || other is VariableLink)
             {
-                return CompareTo((Variable)other);
+                return CompareTo((VariableLink)other);
             }
 
             return string.Compare(GetType().FullName, other.GetType().FullName);

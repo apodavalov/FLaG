@@ -1,4 +1,7 @@
-﻿using System;
+﻿using FLaGLib.Collections;
+using System;
+using System.Collections.Generic;
+using FLaGLib.Extensions;
 
 namespace FLaGLib.Data.Languages
 {
@@ -11,7 +14,6 @@ namespace FLaGLib.Data.Languages
         }
 
         public Symbol(char character)
-            : base()
         {
             Character = character;
         }
@@ -123,6 +125,14 @@ namespace FLaGLib.Data.Languages
             }
 
             return string.Compare(GetType().FullName, other.GetType().FullName);
+        }
+
+        private readonly Lazy<IReadOnlySet<VariableLink>> _VariableLinks = 
+            new Lazy<IReadOnlySet<VariableLink>>(() => new SortedSet<VariableLink>().AsReadOnly());
+
+        public override IReadOnlySet<VariableLink> VariableLinks
+        {
+            get { return _VariableLinks.Value; }
         }
     }
 }

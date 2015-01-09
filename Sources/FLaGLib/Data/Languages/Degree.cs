@@ -1,4 +1,7 @@
+using FLaGLib.Collections;
+using FLaGLib.Extensions;
 using System;
+using System.Collections.Generic;
 
 namespace FLaGLib.Data.Languages
 {
@@ -14,6 +17,38 @@ namespace FLaGLib.Data.Languages
         {
             get;
             private set;
+        }
+
+        public Degree(Entity entity, Exponent exponent)
+        {
+            if (entity == null)
+            {
+                throw new ArgumentNullException("entity");
+            }
+
+            if (exponent == null)
+            {
+                throw new ArgumentNullException("exponent");
+            }
+
+            Entity = entity;
+            Exponent = exponent;
+
+            _VariableLinks = new Lazy<IReadOnlySet<VariableLink>>(CollectVariables);
+        }
+
+        private IReadOnlySet<VariableLink> CollectVariables()
+        {
+            SortedSet<VariableLink> variables = new SortedSet<VariableLink>();
+
+            if (Exponent is VariableLink)
+            {
+                variables.Add((VariableLink)Exponent);
+            }
+
+            variables.UnionWith(Entity.VariableLinks);
+
+            return variables.AsReadOnly();
         }
 
         public static bool operator ==(Degree objA, Degree objB)
@@ -130,7 +165,14 @@ namespace FLaGLib.Data.Languages
             }
 
             return string.Compare(GetType().FullName, other.GetType().FullName);
-        }	
+        }
+
+        private readonly Lazy<IReadOnlySet<VariableLink>> _VariableLinks;
+
+        public override IReadOnlySet<VariableLink> VariableLinks
+        {
+            get { return _VariableLinks.Value; }
+        }
 	}
 }
 

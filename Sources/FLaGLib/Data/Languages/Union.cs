@@ -15,7 +15,6 @@ namespace FLaGLib.Data.Languages
         }
 
         public Union(IEnumerable<Entity> entities) 
-            : base()
         {
             if (entities == null)
             {
@@ -23,6 +22,8 @@ namespace FLaGLib.Data.Languages
             }
 
             EntityCollection = new SortedSet<Entity>(entities).AsReadOnly();
+
+            _VariableLinks = new Lazy<IReadOnlySet<VariableLink>>(() => CollectVariableLinks(EntityCollection));
         }
 
         public static bool operator ==(Union objA, Union objB)
@@ -132,6 +133,13 @@ namespace FLaGLib.Data.Languages
             }
 
             return string.Compare(GetType().FullName,other.GetType().FullName);
+        }
+
+        private readonly Lazy<IReadOnlySet<VariableLink>> _VariableLinks;
+
+        public override IReadOnlySet<VariableLink> VariableLinks
+        {
+            get { return _VariableLinks.Value; }
         }
     }
 }

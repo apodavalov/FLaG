@@ -51,7 +51,7 @@
     <Compile Include="Data\Languages\Entity.cs" />
     <Compile Include="Data\Languages\Degree.cs" />
     <Compile Include="Data\Languages\Symbol.cs" />
-    <Compile Include="Data\Languages\Variable.cs" />
+    <Compile Include="Data\Languages\VariableLink.cs" />
     <Compile Include="Data\SingleLabel.cs" />
     <Compile Include="Data\StateMachines\LabelSetEqualityComparer.cs" />
     <Compile Include="Data\StateMachines\MetaFinalState.cs" />

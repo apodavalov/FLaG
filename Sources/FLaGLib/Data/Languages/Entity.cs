@@ -1,4 +1,8 @@
-﻿using System;
+﻿using FLaGLib.Collections;
+using FLaGLib.Extensions;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace FLaGLib.Data.Languages
 {
@@ -73,5 +77,12 @@ namespace FLaGLib.Data.Languages
         public abstract bool Equals(Entity other);
 
         public abstract int CompareTo(Entity other);
+
+        public abstract IReadOnlySet<VariableLink> VariableLinks { get; }
+
+        protected IReadOnlySet<VariableLink> CollectVariableLinks(IEnumerable<Entity> entities)
+        {
+            return new SortedSet<VariableLink>(entities.SelectMany(entity => entity.VariableLinks)).AsReadOnly();
+        }
     }
 }
