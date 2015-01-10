@@ -2,7 +2,7 @@
 
 namespace FLaGLib.Data.Languages
 {
-    public class VariableLink : Exponent, IEquatable<VariableLink>, IComparable<VariableLink>
+    public class Variable : Exponent, IEquatable<Variable>, IComparable<Variable>
     {
         public char Name
         {
@@ -10,47 +10,66 @@ namespace FLaGLib.Data.Languages
             private set;
         }
 
-        public VariableLink(char name)
+        public Sign Sign
+        {
+            get;
+            private set;
+        }
+
+        public int Number
+        {
+            get;
+            private set;
+        }
+
+        public Variable(char name, Sign sign, int number)
         {
             if (name < 'a' || name > 'z')
             {
                 throw new ArgumentException("Variable name must be lower latin letter.");
             }
 
+            if (number < 0)
+            {
+                throw new ArgumentException("Number must be greater or equal to zero.");
+            }
+
             Name = name;
+            Sign = sign;
+            Number = number;
         }
 
-        public static bool operator ==(VariableLink objA, VariableLink objB)
+        public static bool operator ==(Variable objA, Variable objB)
         {
             return Equals(objA, objB);
         }
 
-        public static bool operator !=(VariableLink objA, VariableLink objB)
+        public static bool operator !=(Variable objA, Variable objB)
         {
             return !Equals(objA, objB);
         }
 
-        public static bool operator <(VariableLink objA, VariableLink objB)
+        public static bool operator <(Variable objA, Variable objB)
         {
             return Compare(objA, objB) < 0;
         }
 
-        public static bool operator >(VariableLink objA, VariableLink objB)
+        public static bool operator >(Variable objA, Variable objB)
         {
             return Compare(objA, objB) > 0;
         }
 
-        public static bool operator >=(VariableLink objA, VariableLink objB)
+        public static bool operator >=(Variable objA, Variable objB)
         {
             return Compare(objA, objB) > -1;
         }
 
-        public static bool operator <=(VariableLink objA, VariableLink objB)
+        public static bool operator <=(Variable objA, Variable objB)
         {
             return Compare(objA, objB) < 1;
         }
 
-        public static bool Equals(VariableLink objA, VariableLink objB)
+        public static bool Equals(Variable objA, Variable objB)
         {
             if ((object)objA == null)
             {
@@ -66,7 +85,7 @@ namespace FLaGLib.Data.Languages
             return objA.Equals(objB);
         }
 
-        public static int Compare(VariableLink objA, VariableLink objB)
+        public static int Compare(Variable objA, Variable objB)
         {
             if (objA == null)
             {
@@ -84,8 +103,8 @@ namespace FLaGLib.Data.Languages
 
         public override bool Equals(object obj)
         {
-            VariableLink variableLink = obj as VariableLink;
-            return Equals(variableLink);
+            Variable variable = obj as Variable;
+            return Equals(variable);
         }
 
         public override int GetHashCode()
@@ -93,27 +112,27 @@ namespace FLaGLib.Data.Languages
             return Name.GetHashCode();
         }
 
-        public bool Equals(VariableLink other)
+        public bool Equals(Variable other)
         {
             return Name.Equals(other.Name);            
         }
 
-        public int CompareTo(VariableLink other)
+        public int CompareTo(Variable other)
         {
             return Name.CompareTo(other.Name);
         }
 
         public override bool Equals(Exponent other)
         {
-            VariableLink variable = other as VariableLink;
+            Variable variable = other as Variable;
             return Equals(variable);
         }
 
         public override int CompareTo(Exponent other)
         {
-            if (other == null || other is VariableLink)
+            if (other == null || other is Variable)
             {
-                return CompareTo((VariableLink)other);
+                return CompareTo((Variable)other);
             }
 
             return string.Compare(GetType().FullName, other.GetType().FullName);

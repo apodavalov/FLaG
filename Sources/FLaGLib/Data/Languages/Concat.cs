@@ -23,7 +23,7 @@ namespace FLaGLib.Data.Languages
 
             EntityCollection = new List<Entity>(entities).AsReadOnly();
 
-            _VariableLinks = new Lazy<IReadOnlySet<VariableLink>>(() => CollectVariableLinks(EntityCollection));
+            _Variables = new Lazy<IReadOnlySet<Variable>>(() => CollectVariables(EntityCollection));
         }
 
         public static bool operator ==(Concat objA, Concat objB)
@@ -135,11 +135,11 @@ namespace FLaGLib.Data.Languages
             return string.Compare(GetType().FullName,other.GetType().FullName);
         }
 
-        private readonly Lazy<IReadOnlySet<VariableLink>> _VariableLinks;
+        private readonly Lazy<IReadOnlySet<Variable>> _Variables;
 
-        public override IReadOnlySet<VariableLink> VariableLinks
+        public override IReadOnlySet<Variable> Variables
         {
-            get { return _VariableLinks.Value; }
+            get { return _Variables.Value; }
         }
     }
 }

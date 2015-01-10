@@ -34,19 +34,19 @@ namespace FLaGLib.Data.Languages
             Entity = entity;
             Exponent = exponent;
 
-            _VariableLinks = new Lazy<IReadOnlySet<VariableLink>>(CollectVariables);
+            _Variables = new Lazy<IReadOnlySet<Variable>>(CollectVariables);
         }
 
-        private IReadOnlySet<VariableLink> CollectVariables()
+        private IReadOnlySet<Variable> CollectVariables()
         {
-            SortedSet<VariableLink> variables = new SortedSet<VariableLink>();
+            SortedSet<Variable> variables = new SortedSet<Variable>();
 
-            if (Exponent is VariableLink)
+            if (Exponent is Variable)
             {
-                variables.Add((VariableLink)Exponent);
+                variables.Add((Variable)Exponent);
             }
 
-            variables.UnionWith(Entity.VariableLinks);
+            variables.UnionWith(Entity.Variables);
 
             return variables.AsReadOnly();
         }
@@ -167,12 +167,11 @@ namespace FLaGLib.Data.Languages
             return string.Compare(GetType().FullName, other.GetType().FullName);
         }
 
-        private readonly Lazy<IReadOnlySet<VariableLink>> _VariableLinks;
+        private readonly Lazy<IReadOnlySet<Variable>> _Variables;
 
-        public override IReadOnlySet<VariableLink> VariableLinks
+        public override IReadOnlySet<Variable> Variables
         {
-            get { return _VariableLinks.Value; }
+            get { return _Variables.Value; }
         }
 	}
 }
-

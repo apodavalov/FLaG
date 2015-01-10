@@ -127,12 +127,12 @@ namespace FLaGLib.Data.Languages
             return string.Compare(GetType().FullName, other.GetType().FullName);
         }
 
-        private readonly Lazy<IReadOnlySet<VariableLink>> _VariableLinks = 
-            new Lazy<IReadOnlySet<VariableLink>>(() => new SortedSet<VariableLink>().AsReadOnly());
+        private readonly Lazy<IReadOnlySet<Variable>> _Variables = 
+            new Lazy<IReadOnlySet<Variable>>(() => new SortedSet<Variable>().AsReadOnly());
 
-        public override IReadOnlySet<VariableLink> VariableLinks
+        public override IReadOnlySet<Variable> Variables
         {
-            get { return _VariableLinks.Value; }
+            get { return _Variables.Value; }
         }
     }
 }

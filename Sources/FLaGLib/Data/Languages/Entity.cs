@@ -78,11 +78,11 @@ namespace FLaGLib.Data.Languages
 
         public abstract int CompareTo(Entity other);
 
-        public abstract IReadOnlySet<VariableLink> VariableLinks { get; }
+        public abstract IReadOnlySet<Variable> Variables { get; }
 
-        protected IReadOnlySet<VariableLink> CollectVariableLinks(IEnumerable<Entity> entities)
+        protected IReadOnlySet<Variable> CollectVariables(IEnumerable<Entity> entities)
         {
-            return new SortedSet<VariableLink>(entities.SelectMany(entity => entity.VariableLinks)).AsReadOnly();
+            return new SortedSet<Variable>(entities.SelectMany(entity => entity.Variables)).AsReadOnly();
         }
     }
 }
