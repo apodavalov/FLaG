@@ -46,7 +46,6 @@
     <Compile Include="Data\LabelType.cs" />
     <Compile Include="Data\Languages\Concat.cs" />
     <Compile Include="Data\Languages\Exponent.cs" />
-    <Compile Include="Data\Languages\Language.cs" />
     <Compile Include="Data\Languages\Sign.cs" />
     <Compile Include="Data\Languages\Tree.cs" />
     <Compile Include="Data\Languages\Quantity.cs" />

@@ -134,5 +134,10 @@ namespace FLaGLib.Data.Languages
         {
             get { return _Variables.Value; }
         }
+
+        public override Tree Split()
+        {
+            return new Tree(this);
+        }
     }
 }

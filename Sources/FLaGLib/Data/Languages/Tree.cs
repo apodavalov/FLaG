@@ -4,7 +4,7 @@ namespace FLaGLib.Data.Languages
 {
     public class Tree
     {
-        public Language Language
+        public Entity Entity
         {
             get;
             private set;
@@ -16,14 +16,14 @@ namespace FLaGLib.Data.Languages
             private set;
         }
 
-        public Tree(Language language, TreeCollection subtrees = null)
+        public Tree(Entity entity, TreeCollection subtrees = null)
         {
-            if (language == null)
+            if (entity == null)
             {
-                throw new ArgumentNullException("language");
+                throw new ArgumentNullException("entity");
             }
 
-            Language = language;
+            Entity = entity;
         }
     }
 }
