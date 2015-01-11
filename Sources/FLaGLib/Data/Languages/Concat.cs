@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using FLaGLib.Extensions;
 using FLaGLib.Collections;
+using System.Text;
 
 namespace FLaGLib.Data.Languages
 {
@@ -22,6 +23,11 @@ namespace FLaGLib.Data.Languages
             }
 
             EntityCollection = new List<Entity>(entities).AsReadOnly();
+
+            if (EntityCollection.Count < 2)
+            {
+                throw new ArgumentException("Concat must have at least two items.");
+            }
 
             _Variables = new Lazy<IReadOnlySet<Variable>>(() => CollectVariables(EntityCollection));
         }
@@ -152,6 +158,22 @@ namespace FLaGLib.Data.Languages
             return new Tree(this, new TreeCollection(
                 EntityCollection.Select(e => e.Split()).ToList(), 
                 TreeOperator.Concat));
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append('(');
+
+            foreach (Entity entity in EntityCollection)
+            {
+                sb.Append(entity.ToString());
+            }
+
+            sb.Append(')');
+
+            return sb.ToString();
         }
     }
 }

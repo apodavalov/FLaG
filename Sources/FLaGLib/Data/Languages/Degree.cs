@@ -2,6 +2,7 @@ using FLaGLib.Collections;
 using FLaGLib.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace FLaGLib.Data.Languages
 {
@@ -177,6 +178,19 @@ namespace FLaGLib.Data.Languages
         public override Tree Split()
         {
             return new Tree(this);
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append(Entity.ToString());
+
+            sb.Append("^(");
+            sb.Append(Exponent.ToString());
+            sb.Append(')');
+
+            return sb.ToString();
         }
     }
 }

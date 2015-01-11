@@ -70,6 +70,7 @@
     <Compile Include="Data\StateMachines\SetOfEquivalenceTransition.cs" />
     <Compile Include="Data\StateMachines\SetsOfEquivalenceResult.cs" />
     <Compile Include="Extensions\IEnumerableExtension.cs" />
+    <Compile Include="Extensions\IEquatableExtension.cs" />
     <Compile Include="Extensions\IListExtensions.cs" />
     <Compile Include="Helpers\EnumerateHelper.cs" />
     <Compile Include="Extensions\IComparableExtensions.cs" />

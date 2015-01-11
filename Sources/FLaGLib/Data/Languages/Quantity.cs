@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace FLaGLib.Data.Languages
 {
@@ -95,11 +96,21 @@ namespace FLaGLib.Data.Languages
 
         public bool Equals(Quantity other)
         {
+            if (other == null)
+            {
+                return false;
+            }
+
             return Count.Equals(other.Count);            
         }
 
         public int CompareTo(Quantity other)
         {
+            if (other == null)
+            {
+                return 1;
+            }
+
             return Count.CompareTo(other.Count);
         }
 
@@ -117,6 +128,11 @@ namespace FLaGLib.Data.Languages
             }
 
             return string.Compare(GetType().FullName, other.GetType().FullName);
+        }
+
+        public override string ToString()
+        {
+            return Count.ToString();
         }
     }
 }

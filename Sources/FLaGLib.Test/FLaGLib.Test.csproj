@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Collections\ReadOnlySetTest.cs" />
     <Compile Include="Data\LabelTest.cs" />
+    <Compile Include="Data\Languages\EntityTest.cs" />
     <Compile Include="Data\SingleLabelTest.cs" />
     <Compile Include="Data\StateMachines\ClassOfEquivalenceSetTest.cs" />
     <Compile Include="Data\StateMachines\ClassOfEquivalenceTest.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Data\StateMachines\SetsOfEquivalenceTest.cs" />
     <Compile Include="Data\StateMachines\StateMachineTest.cs" />
     <Compile Include="Data\StateMachines\TransitionTest.cs" />
+    <Compile Include="Extensions\IEquatableExtensionsTest.cs" />
     <Compile Include="Extensions\IEnumerableExtensionTest.cs" />
     <Compile Include="Extensions\ISetExtensionsTest.cs" />
     <Compile Include="Extensions\ObjectExtensionsTest.cs" />

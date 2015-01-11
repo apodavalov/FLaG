@@ -139,5 +139,10 @@ namespace FLaGLib.Data.Languages
         {
             return new Tree(this);
         }
+
+        public override string ToString()
+        {
+            return Character.ToString();
+        }
     }
 }

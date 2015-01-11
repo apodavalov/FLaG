@@ -114,11 +114,21 @@ namespace FLaGLib.Data.Languages
 
         public bool Equals(Variable other)
         {
+            if (other == null)
+            {
+                return false;
+            }
+
             return Name.Equals(other.Name);            
         }
 
         public int CompareTo(Variable other)
         {
+            if (other == null)
+            {
+                return 1;
+            }
+
             return Name.CompareTo(other.Name);
         }
 
@@ -136,6 +146,11 @@ namespace FLaGLib.Data.Languages
             }
 
             return string.Compare(GetType().FullName, other.GetType().FullName);
+        }
+
+        public override string ToString()
+        {
+            return Name.ToString();
         }
     }
 }
