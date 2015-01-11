@@ -7,7 +7,7 @@ namespace FLaGLib.Test.Extensions
     public class IComparableExtensionsTest
     {
         [Test]
-        public void CompareToTest()
+        public void CompareToNullableTest()
         {
             Assert.AreEqual(0, "string".CompareToNullable("string"));
             Assert.AreEqual(1, "string".CompareToNullable("notnullstring"));
