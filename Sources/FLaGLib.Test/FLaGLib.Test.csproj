@@ -56,6 +56,7 @@
     <Compile Include="Data\Languages\EntityTest.cs" />
     <Compile Include="Data\Languages\TreeTest.cs" />
     <Compile Include="Data\RegExps\ExpressionTest.cs" />
+    <Compile Include="Data\Languages\ConcatTest.cs" />
     <Compile Include="Data\SingleLabelTest.cs" />
     <Compile Include="Data\StateMachines\ClassOfEquivalenceSetTest.cs" />
     <Compile Include="Data\StateMachines\ClassOfEquivalenceTest.cs" />
