@@ -56,6 +56,13 @@
     <Compile Include="Data\Languages\Degree.cs" />
     <Compile Include="Data\Languages\Symbol.cs" />
     <Compile Include="Data\Languages\Variable.cs" />
+    <Compile Include="Data\RegExps\Union.cs" />
+    <Compile Include="Data\RegExps\Concat.cs" />
+    <Compile Include="Data\RegExps\ConstIteration.cs" />
+    <Compile Include="Data\RegExps\Empty.cs" />
+    <Compile Include="Data\RegExps\Expression.cs" />
+    <Compile Include="Data\RegExps\Iteration.cs" />
+    <Compile Include="Data\RegExps\Symbol.cs" />
     <Compile Include="Data\SingleLabel.cs" />
     <Compile Include="Data\StateMachines\LabelSetEqualityComparer.cs" />
     <Compile Include="Data\StateMachines\MetaFinalState.cs" />
