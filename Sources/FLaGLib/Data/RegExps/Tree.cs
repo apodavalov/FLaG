@@ -1,13 +1,11 @@
 ﻿using System;
 using FLaGLib.Extensions;
-using RegExpTree = FLaGLib.Data.RegExps.Tree;
-using RegExpTreeCollection = FLaGLib.Data.RegExps.TreeCollection;
 
-namespace FLaGLib.Data.Languages
+namespace FLaGLib.Data.RegExps
 {
     public class Tree : IEquatable<Tree>, IComparable<Tree>
     {
-        public Entity Entity
+        public Expression Expression
         {
             get;
             private set;
@@ -19,14 +17,14 @@ namespace FLaGLib.Data.Languages
             private set;
         }
 
-        public Tree(Entity entity, TreeCollection subtrees = null)
+        public Tree(Expression expression, TreeCollection subtrees = null)
         {
-            if (entity == null)
+            if (expression == null)
             {
-                throw new ArgumentNullException("entity");
+                throw new ArgumentNullException("expression");
             }
 
-            Entity = entity;
+            Expression = expression;
             Subtrees = subtrees;
         }
 
@@ -100,7 +98,7 @@ namespace FLaGLib.Data.Languages
 
         public override int GetHashCode()
         {
-            return Entity.GetHashCode() ^ Subtrees.GetHashCodeNullable();
+            return Expression.GetHashCode() ^ Subtrees.GetHashCodeNullable();
         }
 
         public bool Equals(Tree other)
@@ -110,7 +108,7 @@ namespace FLaGLib.Data.Languages
                 return false;
             }
 
-            if (!Entity.Equals(other.Entity))
+            if (!Expression.Equals(other.Expression))
             {
                 return false;
             }
@@ -125,7 +123,7 @@ namespace FLaGLib.Data.Languages
                 return 1;
             }
 
-            int result = Entity.CompareTo(other.Entity);
+            int result = Expression.CompareTo(other.Expression);
 
             if (result != 0)
             {
@@ -133,18 +131,6 @@ namespace FLaGLib.Data.Languages
             }
 
             return Subtrees.CompareToNullable(other.Subtrees);
-        }
-
-        public RegExpTree ToRegExp()
-        {
-            RegExpTreeCollection subtrees = null;
-
-            if (Subtrees != null)
-            {
-                subtrees = Subtrees.ToRegExp();
-            }
-
-            return new RegExpTree(Entity.ToRegExp(), subtrees);
         }
     }
 }

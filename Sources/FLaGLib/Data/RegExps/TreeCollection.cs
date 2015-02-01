@@ -2,10 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RegExpTreeCollection = FLaGLib.Data.RegExps.TreeCollection;
-using RegExpTreeOperator = FLaGLib.Data.RegExps.TreeOperator;
 
-namespace FLaGLib.Data.Languages
+namespace FLaGLib.Data.RegExps
 {
     public class TreeCollection : IEnumerable<Tree>, IEquatable<TreeCollection>, IComparable<TreeCollection>
     {
@@ -149,24 +147,6 @@ namespace FLaGLib.Data.Languages
             }
 
             return _Internal.SequenceCompare(other._Internal);
-        }
-
-        public RegExpTreeCollection ToRegExp()
-        {
-            return new RegExpTreeCollection(_Internal.Select(t => t.ToRegExp()),ConvertOperator(Operator));
-        }
-
-        private static RegExpTreeOperator ConvertOperator(TreeOperator @operator)
-        {
-            switch (@operator)
-            {
-                case TreeOperator.Concat:
-                    return RegExpTreeOperator.Concat;
-                case TreeOperator.Union:
-                    return RegExpTreeOperator.Union;
-                default:
-                    throw new InvalidOperationException("Unknown operator.");
-            }
         }
     }
 }

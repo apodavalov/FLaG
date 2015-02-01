@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using FLaGLib.Extensions;
+using FLaGLib.Data.RegExps;
+using RegExpSymbol = FLaGLib.Data.RegExps.Symbol;
 
 namespace FLaGLib.Data.Languages
 {
@@ -143,6 +145,11 @@ namespace FLaGLib.Data.Languages
         public override string ToString()
         {
             return Character.ToString();
+        }
+
+        public override Expression ToRegExp()
+        {
+            return new RegExpSymbol(Character);
         }
     }
 }

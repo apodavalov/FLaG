@@ -3,6 +3,7 @@ using FLaGLib.Extensions;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using FLaGLib.Data.RegExps;
 
 namespace FLaGLib.Data.Languages
 {
@@ -86,5 +87,7 @@ namespace FLaGLib.Data.Languages
         }
 
         public abstract Tree Split();
+
+        public abstract Expression ToRegExp();
     }
 }

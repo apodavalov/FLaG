@@ -1,5 +1,6 @@
-﻿using System;
-using System.Text;
+﻿using FLaGLib.Data.RegExps;
+using System;
+using RegExpConstIteration = FLaGLib.Data.RegExps.ConstIteration;
 
 namespace FLaGLib.Data.Languages
 {
@@ -133,6 +134,11 @@ namespace FLaGLib.Data.Languages
         public override string ToString()
         {
             return Count.ToString();
+        }
+
+        public override Expression ToRegExp(Entity entity)
+        {
+            return new RegExpConstIteration(entity.ToRegExp(), Count);
         }
     }
 }

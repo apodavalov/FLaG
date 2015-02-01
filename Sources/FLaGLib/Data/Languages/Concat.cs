@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using FLaGLib.Extensions;
 using FLaGLib.Collections;
 using System.Text;
+using RegExpConcat = FLaGLib.Data.RegExps.Concat;
+using FLaGLib.Data.RegExps;
 
 namespace FLaGLib.Data.Languages
 {
@@ -174,6 +176,11 @@ namespace FLaGLib.Data.Languages
             sb.Append(')');
 
             return sb.ToString();
+        }
+
+        public override Expression ToRegExp()
+        {
+            return new RegExpConcat(EntityCollection.Select(e => e.ToRegExp()));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace FLaGLib.Data.Languages
+﻿namespace FLaGLib.Data.Helpers
 {
     public enum TreeOperator
     {

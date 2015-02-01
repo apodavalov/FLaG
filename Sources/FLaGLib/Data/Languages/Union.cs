@@ -4,6 +4,8 @@ using System.Linq;
 using System.Collections.Generic;
 using FLaGLib.Extensions;
 using System.Text;
+using RegExpUnion = FLaGLib.Data.RegExps.Union;
+using FLaGLib.Data.RegExps;
 
 namespace FLaGLib.Data.Languages
 {
@@ -185,6 +187,11 @@ namespace FLaGLib.Data.Languages
             sb.Append(')');
 
             return sb.ToString();
+        }
+
+        public override Expression ToRegExp()
+        {
+            return new RegExpUnion(EntityCollection.Select(t => t.ToRegExp()));
         }
     }
 }

@@ -56,6 +56,9 @@
     <Compile Include="Data\Languages\Degree.cs" />
     <Compile Include="Data\Languages\Symbol.cs" />
     <Compile Include="Data\Languages\Variable.cs" />
+    <Compile Include="Data\RegExps\Tree.cs" />
+    <Compile Include="Data\RegExps\TreeCollection.cs" />
+    <Compile Include="Data\RegExps\TreeOperator.cs" />
     <Compile Include="Data\RegExps\Union.cs" />
     <Compile Include="Data\RegExps\Concat.cs" />
     <Compile Include="Data\RegExps\ConstIteration.cs" />

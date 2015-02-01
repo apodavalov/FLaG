@@ -10,8 +10,8 @@ namespace FLaGLib.Test.Data.Languages
         [Test]
         public void SplitTest()
         {
-            Variable kVariable = new Variable('k', Sign.MoreOrEqualZero, 0);
-            Variable mVariable = new Variable('m', Sign.MoreThanZero, 0);
+            Variable kVariable = new Variable('k', Sign.MoreThanOrEqual, 0);
+            Variable mVariable = new Variable('m', Sign.MoreThan, 0);
 
             Degree degree1 =
                 new Degree(

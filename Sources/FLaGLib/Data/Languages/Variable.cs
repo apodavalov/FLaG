@@ -1,4 +1,9 @@
 ﻿using System;
+using RegExpConstIteration = FLaGLib.Data.RegExps.ConstIteration;
+using RegExpIteration = FLaGLib.Data.RegExps.Iteration;
+using RegExpConcat = FLaGLib.Data.RegExps.Concat;
+using FLaGLib.Data.RegExps;
+using FLaGLib.Helpers;
 
 namespace FLaGLib.Data.Languages
 {
@@ -151,6 +156,35 @@ namespace FLaGLib.Data.Languages
         public override string ToString()
         {
             return Name.ToString();
+        }
+
+        public override Expression ToRegExp(Entity entity)
+        {
+            int number = Number;
+            Sign sign = Sign;
+
+            if (number > 0 && sign == Sign.MoreThanOrEqual)
+            {
+                number--;
+                sign = Sign.MoreThan;
+            }
+
+            if (sign == Sign.MoreThanOrEqual)
+            {
+                return new RegExpIteration(entity.ToRegExp(), false);
+            }
+
+            if (number < 1)
+            {
+                return new RegExpIteration(entity.ToRegExp(), true);
+            }
+
+            Expression expression = entity.ToRegExp();
+
+            Expression expr1 = new RegExpConstIteration(expression, number);
+            Expression expr2 = new RegExpIteration(expression, true);
+
+            return new RegExpConcat(EnumerateHelper.Sequence(expr1, expr2));
         }
     }
 }

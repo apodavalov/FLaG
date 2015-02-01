@@ -1,4 +1,4 @@
-﻿namespace FLaGLib.Data.Languages
+﻿namespace FLaGLib.Data.RegExps
 {
     public enum TreeOperator
     {

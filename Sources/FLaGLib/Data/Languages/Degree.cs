@@ -1,4 +1,5 @@
 using FLaGLib.Collections;
+using FLaGLib.Data.RegExps;
 using FLaGLib.Extensions;
 using System;
 using System.Collections.Generic;
@@ -191,6 +192,11 @@ namespace FLaGLib.Data.Languages
             sb.Append(')');
 
             return sb.ToString();
+        }
+
+        public override Expression ToRegExp()
+        {
+            throw new NotImplementedException();
         }
     }
 }

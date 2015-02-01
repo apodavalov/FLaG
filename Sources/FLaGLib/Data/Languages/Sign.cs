@@ -2,7 +2,7 @@
 {
     public enum Sign
     {
-        MoreThanZero,
-        MoreOrEqualZero
+        MoreThan,
+        MoreThanOrEqual
     }
 }

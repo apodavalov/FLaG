@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FLaGLib.Data.RegExps;
+using System;
 
 namespace FLaGLib.Data.Languages
 {
@@ -73,5 +74,7 @@ namespace FLaGLib.Data.Languages
         public abstract bool Equals(Exponent other);
 
         public abstract int CompareTo(Exponent other);
+
+        public abstract Expression ToRegExp(Entity entity);
     }
 }
