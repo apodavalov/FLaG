@@ -196,7 +196,7 @@ namespace FLaGLib.Data.Languages
 
         public override Expression ToRegExp()
         {
-            throw new NotImplementedException();
+            return Exponent.ToRegExp(Entity);
         }
     }
 }

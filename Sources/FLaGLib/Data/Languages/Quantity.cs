@@ -138,6 +138,11 @@ namespace FLaGLib.Data.Languages
 
         public override Expression ToRegExp(Entity entity)
         {
+            if (entity == null)
+            {
+                throw new ArgumentNullException("entity");
+            }
+
             return new RegExpConstIteration(entity.ToRegExp(), Count);
         }
     }
