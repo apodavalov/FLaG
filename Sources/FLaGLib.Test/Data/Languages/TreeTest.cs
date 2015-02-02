@@ -1,0 +1,68 @@
+﻿using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using RegExs = FLaGLib.Data.RegExps;
+using Langs = FLaGLib.Data.Languages;
+using FLaGLib.Helpers;
+
+namespace FLaGLib.Test.Data.Languages
+{
+    [TestFixture]
+    public class TreeTest
+    {
+        [Test]
+        public void ToRegExpTest()
+        {      
+            Langs.Symbol langSymbol1 = new Langs.Symbol('a');
+            Langs.Symbol langSymbol2 = new Langs.Symbol('b');
+            Langs.Concat langConcat1 = new Langs.Concat(EnumerateHelper.Sequence(langSymbol1, langSymbol2));
+            Langs.Quantity langQuantity = new Langs.Quantity(2);  
+            Langs.Degree langSubdegree = new Langs.Degree(langConcat1, langQuantity);
+            Langs.Variable langVariable1 = new Langs.Variable('k', Langs.Sign.MoreThanOrEqual, 0);
+            Langs.Degree langDegree1 = new Langs.Degree(langSubdegree, langVariable1);
+            Langs.Symbol langSymbol3 = new Langs.Symbol('c');
+            Langs.Concat langConcat2 = new Langs.Concat(EnumerateHelper.Sequence(langSymbol2, langSymbol3));
+            Langs.Variable langVariable2 = new Langs.Variable('l', Langs.Sign.MoreThanOrEqual, 1);           
+            Langs.Degree langDegree2 = new Langs.Degree(langConcat2, langVariable2);
+            Langs.Variable langVariable3 = new Langs.Variable('m', Langs.Sign.MoreThanOrEqual, 2);
+            Langs.Degree langDegree3 = new Langs.Degree(langSymbol1, langVariable3);
+            Langs.Union langUnion = new Langs.Union(EnumerateHelper.Sequence(langDegree1, langDegree2, langDegree3));
+            Langs.Tree langTree1 = new Langs.Tree(langConcat1);
+            Langs.Tree langTree2 = new Langs.Tree(langConcat2);
+            Langs.Tree langTree3 = new Langs.Tree(langDegree3);
+            Langs.TreeCollection langTreeCollection = new Langs.TreeCollection(
+                EnumerateHelper.Sequence(langTree1, langTree2, langTree3), Langs.TreeOperator.Union);
+
+            Langs.Tree langTree = new Langs.Tree(langUnion, langTreeCollection);
+
+            RegExs.Symbol regExSymbol1 = new RegExs.Symbol('a');
+            RegExs.Symbol regExSymbol2 = new RegExs.Symbol('b');
+            RegExs.Concat regExConcat1 = new RegExs.Concat(EnumerateHelper.Sequence(regExSymbol1, regExSymbol2));
+            RegExs.ConstIteration regExConstIteration1 = new RegExs.ConstIteration(regExConcat1, 2);
+            RegExs.Iteration regExIteration1 = new RegExs.Iteration(regExConstIteration1, false);
+            RegExs.Symbol regExSymbol3 = new RegExs.Symbol('c');
+            RegExs.Concat regExConcat2 = new RegExs.Concat(EnumerateHelper.Sequence(regExSymbol2, regExSymbol3));
+            RegExs.Iteration regExIteration2 = new RegExs.Iteration(regExConcat2, true);
+            RegExs.ConstIteration regExConstIteration2 = new RegExs.ConstIteration(regExSymbol1, 1);
+            RegExs.Iteration regExIteration3 = new RegExs.Iteration(regExSymbol1,true);
+            RegExs.Concat regExConcat3 = new RegExs.Concat(
+                EnumerateHelper.Sequence<RegExs.Expression>(regExConstIteration2, regExIteration3));
+            RegExs.Union regExUnion = new RegExs.Union(
+                EnumerateHelper.Sequence<RegExs.Expression>(regExIteration1, regExIteration2, regExConcat3));
+            RegExs.Tree regExTree1 = new RegExs.Tree(regExConcat1);
+            RegExs.Tree regExTree2 = new RegExs.Tree(regExConcat2);
+            RegExs.Tree regExTree3 = new RegExs.Tree(regExConcat3);
+            RegExs.TreeCollection regExTreeCollection = new RegExs.TreeCollection(
+                EnumerateHelper.Sequence(regExTree1, regExTree2, regExTree3), RegExs.TreeOperator.Union);
+
+            RegExs.Tree expected = new RegExs.Tree(regExUnion, regExTreeCollection);
+
+            RegExs.Tree actual = langTree.ToRegExp();
+
+            Assert.AreEqual(expected, actual);
+        }
+    }
+}
