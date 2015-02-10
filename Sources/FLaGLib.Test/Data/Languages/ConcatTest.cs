@@ -5,9 +5,6 @@ using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FLaGLib.Test.Data.Languages
 {
@@ -66,7 +63,7 @@ namespace FLaGLib.Test.Data.Languages
                     EnumerateHelper.Sequence<Entity>(new Symbol('a'))
                     ),
                 1
-            )
+            ),
         };
 
         [Test]
@@ -97,7 +94,13 @@ namespace FLaGLib.Test.Data.Languages
         [Test]
         public void EqualsTest()
         {
-            ComparableEquatableHelper.TestCompare(_Expectations);
+            ComparableEquatableHelper.TestEquals(_Expectations);
+        }
+
+        [Test]
+        public void GetHashCodeTest()
+        {
+            ComparableEquatableHelper.TestGetHashCode(_Expectations);
         }
     }
 }
