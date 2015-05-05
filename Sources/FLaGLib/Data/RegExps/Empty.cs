@@ -134,11 +134,6 @@ namespace FLaGLib.Data.RegExps
             return string.Compare(GetType().FullName, other.GetType().FullName);
         }
 
-        protected override int GetCount()
-        {
-            return 0 + 1;
-        }
-
         internal override IEnumerable<DepthData<Expression>> WalkInternal()
         {
             yield return new DepthData<Expression>(this, WalkStatus.Begin);

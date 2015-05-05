@@ -10,7 +10,6 @@ namespace FLaGLib.Data.RegExps
     {
         internal Expression() 
         {
-            _Count = new Lazy<int>(GetCount);
             _IsRegularSet = new Lazy<bool>(GetIsRegularSet);
         }
 
@@ -85,17 +84,6 @@ namespace FLaGLib.Data.RegExps
         public abstract int CompareTo(Expression other);
 
         public abstract int Priority { get; }
-
-        private Lazy<int> _Count; 
-        internal int Count 
-        {
-            get
-            {
-                return _Count.Value;
-            }
-        }
-
-        protected abstract int GetCount();
 
         public IReadOnlyList<WalkData<Expression>> Walk(int startIndex)
         {

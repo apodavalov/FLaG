@@ -148,11 +148,6 @@ namespace FLaGLib.Data.RegExps
             }
         }
 
-        protected override int GetCount()
-        {
-            return Expressions.Sum(e => e.Count) + 1;
-        }
-
         public override Expression ToRegularSet()
         {
             if (IsRegularSet)
