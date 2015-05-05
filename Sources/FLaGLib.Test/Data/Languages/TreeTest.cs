@@ -35,18 +35,16 @@ namespace FLaGLib.Test.Data.Languages
 
             RegExs.Symbol regExSymbol1 = new RegExs.Symbol('a');
             RegExs.Symbol regExSymbol2 = new RegExs.Symbol('b');
-            RegExs.Concat regExConcat1 = new RegExs.Concat(EnumerateHelper.Sequence(regExSymbol1, regExSymbol2));
+            RegExs.BinaryConcat regExConcat1 = new RegExs.BinaryConcat(regExSymbol1, regExSymbol2);
             RegExs.ConstIteration regExConstIteration1 = new RegExs.ConstIteration(regExConcat1, 2);
             RegExs.Iteration regExIteration1 = new RegExs.Iteration(regExConstIteration1, false);
             RegExs.Symbol regExSymbol3 = new RegExs.Symbol('c');
-            RegExs.Concat regExConcat2 = new RegExs.Concat(EnumerateHelper.Sequence(regExSymbol2, regExSymbol3));
+            RegExs.BinaryConcat regExConcat2 = new RegExs.BinaryConcat(regExSymbol2, regExSymbol3);
             RegExs.Iteration regExIteration2 = new RegExs.Iteration(regExConcat2, true);
             RegExs.ConstIteration regExConstIteration2 = new RegExs.ConstIteration(regExSymbol1, 1);
             RegExs.Iteration regExIteration3 = new RegExs.Iteration(regExSymbol1,true);
-            RegExs.Concat regExConcat3 = new RegExs.Concat(
-                EnumerateHelper.Sequence<RegExs.Expression>(regExConstIteration2, regExIteration3));
-            RegExs.Union regExUnion = new RegExs.Union(
-                EnumerateHelper.Sequence<RegExs.Expression>(regExIteration1, regExIteration2, regExConcat3));
+            RegExs.BinaryConcat regExConcat3 = new RegExs.BinaryConcat(regExConstIteration2, regExIteration3);
+            RegExs.BinaryUnion regExUnion = new RegExs.BinaryUnion(new RegExs.BinaryUnion(regExIteration2, regExIteration1), regExConcat3);
             RegExs.Tree regExTree1 = new RegExs.Tree(regExConcat1);
             RegExs.Tree regExTree2 = new RegExs.Tree(regExConcat2);
             RegExs.Tree regExTree3 = new RegExs.Tree(regExConcat3);

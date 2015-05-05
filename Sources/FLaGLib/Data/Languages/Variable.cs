@@ -1,9 +1,8 @@
 ﻿using System;
 using RegExpConstIteration = FLaGLib.Data.RegExps.ConstIteration;
 using RegExpIteration = FLaGLib.Data.RegExps.Iteration;
-using RegExpConcat = FLaGLib.Data.RegExps.Concat;
+using RegExpConcat = FLaGLib.Data.RegExps.BinaryConcat;
 using FLaGLib.Data.RegExps;
-using FLaGLib.Helpers;
 
 namespace FLaGLib.Data.Languages
 {
@@ -186,10 +185,10 @@ namespace FLaGLib.Data.Languages
 
             Expression expression = entity.ToRegExp();
 
-            Expression expr1 = new RegExpConstIteration(expression, number);
-            Expression expr2 = new RegExpIteration(expression, true);
+            Expression left = new RegExpConstIteration(expression, number);
+            Expression right = new RegExpIteration(expression, true);
 
-            return new RegExpConcat(EnumerateHelper.Sequence(expr1, expr2));
+            return new RegExpConcat(left, right);
         }
     }
 }

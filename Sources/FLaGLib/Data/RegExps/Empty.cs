@@ -1,4 +1,7 @@
-﻿using System;
+﻿using FLaGLib.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace FLaGLib.Data.RegExps
 {
@@ -129,6 +132,40 @@ namespace FLaGLib.Data.RegExps
             }
 
             return string.Compare(GetType().FullName, other.GetType().FullName);
+        }
+
+        protected override int GetCount()
+        {
+            return 0 + 1;
+        }
+
+        internal override IEnumerable<DepthData<Expression>> WalkInternal()
+        {
+            yield return new DepthData<Expression>(this, WalkStatus.Begin);
+            yield return new DepthData<Expression>(this, WalkStatus.End);
+        }
+
+        public override int Priority
+        {
+            get 
+            {
+                return 0; 
+            }
+        }
+
+        internal override void ToString(StringBuilder builder)
+        {
+            builder.Append('ε');
+        }
+
+        public override Expression ToRegularSet()
+        {
+            return this;
+        }
+
+        protected override bool GetIsRegularSet()
+        {
+            return true;
         }
     }
 }

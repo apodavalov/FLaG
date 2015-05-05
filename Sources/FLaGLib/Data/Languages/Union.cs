@@ -4,7 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using FLaGLib.Extensions;
 using System.Text;
-using RegExpUnion = FLaGLib.Data.RegExps.Union;
+using RegExpBinaryUnion = FLaGLib.Data.RegExps.BinaryUnion;
 using FLaGLib.Data.RegExps;
 
 namespace FLaGLib.Data.Languages
@@ -25,6 +25,11 @@ namespace FLaGLib.Data.Languages
             }
 
             EntityCollection = new SortedSet<Entity>(entities).AsReadOnly();
+
+            if (EntityCollection.Any(e => e == null))
+            {
+                throw new ArgumentException("There are null items in collection.");
+            }
 
             if (EntityCollection.Count < 2)
             {
@@ -191,7 +196,24 @@ namespace FLaGLib.Data.Languages
 
         public override Expression ToRegExp()
         {
-            return new RegExpUnion(EntityCollection.Select(t => t.ToRegExp()));
+            Entity prev = null;
+            Expression expression = null;
+
+            foreach (Entity entity in EntityCollection)
+            {
+                if (prev == null)
+                {
+                    expression = entity.ToRegExp();
+                }
+                else
+                {
+                    expression = new RegExpBinaryUnion(expression, entity.ToRegExp());
+                }
+
+                prev = entity;
+            }
+
+            return expression;        
         }
     }
 }

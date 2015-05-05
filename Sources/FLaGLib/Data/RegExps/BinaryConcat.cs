@@ -1,71 +1,71 @@
-﻿using FLaGLib.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using FLaGLib.Helpers;
 using System.Text;
 
 namespace FLaGLib.Data.RegExps
 {
-    public class ConstIteration : Expression, IEquatable<ConstIteration>, IComparable<ConstIteration>
+    public class BinaryConcat : Expression, IEquatable<BinaryConcat>, IComparable<BinaryConcat>
     {
-        public Expression Expression
+        public Expression Left
         {
             get;
             private set;
         }
 
-        public int IterationCount
+        public Expression Right
         {
             get;
             private set;
         }
 
-        public ConstIteration(Expression expression, int iterationCount)
+        public BinaryConcat(Expression left, Expression right)
         {
-            if (expression == null)
+            if (left == null)
             {
-                throw new ArgumentNullException("expression");
+                throw new ArgumentNullException("left");
             }
 
-            if (iterationCount < 0)
+            if (right == null)
             {
-                throw new ArgumentException("Count must not be less than zero.");
+                throw new ArgumentNullException("right");
             }
 
-            Expression = expression;
-            IterationCount = iterationCount;
+            Left = left;
+            Right = right;
         }
 
-        public static bool operator ==(ConstIteration objA, ConstIteration objB)
+        public static bool operator ==(BinaryConcat objA, BinaryConcat objB)
         {
             return Equals(objA, objB);
         }
 
-        public static bool operator !=(ConstIteration objA, ConstIteration objB)
+        public static bool operator !=(BinaryConcat objA, BinaryConcat objB)
         {
             return !Equals(objA, objB);
         }
 
-        public static bool operator <(ConstIteration objA, ConstIteration objB)
+        public static bool operator <(BinaryConcat objA, BinaryConcat objB)
         {
             return Compare(objA, objB) < 0;
         }
 
-        public static bool operator >(ConstIteration objA, ConstIteration objB)
+        public static bool operator >(BinaryConcat objA, BinaryConcat objB)
         {
             return Compare(objA, objB) > 0;
         }
 
-        public static bool operator >=(ConstIteration objA, ConstIteration objB)
+        public static bool operator >=(BinaryConcat objA, BinaryConcat objB)
         {
             return Compare(objA, objB) > -1;
         }
 
-        public static bool operator <=(ConstIteration objA, ConstIteration objB)
+        public static bool operator <=(BinaryConcat objA, BinaryConcat objB)
         {
             return Compare(objA, objB) < 1;
         }
 
-        public static bool Equals(ConstIteration objA, ConstIteration objB)
+        public static bool Equals(BinaryConcat objA, BinaryConcat objB)
         {
             if ((object)objA == null)
             {
@@ -81,7 +81,7 @@ namespace FLaGLib.Data.RegExps
             return objA.Equals(objB);
         }
 
-        public static int Compare(ConstIteration objA, ConstIteration objB)
+        public static int Compare(BinaryConcat objA, BinaryConcat objB)
         {
             if (objA == null)
             {
@@ -97,70 +97,75 @@ namespace FLaGLib.Data.RegExps
             return objA.CompareTo(objB);
         }
 
-        public bool Equals(ConstIteration other)
+        public bool Equals(BinaryConcat other)
         {
             if (other == null)
             {
                 return false;
             }
 
-            return Expression.Equals(other.Expression) && IterationCount.Equals(other.IterationCount);
+            return Left.Equals(other.Left) && Right.Equals(other.Right);
         }
 
-        public int CompareTo(ConstIteration other)
+        public int CompareTo(BinaryConcat other)
         {
             if (other == null)
             {
                 return 1;
             }
 
-            int result = Expression.CompareTo(other.Expression);
+            int result = Left.CompareTo(other.Left);
 
             if (result != 0)
             {
                 return result;
             }
 
-            return IterationCount.CompareTo(other.IterationCount);
+            return Right.CompareTo(other.Right);
         }
 
         public override bool Equals(object obj)
         {
-            ConstIteration constIteration = obj as ConstIteration;
-            return Equals(constIteration);
+            BinaryConcat concat = obj as BinaryConcat;
+            return Equals(concat);
         }
 
         public override int GetHashCode()
         {
-            return Expression.GetHashCode() ^ IterationCount.GetHashCode();
+            return Left.GetHashCode() ^ Right.GetHashCode();
         }
 
         public override bool Equals(Expression other)
         {
-            ConstIteration constIteration = other as ConstIteration;
-            return Equals(constIteration);
+            BinaryConcat concat = other as BinaryConcat;
+            return Equals(concat);
         }
 
         public override int CompareTo(Expression other)
         {
-            if (other == null || other is ConstIteration)
+            if (other == null || other is BinaryConcat)
             {
-                return CompareTo((ConstIteration)other);
+                return CompareTo((BinaryConcat)other);
             }
 
             return string.Compare(GetType().FullName, other.GetType().FullName);
         }
 
         protected override int GetCount()
-        {
-            return Expression.Count + 1;
+        {   
+            return Left.Count + Right.Count + 1;
         }
 
         internal override IEnumerable<DepthData<Expression>> WalkInternal()
         {
             yield return new DepthData<Expression>(this, WalkStatus.Begin);
 
-            foreach (DepthData<Expression> data in Expression.WalkInternal())
+            foreach (DepthData<Expression> data in Left.WalkInternal())
+            {
+                yield return data;
+            }
+
+            foreach (DepthData<Expression> data in Right.WalkInternal())
             {
                 yield return data;
             }
@@ -172,39 +177,29 @@ namespace FLaGLib.Data.RegExps
         {
             get 
             {
-                return 1;
+                return 2; 
             }
         }
 
         internal override void ToString(StringBuilder builder)
         {
-            Expression.ToString(Expression.Priority > Priority,builder);
-            builder.Append("^(");
-            builder.Append(IterationCount);
-            builder.Append(')');
+            Left.ToString(Left.Priority > Priority, builder);
+            Right.ToString(Right.Priority >= Priority, builder);
         }
 
         public override Expression ToRegularSet()
         {
-            if (IterationCount == 0)
+            if (IsRegularSet)
             {
-                return Empty.Instance.ToRegularSet();
+                return this;
             }
 
-            Expression expression = Expression.ToRegularSet();
-            Expression result = Expression.ToRegularSet();
-
-            for (int i = 1; i < IterationCount; i++)
-            {
-                result = new BinaryConcat(result, expression);
-            }
-
-            return result;
-        }
+            return new BinaryConcat(Left.ToRegularSet(), Right.ToRegularSet());
+       }
 
         protected override bool GetIsRegularSet()
         {
-            return false;
+            return Left.IsRegularSet && Right.IsRegularSet;
         }
     }
 }

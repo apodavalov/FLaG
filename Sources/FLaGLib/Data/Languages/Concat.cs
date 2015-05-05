@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using FLaGLib.Extensions;
 using FLaGLib.Collections;
 using System.Text;
-using RegExpConcat = FLaGLib.Data.RegExps.Concat;
+using RegExpBinaryConcat = FLaGLib.Data.RegExps.BinaryConcat;
 using FLaGLib.Data.RegExps;
 
 namespace FLaGLib.Data.Languages
@@ -25,6 +25,11 @@ namespace FLaGLib.Data.Languages
             }
 
             EntityCollection = new List<Entity>(entities).AsReadOnly();
+
+            if (EntityCollection.Any(e => e == null))
+            {
+                throw new ArgumentException("There are null items in collection.");
+            }
 
             if (EntityCollection.Count < 2)
             {
@@ -180,7 +185,24 @@ namespace FLaGLib.Data.Languages
 
         public override Expression ToRegExp()
         {
-            return new RegExpConcat(EntityCollection.Select(e => e.ToRegExp()));
+            Entity prev = null;
+            Expression expression = null;
+
+            foreach (Entity entity in EntityCollection)
+            {
+                if (prev == null)
+                {
+                    expression = entity.ToRegExp();
+                }
+                else
+                {
+                    expression = new RegExpBinaryConcat(expression, entity.ToRegExp());
+                }
+
+                prev = entity;
+            }
+
+            return expression;
         }
     }
 }

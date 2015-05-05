@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FLaGLib.Extensions;
+using FLaGLib.Helpers;
+using System.Text;
 
 namespace FLaGLib.Data.RegExps
 {
@@ -136,6 +138,68 @@ namespace FLaGLib.Data.RegExps
             }
 
             return string.Compare(GetType().FullName, other.GetType().FullName);
+        }
+
+        public override int Priority
+        {
+            get
+            {
+                return 3;
+            }
+        }
+
+        protected override int GetCount()
+        {
+            return Expressions.Sum(e => e.Count) + 1;
+        }
+
+        public override Expression ToRegularSet()
+        {
+            if (IsRegularSet)
+            {
+                return this;
+            }
+
+            return new Union(Expressions.Select(e => e.ToRegularSet()));
+        }
+
+        protected override bool GetIsRegularSet()
+        {
+            return Expressions.All(e => e.IsRegularSet);
+        }
+
+        internal override IEnumerable<DepthData<Expression>> WalkInternal()
+        {
+            yield return new DepthData<Expression>(this, WalkStatus.Begin);
+
+            foreach (Expression expression in Expressions)
+            {
+                foreach (DepthData<Expression> data in expression.WalkInternal())
+                {
+                    yield return data;
+                }
+            }
+
+            yield return new DepthData<Expression>(this, WalkStatus.End);
+        }
+
+        internal override void ToString(StringBuilder builder)
+        {
+            bool first = true;
+
+            foreach (Expression expression in Expressions)
+            {
+                if (first)
+                {
+                    expression.ToString(expression.Priority > Priority, builder);
+                    first = false;
+                }
+                else
+                {
+                    builder.Append(" + ");
+                    expression.ToString(expression.Priority >= Priority, builder);
+                }
+            }
         }
     }
 }
