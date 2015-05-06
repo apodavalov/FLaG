@@ -11,6 +11,8 @@ namespace FLaGLib.Data.RegExps
         internal Expression() 
         {
             _IsRegularSet = new Lazy<bool>(GetIsRegularSet);
+            _WalkData = new Lazy<IReadOnlyList<WalkData<Expression>>>(GetWalkData);
+            _SubexpressionsInCalculateOrder = new Lazy<IReadOnlyList<Expression>>(GetSubexpressionsInCalculateOrder);
         }
 
         public static bool operator ==(Expression objA, Expression objB)
@@ -85,7 +87,31 @@ namespace FLaGLib.Data.RegExps
 
         public abstract int Priority { get; }
 
-        public IReadOnlyList<WalkData<Expression>> Walk(int startIndex)
+        private Lazy<IReadOnlyList<WalkData<Expression>>> _WalkData;
+        private Lazy<IReadOnlyList<Expression>> _SubexpressionsInCalculateOrder;
+
+        public IReadOnlyList<WalkData<Expression>> WalkData
+        {
+            get
+            {
+                return _WalkData.Value;
+            }
+        }
+
+        public IReadOnlyList<Expression> SubexpressionsInCalculateOrder
+        {
+            get
+            {
+                return _SubexpressionsInCalculateOrder.Value;
+            }
+        }
+
+        private IReadOnlyList<Expression> GetSubexpressionsInCalculateOrder()
+        {
+            return WalkData.Where(wd => wd.Status == WalkStatus.Begin).OrderBy(wd => wd.Index).Select(wd => wd.Value).ToList().AsReadOnly();
+        }
+
+        private IReadOnlyList<WalkData<Expression>> GetWalkData()
         {
             WalkDataLabel<DepthData<Expression>>[] depthData = 
                WalkInternal().Select(data => new WalkDataLabel<DepthData<Expression>>(false,0,data)).ToArray();
@@ -110,7 +136,7 @@ namespace FLaGLib.Data.RegExps
                 }
             }
 
-            int currentIndex = startIndex;
+            int currentIndex = 1;
           
             while (maxDepth > 0)
             {
