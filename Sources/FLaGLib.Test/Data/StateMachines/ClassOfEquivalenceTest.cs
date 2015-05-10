@@ -24,9 +24,7 @@ namespace FLaGLib.Test.Data.StateMachines
                 null,
                 new ClassOfEquivalence(
                         1,
-                        new SortedSet<char>(
-                            EnumerateHelper.Sequence('a', 'b')
-                        ).AsReadOnly()
+                        EnumerateHelper.Sequence('a', 'b')
                     ),
                 -1
             ),
@@ -34,9 +32,7 @@ namespace FLaGLib.Test.Data.StateMachines
             new Tuple<ClassOfEquivalence, ClassOfEquivalence, int>(
                 new ClassOfEquivalence(
                         1,
-                        new SortedSet<char>(
-                            EnumerateHelper.Sequence('a', 'b')
-                        ).AsReadOnly()
+                        EnumerateHelper.Sequence('a', 'b')
                     ),
                 null,
                 1
@@ -45,15 +41,11 @@ namespace FLaGLib.Test.Data.StateMachines
             new Tuple<ClassOfEquivalence, ClassOfEquivalence, int>(
                 new ClassOfEquivalence(
                         1,
-                        new SortedSet<char>(
-                            EnumerateHelper.Sequence('c', 'd')
-                        ).AsReadOnly()
+                        EnumerateHelper.Sequence('c', 'd')
                     ),
                 new ClassOfEquivalence(
                         1,
-                        new SortedSet<char>(
-                            EnumerateHelper.Sequence('a', 'b')
-                        ).AsReadOnly()
+                        EnumerateHelper.Sequence('a', 'b')
                     ),
                 2
             ),
@@ -61,15 +53,11 @@ namespace FLaGLib.Test.Data.StateMachines
             new Tuple<ClassOfEquivalence, ClassOfEquivalence, int>(
                 new ClassOfEquivalence(
                         1,
-                        new SortedSet<char>(
-                            EnumerateHelper.Sequence('a', 'b')
-                        ).AsReadOnly()
+                        EnumerateHelper.Sequence('a', 'b')
                     ),
                 new ClassOfEquivalence(
                         1,
-                        new SortedSet<char>(
-                            EnumerateHelper.Sequence('a', 'b')
-                        ).AsReadOnly()
+                        EnumerateHelper.Sequence('a', 'b')
                     ),
                 0
             ),
@@ -77,15 +65,11 @@ namespace FLaGLib.Test.Data.StateMachines
             new Tuple<ClassOfEquivalence, ClassOfEquivalence, int>(
                 new ClassOfEquivalence(
                         1,
-                        new SortedSet<char>(
-                            EnumerateHelper.Sequence('a', 'b')
-                        ).AsReadOnly()
+                        EnumerateHelper.Sequence('a', 'b')
                     ),
                 new ClassOfEquivalence(
                         0,
-                        new SortedSet<char>(
-                            EnumerateHelper.Sequence('a', 'b')
-                        ).AsReadOnly()
+                        EnumerateHelper.Sequence('a', 'b')
                     ),
                 1
             )
@@ -103,14 +87,12 @@ namespace FLaGLib.Test.Data.StateMachines
         {
             int expectedSetNumber = 2;
 
-            IReadOnlySet<char> expectedSymbols = new SortedSet<char>(
-                EnumerateHelper.Sequence('a', 'b')
-            ).AsReadOnly();
+            IEnumerable<char> expectedSymbols = EnumerateHelper.Sequence('a', 'b');           
 
             ClassOfEquivalence classOfEquivalence = new ClassOfEquivalence(expectedSetNumber, expectedSymbols);
 
             Assert.AreEqual(expectedSetNumber, classOfEquivalence.SetNum);
-            CollectionAssert.AreEqual(expectedSymbols, classOfEquivalence.Symbols);
+            CollectionAssert.AreEquivalent(expectedSymbols, classOfEquivalence.Symbols);
         }
 
         [Test]

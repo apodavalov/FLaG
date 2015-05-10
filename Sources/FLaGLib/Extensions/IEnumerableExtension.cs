@@ -1,10 +1,71 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FLaGLib.Extensions
 {
     public static class IEnumerableExtension
     {
+        public static List<T> ToListNullable<T>(this IEnumerable<T> obj)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+
+            return obj.ToList();
+        }
+
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> obj)
+        {
+            if (obj == null)
+            {
+                throw new ArgumentNullException("obj");
+            }
+
+            //if (obj.Is<HashSet<T>>())
+            //{
+            //    return obj.Of<HashSet<T>>();
+            //}
+
+            return new HashSet<T>(obj);
+        }
+
+        public static SortedSet<T> ToSortedSet<T>(this IEnumerable<T> obj)
+        {
+            if (obj == null)
+            {
+                throw new ArgumentNullException("obj");
+            }
+
+            //if (obj.Is<SortedSet<T>>())
+            //{
+            //    return obj.Of<SortedSet<T>>();
+            //}
+
+            return new SortedSet<T>(obj);
+        }
+        
+        public static SortedSet<T> ToSortedSetNullable<T>(this IEnumerable<T> obj)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+
+            return obj.ToSortedSet();
+        }
+
+        public static HashSet<T> ToHashSetNullable<T>(this IEnumerable<T> obj)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+
+            return obj.ToHashSet();
+        }
+
         public static int GetSequenceHashCode<T>(this IEnumerable<T> obj) where T : IEquatable<T>
         {
             if (obj == null)

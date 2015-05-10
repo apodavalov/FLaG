@@ -1,5 +1,7 @@
 ﻿using FLaGLib.Collections;
 using System;
+using System.Collections.Generic;
+using FLaGLib.Extensions;
 
 namespace FLaGLib.Data.StateMachines
 {
@@ -17,7 +19,7 @@ namespace FLaGLib.Data.StateMachines
             private set;
         }
 
-        public MetaFinalState(IReadOnlySet<Label> requiredStates, IReadOnlySet<Label> optionalStates)
+        public MetaFinalState(IEnumerable<Label> requiredStates, IEnumerable<Label> optionalStates)
         {
             if (requiredStates == null)
             {
@@ -29,8 +31,8 @@ namespace FLaGLib.Data.StateMachines
                 throw new ArgumentNullException("optionalStates");
             }
 
-            RequiredStates = requiredStates;
-            OptionalStates = optionalStates;
+            RequiredStates = requiredStates.ToSortedSet().AsReadOnly();
+            OptionalStates = optionalStates.ToSortedSet().AsReadOnly();
         }
     }
 }

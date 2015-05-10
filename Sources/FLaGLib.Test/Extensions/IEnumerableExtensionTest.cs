@@ -1,5 +1,7 @@
 ﻿using NUnit.Framework;
 using FLaGLib.Extensions;
+using FLaGLib.Helpers;
+using System.Collections.Generic;
 
 namespace FLaGLib.Test.Extensions
 {
@@ -44,10 +46,10 @@ namespace FLaGLib.Test.Extensions
             Assert.AreEqual(0, ((string[])null).GetSequenceHashCode());
             Assert.AreEqual(0, new string[0].GetSequenceHashCode());
 
-            string[] sequence1 = new string[] { "4j9dneh3", "d9end", "djeheb,gf" };
-            string[] sequence2 = new string[] { "4j9dneh3", "d9end", "djeheb,gf" };
-            string[] sequence3 = new string[] { "erg34g", "3ghg6", "7g33g" };
-            string[] sequence4 = new string[] { "erg34g", "3ghg6", "7g33g" };
+            IEnumerable<string> sequence1 = EnumerateHelper.Sequence("4j9dneh3", "d9end", "djeheb,gf");
+            IEnumerable<string> sequence2 = EnumerateHelper.Sequence("4j9dneh3", "d9end", "djeheb,gf");
+            IEnumerable<string> sequence3 = EnumerateHelper.Sequence( "erg34g", "3ghg6", "7g33g");
+            IEnumerable<string> sequence4 = EnumerateHelper.Sequence("erg34g", "3ghg6", "7g33g");
 
             int hash1 = sequence1.GetSequenceHashCode();
             int hash2 = sequence2.GetSequenceHashCode();

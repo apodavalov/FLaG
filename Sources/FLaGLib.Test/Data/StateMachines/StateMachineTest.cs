@@ -6,6 +6,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using FLaGLib.Helpers;
+using System.Linq;
 
 namespace FLaGLib.Test.Data.StateMachines
 {
@@ -20,29 +21,26 @@ namespace FLaGLib.Test.Data.StateMachines
             Label sState = new Label(new SingleLabel('S'));
             Label hState = new Label(new SingleLabel('H'));
 
-            Label[] states = new Label[] 
-            {
+            IEnumerable<Label> states = EnumerateHelper.Sequence(            
                 kState,
                 sState,
                 hState,
                 pState
-            };
+            );
 
             Label initialState = kState;
 
-            Transition[] transitions = new Transition[] 
-            {
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence(
                 new Transition(kState, 'a', sState),
                 new Transition(kState, 'b', pState),
                 new Transition(kState, 'c', hState)
-            };
+            );
 
-            Label[] finalStates = new Label[]
-            {
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(            
                 hState
-            };
+            );
 
-            StateMachine stateMachine = new StateMachine(kState,new HashSet<Label>(finalStates),new HashSet<Transition>(transitions));
+            StateMachine stateMachine = new StateMachine(kState,finalStates,transitions);
 
             Assert.AreEqual(true, stateMachine.IsDeterministic());
         }
@@ -55,29 +53,26 @@ namespace FLaGLib.Test.Data.StateMachines
             Label sState = new Label(new SingleLabel('S'));
             Label hState = new Label(new SingleLabel('H'));
 
-            Label[] states = new Label[] 
-            {
+            IEnumerable<Label> states = EnumerateHelper.Sequence(                
                 kState,
                 sState,
                 hState,
                 pState
-            };
+            );
 
             Label initialState = kState;
 
-            Transition[] transitions = new Transition[] 
-            {
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence(            
                 new Transition(kState, 'a', sState),
                 new Transition(kState, 'a', pState),
                 new Transition(kState, 'c', hState)
-            };
+            );
 
-            Label[] finalStates = new Label[]
-            {
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(              
                 hState
-            };
+            );
 
-            StateMachine stateMachine = new StateMachine(kState, new HashSet<Label>(finalStates), new HashSet<Transition>(transitions));
+            StateMachine stateMachine = new StateMachine(kState, finalStates, transitions);
 
             Assert.AreEqual(false, stateMachine.IsDeterministic());
         }
@@ -94,8 +89,7 @@ namespace FLaGLib.Test.Data.StateMachines
             Label s13State = new Label(new SingleLabel('S', subIndex: 13));
             Label hState = new Label(new SingleLabel('H', subIndex: 11));
 
-            Label[] states = new Label[] 
-            {
+            IEnumerable<Label> states = EnumerateHelper.Sequence( 
                 hState,
                 s2State,
                 s7State,
@@ -104,12 +98,11 @@ namespace FLaGLib.Test.Data.StateMachines
                 s13State,
                 s15State,
                 s16State
-            };
+            );
 
             Label initialState = s11State;
 
-            Transition[] transitions = new Transition[] 
-            {
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence( 
                 new Transition(s11State, 'a', s8State),
                 new Transition(s11State, 'c', s8State),
                 new Transition(s11State, 'a', s16State),
@@ -129,14 +122,13 @@ namespace FLaGLib.Test.Data.StateMachines
                 new Transition(s15State, 'c', hState),
                 new Transition(s15State, 'c', s13State),
                 new Transition(s13State, 'a', s15State)
-            };
+            );
 
-            Label[] finalStates = new Label[]
-            {
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence( 
                 hState
-            };
+            );
 
-            StateMachine stateMachine = new StateMachine(initialState, new HashSet<Label>(finalStates), new HashSet<Transition>(transitions));
+            StateMachine stateMachine = new StateMachine(initialState, finalStates, transitions);
 
             Label s1NewState = new Label(new SingleLabel('S', subIndex: 1));
             Label s2NewState = new Label(new SingleLabel('S', subIndex: 2));
@@ -147,20 +139,18 @@ namespace FLaGLib.Test.Data.StateMachines
             Label s7NewState = new Label(new SingleLabel('S', subIndex: 7));
             Label s8NewState = new Label(new SingleLabel('S', subIndex: 8));
 
-            KeyValuePair<Label, Label>[] expectedDictionary = new KeyValuePair<Label, Label>[]
-            {
-                new KeyValuePair<Label,Label>(hState,s1NewState),
-                new KeyValuePair<Label,Label>(s2State,s2NewState),
-                new KeyValuePair<Label,Label>(s7State,s3NewState),
-                new KeyValuePair<Label,Label>(s8State,s4NewState),
-                new KeyValuePair<Label,Label>(s11State,s5NewState),
-                new KeyValuePair<Label,Label>(s13State,s6NewState),
-                new KeyValuePair<Label,Label>(s15State,s7NewState),
-                new KeyValuePair<Label,Label>(s16State,s8NewState)
-            };
+            IEnumerable<KeyValuePair<Label, Label>> expectedDictionary = EnumerateHelper.Sequence(
+                new KeyValuePair<Label, Label>(hState, s1NewState),
+                new KeyValuePair<Label, Label>(s2State, s2NewState),
+                new KeyValuePair<Label, Label>(s7State, s3NewState),
+                new KeyValuePair<Label, Label>(s8State, s4NewState),
+                new KeyValuePair<Label, Label>(s11State, s5NewState),
+                new KeyValuePair<Label, Label>(s13State, s6NewState),
+                new KeyValuePair<Label, Label>(s15State, s7NewState),
+                new KeyValuePair<Label, Label>(s16State, s8NewState)
+            );
 
-            Label[] expectedStates = new Label[]
-            {
+            IEnumerable<Label> expectedStates = EnumerateHelper.Sequence(
                 s1NewState,
                 s2NewState,
                 s3NewState,
@@ -169,15 +159,13 @@ namespace FLaGLib.Test.Data.StateMachines
                 s6NewState,
                 s7NewState,
                 s8NewState
-            };
+            );
 
-            Label[] expectedFinalStates = new Label[]
-            {
+            IEnumerable<Label> expectedFinalStates = EnumerateHelper.Sequence(
                 s1NewState
-            };
+            );
 
-            Transition[] expectedTransitions = new Transition[] 
-            {
+            IEnumerable<Transition> expectedTransitions = EnumerateHelper.Sequence( 
                 new Transition(s2NewState, 'c', s3NewState),
                 new Transition(s2NewState, 'c', s6NewState),
                 new Transition(s3NewState, 'a', s2NewState),
@@ -197,7 +185,7 @@ namespace FLaGLib.Test.Data.StateMachines
                 new Transition(s8NewState, 'a', s8NewState),
                 new Transition(s8NewState, 'c', s1NewState),
                 new Transition(s8NewState, 'c', s8NewState)
-            };
+            );
 
             bool onStateMapInvoked = false;
 
@@ -212,10 +200,10 @@ namespace FLaGLib.Test.Data.StateMachines
 
             Assert.IsTrue(onStateMapInvoked);
 
-            CollectionAssert.AreEqual(stateMachine.Alphabet, actualStateMachine.Alphabet);
-            CollectionAssert.AreEqual(expectedStates, actualStateMachine.States);
-            CollectionAssert.AreEqual(expectedTransitions, actualStateMachine.Transitions);
-            CollectionAssert.AreEqual(expectedFinalStates, actualStateMachine.FinalStates);            
+            CollectionAssert.AreEquivalent(stateMachine.Alphabet, actualStateMachine.Alphabet);
+            CollectionAssert.AreEquivalent(expectedStates, actualStateMachine.States);
+            CollectionAssert.AreEquivalent(expectedTransitions, actualStateMachine.Transitions);
+            CollectionAssert.AreEquivalent(expectedFinalStates, actualStateMachine.FinalStates);            
         }
 
         [Test]
@@ -238,8 +226,7 @@ namespace FLaGLib.Test.Data.StateMachines
             Label s15State = new Label(new SingleLabel('S', subIndex: 15));
             Label s16State = new Label(new SingleLabel('S', subIndex: 16));
 
-            Transition[] transitions = new Transition[]
-            {
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence(
                 new Transition(s1State, 'a',s2State),
                 new Transition(s2State, 'a',s4State),
                 new Transition(s3State, 'a',s4State),
@@ -260,17 +247,15 @@ namespace FLaGLib.Test.Data.StateMachines
                 new Transition(s16State,'a',s2State),
                 new Transition(s16State,'b',s7State),
                 new Transition(s16State,'c',s12State)
-            };
+            );
 
-            Label[] finalStates = new Label[] 
-            {
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(
                 s4State,s5State,s9State,s10State,s14State,s15State,s16State
-            };
+            );
 
             Label expectedInitialState = s16State;
 
-            Transition[] expectedTransitions = new Transition[]
-            {
+            IEnumerable<Transition> expectedTransitions = EnumerateHelper.Sequence(
                 new Transition(s2State, 'a',s4State),
                 new Transition(s4State, 'a',s2State),
                 new Transition(s7State, 'b',s9State),
@@ -281,94 +266,46 @@ namespace FLaGLib.Test.Data.StateMachines
                 new Transition(s16State,'a',s2State),
                 new Transition(s16State,'b',s7State),
                 new Transition(s16State,'c',s12State)
-            };
+            );
 
-            Label[] expectedFinalStates = new Label[]
-            {
+            IEnumerable<Label> expectedFinalStates = EnumerateHelper.Sequence(            
                 s4State,s9State,s14State,s16State
-            };
+            );
 
-            Label[] expectedStates = new Label[]
-            {
+            IEnumerable<Label> expectedStates = EnumerateHelper.Sequence(  
                 s2State,s4State,s7State,s9State,s12State,s14State,s16State
-            };
+            );
 
-            char[] expectedAlphabet = new char[] { 'a', 'b', 'c' };
+            IEnumerable<char> expectedAlphabet = EnumerateHelper.Sequence('a', 'b', 'c');
 
-            StateMachine stateMachine = new StateMachine(expectedInitialState, new HashSet<Label>(finalStates), new HashSet<Transition>(transitions));
+            StateMachine stateMachine = new StateMachine(expectedInitialState, finalStates, transitions);
 
-            RemovingUnreachableStatesPostReport[] expectedSequence = new RemovingUnreachableStatesPostReport[]
-            {
+            IReadOnlyList<RemovingUnreachableStatesPostReport> expectedSequence = EnumerateHelper.Sequence(
                 new RemovingUnreachableStatesPostReport(
-                    new SortedSet<Label>(new Label[] 
-                    {
-                        s16State
-                    }).AsReadOnly(),
-                    new SortedSet<Label>(new Label[] 
-                    {
-                        s16State
-                    }).AsReadOnly(),
-                    new SortedSet<Label>(new Label[] 
-                    {
-                        s16State
-                    }).AsReadOnly(),
-                    new SortedSet<Label>(new Label[] 
-                    {
-                        s16State
-                    }).AsReadOnly(),
+                    EnumerateHelper.Sequence(s16State),
+                    EnumerateHelper.Sequence(s16State),
+                    EnumerateHelper.Sequence(s16State),
+                    EnumerateHelper.Sequence(s16State),
                     0),
                 new RemovingUnreachableStatesPostReport(
-                    new SortedSet<Label>(new Label[] 
-                    {
-                        s16State
-                    }).AsReadOnly(),
-                    new SortedSet<Label>(new Label[] 
-                    {
-                        s2State,s7State,s12State,s16State
-                    }).AsReadOnly(),
-                    new SortedSet<Label>(new Label[] 
-                    {
-                        s2State,s7State,s12State
-                    }).AsReadOnly(),
-                    new SortedSet<Label>(new Label[] 
-                    {
-                        s2State,s7State,s12State
-                    }).AsReadOnly(),
+                    EnumerateHelper.Sequence(s16State),
+                    EnumerateHelper.Sequence(s2State,s7State,s12State,s16State),
+                    EnumerateHelper.Sequence(s2State,s7State,s12State),
+                    EnumerateHelper.Sequence(s2State,s7State,s12State),
                     1),
                 new RemovingUnreachableStatesPostReport(
-                    new SortedSet<Label>(new Label[] 
-                    {
-                        s2State,s7State,s12State,s16State
-                    }).AsReadOnly(),
-                    new SortedSet<Label>(new Label[] 
-                    {
-                        s2State,s4State,s7State,s9State,s12State,s14State,s16State
-                    }).AsReadOnly(),
-                    new SortedSet<Label>(new Label[] 
-                    {
-                        s4State,s9State,s14State
-                    }).AsReadOnly(),
-                    new SortedSet<Label>(new Label[] 
-                    {
-                        s4State,s9State,s14State
-                    }).AsReadOnly(),
+                    EnumerateHelper.Sequence(s2State,s7State,s12State,s16State),
+                    EnumerateHelper.Sequence(s2State,s4State,s7State,s9State,s12State,s14State,s16State),
+                    EnumerateHelper.Sequence(s4State,s9State,s14State),
+                    EnumerateHelper.Sequence(s4State,s9State,s14State),
                     2),
                 new RemovingUnreachableStatesPostReport(
-                    new SortedSet<Label>(new Label[] 
-                    {
-                        s2State,s4State,s7State,s9State,s12State,s14State,s16State
-                    }).AsReadOnly(),
-                    new SortedSet<Label>(new Label[] 
-                    {
-                        s2State,s4State,s7State,s9State,s12State,s14State,s16State
-                    }).AsReadOnly(),
-                    new SortedSet<Label>(new Label[] 
-                    {
-                        s2State,s7State,s12State
-                    }).AsReadOnly(),
-                    new SortedSet<Label>(new Label[] { }).AsReadOnly(),
+                    EnumerateHelper.Sequence(s2State,s4State,s7State,s9State,s12State,s14State,s16State),
+                    EnumerateHelper.Sequence(s2State,s4State,s7State,s9State,s12State,s14State,s16State),
+                    EnumerateHelper.Sequence(s2State,s7State,s12State),
+                    Enumerable.Empty<Label>(),
                     3)
-            };
+            ).ToList().AsReadOnly();
 
             int actualPostReportCount = 0;
             bool onBeginInvoked = false;
@@ -391,11 +328,11 @@ namespace FLaGLib.Test.Data.StateMachines
                     Assert.IsFalse(onEndInvoked);
                     onEndInvoked = true;
                     actualPostReportCount = OnTuple(tuple, expectedSequence, actualPostReportCount);
-                    Assert.AreEqual(expectedSequence.Length, actualPostReportCount);
+                    Assert.AreEqual(expectedSequence.Count, actualPostReportCount);
                 }
             );
 
-            Assert.AreEqual(expectedSequence.Length, actualPostReportCount);
+            Assert.AreEqual(expectedSequence.Count, actualPostReportCount);
             Assert.IsTrue(onBeginInvoked);
             Assert.IsTrue(onEndInvoked);
             CollectionAssert.AreEquivalent(expectedStates, actualStateMachine.States);
@@ -405,18 +342,18 @@ namespace FLaGLib.Test.Data.StateMachines
             Assert.AreEqual(expectedInitialState, actualStateMachine.InitialState);
         }
 
-        private int OnTuple(RemovingUnreachableStatesPostReport tuple, RemovingUnreachableStatesPostReport[] expectedSequence, int actualPostReportProcessedCount)
+        private int OnTuple(RemovingUnreachableStatesPostReport tuple, IReadOnlyList<RemovingUnreachableStatesPostReport> expectedSequence, int actualPostReportProcessedCount)
         {
-            Assert.IsTrue(actualPostReportProcessedCount < expectedSequence.Length);
+            Assert.IsTrue(actualPostReportProcessedCount < expectedSequence.Count);
 
             RemovingUnreachableStatesPostReport current = expectedSequence[actualPostReportProcessedCount];
 
             Assert.AreEqual(current.Iteration, tuple.Iteration);
 
-            CollectionAssert.AreEqual(current.CurrentApproachedStates, tuple.CurrentApproachedStates);
-            CollectionAssert.AreEqual(current.NextApproachedStates, tuple.NextApproachedStates);
-            CollectionAssert.AreEqual(current.CurrentReachableStates, tuple.CurrentReachableStates);
-            CollectionAssert.AreEqual(current.NextReachableStates, tuple.NextReachableStates);
+            CollectionAssert.AreEquivalent(current.CurrentApproachedStates, tuple.CurrentApproachedStates);
+            CollectionAssert.AreEquivalent(current.NextApproachedStates, tuple.NextApproachedStates);
+            CollectionAssert.AreEquivalent(current.CurrentReachableStates, tuple.CurrentReachableStates);
+            CollectionAssert.AreEquivalent(current.NextReachableStates, tuple.NextReachableStates);
 
             return actualPostReportProcessedCount + 1;
         }
@@ -427,36 +364,31 @@ namespace FLaGLib.Test.Data.StateMachines
         {
             Label s11State = new Label(new SingleLabel('S', subIndex: 11));
             Label s8s16State = new Label(
-                new SortedSet<SingleLabel>(
-                    EnumerateHelper.Sequence(
-                        new SingleLabel('S', subIndex: 8),
-                        new SingleLabel('S', subIndex: 16)
-                    )
-                )
+                EnumerateHelper.Sequence(
+                    new SingleLabel('S', subIndex: 8),
+                    new SingleLabel('S', subIndex: 16)
+                )                
             );
 
-            Label[] states = new Label[] 
-            {
+            IEnumerable<Label> states = EnumerateHelper.Sequence(
                 s11State,
                 s8s16State 
-            };
+            );
 
-            Transition[] transitions = new Transition[] 
-            {
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence(
                 new Transition(s11State, 'a', s8s16State)
-            };
+            );
 
-            Label[] finalStates = new Label[]
-            {
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(
                 s8s16State
-            };
+            );
 
             Label initialState = s11State;
 
             new StateMachine(
                 initialState, 
-                new SortedSet<Label>(finalStates), 
-                new SortedSet<Transition>(transitions)
+                finalStates,
+                transitions
             ).GetMetaTransitions();
         }
 
@@ -469,33 +401,31 @@ namespace FLaGLib.Test.Data.StateMachines
 
             Label initialState = s1State;
 
-            Label[] states = new Label[] 
-            {
+            IEnumerable<Label> states = EnumerateHelper.Sequence( 
                 s1State,
                 s2State,
                 s3State
-            };
+            );
 
-            Label[] finalStates = new Label[]
-            {
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(
                 s3State
-            };
+            );
 
-            Transition[] transitions = new Transition[] 
-            {
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence(
                 new Transition(s1State, 'a', s2State),
                 new Transition(s2State, 'c', s3State),
                 new Transition(s1State, 'c', s3State)
-            };
+            );
 
             StateMachine stateMachine = new StateMachine(
                 initialState,
-                new SortedSet<Label>(finalStates),
-                new SortedSet<Transition>(transitions));
+                finalStates,
+                transitions
+            );
 
             IReadOnlySet<Label> metaState = stateMachine.GetMetaState();
 
-            CollectionAssert.AreEqual(states, metaState);
+            CollectionAssert.AreEquivalent(states, metaState);
         }
 
         [Test]
@@ -504,36 +434,31 @@ namespace FLaGLib.Test.Data.StateMachines
         {
             Label s11State = new Label(new SingleLabel('S', subIndex: 11));
             Label s8s16State = new Label(
-                new SortedSet<SingleLabel>(
-                    EnumerateHelper.Sequence(
-                        new SingleLabel('S', subIndex: 8),
-                        new SingleLabel('S', subIndex: 16)
-                    )
-                )
+                EnumerateHelper.Sequence(
+                    new SingleLabel('S', subIndex: 8),
+                    new SingleLabel('S', subIndex: 16)
+                )                
             );
 
-            Label[] states = new Label[] 
-            {
+            IEnumerable<Label> states = EnumerateHelper.Sequence(
                 s11State,
-                s8s16State 
-            };
-
-            Transition[] transitions = new Transition[] 
-            {
-                new Transition(s11State, 'a', s8s16State)
-            };
-
-            Label[] finalStates = new Label[]
-            {
                 s8s16State
-            };
+            );
+
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence(
+                new Transition(s11State, 'a', s8s16State)
+            );
+
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(
+                s8s16State
+            );
 
             Label initialState = s11State;
 
             new StateMachine(
                 initialState,
-                new SortedSet<Label>(finalStates),
-                new SortedSet<Transition>(transitions)
+                finalStates,
+                transitions
             ).GetMetaState();
         }
 
@@ -543,36 +468,31 @@ namespace FLaGLib.Test.Data.StateMachines
         {
             Label s11State = new Label(new SingleLabel('S', subIndex: 11));
             Label s8s16State = new Label(
-                new SortedSet<SingleLabel>(
-                    EnumerateHelper.Sequence(
-                        new SingleLabel('S', subIndex: 8),
-                        new SingleLabel('S', subIndex: 16)
-                    )
-                )
+                EnumerateHelper.Sequence(
+                    new SingleLabel('S', subIndex: 8),
+                    new SingleLabel('S', subIndex: 16)
+                )                
             );
 
-            Label[] states = new Label[] 
-            {
+            IEnumerable<Label> states = EnumerateHelper.Sequence(
                 s11State,
                 s8s16State 
-            };
+            );
 
-            Transition[] transitions = new Transition[] 
-            {
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence(
                 new Transition(s11State, 'a', s8s16State)
-            };
+            );
 
-            Label[] finalStates = new Label[]
-            {
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(
                 s8s16State
-            };
+            );
 
             Label initialState = s11State;
 
             new StateMachine(
                 initialState,
-                new SortedSet<Label>(finalStates),
-                new SortedSet<Transition>(transitions)
+                finalStates,
+                transitions
             ).GetMetaFinalState();
         }
 
@@ -585,44 +505,40 @@ namespace FLaGLib.Test.Data.StateMachines
 
             Label initialState = s1State;
 
-            Label[] states = new Label[] 
-            {
+            IEnumerable<Label> states = EnumerateHelper.Sequence(
                 s1State,
                 s2State,
                 s3State
-            };
+            );
 
-            Label[] finalStates = new Label[]
-            {
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(
                 s3State
-            };
+            );
 
-            Transition[] transitions = new Transition[] 
-            {
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence(
                 new Transition(s1State, 'a', s2State),
                 new Transition(s2State, 'c', s3State),
                 new Transition(s1State, 'c', s3State)
-            };
+            );
 
             StateMachine stateMachine = new StateMachine(
                 initialState, 
-                new SortedSet<Label>(finalStates), 
-                new SortedSet<Transition>(transitions));
+                finalStates, 
+                transitions
+            );
 
-            Label[] expectedOptionalStates = new Label[]
-            {
+            IEnumerable<Label> expectedOptionalStates = EnumerateHelper.Sequence(
                 s1State, s2State
-            };
+            );
 
-            Label[] expectedRequiredStates = new Label[]
-            {
+            IEnumerable<Label> expectedRequiredStates = EnumerateHelper.Sequence(
                 s3State
-            };
+            );
 
             MetaFinalState metaFinalState = stateMachine.GetMetaFinalState();
 
-            CollectionAssert.AreEqual(expectedOptionalStates, metaFinalState.OptionalStates);
-            CollectionAssert.AreEqual(expectedRequiredStates, metaFinalState.RequiredStates);
+            CollectionAssert.AreEquivalent(expectedOptionalStates, metaFinalState.OptionalStates);
+            CollectionAssert.AreEquivalent(expectedRequiredStates, metaFinalState.RequiredStates);
         }
 
         [Test]
@@ -637,8 +553,7 @@ namespace FLaGLib.Test.Data.StateMachines
             Label s13State = new Label(new SingleLabel('S', subIndex: 13));
             Label hState = new Label(new SingleLabel('H'));
 
-            Label[] states = new Label[] 
-            {
+            IEnumerable<Label> states = EnumerateHelper.Sequence( 
                 s11State,
                 s8State,
                 s7State,
@@ -646,13 +561,12 @@ namespace FLaGLib.Test.Data.StateMachines
                 s16State,
                 s15State,
                 s13State,
-                hState, 
-            };
+                hState
+            );
 
             Label initialState = s11State;
 
-            Transition[] transitions = new Transition[] 
-            {
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence( 
                 new Transition(s11State, 'a', s8State),
                 new Transition(s11State, 'c', s8State),
                 new Transition(s11State, 'a', s16State),
@@ -672,429 +586,243 @@ namespace FLaGLib.Test.Data.StateMachines
                 new Transition(s15State, 'c', hState),
                 new Transition(s15State, 'c', s13State),
                 new Transition(s13State, 'a', s15State) 
-            };
+            );
 
-            Label[] finalStates = new Label[]
-            {
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence( 
                 hState
-            };
+            );
 
-            StateMachine stateMachine = new StateMachine(initialState, new HashSet<Label>(finalStates), new HashSet<Transition>(transitions));
+            StateMachine stateMachine = new StateMachine(initialState, finalStates, transitions);
 
-            MetaTransition[] expectedMetaTransitions = new MetaTransition[]
-            {
+            IEnumerable<MetaTransition> expectedMetaTransitions = EnumerateHelper.Sequence(             
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s8State, s11State, s13State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s16State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s8State, s11State, s13State, s15State),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s13State, s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s8State, s11State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s13State, s16State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s8State, s11State, s15State ),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s15State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s15State, s16State )
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s13State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s8State, s11State, s15State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s13State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s8State, s11State, s15State, s16State ),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s15State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(s15State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s11State, s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s8State, s13State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s11State, s16State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s8State, s13State, s15State),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s8State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s2State, s8State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s11State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s8State, s13State, s15State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s11State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s8State, s13State, s15State, s16State),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s2State, s8State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(s2State, s8State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s11State, s13State, s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s8State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s11State, s13State, s16State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s8State, s15State),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s8State, s15State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s2State, s8State, s15State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s11State, s13State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s8State, s15State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s11State, s13State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s8State, s15State, s16State),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s2State, s8State, s15State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(s2State, s8State, s15State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s8State, s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s11State, s13State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s8State, s16State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s11State, s13State, s15State ),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s8State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s8State, s16State)
+                 ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s8State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s11State, s13State, s15State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s8State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s11State, s13State, s15State, s16State),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s8State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(s8State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s8State, s13State, s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s11State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s8State, s13State, s16State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s11State, s15State),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s8State, s15State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s8State, s15State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s8State, s13State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s11State, s15State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s8State, s13State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s11State, s15State, s16State),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s8State, s15State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(s8State, s15State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s7State, s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s8State, s11State, s13State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s7State, s16State),
+                    EnumerateHelper.Sequence(hState, s2State, s8State, s11State, s13State, s15State ),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s2State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s7State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s8State, s11State, s13State, s15State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s7State),
+                    EnumerateHelper.Sequence(hState, s2State, s8State, s11State, s13State, s15State, s16State),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s2State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(s2State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s7State, s13State, s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s8State, s11State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s7State, s13State, s16State),
+                    EnumerateHelper.Sequence(hState, s2State, s8State, s11State, s15State),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s15State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s2State, s15State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s7State, s13State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s8State, s11State, s15State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s7State, s13State),
+                    EnumerateHelper.Sequence(hState, s2State, s8State, s11State, s15State, s16State),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s2State, s15State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(s2State, s15State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s7State, s8State, s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s11State, s13State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s7State, s8State, s16State),
+                    EnumerateHelper.Sequence(hState, s2State, s11State, s13State, s15State),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s8State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s2State, s8State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s7State, s8State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s11State, s13State, s15State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s7State, s8State),
+                    EnumerateHelper.Sequence(hState, s2State, s11State, s13State, s15State, s16State),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s2State, s8State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(s2State, s8State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s7State, s8State, s13State, s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s11State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s7State, s8State, s13State, s16State),
+                    EnumerateHelper.Sequence(hState, s2State, s11State, s15State),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s8State, s15State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s2State, s8State, s15State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s7State, s8State, s13State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s11State, s15State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s7State, s8State, s13State),
+                    EnumerateHelper.Sequence(hState, s2State, s11State, s15State, s16State),
                     'a',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s2State, s8State, s15State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(s2State, s8State, s15State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s15State, s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s8State, s11State, s13State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s15State, s16State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s8State, s11State, s13State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s13State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s13State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s8State, s11State, s13State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s16State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s8State, s11State, s13State, s15State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s15State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s8State, s11State, s13State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s15State
+                    ),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s8State, s11State, s13State, s16State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s13State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s13State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s11State, s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s8State, s13State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s11State, s16State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s8State, s13State, s15State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s8State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s8State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s11State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s8State, s13State, s15State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s11State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s8State, s13State, s15State, s16State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s8State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(s8State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s11State, s15State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s8State, s13State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s11State, s15State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s8State, s13State, s16State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s8State, s13State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s8State, s13State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s8State, s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s11State, s13State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s8State, s16State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s11State, s13State, s15State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s8State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s8State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s8State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s11State, s13State, s15State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s8State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s11State, s13State, s15State, s16State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s8State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(s8State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s8State, s15State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s2State, s7State, s11State, s13State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s8State, s15State),
+                    EnumerateHelper.Sequence(hState, s2State, s7State, s11State, s13State, s16State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s8State, s13State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s8State, s13State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s2State, s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s7State, s8State, s11State, s13State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s2State, s16State),
+                    EnumerateHelper.Sequence(hState, s7State, s8State, s11State, s13State, s15State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s7State, s13State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s7State, s13State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s2State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s7State, s8State, s11State, s13State, s15State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s2State),
+                    EnumerateHelper.Sequence(hState, s7State, s8State, s11State, s13State, s15State, s16State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s7State, s13State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(s7State, s13State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s2State, s15State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s7State, s8State, s11State, s13State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s2State, s15State),
+                    EnumerateHelper.Sequence(hState, s7State, s8State, s11State, s13State, s16State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s7State, s13State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s7State, s13State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s2State, s11State, s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s7State, s8State, s13State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s2State, s11State, s16State),
+                    EnumerateHelper.Sequence(hState, s7State, s8State, s13State, s15State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s7State, s8State, s13State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s7State, s8State, s13State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s2State, s11State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s7State, s8State, s13State, s15State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s2State, s11State),
+                    EnumerateHelper.Sequence(hState, s7State, s8State, s13State, s15State, s16State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s7State, s8State, s13State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(s7State, s8State, s13State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s2State, s11State, s15State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s7State, s8State, s13State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s2State, s11State, s15State),
+                    EnumerateHelper.Sequence(hState, s7State, s8State, s13State, s16State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s7State, s8State, s13State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s7State, s8State, s13State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s2State, s8State, s16State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s7State, s11State, s13State, s15State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s2State, s8State, s16State),
+                    EnumerateHelper.Sequence(hState, s7State, s11State, s13State, s15State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s7State, s8State, s13State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(hState, s7State, s8State, s13State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s2State, s8State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s7State, s11State, s13State, s15State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s2State, s8State),
+                    EnumerateHelper.Sequence(hState, s7State, s11State, s13State, s15State, s16State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s7State, s8State, s13State, s16State 
-                    )).AsReadOnly()),
+                    EnumerateHelper.Sequence(s7State, s8State, s13State, s16State)
+                ),
                 new MetaTransition(
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        s2State, s8State, s15State
-                    )).AsReadOnly(),
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s7State, s11State, s13State, s16State 
-                    )).AsReadOnly(),
+                    EnumerateHelper.Sequence(s2State, s8State, s15State),
+                    EnumerateHelper.Sequence(hState, s7State, s11State, s13State, s16State),
                     'c',
-                    new SortedSet<Label>(EnumerateHelper.Sequence(
-                        hState, s7State, s8State, s13State, s16State 
-                    )).AsReadOnly())
-            };
+                    EnumerateHelper.Sequence(hState, s7State, s8State, s13State, s16State)
+                )
+            );
 
             IReadOnlySet<MetaTransition> actualMetaTransitions = stateMachine.GetMetaTransitions();
 
-            CollectionAssert.AreEqual(expectedMetaTransitions, actualMetaTransitions);
+            CollectionAssert.AreEquivalent(expectedMetaTransitions, actualMetaTransitions);
         }
 
         [Test]
@@ -1317,20 +1045,18 @@ namespace FLaGLib.Test.Data.StateMachines
             Label s5State = new Label(new SingleLabel('S', subIndex: 5));
             Label s6State = new Label(new SingleLabel('S', subIndex: 6));
 
-            Label[] states = new Label[] 
-            {
+            IEnumerable<Label> states = EnumerateHelper.Sequence( 
                 s1State,
                 s2State,
                 s3State,
                 s4State,
                 s5State,
                 s6State
-            };
+            );
 
             Label initialState = s1State;
 
-            Transition[] transitions = new Transition[] 
-            {
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence( 
                 new Transition(s1State, 'a', s4State),
                 new Transition(s1State, 'c', s2State),
                 new Transition(s2State, 'a', s3State),
@@ -1343,143 +1069,118 @@ namespace FLaGLib.Test.Data.StateMachines
                 new Transition(s5State, 'c', s6State),
                 new Transition(s6State, 'a', s5State),
                 new Transition(s6State, 'c', s3State)
-            };
+            );
 
-            Label[] finalStates = new Label[]
-            {
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence( 
                 s3State,
                 s5State,
                 s6State
-            };
+            );
 
-
-            Label[] expectedStates = new Label[]
-            {
+            IEnumerable<Label> expectedStates = EnumerateHelper.Sequence( 
                 s1State,
                 s2State,
                 s3State
-            };
+            );
 
             Label expectedInitialState = s1State;
 
-            Label[] expectedFinalStates = new Label[]
-            {
+            IEnumerable<Label> expectedFinalStates = EnumerateHelper.Sequence( 
                 s3State
-            };
+            );
 
-            Transition[] expectedTransitions = new Transition[]
-            {
+            IEnumerable<Transition> expectedTransitions = EnumerateHelper.Sequence( 
                 new Transition(s1State, 'a', s2State),
                 new Transition(s1State, 'c', s2State),
                 new Transition(s2State, 'a', s3State),
                 new Transition(s2State, 'c', s3State),
                 new Transition(s3State, 'a', s3State),
                 new Transition(s3State, 'c', s3State)
-            };
+            );
 
-            char[] expectedAlphabet = new char[] { 'a', 'c' };
+            IEnumerable<char> expectedAlphabet = EnumerateHelper.Sequence('a', 'c');
 
-            StateMachine stateMachine = new StateMachine(initialState, new HashSet<Label>(finalStates), new HashSet<Transition>(transitions));
+            StateMachine stateMachine = new StateMachine(initialState, finalStates, transitions);
 
-            SetOfEquivalence[] setsOfEquivalence = new SetOfEquivalence[]
-            {
+            IReadOnlyList<SetOfEquivalence> setsOfEquivalence = EnumerateHelper.Sequence(
                 new SetOfEquivalence(
-                    new SortedSet<Label>(
-                        EnumerateHelper.Sequence(
-                            s1State,
-                            s2State,
-                            s4State
-                        )
-                    )
+                    EnumerateHelper.Sequence(
+                        s1State,
+                        s2State,
+                        s4State
+                    )                    
                 ),
                 new SetOfEquivalence(
-                    new SortedSet<Label>(
-                        EnumerateHelper.Sequence(
-                            s3State,
-                            s5State,
-                            s6State
-                        )
-                    )
+                    EnumerateHelper.Sequence(
+                        s3State,
+                        s5State,
+                        s6State
+                    )                    
                 ),
                 new SetOfEquivalence(
-                    new SortedSet<Label>(
-                        EnumerateHelper.Sequence(
-                            s1State
-                        )
-                    )
+                    EnumerateHelper.Sequence(
+                        s1State
+                    )                    
                 ),
                 new SetOfEquivalence(
-                    new SortedSet<Label>(
-                        EnumerateHelper.Sequence(
-                            s2State,
-                            s4State
-                        )
-                    )
+                    EnumerateHelper.Sequence(
+                        s2State,
+                        s4State
+                    )                    
                 )
-            };
+            ).ToList().AsReadOnly();
 
-            IReadOnlySet<char>[] charsSet = new IReadOnlySet<char>[]
-            {
-                new SortedSet<char>(EnumerateHelper.Sequence('a','c')).AsReadOnly()
-            };
-
-            SetsOfEquivalencePostReport[] expectedSetsOfEquivalencePostReports = new SetsOfEquivalencePostReport[] 
-            {
+            IReadOnlyList<IEnumerable<char>> charsSet = EnumerateHelper.Sequence(
+                EnumerateHelper.Sequence('a','c')
+            ).ToList().AsReadOnly();
+            
+            IReadOnlyList<SetsOfEquivalencePostReport> expectedSetsOfEquivalencePostReports = EnumerateHelper.Sequence( 
                 new SetsOfEquivalencePostReport(
                     new SetsOfEquivalence(
-                        new SortedSet<SetOfEquivalence>(
-                            EnumerateHelper.Sequence(
-                                setsOfEquivalence[0],
-                                setsOfEquivalence[1]
-                            )
-                        )
+                        EnumerateHelper.Sequence(
+                            setsOfEquivalence[0],
+                            setsOfEquivalence[1]
+                        )                        
                     ),0
                  ),
                 new SetsOfEquivalencePostReport(
                     new SetsOfEquivalence(
-                        new SortedSet<SetOfEquivalence>(
-                            EnumerateHelper.Sequence(
-                                setsOfEquivalence[2],
-                                setsOfEquivalence[3],
-                                setsOfEquivalence[1]                               
-                            )
-                        )
+                        EnumerateHelper.Sequence(
+                            setsOfEquivalence[2],
+                            setsOfEquivalence[3],
+                            setsOfEquivalence[1]                               
+                        )                        
                     ),1
                  ),
                 new SetsOfEquivalencePostReport(
                     new SetsOfEquivalence(
-                        new SortedSet<SetOfEquivalence>(
-                            EnumerateHelper.Sequence(
-                                setsOfEquivalence[2],
-                                setsOfEquivalence[3],
-                                setsOfEquivalence[1]    
-                            )
-                        )
+                        EnumerateHelper.Sequence(
+                            setsOfEquivalence[2],
+                            setsOfEquivalence[3],
+                            setsOfEquivalence[1]    
+                        )                        
                     ),2
                  )
-            };
+            ).ToList().AsReadOnly();
 
-            SetOfEquivalenceTransitionsPostReport[] expectedSetOfEquivalenceTransitionsPostReports = new SetOfEquivalenceTransitionsPostReport[] 
-            {
+            IReadOnlyList<SetOfEquivalenceTransitionsPostReport> expectedSetOfEquivalenceTransitionsPostReports = EnumerateHelper.Sequence(
                new SetOfEquivalenceTransitionsPostReport(
-                   new List<SetOfEquivalenceTransition>(
-                       EnumerateHelper.Sequence(
-                            new SetOfEquivalenceTransition(setsOfEquivalence[2],charsSet[0],setsOfEquivalence[0],0),
-                            new SetOfEquivalenceTransition(setsOfEquivalence[3],charsSet[0],setsOfEquivalence[1],1),
-                            new SetOfEquivalenceTransition(setsOfEquivalence[1],charsSet[0],setsOfEquivalence[1],1)
-                       )
-                   ).AsReadOnly(),1
+                    EnumerateHelper.Sequence(
+                        new SetOfEquivalenceTransition(setsOfEquivalence[2],charsSet[0],setsOfEquivalence[0],0),
+                        new SetOfEquivalenceTransition(setsOfEquivalence[3],charsSet[0],setsOfEquivalence[1],1),
+                        new SetOfEquivalenceTransition(setsOfEquivalence[1],charsSet[0],setsOfEquivalence[1],1)
+                    ),
+                    1
                ),
                new SetOfEquivalenceTransitionsPostReport(
-                   new List<SetOfEquivalenceTransition>(
-                       EnumerateHelper.Sequence(
-                            new SetOfEquivalenceTransition(setsOfEquivalence[2],charsSet[0],setsOfEquivalence[3],1),
-                            new SetOfEquivalenceTransition(setsOfEquivalence[3],charsSet[0],setsOfEquivalence[1],2),
-                            new SetOfEquivalenceTransition(setsOfEquivalence[1],charsSet[0],setsOfEquivalence[1],2)
-                       )
-                   ).AsReadOnly(),2
+                    EnumerateHelper.Sequence(
+                        new SetOfEquivalenceTransition(setsOfEquivalence[2],charsSet[0],setsOfEquivalence[3],1),
+                        new SetOfEquivalenceTransition(setsOfEquivalence[3],charsSet[0],setsOfEquivalence[1],2),
+                        new SetOfEquivalenceTransition(setsOfEquivalence[1],charsSet[0],setsOfEquivalence[1],2)
+                    ),
+                    2
                )
-            };
+            ).ToList().AsReadOnly();
 
             bool onResultInvoked = false;
             int actualSetsOfEquivalencePostReportCount = 0;
@@ -1508,15 +1209,15 @@ namespace FLaGLib.Test.Data.StateMachines
                 {
                     Assert.IsFalse(onResultInvoked);
                     onResultInvoked = true;
-                    Assert.AreEqual(expectedSetsOfEquivalencePostReports.Length, actualSetsOfEquivalencePostReportCount);
-                    Assert.AreEqual(expectedSetOfEquivalenceTransitionsPostReports.Length, actualSetOfEquivalenceTransitionsPostReportCount);
+                    Assert.AreEqual(expectedSetsOfEquivalencePostReports.Count, actualSetsOfEquivalencePostReportCount);
+                    Assert.AreEqual(expectedSetOfEquivalenceTransitionsPostReports.Count, actualSetOfEquivalenceTransitionsPostReportCount);
                     Assert.IsTrue(setOfEquivalenceResult.IsStatesCombined);
-                    Assert.AreEqual(expectedSetOfEquivalenceTransitionsPostReports.Length, setOfEquivalenceResult.LastIteration);
+                    Assert.AreEqual(expectedSetOfEquivalenceTransitionsPostReports.Count, setOfEquivalenceResult.LastIteration);
                 });
 
             Assert.IsTrue(onResultInvoked);
-            Assert.AreEqual(expectedSetsOfEquivalencePostReports.Length, actualSetsOfEquivalencePostReportCount);
-            Assert.AreEqual(expectedSetOfEquivalenceTransitionsPostReports.Length, actualSetOfEquivalenceTransitionsPostReportCount);
+            Assert.AreEqual(expectedSetsOfEquivalencePostReports.Count, actualSetsOfEquivalencePostReportCount);
+            Assert.AreEqual(expectedSetOfEquivalenceTransitionsPostReports.Count, actualSetOfEquivalenceTransitionsPostReportCount);
 
             CollectionAssert.AreEquivalent(expectedAlphabet, actualStateMachine.Alphabet);
             CollectionAssert.AreEquivalent(expectedStates, actualStateMachine.States);
@@ -1526,10 +1227,10 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         private int OnSetsOfEquivalnceReport(
-            SetsOfEquivalencePostReport actualReport, SetsOfEquivalencePostReport[] expectedSequence, 
+            SetsOfEquivalencePostReport actualReport, IReadOnlyList<SetsOfEquivalencePostReport> expectedSequence, 
             int actualSetsOfEquivalencePostReportCount, int actualSetOfEquivalenceTransitionsPostReportCount)
         {
-            Assert.IsTrue(actualSetsOfEquivalencePostReportCount < expectedSequence.Length);
+            Assert.IsTrue(actualSetsOfEquivalencePostReportCount < expectedSequence.Count);
 
             SetsOfEquivalencePostReport expected = expectedSequence[actualSetsOfEquivalencePostReportCount];
 
@@ -1541,10 +1242,10 @@ namespace FLaGLib.Test.Data.StateMachines
             return actualSetsOfEquivalencePostReportCount + 1;
         }
 
-        private int OnSetOfEquivalnceTransitionsReport(SetOfEquivalenceTransitionsPostReport actualReport, SetOfEquivalenceTransitionsPostReport[] expectedSequence,
+        private int OnSetOfEquivalnceTransitionsReport(SetOfEquivalenceTransitionsPostReport actualReport, IReadOnlyList<SetOfEquivalenceTransitionsPostReport> expectedSequence,
             int actualSetsOfEquivalencePostReportCount, int actualSetOfEquivalenceTransitionsPostReportCount)
         {
-            Assert.IsTrue(actualSetOfEquivalenceTransitionsPostReportCount < expectedSequence.Length);
+            Assert.IsTrue(actualSetOfEquivalenceTransitionsPostReportCount < expectedSequence.Count);
 
             SetOfEquivalenceTransitionsPostReport expected = expectedSequence[actualSetOfEquivalenceTransitionsPostReportCount];
 
@@ -1560,7 +1261,7 @@ namespace FLaGLib.Test.Data.StateMachines
                 Assert.AreEqual(currentSetOfEquivalenceTransitionsEnumerator.Current.IndexOfCurrentSetOfEquivalence,
                     actualSetOfEquivalenceTransitionsEnumerator.Current.IndexOfCurrentSetOfEquivalence);
 
-                CollectionAssert.AreEqual(
+                CollectionAssert.AreEquivalent(
                     currentSetOfEquivalenceTransitionsEnumerator.Current.Symbols,
                     actualSetOfEquivalenceTransitionsEnumerator.Current.Symbols);
 
@@ -1579,8 +1280,8 @@ namespace FLaGLib.Test.Data.StateMachines
         [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_InitialStateNull_Fail()
         {
-            ISet<Transition> transitions = new HashSet<Transition>(new Transition[] { new Transition(new Label(new SingleLabel('c')),'a', new Label(new SingleLabel('b'))) });
-            ISet<Label> finalStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('b')) });
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence(new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))));
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(new Label(new SingleLabel('b')));
 
             new StateMachine(null, finalStates, transitions);
         }
@@ -1589,7 +1290,7 @@ namespace FLaGLib.Test.Data.StateMachines
         [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_FinalStatesNull_Fail()
         {
-            ISet<Transition> transitions = new HashSet<Transition>(new Transition[] { new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))) });
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence(new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))));
             Label initialState = new Label(new SingleLabel('c'));
 
             new StateMachine(initialState, null, transitions);
@@ -1599,7 +1300,7 @@ namespace FLaGLib.Test.Data.StateMachines
         [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_TransitionsNull_Fail()
         {
-            ISet<Label> finalStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('b')) });
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(new Label(new SingleLabel('b')));
             Label initialState = new Label(new SingleLabel('c'));
 
             new StateMachine(initialState, finalStates, null);
@@ -1609,8 +1310,8 @@ namespace FLaGLib.Test.Data.StateMachines
         [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_OneFinalStateNull_Fail()
         {
-            ISet<Transition> transitions = new HashSet<Transition>(new Transition[] { new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))) });
-            ISet<Label> finalStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('b')), null });
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence(new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))));
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(new Label(new SingleLabel('b')), null);
             Label initialState = new Label(new SingleLabel('c'));
 
             new StateMachine(initialState, finalStates, transitions);
@@ -1620,8 +1321,8 @@ namespace FLaGLib.Test.Data.StateMachines
         [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_OneTransitionNull_Fail()
         {
-            ISet<Transition> transitions = new HashSet<Transition>(new Transition[] { new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))), null });
-            ISet<Label> finalStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('b'))});
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence(new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))), null);
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(new Label(new SingleLabel('b')));
             Label initialState = new Label(new SingleLabel('c'));
 
             new StateMachine(initialState, finalStates, transitions);
@@ -1631,8 +1332,8 @@ namespace FLaGLib.Test.Data.StateMachines
         [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_FinalStatesSetIsNotSupersetOfStates_Fail()
         {
-            ISet<Transition> transitions = new HashSet<Transition>(new Transition[] { new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))) });
-            ISet<Label> finalStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('b')), new Label(new SingleLabel('d')) });
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence(new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))));
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(new Label(new SingleLabel('b')), new Label(new SingleLabel('d')));
             Label initialState = new Label(new SingleLabel('c'));
 
             new StateMachine(initialState, finalStates, transitions);
@@ -1641,24 +1342,24 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void CctorTest_NoTransitions_Ok()
         {
-            ISet<Transition> transitions = new HashSet<Transition>();
+            IEnumerable<Transition> transitions = Enumerable.Empty<Transition>();
             Label expectedInitialState = new Label(new SingleLabel('b'));
-            ISet<Label> finalStates = new HashSet<Label>(new Label[] { expectedInitialState });
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(expectedInitialState);
 
             StateMachine stateMachine = new StateMachine(expectedInitialState, finalStates, transitions);
 
-            Label[] expectedStates = new Label[] { expectedInitialState };
+            IEnumerable<Label> expectedStates = EnumerateHelper.Sequence(expectedInitialState);
 
-            char[] expectedAlphabet = new char[] { };
+            IEnumerable<char> expectedAlphabet = Enumerable.Empty<char>();
 
-            Transition[] expectedTransitions = new Transition[] { };
+            IEnumerable<Transition> expectedTransitions = Enumerable.Empty<Transition>();
 
-            Label[] expectedFinalStates = new Label[] { expectedInitialState };
+            IEnumerable<Label> expectedFinalStates = EnumerateHelper.Sequence(expectedInitialState);
 
-            CollectionAssert.AreEqual(expectedAlphabet, stateMachine.Alphabet);
-            CollectionAssert.AreEqual(expectedStates, stateMachine.States);
-            CollectionAssert.AreEqual(expectedTransitions, stateMachine.Transitions);
-            CollectionAssert.AreEqual(expectedFinalStates, stateMachine.FinalStates);
+            CollectionAssert.AreEquivalent(expectedAlphabet, stateMachine.Alphabet);
+            CollectionAssert.AreEquivalent(expectedStates, stateMachine.States);
+            CollectionAssert.AreEquivalent(expectedTransitions, stateMachine.Transitions);
+            CollectionAssert.AreEquivalent(expectedFinalStates, stateMachine.FinalStates);
             Assert.AreEqual(expectedInitialState, stateMachine.InitialState);
         }
 
@@ -1666,9 +1367,9 @@ namespace FLaGLib.Test.Data.StateMachines
         [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_NoFinalStates_Fail()
         {
-            ISet<Transition> transitions = new HashSet<Transition>();
+            IEnumerable<Transition> transitions = Enumerable.Empty<Transition>();
             Label initialState = new Label(new SingleLabel('b'));
-            ISet<Label> finalStates = new HashSet<Label>(new Label[] { });
+            IEnumerable<Label> finalStates = Enumerable.Empty<Label>();
 
             StateMachine stateMachine = new StateMachine(initialState, finalStates, transitions);
         }
@@ -1682,22 +1383,20 @@ namespace FLaGLib.Test.Data.StateMachines
             Label kState = new Label(new SingleLabel('K'));
             Label aState = new Label(new SingleLabel('A'));
 
-            Label[] expectedStates = new Label[]
-            {
+            IEnumerable<Label> expectedStates = EnumerateHelper.Sequence(
                 aState,
                 dState,
                 kState,
                 pState,
                 sState
-            };
+            );
 
-            char[] expectedAlphabet = new char[]
-            {
+            IEnumerable<char> expectedAlphabet = EnumerateHelper.Sequence(
                 'a',
                 'b',
                 'c',
                 'd'
-            };
+            );
 
             Label expectedInitialState = kState;
 
@@ -1706,40 +1405,36 @@ namespace FLaGLib.Test.Data.StateMachines
             Transition p_c_aTranstition = new Transition(pState, 'c', aState);
             Transition a_d_dTranstition = new Transition(aState, 'd', dState);
 
-            Transition[] expectedTransitions = new Transition[]
-            {
+            IEnumerable<Transition> expectedTransitions = EnumerateHelper.Sequence(
                 a_d_dTranstition,
                 k_b_pTranstition,
                 p_c_aTranstition,
                 s_a_kTranstition
-            };
+            );
 
-            Label[] expectedfinalStates = new Label[]
-            {
+            IEnumerable<Label> expectedfinalStates = EnumerateHelper.Sequence(
                 kState,
                 pState
-            };
+            );
 
-            ISet<Transition> transitions = new HashSet<Transition>(new Transition[]
-            {
+            IEnumerable<Transition> transitions = EnumerateHelper.Sequence(
                 s_a_kTranstition,
                 k_b_pTranstition,
                 p_c_aTranstition,
                 a_d_dTranstition
-            });
+            );
 
-            ISet<Label> finalStates = new HashSet<Label>(new Label[]
-            {
+            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(
                 pState,
                 kState
-            });
+            );
 
             StateMachine stateMachine = new StateMachine(expectedInitialState, finalStates, transitions);
 
-            CollectionAssert.AreEqual(expectedAlphabet, stateMachine.Alphabet);
-            CollectionAssert.AreEqual(expectedStates, stateMachine.States);
-            CollectionAssert.AreEqual(expectedTransitions, stateMachine.Transitions);
-            CollectionAssert.AreEqual(expectedfinalStates, stateMachine.FinalStates);
+            CollectionAssert.AreEquivalent(expectedAlphabet, stateMachine.Alphabet);
+            CollectionAssert.AreEquivalent(expectedStates, stateMachine.States);
+            CollectionAssert.AreEquivalent(expectedTransitions, stateMachine.Transitions);
+            CollectionAssert.AreEquivalent(expectedfinalStates, stateMachine.FinalStates);
             Assert.AreEqual(expectedInitialState, stateMachine.InitialState);
         }
     }

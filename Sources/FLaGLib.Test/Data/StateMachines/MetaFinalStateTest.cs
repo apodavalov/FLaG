@@ -15,39 +15,35 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void CctorTest_Ok()
         {
-            IReadOnlySet<Label> expectedRequiredStates = 
-                new SortedSet<Label>(
-                    EnumerateHelper.Sequence<Label>
-                    (
-                        new Label(
-                            new SingleLabel(
-                                'a'
-                            )
-                        ),
-                        new Label(
-                            new SingleLabel(
-                                'b'
-                            )
+            IEnumerable<Label> expectedRequiredStates =
+                EnumerateHelper.Sequence<Label>
+                (
+                    new Label(
+                        new SingleLabel(
+                            'a'
+                        )
+                    ),
+                    new Label(
+                        new SingleLabel(
+                            'b'
                         )
                     )
-                ).AsReadOnly();
+                );
 
-            IReadOnlySet<Label> expectedOptionalStates = 
-                new SortedSet<Label>(
-                    EnumerateHelper.Sequence<Label>
-                    (
-                        new Label(
-                            new SingleLabel(
-                                'c'
-                            )
-                        ),
-                        new Label(
-                            new SingleLabel(
-                                'd'
-                            )
+            IEnumerable<Label> expectedOptionalStates =
+                EnumerateHelper.Sequence<Label>
+                (
+                    new Label(
+                        new SingleLabel(
+                            'c'
+                        )
+                    ),
+                    new Label(
+                        new SingleLabel(
+                            'd'
                         )
                     )
-                ).AsReadOnly();
+                );
 
             MetaFinalState metaFinalState =
                 new MetaFinalState(
@@ -55,30 +51,28 @@ namespace FLaGLib.Test.Data.StateMachines
                     expectedOptionalStates
                 );
 
-            CollectionAssert.AreEqual(expectedRequiredStates, metaFinalState.RequiredStates);
-            CollectionAssert.AreEqual(expectedOptionalStates, metaFinalState.OptionalStates);
+            CollectionAssert.AreEquivalent(expectedRequiredStates, metaFinalState.RequiredStates);
+            CollectionAssert.AreEquivalent(expectedOptionalStates, metaFinalState.OptionalStates);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_RequiredStatesNull_Fail()
         {
-            IReadOnlySet<Label> expectedOptionalStates =
-                new SortedSet<Label>(
-                    EnumerateHelper.Sequence<Label>
-                    (
-                        new Label(
-                            new SingleLabel(
-                                'a'
-                            )
-                        ),
-                        new Label(
-                            new SingleLabel(
-                                'b'
-                            )
+            IEnumerable<Label> expectedOptionalStates =
+                EnumerateHelper.Sequence<Label>
+                (
+                    new Label(
+                        new SingleLabel(
+                            'a'
+                        )
+                    ),
+                    new Label(
+                        new SingleLabel(
+                            'b'
                         )
                     )
-                ).AsReadOnly();
+                );
 
             new MetaFinalState(null, expectedOptionalStates);
         }
@@ -87,22 +81,20 @@ namespace FLaGLib.Test.Data.StateMachines
         [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_OptionalStatesNull_Fail()
         {
-            IReadOnlySet<Label> expectedRequiredStates = 
-                new SortedSet<Label>(
-                    EnumerateHelper.Sequence<Label>
-                    (
-                        new Label(
-                            new SingleLabel(
-                                'a'
-                            )
-                        ),
-                        new Label(
-                            new SingleLabel(
-                                'b'
-                            )
+            IEnumerable<Label> expectedRequiredStates =
+                EnumerateHelper.Sequence<Label>
+                (
+                    new Label(
+                        new SingleLabel(
+                            'a'
+                        )
+                    ),
+                    new Label(
+                        new SingleLabel(
+                            'b'
                         )
                     )
-                ).AsReadOnly();
+                );
 
             new MetaFinalState(expectedRequiredStates, null);
         }

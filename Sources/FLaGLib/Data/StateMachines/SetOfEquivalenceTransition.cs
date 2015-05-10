@@ -1,5 +1,7 @@
 ﻿using FLaGLib.Collections;
 using System;
+using System.Collections.Generic;
+using FLaGLib.Extensions;
 
 namespace FLaGLib.Data.StateMachines
 {
@@ -31,7 +33,7 @@ namespace FLaGLib.Data.StateMachines
 
         public SetOfEquivalenceTransition(
             SetOfEquivalence nextSetOfEquivalence, 
-            IReadOnlySet<char> symbols,
+            IEnumerable<char> symbols,
             SetOfEquivalence currentSetOfEquivalence,
             int indexOfCurrentSetOfEquivalence)
         {
@@ -51,7 +53,7 @@ namespace FLaGLib.Data.StateMachines
             }
 
             NextSetOfEquivalence = nextSetOfEquivalence;
-            Symbols = symbols;
+            Symbols = symbols.ToSortedSet().AsReadOnly();
             CurrentSetOfEquivalence = currentSetOfEquivalence;
             IndexOfCurrentSetOfEquivalence = indexOfCurrentSetOfEquivalence;
         }

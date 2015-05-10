@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FLaGLib.Data.StateMachines
 {
@@ -17,14 +18,14 @@ namespace FLaGLib.Data.StateMachines
             private set;
         }
 
-        public SetOfEquivalenceTransitionsPostReport(IReadOnlyList<SetOfEquivalenceTransition> setOfEquivalenceTransitions, int iteration)
+        public SetOfEquivalenceTransitionsPostReport(IEnumerable<SetOfEquivalenceTransition> setOfEquivalenceTransitions, int iteration)
         {
             if (setOfEquivalenceTransitions == null)
             {
                 throw new ArgumentNullException("setOfEquivalenceTransitions");
             }
 
-            SetOfEquivalenceTransitions = setOfEquivalenceTransitions;
+            SetOfEquivalenceTransitions = setOfEquivalenceTransitions.ToList().AsReadOnly();
             Iteration = iteration;
         }
     }

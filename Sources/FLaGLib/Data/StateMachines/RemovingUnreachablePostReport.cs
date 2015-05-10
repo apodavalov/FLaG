@@ -1,5 +1,7 @@
 ﻿using FLaGLib.Collections;
 using System;
+using System.Collections.Generic;
+using FLaGLib.Extensions;
 
 namespace FLaGLib.Data.StateMachines
 {
@@ -36,10 +38,10 @@ namespace FLaGLib.Data.StateMachines
         }
 
         public RemovingUnreachableStatesPostReport(
-            IReadOnlySet<Label> currentReachableStates,
-            IReadOnlySet<Label> nextReachableStates,
-            IReadOnlySet<Label> currentApproachedStates,
-            IReadOnlySet<Label> nextApproachedStates,             
+            IEnumerable<Label> currentReachableStates,
+            IEnumerable<Label> nextReachableStates,
+            IEnumerable<Label> currentApproachedStates,
+            IEnumerable<Label> nextApproachedStates,             
             int iteration)
         {
             if (currentReachableStates == null)
@@ -62,10 +64,10 @@ namespace FLaGLib.Data.StateMachines
                 throw new ArgumentNullException("nextApproachedStates");
             }
 
-            CurrentReachableStates = currentReachableStates;
-            NextReachableStates = nextReachableStates;
-            NextApproachedStates = nextApproachedStates;
-            CurrentApproachedStates = currentApproachedStates;
+            CurrentReachableStates = currentReachableStates.ToHashSet().AsReadOnly();
+            NextReachableStates = nextReachableStates.ToHashSet().AsReadOnly();
+            NextApproachedStates = nextApproachedStates.ToHashSet().AsReadOnly();
+            CurrentApproachedStates = currentApproachedStates.ToHashSet().AsReadOnly();
             Iteration = iteration;
         }
     }

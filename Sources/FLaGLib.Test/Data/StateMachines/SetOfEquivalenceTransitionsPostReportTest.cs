@@ -6,6 +6,7 @@ using FLaGLib.Helpers;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FLaGLib.Test.Data.StateMachines
 {
@@ -17,37 +18,33 @@ namespace FLaGLib.Test.Data.StateMachines
         {
             SetOfEquivalence setOfEquavalence1 =
                new SetOfEquivalence(
-                    new SortedSet<Label>(
-                        EnumerateHelper.Sequence(
-                            new Label(new SingleLabel('P')),
-                            null,
-                            new Label(new SingleLabel('D'))
-                        )
-                    )
+                    EnumerateHelper.Sequence(
+                        new Label(new SingleLabel('P')),
+                        null,
+                        new Label(new SingleLabel('D'))
+                    )                    
                 );
 
             SetOfEquivalence setOfEquavalence2 =
               new SetOfEquivalence(
-                   new SortedSet<Label>(
-                       EnumerateHelper.Sequence(
-                           new Label(new SingleLabel('M'))
-                       )
-                   )
+                    EnumerateHelper.Sequence(
+                        new Label(new SingleLabel('M'))
+                    )                   
                );
 
-            IReadOnlySet<char> symbols = new SortedSet<char>(EnumerateHelper.Sequence('b','c')).AsReadOnly();;
+            IEnumerable<char> symbols = EnumerateHelper.Sequence('b', 'c');
 
-            IReadOnlyList<SetOfEquivalenceTransition> expectedTransitions = new List<SetOfEquivalenceTransition>(EnumerateHelper.Sequence(
+            IEnumerable<SetOfEquivalenceTransition> expectedTransitions = EnumerateHelper.Sequence(
                 new SetOfEquivalenceTransition(setOfEquavalence1, symbols, setOfEquavalence2, 6),
                 new SetOfEquivalenceTransition(setOfEquavalence2, symbols, setOfEquavalence1, 3)
-            )).AsReadOnly();
+            );
 
             int expectedIteration = 9;
 
             SetOfEquivalenceTransitionsPostReport actualPostReport = new SetOfEquivalenceTransitionsPostReport(expectedTransitions,expectedIteration);
 
             Assert.AreEqual(expectedIteration, actualPostReport.Iteration);
-            Assert.AreEqual(expectedTransitions.Count, actualPostReport.SetOfEquivalenceTransitions.Count);
+            Assert.AreEqual(expectedTransitions.Count(), actualPostReport.SetOfEquivalenceTransitions.Count);
 
             IEnumerator<SetOfEquivalenceTransition> expectedTransitionsEnumerator = expectedTransitions.GetEnumerator();
             IEnumerator<SetOfEquivalenceTransition> actualTransitionsEnumerator = actualPostReport.SetOfEquivalenceTransitions.GetEnumerator();

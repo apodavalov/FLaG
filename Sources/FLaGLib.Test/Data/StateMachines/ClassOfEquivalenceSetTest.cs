@@ -21,14 +21,10 @@ namespace FLaGLib.Test.Data.StateMachines
             new Tuple<ClassOfEquivalenceSet, ClassOfEquivalenceSet, int>(
                 null,
                 new ClassOfEquivalenceSet(
-                    new SortedSet<ClassOfEquivalence>(
-                        EnumerateHelper.Sequence(
-                            new ClassOfEquivalence(
-                                1,
-                                new SortedSet<char>(
-                                    EnumerateHelper.Sequence('a', 'b')
-                                ).AsReadOnly()
-                            )
+                    EnumerateHelper.Sequence(
+                        new ClassOfEquivalence(
+                            1,
+                            EnumerateHelper.Sequence('a', 'b')
                         )
                     )
                 ),
@@ -36,98 +32,70 @@ namespace FLaGLib.Test.Data.StateMachines
             ),
             new Tuple<ClassOfEquivalenceSet, ClassOfEquivalenceSet, int>(
                 new ClassOfEquivalenceSet(
-                    new SortedSet<ClassOfEquivalence>(
-                        EnumerateHelper.Sequence(
-                            new ClassOfEquivalence(
-                                1,
-                                new SortedSet<char>(
-                                    EnumerateHelper.Sequence('a', 'b')
-                                ).AsReadOnly()
-                            )
+                    EnumerateHelper.Sequence(
+                        new ClassOfEquivalence(
+                            1,
+                            EnumerateHelper.Sequence('a', 'b')
                         )
-                    )
+                    )                    
                 ),
                 null,
                 1
             ),
             new Tuple<ClassOfEquivalenceSet, ClassOfEquivalenceSet, int>(
                 new ClassOfEquivalenceSet(
-                    new SortedSet<ClassOfEquivalence>(
-                        EnumerateHelper.Sequence(
-                            new ClassOfEquivalence(
-                                1,
-                                new SortedSet<char>(
-                                    EnumerateHelper.Sequence('a', 'b')
-                                ).AsReadOnly()
-                            )
+                    EnumerateHelper.Sequence(
+                        new ClassOfEquivalence(
+                            1,
+                            EnumerateHelper.Sequence('a', 'b')
                         )
-                    )
+                    )                    
                 ),
                 new ClassOfEquivalenceSet(
-                    new SortedSet<ClassOfEquivalence>(
-                        EnumerateHelper.Sequence(
-                            new ClassOfEquivalence(
-                                1,
-                                new SortedSet<char>(
-                                    EnumerateHelper.Sequence('c', 'd')
-                                ).AsReadOnly()
-                            )
+                    EnumerateHelper.Sequence(
+                        new ClassOfEquivalence(
+                            1,
+                            EnumerateHelper.Sequence('c', 'd')
                         )
-                    )
+                    )                    
                 ),
                 -2
             ),
             new Tuple<ClassOfEquivalenceSet, ClassOfEquivalenceSet, int>(
                 new ClassOfEquivalenceSet(
-                    new SortedSet<ClassOfEquivalence>(
-                        EnumerateHelper.Sequence(
-                            new ClassOfEquivalence(
-                                1,
-                                new SortedSet<char>(
-                                    EnumerateHelper.Sequence('c', 'd')
-                                ).AsReadOnly()
-                            )
-                        )
-                    )
+                    EnumerateHelper.Sequence(
+                        new ClassOfEquivalence(
+                            1,
+                            EnumerateHelper.Sequence('c', 'd')
+                         )
+                    )                    
                 ),
                 new ClassOfEquivalenceSet(
-                    new SortedSet<ClassOfEquivalence>(
-                        EnumerateHelper.Sequence(
-                            new ClassOfEquivalence(
-                                1,
-                                new SortedSet<char>(
-                                    EnumerateHelper.Sequence('a', 'b')
-                                ).AsReadOnly()
-                            )
+                     EnumerateHelper.Sequence(
+                        new ClassOfEquivalence(
+                            1,
+                            EnumerateHelper.Sequence('a', 'b')
                         )
-                    )
+                    )                    
                 ),
                 2
             ),
             new Tuple<ClassOfEquivalenceSet, ClassOfEquivalenceSet, int>(
                 new ClassOfEquivalenceSet(
-                    new SortedSet<ClassOfEquivalence>(
-                        EnumerateHelper.Sequence(
-                            new ClassOfEquivalence(
-                                1,
-                                new SortedSet<char>(
-                                    EnumerateHelper.Sequence('a', 'b')
-                                ).AsReadOnly()
-                            )
+                    EnumerateHelper.Sequence(
+                        new ClassOfEquivalence(
+                            1,
+                            EnumerateHelper.Sequence('a', 'b')
                         )
-                    )
+                    )                    
                 ),
                 new ClassOfEquivalenceSet(
-                    new SortedSet<ClassOfEquivalence>(
-                        EnumerateHelper.Sequence(
-                            new ClassOfEquivalence(
-                                1,
-                                new SortedSet<char>(
-                                    EnumerateHelper.Sequence('a', 'b')
-                                ).AsReadOnly()
-                            )
+                    EnumerateHelper.Sequence(
+                        new ClassOfEquivalence(
+                            1,
+                            EnumerateHelper.Sequence('a', 'b')
                         )
-                    )
+                    )                    
                 ),
                 0
             )

@@ -5,6 +5,8 @@ using FLaGLib.Data.StateMachines;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using FLaGLib.Helpers;
 
 namespace FLaGLib.Test.Data.StateMachines
 {
@@ -17,9 +19,11 @@ namespace FLaGLib.Test.Data.StateMachines
         {
             new RemovingUnreachableStatesPostReport(
                 null, 
-                new HashSet<Label>(new Label[] { }).AsReadOnly(), 
-                new HashSet<Label>(new Label[] { }).AsReadOnly(), 
-                new HashSet<Label>(new Label[] { }).AsReadOnly(), 0);
+                Enumerable.Empty<Label>(),
+                Enumerable.Empty<Label>(),
+                Enumerable.Empty<Label>(),
+                0
+            );
         }
 
         [Test]
@@ -27,10 +31,12 @@ namespace FLaGLib.Test.Data.StateMachines
         public void Cctor_CurrentApproachedStatesNull_Fail()
         {
             new RemovingUnreachableStatesPostReport(
-                new HashSet<Label>(new Label[] { }).AsReadOnly(),
-                new HashSet<Label>(new Label[] { }).AsReadOnly(), 
+                Enumerable.Empty<Label>(),
+                Enumerable.Empty<Label>(), 
                 null,
-                new HashSet<Label>(new Label[] { }).AsReadOnly(), 0);
+                Enumerable.Empty<Label>(),
+                0
+             );
         }
 
         [Test]
@@ -38,10 +44,12 @@ namespace FLaGLib.Test.Data.StateMachines
         public void Cctor_NextReachableStatesNull_Fail()
         {
             new RemovingUnreachableStatesPostReport(
-                new HashSet<Label>(new Label[] { }).AsReadOnly(), 
+                Enumerable.Empty<Label>(), 
                 null,
-                new HashSet<Label>(new Label[] { }).AsReadOnly(),
-                new HashSet<Label>(new Label[] { }).AsReadOnly(), 0);
+                Enumerable.Empty<Label>(),
+                Enumerable.Empty<Label>(), 
+                0
+            );
         }
 
         [Test]
@@ -49,18 +57,21 @@ namespace FLaGLib.Test.Data.StateMachines
         public void Cctor_NextApproachedStatesNull_Fail()
         {
             new RemovingUnreachableStatesPostReport(
-                new HashSet<Label>(new Label[] { }).AsReadOnly(),
-                new HashSet<Label>(new Label[] { }).AsReadOnly(),
-                new HashSet<Label>(new Label[] { }).AsReadOnly(), null, 0);
+                Enumerable.Empty<Label>(),
+                Enumerable.Empty<Label>(),
+                Enumerable.Empty<Label>(), 
+                null, 
+                0
+            );
         }
 
         [Test]
         public void CctorTest_Ok()
         {
-            IReadOnlySet<Label> expectedCurrentReachableStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('b')), new Label(new SingleLabel('c')) }).AsReadOnly();
-            IReadOnlySet<Label> expectedNextReachableStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('d')), new Label(new SingleLabel('e')) }).AsReadOnly();
-            IReadOnlySet<Label> expectedCurrentApproachedStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('f')), new Label(new SingleLabel('g')) }).AsReadOnly();
-            IReadOnlySet<Label> expectedNextApproachedStates = new HashSet<Label>(new Label[] { new Label(new SingleLabel('h')), new Label(new SingleLabel('i')) }).AsReadOnly();
+            IEnumerable<Label> expectedCurrentReachableStates = EnumerateHelper.Sequence(new Label(new SingleLabel('b')), new Label(new SingleLabel('c')));
+            IEnumerable<Label> expectedNextReachableStates = EnumerateHelper.Sequence(new Label(new SingleLabel('d')), new Label(new SingleLabel('e')));
+            IEnumerable<Label> expectedCurrentApproachedStates = EnumerateHelper.Sequence(new Label(new SingleLabel('f')), new Label(new SingleLabel('g')));
+            IEnumerable<Label> expectedNextApproachedStates = EnumerateHelper.Sequence(new Label(new SingleLabel('h')), new Label(new SingleLabel('i')));
             int expectedIteration = 45;
 
             RemovingUnreachableStatesPostReport actual =
@@ -70,10 +81,10 @@ namespace FLaGLib.Test.Data.StateMachines
                     expectedCurrentApproachedStates,
                     expectedNextApproachedStates,expectedIteration);
 
-            CollectionAssert.AreEqual(expectedCurrentReachableStates,actual.CurrentReachableStates);
-            CollectionAssert.AreEqual(expectedNextReachableStates, actual.NextReachableStates);
-            CollectionAssert.AreEqual(expectedCurrentApproachedStates, actual.CurrentApproachedStates);
-            CollectionAssert.AreEqual(expectedNextApproachedStates, actual.NextApproachedStates);
+            CollectionAssert.AreEquivalent(expectedCurrentReachableStates,actual.CurrentReachableStates);
+            CollectionAssert.AreEquivalent(expectedNextReachableStates, actual.NextReachableStates);
+            CollectionAssert.AreEquivalent(expectedCurrentApproachedStates, actual.CurrentApproachedStates);
+            CollectionAssert.AreEquivalent(expectedNextApproachedStates, actual.NextApproachedStates);
             Assert.AreEqual(expectedIteration, actual.Iteration);
         }
     }

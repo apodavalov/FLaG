@@ -3,6 +3,7 @@ using FLaGLib.Extensions;
 using System.Linq;
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 namespace FLaGLib.Data.StateMachines
 {
@@ -33,10 +34,10 @@ namespace FLaGLib.Data.StateMachines
         }
 
         public MetaTransition(
-            IReadOnlySet<Label> metaCurrentRequiredStates,
-            IReadOnlySet<Label> metaCurrentOptionalStates, 
+            IEnumerable<Label> metaCurrentRequiredStates,
+            IEnumerable<Label> metaCurrentOptionalStates, 
             char symbol,
-            IReadOnlySet<Label> metaNextStates)
+            IEnumerable<Label> metaNextStates)
         {
             if (metaCurrentRequiredStates == null)
             {
@@ -53,9 +54,9 @@ namespace FLaGLib.Data.StateMachines
                 throw new ArgumentNullException("metaNextStates");
             }
 
-            CurrentOptionalStates = metaCurrentOptionalStates;
-            CurrentRequiredStates = metaCurrentRequiredStates;
-            NextStates = metaNextStates;
+            CurrentOptionalStates = metaCurrentOptionalStates.ToSortedSet().AsReadOnly();
+            CurrentRequiredStates = metaCurrentRequiredStates.ToSortedSet().AsReadOnly();
+            NextStates = metaNextStates.ToSortedSet().AsReadOnly();
             Symbol = symbol;
         }
 

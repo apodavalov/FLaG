@@ -1,6 +1,7 @@
 ﻿using FLaGLib.Collections;
 using FLaGLib.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace FLaGLib.Data.StateMachines
@@ -19,7 +20,7 @@ namespace FLaGLib.Data.StateMachines
             private set;
         }
 
-        public ClassOfEquivalence(int setNum, IReadOnlySet<char> symbols)
+        public ClassOfEquivalence(int setNum, IEnumerable<char> symbols)
         {
             if (symbols == null)
             {
@@ -27,7 +28,7 @@ namespace FLaGLib.Data.StateMachines
             }
 
             SetNum = setNum;
-            Symbols = symbols;
+            Symbols = symbols.ToSortedSet().AsReadOnly();
         }
 
         public static bool operator ==(ClassOfEquivalence objA, ClassOfEquivalence objB)

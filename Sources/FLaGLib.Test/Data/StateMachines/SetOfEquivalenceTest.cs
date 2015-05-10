@@ -16,73 +16,66 @@ namespace FLaGLib.Test.Data.StateMachines
             new Tuple<SetOfEquivalence, SetOfEquivalence, int>(null,null,0),
             new Tuple<SetOfEquivalence, SetOfEquivalence, int>(
                 new SetOfEquivalence(
-                    new SortedSet<Label>(
-                        EnumerateHelper.Sequence(
-                            new Label(new SingleLabel('A')),
-                            new Label(new SingleLabel('B'))
-                        )
-                    )),null,1),
+                    EnumerateHelper.Sequence(
+                        new Label(new SingleLabel('A')),
+                        new Label(new SingleLabel('B'))
+                    )
+                ),null,1),
             new Tuple<SetOfEquivalence, SetOfEquivalence, int>(
                 new SetOfEquivalence(
-                    new SortedSet<Label>(
-                        EnumerateHelper.Sequence(
-                            new Label(new SingleLabel('A')),
-                            new Label(new SingleLabel('B'))
-                        )
-                    )),
+                    EnumerateHelper.Sequence(
+                        new Label(new SingleLabel('A')),
+                        new Label(new SingleLabel('B'))
+                    )
+                ),
                 new SetOfEquivalence(
-                    new SortedSet<Label>(
-                        EnumerateHelper.Sequence(
-                            new Label(new SingleLabel('A')),
-                            new Label(new SingleLabel('B'))
-                        )
-                    )),0),
+                    EnumerateHelper.Sequence(
+                        new Label(new SingleLabel('A')),
+                        new Label(new SingleLabel('B'))
+                    )
+                ),0),
             new Tuple<SetOfEquivalence, SetOfEquivalence, int>(
                 new SetOfEquivalence(
-                    new SortedSet<Label>(
-                        EnumerateHelper.Sequence(
-                            new Label(new SingleLabel('C')),
-                            new Label(new SingleLabel('B'))
-                        )
-                    )),
+                    EnumerateHelper.Sequence(
+                        new Label(new SingleLabel('C')),
+                        new Label(new SingleLabel('B'))
+                    )
+                ),
                 new SetOfEquivalence(
-                    new SortedSet<Label>(
-                        EnumerateHelper.Sequence(
-                            new Label(new SingleLabel('A')),
-                            new Label(new SingleLabel('B'))
-                        )
-                    )),1),
+                    EnumerateHelper.Sequence(
+                        new Label(new SingleLabel('A')),
+                        new Label(new SingleLabel('B'))
+                    )
+                ),1),
             new Tuple<SetOfEquivalence, SetOfEquivalence, int>(
                 new SetOfEquivalence(
-                    new SortedSet<Label>(
-                        EnumerateHelper.Sequence(
-                            new Label(new SingleLabel('C')),
-                            null,
-                            new Label(new SingleLabel('B'))
-                        )
-                    )),
+                    EnumerateHelper.Sequence(
+                        new Label(new SingleLabel('C')),
+                        null,
+                        new Label(new SingleLabel('B'))
+                    )
+                ),
                 new SetOfEquivalence(
-                    new SortedSet<Label>(
-                        EnumerateHelper.Sequence(
-                            new Label(new SingleLabel('A')),
-                            new Label(new SingleLabel('B'))
-                        )
-                    )),-1)
+                    EnumerateHelper.Sequence(
+                        new Label(new SingleLabel('A')),
+                        new Label(new SingleLabel('B'))
+                    )
+                ),-1)
         };
 
         [Test]
         public void CctorTest_Ok()
         {
-            ISet<Label> expected = new SortedSet<Label>(
+            IEnumerable<Label> expected =
                 EnumerateHelper.Sequence(
-                    new Label(new SingleLabel('A')), 
+                    new Label(new SingleLabel('A')),
                     new Label(new SingleLabel('C'))
-                )
-            );
+                );
+            
 
             SetOfEquivalence actual = new SetOfEquivalence(expected);
 
-            CollectionAssert.AreEqual(expected, actual);
+            CollectionAssert.AreEquivalent(expected, actual);
         }
 
         [Test]

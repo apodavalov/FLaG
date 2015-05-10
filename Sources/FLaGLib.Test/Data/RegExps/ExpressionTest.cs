@@ -2,6 +2,7 @@
 using FLaGLib.Helpers;
 using NUnit.Framework;
 using System.Collections.Generic;
+using FLaGLib.Extensions;
 using System.Linq;
 
 namespace FLaGLib.Test.Data.RegExps

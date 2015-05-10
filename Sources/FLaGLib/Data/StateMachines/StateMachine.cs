@@ -653,7 +653,7 @@ namespace FLaGLib.Data.StateMachines
             return states;
         }
 
-        public StateMachine(Label initialState, ISet<Label> finalStates, ISet<Transition> transitions)
+        public StateMachine(Label initialState, IEnumerable<Label> finalStates, IEnumerable<Transition> transitions)
         {
             if (initialState == null)
             {
@@ -678,12 +678,15 @@ namespace FLaGLib.Data.StateMachines
                 }
             }
 
-            if (finalStates.Count == 0)
+            FinalStates = finalStates.ToSortedSet().AsReadOnly();
+            Transitions = transitions.ToSortedSet().AsReadOnly();
+
+            if (FinalStates.Count == 0)
             {
                 throw new ArgumentException("Final states set is empty.");
             }
 
-            foreach (Label finalState in finalStates)
+            foreach (Label finalState in FinalStates)
             {
                 if (finalState == null)
                 {
@@ -691,27 +694,23 @@ namespace FLaGLib.Data.StateMachines
                 }
             }
 
-            ISet<Label> states = ExtractStates(transitions);
+            ISet<Label> states = ExtractStates(Transitions);
 
             states.Add(initialState);
 
-            if (!states.IsSupersetOf(finalStates))
+            if (!states.IsSupersetOf(FinalStates))
             {
                 throw new ArgumentException("Set of states isn't the superset of final states.");
             }
 
             ISet<char> alphabet = new SortedSet<char>();
 
-            foreach (Transition transition in transitions)
+            foreach (Transition transition in Transitions)
             {
                 alphabet.Add(transition.Symbol);
             }
 
-            States = states.AsReadOnly();
-
-            FinalStates = new SortedSet<Label>(finalStates).AsReadOnly();
-
-            Transitions = new SortedSet<Transition>(transitions).AsReadOnly();
+            States = states.AsReadOnly();                      
 
             Alphabet = alphabet.AsReadOnly();
 

@@ -21,7 +21,7 @@ namespace FLaGLib.Data
             private set;
         }
 
-        public Label(ISet<SingleLabel> sublabels)
+        public Label(IEnumerable<SingleLabel> sublabels)
         {
             if (sublabels == null)
             {
@@ -41,7 +41,7 @@ namespace FLaGLib.Data
                 }
             }
 
-            Sublabels = new SortedSet<SingleLabel>(sublabels).AsReadOnly();
+            Sublabels = sublabels.ToSortedSet().AsReadOnly();
 
             LabelType = LabelType.Complex;
         }

@@ -5,6 +5,7 @@ using NUnit.Framework;
 using FLaGLib.Data;
 using FLaGLib.Test.TestHelpers;
 using FLaGLib.Helpers;
+using FLaGLib.Extensions;
 
 namespace FLaGLib.Test.Data
 {
@@ -16,29 +17,29 @@ namespace FLaGLib.Test.Data
             new Tuple<Label, Label, int>(null, null, 0),
             new Tuple<Label, Label, int>(null, new Label(new SingleLabel('b')), -1),
             new Tuple<Label, Label, int>(null, 
-                new Label(new HashSet<SingleLabel>(new SingleLabel[] { new SingleLabel('b'), new SingleLabel('c') } )), -1),
+                new Label(EnumerateHelper.Sequence(new SingleLabel('b'), new SingleLabel('c'))), -1),
             new Tuple<Label, Label, int>(new Label(new SingleLabel('b')), 
-                new Label(new HashSet<SingleLabel>(new SingleLabel[] { new SingleLabel('b'), new SingleLabel('c') } )), -1),
-            new Tuple<Label, Label, int>(new Label(new HashSet<SingleLabel>(new SingleLabel[] { new SingleLabel('b'), new SingleLabel('c') } )), 
-                new Label(new HashSet<SingleLabel>(new SingleLabel[] { new SingleLabel('b'), new SingleLabel('c') } )), 0),
-            new Tuple<Label, Label, int>(new Label(new HashSet<SingleLabel>(new SingleLabel[] { new SingleLabel('c'), new SingleLabel('d') } )), 
-                new Label(new HashSet<SingleLabel>(new SingleLabel[] { new SingleLabel('b'), new SingleLabel('c') } )), 1),
-            new Tuple<Label, Label, int>(new Label(new HashSet<SingleLabel>(new SingleLabel[] { new SingleLabel('c'), new SingleLabel('d'), new SingleLabel('e') } )), 
-                new Label(new HashSet<SingleLabel>(new SingleLabel[] { new SingleLabel('b'), new SingleLabel('c') } )), 1)
+                new Label(EnumerateHelper.Sequence(new SingleLabel('b'), new SingleLabel('c'))), -1),
+            new Tuple<Label, Label, int>(new Label(EnumerateHelper.Sequence( new SingleLabel('b'), new SingleLabel('c'))), 
+                new Label(EnumerateHelper.Sequence(new SingleLabel('b'), new SingleLabel('c'))), 0),
+            new Tuple<Label, Label, int>(new Label(EnumerateHelper.Sequence(new SingleLabel('c'), new SingleLabel('d'))), 
+                new Label(EnumerateHelper.Sequence(new SingleLabel('b'), new SingleLabel('c'))), 1),
+            new Tuple<Label, Label, int>(new Label(EnumerateHelper.Sequence(new SingleLabel('c'), new SingleLabel('d'), new SingleLabel('e'))), 
+                new Label(EnumerateHelper.Sequence(new SingleLabel('b'), new SingleLabel('c'))), 1)
         };
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_ComplexNull_Fail()
         {
-            new Label((ISet<SingleLabel>)null);
+            new Label((IEnumerable<SingleLabel>)null);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_ComplexEmpty_Fail()
         {
-            new Label(new SortedSet<SingleLabel>());
+            new Label(Enumerable.Empty<SingleLabel>());
         }
 
         [Test]
@@ -46,13 +47,11 @@ namespace FLaGLib.Test.Data
         public void CctorTest_AnySingleLabelNull_Fail()
         {
             new Label(
-                new SortedSet<SingleLabel>(
-                    EnumerateHelper.Sequence(
-                        new SingleLabel('S'),
-                        null,
-                        new SingleLabel('D')
-                    )
-                )
+                EnumerateHelper.Sequence(
+                    new SingleLabel('S'),
+                    null,
+                    new SingleLabel('D')
+                )                
             );
         }
 
@@ -66,13 +65,12 @@ namespace FLaGLib.Test.Data
         [Test]
         public void CCtorTest_Complex_Ok()
         {
-            List<SingleLabel> expectedLabels = new SingleLabel[]
-            {
+            List<SingleLabel> expectedLabels = EnumerateHelper.Sequence(
                new SingleLabel('c'),
                new SingleLabel('b')
-            }.ToList();
+            ).ToList();
 
-            Label label = new Label(new HashSet<SingleLabel>(expectedLabels));
+            Label label = new Label(expectedLabels);
 
             expectedLabels.Sort();
 
@@ -84,14 +82,13 @@ namespace FLaGLib.Test.Data
         public void CCtorTest_Simple_Ok()
         {
             SingleLabel singleLabel = new SingleLabel('b');
-            IReadOnlyList<SingleLabel> expectedLabels = new SingleLabel[]
-            {
+            IEnumerable<SingleLabel> expectedLabels = EnumerateHelper.Sequence(
                singleLabel
-            }.ToList().AsReadOnly();
+            );
 
             Label label = new Label(singleLabel);
 
-            CollectionAssert.AreEqual(expectedLabels, label.Sublabels);
+            CollectionAssert.AreEquivalent(expectedLabels, label.Sublabels);
             Assert.AreEqual(LabelType.Simple, label.LabelType);
         }
 
@@ -110,7 +107,7 @@ namespace FLaGLib.Test.Data
         [Test]
         public void ToStringTest_Complex()
         {
-            Label label = new Label(new HashSet<SingleLabel>(new SingleLabel[] { new SingleLabel('b'), new SingleLabel('c') }));
+            Label label = new Label(EnumerateHelper.Sequence( new SingleLabel('b'), new SingleLabel('c')));
 
             Assert.AreEqual("[{b_null_null_null}{c_null_null_null}]",label.ToString());
         }
@@ -137,14 +134,13 @@ namespace FLaGLib.Test.Data
         [ExpectedException(typeof(InvalidOperationException))]
         public void NextTest_NonSimple_Fail()
         {
-            new Label(new HashSet<SingleLabel>(
-                new SingleLabel[] { new SingleLabel('b', 0, 1, 2), new SingleLabel('c', 0, 1, 2) })).Next();
+            new Label(EnumerateHelper.Sequence(new SingleLabel('b', 0, 1, 2), new SingleLabel('c', 0, 1, 2))).Next();
         }
 
         [Test]
         public void ConvertToComplexTest_Ok()
         {
-            Label expectedLabel = new Label(new HashSet<SingleLabel>(new SingleLabel[] { new SingleLabel('b') }));
+            Label expectedLabel = new Label(EnumerateHelper.Sequence(new SingleLabel('b')));
             Label actualLabel = new Label(new SingleLabel('b')).ConvertToComplex();
             
             Assert.AreEqual(expectedLabel, actualLabel);
@@ -154,8 +150,7 @@ namespace FLaGLib.Test.Data
         [ExpectedException(typeof(InvalidOperationException))]
         public void ConvertToComplexTest_NonSimple_Fail()
         {
-            new Label(new HashSet<SingleLabel>(
-                new SingleLabel[] { new SingleLabel('b'), new SingleLabel('c') })).ConvertToComplex();
+            new Label(EnumerateHelper.Sequence(new SingleLabel('b'), new SingleLabel('c'))).ConvertToComplex();
         }
 
         [Test]
@@ -171,8 +166,7 @@ namespace FLaGLib.Test.Data
         [ExpectedException(typeof(InvalidOperationException))]
         public void ExtractSingleLabelTest_NonSimple_Fail()
         {
-            new Label(new HashSet<SingleLabel>(
-                new SingleLabel[] { new SingleLabel('b'), new SingleLabel('c') })).ExtractSingleLabel();
+            new Label(EnumerateHelper.Sequence(new SingleLabel('b'), new SingleLabel('c'))).ExtractSingleLabel();
         }
     }
 }

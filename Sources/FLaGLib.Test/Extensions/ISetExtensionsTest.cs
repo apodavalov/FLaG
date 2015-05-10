@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using FLaGLib.Extensions;
+using FLaGLib.Helpers;
 
 namespace FLaGLib.Test.Extensions
 {
@@ -18,8 +19,8 @@ namespace FLaGLib.Test.Extensions
         [Test]
         public void ConvertToReadOnlyListAndSortTest_Ok()
         {
-            int[] expectedList = new int[] { 3, 4, 5, 8, 9, 10 };
-            IReadOnlyList<int> actualList = new HashSet<int>(new int[] {5,8,3,4,9,10}).ConvertToReadOnlyListAndSort();
+            IEnumerable<int> expectedList = EnumerateHelper.Sequence(3, 4, 5, 8, 9, 10);
+            IReadOnlyList<int> actualList = EnumerateHelper.Sequence(5, 8, 3, 4, 9, 10).ToHashSet().ConvertToReadOnlyListAndSort();
 
             CollectionAssert.AreEqual(expectedList, actualList);
         }

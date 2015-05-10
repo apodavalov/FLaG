@@ -14,27 +14,23 @@ namespace FLaGLib.Test.Data.StateMachines
     {
         private SetOfEquivalence setOfEquivalence1 =
             new SetOfEquivalence(
-                new SortedSet<Label>(
-                    EnumerateHelper.Sequence(
-                        new Label(new SingleLabel('P')),
-                        null,
-                        new Label(new SingleLabel('D'))
-                    )
-                )
+                EnumerateHelper.Sequence(
+                    new Label(new SingleLabel('P')),
+                    null,
+                    new Label(new SingleLabel('D'))
+                )                
             );
 
         private SetOfEquivalence setOfEquivalence2 =
             new SetOfEquivalence(
-                new SortedSet<Label>(
-                    EnumerateHelper.Sequence(
-                        new Label(new SingleLabel('S')),
-                        null,
-                        new Label(new SingleLabel('M'))
-                    )
-                )
+                EnumerateHelper.Sequence(
+                    new Label(new SingleLabel('S')),
+                    null,
+                    new Label(new SingleLabel('M'))
+                )   
             );
 
-        private IReadOnlySet<char> symbols = new SortedSet<char>(EnumerateHelper.Sequence('a', 'c')).AsReadOnly();
+        private IEnumerable<char> symbols = EnumerateHelper.Sequence('a', 'c');
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
@@ -66,7 +62,7 @@ namespace FLaGLib.Test.Data.StateMachines
 
             Assert.AreEqual(setOfEquivalence1, actual.NextSetOfEquivalence);
             Assert.AreEqual(setOfEquivalence2, actual.CurrentSetOfEquivalence);
-            CollectionAssert.AreEqual(symbols, actual.Symbols);
+            CollectionAssert.AreEquivalent(symbols, actual.Symbols);
             Assert.AreEqual(expectedIndex, actual.IndexOfCurrentSetOfEquivalence);
         }
     }

@@ -8,7 +8,7 @@ namespace FLaGLib.Data.StateMachines
 {
     public class SetOfEquivalence : ReadOnlySet<Label>, IComparable<SetOfEquivalence>, IEquatable<SetOfEquivalence>
     {
-        public SetOfEquivalence(ISet<Label> set) : base(set) { }
+        public SetOfEquivalence(IEnumerable<Label> set) : base(set.ToSortedSetNullable()) { }
 
         public static bool operator ==(SetOfEquivalence objA, SetOfEquivalence objB)
         {
