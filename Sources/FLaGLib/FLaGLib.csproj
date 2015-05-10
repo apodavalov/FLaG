@@ -42,6 +42,12 @@
     <Compile Include="Collections\IReadOnlySet.cs" />
     <Compile Include="Collections\ReadOnlyList.cs" />
     <Compile Include="Collections\ReadOnlySet.cs" />
+    <Compile Include="Data\Grammar\Chain.cs" />
+    <Compile Include="Data\Grammar\Grammar.cs" />
+    <Compile Include="Data\Grammar\NonTerminalSymbol.cs" />
+    <Compile Include="Data\Grammar\Rule.cs" />
+    <Compile Include="Data\Grammar\Symbol.cs" />
+    <Compile Include="Data\Grammar\TerminalSymbol.cs" />
     <Compile Include="Data\Label.cs" />
     <Compile Include="Data\LabelType.cs" />
     <Compile Include="Data\Languages\Concat.cs" />
