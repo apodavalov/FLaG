@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace FLaGLib.Test.Data.Languages
 {
-    [TestFixture]
+    [TestFixture] 
     public class ConcatTest
     {
         private Tuple<Concat, Concat, int>[] _Expectations = new Tuple<Concat, Concat, int>[]
@@ -21,7 +21,7 @@ namespace FLaGLib.Test.Data.Languages
 
             new Tuple<Concat, Concat, int>(
                 new Concat(
-                    EnumerateHelper.Sequence<Entity>(new Symbol('a'))
+                    EnumerateHelper.Sequence<Entity>(new Symbol('a'), new Symbol('b'))
                     ),
                 null,
                 1
@@ -30,53 +30,53 @@ namespace FLaGLib.Test.Data.Languages
             new Tuple<Concat, Concat, int>(
                 null,
                 new Concat(
-                    EnumerateHelper.Sequence<Entity>(new Symbol('a'))
+                    EnumerateHelper.Sequence<Entity>(new Symbol('a'), new Symbol('b'))
                     ),
                 -1
             ),
 
             new Tuple<Concat, Concat, int>(
                 new Concat(
-                    EnumerateHelper.Sequence<Entity>(new Symbol('a'))
+                    EnumerateHelper.Sequence<Entity>(new Symbol('a'), new Symbol('b'))
                     ),
                 new Concat(
-                    EnumerateHelper.Sequence<Entity>(new Symbol('a'))
+                    EnumerateHelper.Sequence<Entity>(new Symbol('a'), new Symbol('b'))
                     ),
                 0
             ),
             
             new Tuple<Concat, Concat, int>(
                 new Concat(
-                    EnumerateHelper.Sequence<Entity>(new Symbol('a'))
+                    EnumerateHelper.Sequence<Entity>(new Symbol('a'), new Symbol('b'))
                     ),
                 new Concat(
-                    EnumerateHelper.Sequence<Entity>(new Symbol('b'))
+                    EnumerateHelper.Sequence<Entity>(new Symbol('c'), new Symbol('d'))
                     ),
-                -1
+                -2
             ),
 
             new Tuple<Concat, Concat, int>(
                 new Concat(
-                    EnumerateHelper.Sequence<Entity>(new Symbol('b'))
+                    EnumerateHelper.Sequence<Entity>(new Symbol('c'), new Symbol('d'))
                     ),
                 new Concat(
-                    EnumerateHelper.Sequence<Entity>(new Symbol('a'))
+                    EnumerateHelper.Sequence<Entity>(new Symbol('a'), new Symbol('b'))
                     ),
-                1
+                2
             ),
         };
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void CctorTest_Fail()
+        public void CctorTest_EntitiesStateNull_Fail()
         {
-            Concat concat = new Concat(null);
+            new Concat(null);
         }
 
         [Test]
         public void CctorTest_Ok()
         {
-            IEnumerable<Entity> sequence = EnumerateHelper.Sequence<Entity>(new Symbol('a'));
+            IEnumerable<Entity> sequence = EnumerateHelper.Sequence<Entity>(new Symbol('a'), new Symbol('b'));
 
             IReadOnlyList<Entity> expectedEntityCollection = new List<Entity>(sequence).AsReadOnly();
 

@@ -24,6 +24,7 @@ namespace FLaGLib.Data.Languages
                 throw new ArgumentNullException("entities");
             }
 
+            
             EntityCollection = new List<Entity>(entities).AsReadOnly();
 
             if (EntityCollection.Any(e => e == null))

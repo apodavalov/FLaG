@@ -14,29 +14,81 @@ namespace FLaGLib.Test.Data.Languages
     {
         private Tuple<Degree, Degree, int>[] _Expectations = new Tuple<Degree, Degree, int>[]
         {
+            //new Tuple<Degree, Degree, int>(
+                //null,
+                //null,
+                //0
+            //),
             new Tuple<Degree, Degree, int>(
-                null,
-                null,
-                0
-            ),
-
-            new Tuple<Degree, Degree, int>(
-                new Degree(),
+                new Degree(
+                        new Symbol('a'),
+                        new Quantity(1)
+                    ),
                 null,
                 1
             ),
 
             new Tuple<Degree, Degree, int>(
                 null,
-                new Degree(),
+                new Degree(
+                        new Symbol('a'),
+                        new Quantity(1)
+                    ),
                 -1
             ),
 
             new Tuple<Degree, Degree, int>(
-                new Degree(),
-                new Degree(),
+                new Degree(
+                        new Symbol('a'),
+                        new Quantity(1)
+                    ),
+                new Degree(
+                        new Symbol('a'),
+                        new Quantity(1)
+                    ),
+                0
+            ),
+
+            new Tuple<Degree, Degree, int>(
+                new Degree(
+                        new Symbol('a'),
+                        new Quantity(1)
+                    ),
+                new Degree(
+                        new Symbol('b'),
+                        new Quantity(1)
+                    ),
+                0
+            ),
+
+            new Tuple<Degree, Degree, int>(
+                new Degree(
+                        new Symbol('a'),
+                        new Quantity(1)
+                    ),
+                new Degree(
+                        new Symbol('a'),
+                        new Quantity(2)
+                    ),
                 0
             )
+            //new Tuple<Degree, Degree, int>(
+                //new Degree(),
+                //null,
+                //1
+            //),
+
+            //new Tuple<Degree, Degree, int>(
+                //null,
+                //new Degree(),
+                //-1
+            //),
+
+            //new Tuple<Degree, Degree, int>(
+                //new Degree(),
+                //new Degree(),
+                //0
+            //)
         };
 
         [Test]
