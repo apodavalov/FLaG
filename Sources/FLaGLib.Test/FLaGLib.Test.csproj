@@ -54,7 +54,10 @@
     <Compile Include="Collections\ReadOnlySetTest.cs" />
     <Compile Include="Data\LabelTest.cs" />
     <Compile Include="Data\Languages\EntityTest.cs" />
+    <Compile Include="Data\Languages\ExponentTest.cs" />
+    <Compile Include="Data\Languages\QuantityTest.cs" />
     <Compile Include="Data\Languages\TreeTest.cs" />
+    <Compile Include="Data\Languages\VariableTest.cs" />
     <Compile Include="Data\RegExps\ExpressionTest.cs" />
     <Compile Include="Data\Languages\ConcatTest.cs" />
     <Compile Include="Data\Languages\DegreeTest.cs" />
