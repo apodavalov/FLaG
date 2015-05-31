@@ -102,5 +102,17 @@ namespace FLaGLib.Test.Data.Languages
         {
             ComparableEquatableHelper.TestGetHashCode(_Expectations);
         }
+
+        [Test]
+        public void ToStringTest()
+        {
+            IEnumerable<Entity> sequence = EnumerateHelper.Sequence<Entity>(new Symbol('a'), new Symbol('b'));
+
+            IReadOnlyList<Entity> expectedEntityCollection = new List<Entity>(sequence).AsReadOnly();
+
+            Concat concat = new Concat(sequence);
+
+            Assert.AreEqual("(ab)", concat.ToString());
+        }
     }
 }
