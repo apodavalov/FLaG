@@ -58,6 +58,7 @@
     <Compile Include="Data\Languages\QuantityTest.cs" />
     <Compile Include="Data\Languages\SymbolTest.cs" />
     <Compile Include="Data\Languages\TreeTest.cs" />
+    <Compile Include="Data\Languages\UnionTest.cs" />
     <Compile Include="Data\Languages\VariableTest.cs" />
     <Compile Include="Data\RegExps\ExpressionTest.cs" />
     <Compile Include="Data\Languages\ConcatTest.cs" />
