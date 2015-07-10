@@ -2,12 +2,67 @@
 using RegExs = FLaGLib.Data.RegExps;
 using Langs = FLaGLib.Data.Languages;
 using FLaGLib.Helpers;
+using FLaGLib.Data.Languages;
+using System;
+using FLaGLib.Test.TestHelpers;
 
 namespace FLaGLib.Test.Data.Languages
 {
     [TestFixture]
     public class TreeTest
     {
+        private Tuple<Tree, Tree, int>[] _Expectations = new Tuple<Tree, Tree, int>[]
+        {
+            new Tuple<Tree, Tree, int>(
+                null,
+                null,
+                0
+            ),
+
+            new Tuple<Tree, Tree, int>(
+                new Tree(new Union(
+                                    EnumerateHelper.Sequence<Entity>(
+                                        new Symbol('a'),
+                                        new Symbol('b')
+                                    )
+                                )),
+                null,
+                1
+            ),
+
+            new Tuple<Tree, Tree, int>(
+                new Tree(new Union(
+                                    EnumerateHelper.Sequence<Entity>(
+                                        new Symbol('a'),
+                                        new Symbol('b')
+                                    )
+                                )),
+                new Tree(new Union(
+                                    EnumerateHelper.Sequence<Entity>(
+                                        new Symbol('a'),
+                                        new Symbol('b')
+                                    )
+                                )),
+                0
+            ),
+
+            new Tuple<Tree, Tree, int>(
+                new Tree(new Union(
+                                    EnumerateHelper.Sequence<Entity>(
+                                        new Symbol('a'),
+                                        new Symbol('b')
+                                    )
+                                )),
+                new Tree(new Union(
+                                    EnumerateHelper.Sequence<Entity>(
+                                        new Symbol('c'),
+                                        new Symbol('d')
+                                    )
+                                )),
+                -2
+            ),
+        };
+
         [Test]
         public void ToRegExpTest()
         {      
@@ -56,6 +111,42 @@ namespace FLaGLib.Test.Data.Languages
             RegExs.Tree actual = langTree.ToRegExp();
 
             Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void CcrotTest_Ok()
+        {
+            Tree tree = new Tree(new Union(
+                                    EnumerateHelper.Sequence<Entity>(
+                                        new Symbol('a'),
+                                        new Symbol('b')
+                                    )
+                                ));
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void CcrotTest_SetNull_Fail()
+        {
+            Tree tree = new Tree(null);
+        }
+
+        [Test]
+        public void CompareTest()
+        {
+            ComparableEquatableHelper.TestCompare(_Expectations);
+        }
+
+        [Test]
+        public void EqualTest()
+        {
+            ComparableEquatableHelper.TestEquals(_Expectations);
+        }
+
+        [Test]
+        public void GetHashCodeTest()
+        {
+            ComparableEquatableHelper.TestGetHashCode(_Expectations);
         }
     }
 }
