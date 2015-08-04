@@ -118,12 +118,50 @@ namespace FLaGLib.Test.Data.Languages
                                             ),
                 -1
             ),
+
+            new Tuple<TreeCollection, TreeCollection, int>(
+                new TreeCollection(
+                                                EnumerateHelper.Sequence<Tree>(
+                                                    new Tree(new Union(
+                                                        EnumerateHelper.Sequence<Entity>(
+                                                            new Symbol('a'),
+                                                            new Symbol('b')
+                                                        )
+                                                    )),
+                                                    new Tree(new Union(
+                                                        EnumerateHelper.Sequence<Entity>(
+                                                            new Symbol('b'),
+                                                            new Symbol('c')
+                                                        )
+                                                    ))
+                                                ),
+                                                TreeOperator.Concat
+                                            ),
+                new TreeCollection(
+                                                EnumerateHelper.Sequence<Tree>(
+                                                    new Tree(new Union(
+                                                        EnumerateHelper.Sequence<Entity>(
+                                                            new Symbol('b'),
+                                                            new Symbol('c')
+                                                        )
+                                                    )),
+                                                    new Tree(new Union(
+                                                        EnumerateHelper.Sequence<Entity>(
+                                                            new Symbol('c'),
+                                                            new Symbol('d')
+                                                        )
+                                                    ))
+                                                ),
+                                                TreeOperator.Union
+                                            ),
+                -1
+            ),
         };
 
         [Test]
         public void CctorTest_Ok_SetTreeOperatorUnion()
         {
-            TreeCollection treeColletion = new TreeCollection(
+            TreeCollection treeCollection = new TreeCollection(
                                                 EnumerateHelper.Sequence<Tree>(
                                                     new Tree(new Union(
                                                         EnumerateHelper.Sequence<Entity>(
@@ -197,6 +235,89 @@ namespace FLaGLib.Test.Data.Languages
         public void GetHashCodeTest()
         {
             ComparableEquatableHelper.TestGetHashCode(_Expectations);
+        }
+
+        [Test]
+        public void GetEnumeratorTest()
+        {
+            TreeCollection actualTreeCollection = new TreeCollection(
+                                                EnumerateHelper.Sequence<Tree>(
+                                                    new Tree(new Union(
+                                                        EnumerateHelper.Sequence<Entity>(
+                                                            new Symbol('a'),
+                                                            new Symbol('b')
+                                                        )
+                                                    )),
+                                                    new Tree(new Union(
+                                                        EnumerateHelper.Sequence<Entity>(
+                                                            new Symbol('b'),
+                                                            new Symbol('c')
+                                                        )
+                                                    ))
+                                                ),
+                                                TreeOperator.Concat
+                                            );            
+
+            IEnumerable<Tree> expectedTreeEnumerable = EnumerateHelper.Sequence<Tree>(
+                                                    new Tree(new Union(
+                                                        EnumerateHelper.Sequence<Entity>(
+                                                            new Symbol('a'),
+                                                            new Symbol('b')
+                                                        )
+                                                    )),
+                                                    new Tree(new Union(
+                                                        EnumerateHelper.Sequence<Entity>(
+                                                            new Symbol('b'),
+                                                            new Symbol('c')
+                                                        )
+                                                    ))
+                                                );
+
+            CollectionAssert.AreEqual(expectedTreeEnumerable, actualTreeCollection);
+
+            Assert.IsTrue(expectedTreeEnumerable.SequenceEqual(actualTreeCollection));
+        }
+
+        [Test]
+        public void ConvertOperatorTest()
+        {
+            TreeCollection treeCollection = new TreeCollection(
+                                                EnumerateHelper.Sequence<Tree>(
+                                                    new Tree(new Union(
+                                                        EnumerateHelper.Sequence<Entity>(
+                                                            new Symbol('a'),
+                                                            new Symbol('b')
+                                                        )
+                                                    )),
+                                                    new Tree(new Union(
+                                                        EnumerateHelper.Sequence<Entity>(
+                                                            new Symbol('b'),
+                                                            new Symbol('c')
+                                                        )
+                                                    ))
+                                                ),
+                                                TreeOperator.Concat
+                                            );
+            treeCollection.ToRegExp();
+
+            treeCollection = new TreeCollection(
+                                                EnumerateHelper.Sequence<Tree>(
+                                                    new Tree(new Union(
+                                                        EnumerateHelper.Sequence<Entity>(
+                                                            new Symbol('a'),
+                                                            new Symbol('b')
+                                                        )
+                                                    )),
+                                                    new Tree(new Union(
+                                                        EnumerateHelper.Sequence<Entity>(
+                                                            new Symbol('b'),
+                                                            new Symbol('c')
+                                                        )
+                                                    ))
+                                                ),
+                                                TreeOperator.Union
+                                            );
+            treeCollection.ToRegExp();
         }
     }
 }
