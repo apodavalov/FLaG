@@ -4,12 +4,53 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using FLaGLib.Extensions;
 using System.Linq;
+using FLaGLib.Test.TestHelpers;
+using System;
 
 namespace FLaGLib.Test.Data.RegExps
 {
     [TestFixture]
     public class ExpressionTest
     {
+        private Tuple<Expression, Expression, int>[] _Expectations = new Tuple<Expression, Expression, int>[]
+        {
+            new Tuple<Expression, Expression, int>(
+                null,
+                null,
+                0
+            ),
+
+            new Tuple<Expression, Expression, int>(
+                new Symbol('a'),
+                null,
+                1
+            ),
+
+            new Tuple<Expression, Expression, int>(
+                null,
+                new Symbol('a'),
+                -1
+            ),
+
+            new Tuple<Expression, Expression, int>(
+                new Symbol('a'),
+                new Symbol('a'),
+                0
+            ),
+
+            new Tuple<Expression, Expression, int>(
+                new Symbol('a'),
+                new Symbol('b'),
+                -1
+            ),
+
+            new Tuple<Expression, Expression, int>(
+                new Symbol('b'),
+                new Symbol('a'),
+                1
+            ),
+        };
+
         [Test]
         public void LeftGrammarTest()
         {
@@ -198,6 +239,25 @@ namespace FLaGLib.Test.Data.RegExps
             Expression expected = new BinaryUnion(union3, concat7);
 
             Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void CompareTest()
+        {
+            ComparableEquatableHelper.TestCompare(_Expectations);
+        }
+
+        [Test]
+        public void EqualsTest()
+        {
+            ComparableEquatableHelper.TestEquals(_Expectations);
+        }
+
+        [Test]
+        public void ToStringTest()
+        {
+            Expression expression = new Symbol('a');
+            Assert.AreEqual(expression.ToString(), "a");
         }
     }
 }
