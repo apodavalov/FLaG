@@ -63,6 +63,7 @@
     <Compile Include="Data\Languages\VariableTest.cs" />
     <Compile Include="Data\RegExps\BinaryConcatTest.cs" />
     <Compile Include="Data\RegExps\BinaryUnionTest.cs" />
+    <Compile Include="Data\RegExps\ConstIterationTest.cs" />
     <Compile Include="Data\RegExps\ExpressionTest.cs" />
     <Compile Include="Data\Languages\ConcatTest.cs" />
     <Compile Include="Data\Languages\DegreeTest.cs" />
