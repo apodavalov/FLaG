@@ -49,6 +49,18 @@ namespace FLaGLib.Test.Data.RegExps
                 new Symbol('a'),
                 1
             ),
+
+            new Tuple<Expression, Expression, int>(
+                new BinaryConcat(new Symbol('a'), new Symbol('b')),
+                new Symbol('c'),
+                -1
+            ),
+
+            new Tuple<Expression, Expression, int>(
+                new BinaryUnion(new Symbol('a'), new Symbol('b')),
+                new Symbol('c'),
+                -1
+            )
         };
 
         [Test]
