@@ -72,7 +72,43 @@ namespace FLaGLib.Test.Data.RegExps
                 new ConstIteration(new Symbol('a'), 1),
                 null,
                 1
-            )
+            ),
+
+            new Tuple<Expression, Expression, int>(
+                Empty.Instance,
+                new Symbol('a'),
+                -1
+            ),
+
+            new Tuple<Expression, Expression, int>(
+                new Symbol('a'),
+                Empty.Instance,
+                1
+            ),
+
+            new Tuple<Expression, Expression, int>(
+                Empty.Instance,
+                null,
+                1
+            ),
+
+            new Tuple<Expression, Expression, int>(
+                null,
+                Empty.Instance,
+                -1
+            ),
+
+            new Tuple<Expression, Expression, int>(
+                null,
+                new Iteration(new Symbol('a'), true),
+                -1
+            ),
+
+            new Tuple<Expression, Expression, int>(
+                new Symbol('a'),
+                new Iteration(new Symbol('a'), true),
+                1
+            ),
         };
 
         [Test]
