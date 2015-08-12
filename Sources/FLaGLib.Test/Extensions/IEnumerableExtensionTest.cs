@@ -2,6 +2,7 @@
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using System.Collections.Generic;
+using System;
 
 namespace FLaGLib.Test.Extensions
 {
@@ -62,6 +63,101 @@ namespace FLaGLib.Test.Extensions
             Assert.AreNotEqual(hash2, hash3);
             Assert.AreNotEqual(hash2, hash4);
             Assert.AreEqual(hash3, hash4);
+        }
+
+        [Test]
+        public void ToHashSetTest_Ok()
+        {
+            int[] variable = new int[2];
+            for (int i = 0; i < variable.GetLength(0); i++)
+            {
+                variable[i] = i;
+            }
+
+            HashSet<int> expectedHashSet = new HashSet<int>(variable);
+            HashSet<int> actualHashSet = variable.ToHashSet();
+            Assert.AreEqual(expectedHashSet, actualHashSet);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ToHashSetTest_Fail()
+        {
+            IEnumerable<int> iEnumerable = null;
+            IEnumerableExtension.ToHashSet(iEnumerable);
+        }
+
+        [Test]
+        public void ToSortedSetTest_Ok()
+        {
+            int[] variable = new int[2];
+            for (int i = 0; i < variable.GetLength(0); i++)
+            {
+                variable[i] = i;
+            }
+
+            SortedSet<int> expectedSortedSet = new SortedSet<int>(variable);
+            SortedSet<int> actualSortedSet = IEnumerableExtension.ToSortedSet(variable);
+            Assert.AreEqual(expectedSortedSet, actualSortedSet);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ToSortedSetTest_Fail()
+        {
+            IEnumerable<int> iEnumerable = null;
+            IEnumerableExtension.ToSortedSet(iEnumerable);
+        }
+
+        [Test]
+        public void ToSortedSetNullableTest()
+        {
+            int[] variable = new int[2];
+            for (int i = 0; i < variable.GetLength(0); i++)
+            {
+                variable[i] = i;
+            }
+
+            SortedSet<int> expectedSortedSet = new SortedSet<int>(variable);
+            SortedSet<int> actualSortedSet = IEnumerableExtension.ToSortedSetNullable(variable);
+            Assert.AreEqual(expectedSortedSet, actualSortedSet);
+            IEnumerable<int> iEnumerable = null;
+            actualSortedSet = IEnumerableExtension.ToSortedSetNullable(iEnumerable);
+            Assert.AreEqual(null, actualSortedSet);
+        }
+
+        [Test]
+        public void ToHashSetNullableTest()
+        {
+            int[] variable = new int[2];
+            for (int i = 0; i < variable.GetLength(0); i++)
+            {
+                variable[i] = i;
+            }
+
+            HashSet<int> expectedHashSet = new HashSet<int>(variable);
+            HashSet<int> actualHashSet = IEnumerableExtension.ToHashSetNullable(variable);
+            Assert.AreEqual(expectedHashSet, actualHashSet);
+            IEnumerable<int> iEnumerable = null;
+            actualHashSet = IEnumerableExtension.ToHashSetNullable(iEnumerable);
+            Assert.AreEqual(null, actualHashSet);
+        }
+
+        [Test]
+        public void ToListNullableTest()
+        {
+            int[] variable = new int[2];
+            for (int i = 0; i < variable.GetLength(0); i++)
+            {
+                variable[i] = i;
+            }
+
+            List<int> expectedList = new List<int>(variable);
+            List<int> actualList = IEnumerableExtension.ToListNullable(variable);
+            Assert.AreEqual(expectedList, actualList);
+            IEnumerable<int> iEnumerable = null;
+            actualList = IEnumerableExtension.ToListNullable(iEnumerable);
+            Assert.AreEqual(null, actualList);
         }
     }
 }
