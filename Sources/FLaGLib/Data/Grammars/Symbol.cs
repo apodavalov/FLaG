@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace FLaGLib.Data.Grammar
+namespace FLaGLib.Data.Grammars
 {
     public abstract class Symbol : IComparable<Symbol>, IEquatable<Symbol>
     {
@@ -15,6 +15,10 @@ namespace FLaGLib.Data.Grammar
             get; 
         }
 
+        public abstract Symbol Reorganize(IDictionary<NonTerminalSymbol,NonTerminalSymbol> map);
+
+        public abstract SymbolType SymbolType { get; }
+        
         public static bool operator ==(Symbol objA, Symbol objB)
         {
             return Equals(objA, objB);
@@ -84,5 +88,7 @@ namespace FLaGLib.Data.Grammar
         public abstract bool Equals(Symbol other);
 
         public abstract int CompareTo(Symbol other);
+
+        public override abstract string ToString();
     }
 }

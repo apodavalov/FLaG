@@ -4,6 +4,7 @@ using System.Linq;
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using System.Text;
+using FLaGLib.Data.Grammars;
 
 namespace FLaGLib.Data.RegExps
 {
@@ -193,6 +194,16 @@ namespace FLaGLib.Data.RegExps
                     expression.ToString(expression.Priority >= Priority, builder);
                 }
             }
+        }
+
+        protected override IReadOnlyList<Expression> GetDirectDependencies()
+        {
+            return Expressions;
+        }
+
+        protected override Grammar GenerateGrammar(GrammarType grammarType)
+        {
+            throw new NotSupportedException();
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FLaGLib.Helpers;
 
-namespace FLaGLib.Data.Grammar
+namespace FLaGLib.Data.Grammars
 {
     public class TerminalSymbol : Symbol, IComparable<TerminalSymbol>, IEquatable<TerminalSymbol>
     {
@@ -141,6 +141,24 @@ namespace FLaGLib.Data.Grammar
             }
 
             return string.Compare(GetType().FullName, other.GetType().FullName);
+        }
+
+        public override Symbol Reorganize(IDictionary<NonTerminalSymbol, NonTerminalSymbol> map)
+        {
+            return this;
+        }
+
+        public override SymbolType SymbolType
+        {
+            get 
+            {
+                return SymbolType.Terminal;
+            }
+        }
+
+        public override string ToString()
+        {
+            return Symbol.ToString();
         }
     }
 }

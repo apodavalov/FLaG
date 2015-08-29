@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
+using FLaGLib.Data.Grammars;
 
 namespace FLaGLib.Data.RegExps
 {
@@ -200,6 +202,50 @@ namespace FLaGLib.Data.RegExps
         protected override bool GetIsRegularSet()
         {
             return false;
+        }
+
+        protected override IReadOnlyList<Expression> GetDirectDependencies()
+        {
+            return EnumerateHelper.Sequence(Expression).ToList().AsReadOnly();
+        }
+
+        protected override Grammar GenerateGrammar(GrammarType grammarType)
+        {
+            if (IterationCount == 0)
+            {
+                switch (grammarType)
+                {
+                    case GrammarType.Left:
+                        return Empty.Instance.LeftGrammar.Reorganize(_StartIndex);
+                    case GrammarType.Right:
+                        return Empty.Instance.RightGrammar.Reorganize(_StartIndex);
+                    default:
+                        throw new InvalidOperationException(UnknownGrammarMessage(grammarType));
+                }                
+            }
+
+            Expression expression = Expression;
+
+            for (int i = 1; i < IterationCount; i++)
+            {
+                expression = new BinaryConcat(expression, Expression);
+            }
+
+            Grammar grammar;
+
+            switch (grammarType)
+            {
+                case GrammarType.Left:
+                    grammar = expression.LeftGrammar.Reorganize(_StartIndex);
+                    break;
+                case GrammarType.Right:
+                    grammar = expression.RightGrammar.Reorganize(_StartIndex);
+                    break;
+                default:
+                    throw new InvalidOperationException(UnknownGrammarMessage(grammarType));
+            }
+
+            return grammar;
         }
     }
 }

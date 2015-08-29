@@ -5,7 +5,7 @@ using FLaGLib.Extensions;
 using FLaGLib.Collections;
 using System.Collections;
 
-namespace FLaGLib.Data.Grammar
+namespace FLaGLib.Data.Grammars
 {
     public class Chain : IComparable<Chain>, IEquatable<Chain>, IReadOnlyList<Symbol>
     {
@@ -37,6 +37,16 @@ namespace FLaGLib.Data.Grammar
             Sequence = sequence.ToList().AsReadOnly();
             Alphabet = sequence.SelectMany(symbol => symbol.Alphabet).ToSortedSet().AsReadOnly();
             NonTerminals = sequence.SelectMany(symbol => symbol.NonTerminals).ToSortedSet().AsReadOnly();
+        }
+
+        public Chain Reorganize(IDictionary<NonTerminalSymbol, NonTerminalSymbol> map)
+        {
+            if (map == null)
+            {
+                throw new ArgumentNullException("map");
+            }
+
+            return new Chain(Sequence.Select(symbol => symbol.Reorganize(map)));
         }
 
         public static bool operator ==(Chain objA, Chain objB)
@@ -156,6 +166,18 @@ namespace FLaGLib.Data.Grammar
         IEnumerator IEnumerable.GetEnumerator()
         {
             return Sequence.Of<IEnumerable>().GetEnumerator();
+        }
+
+        public override string ToString()
+        {
+            if (Sequence.Count > 0)
+            {
+                return string.Join<Symbol>(string.Empty, Sequence);
+            }
+            else
+            {
+                return "ε";
+            }
         }
     }
 }

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using FLaGLib.Extensions;
 using FLaGLib.Collections;
+using System.Globalization;
 
-namespace FLaGLib.Data.Grammar
+namespace FLaGLib.Data.Grammars
 {
     public class Grammar : IComparable<Grammar>, IEquatable<Grammar>
     {
@@ -45,9 +46,72 @@ namespace FLaGLib.Data.Grammar
             }
 
             Rules = rules.ToHashSet().AsReadOnly();
-            Alphabet = rules.SelectMany(rule => rule.Alphabet).ToSortedSet().AsReadOnly();
-            NonTerminals = rules.SelectMany(rule => rule.NonTerminals).ToSortedSet().AsReadOnly();
+            Alphabet = Rules.SelectMany(rule => rule.Alphabet).ToSortedSet().AsReadOnly();
             Target = target;
+            ISet<NonTerminalSymbol> nonTerminals = Rules.SelectMany(rule => rule.NonTerminals).ToSortedSet();
+            nonTerminals.Add(Target);
+            NonTerminals = nonTerminals.AsReadOnly();
+        }
+
+        public Grammar Reorganize(IDictionary<NonTerminalSymbol,NonTerminalSymbol> map)
+        {
+            if (map == null)
+            {
+                throw new ArgumentNullException("map");
+            }
+
+            return new Grammar(Rules.Select(rule => rule.Reorganize(map)), map[Target]);
+        }
+
+        public Grammar Reorganize(int firstIndex)
+        {
+            int index = firstIndex;
+
+            IDictionary<NonTerminalSymbol,NonTerminalSymbol> map = new Dictionary<NonTerminalSymbol,NonTerminalSymbol>();
+
+            foreach (NonTerminalSymbol symbol in NonTerminals)
+            {
+                map.Add(symbol,new NonTerminalSymbol(new Label(new SingleLabel('S',index++))));
+            }
+
+            return Reorganize(map);
+        }
+
+        internal void SplitRules(out IReadOnlySet<Rule> terminalSymbolsOnlyRules, out IReadOnlySet<Rule> otherRules)
+        {
+            ISet<Rule> terminalSymbolsOnlyRulesInternal = new SortedSet<Rule>();
+            ISet<Rule> otherRulesInternal = new SortedSet<Rule>();
+
+            foreach (Rule rule in Rules)
+            {
+                ISet<Chain> terminalSymbolsOnlyChains = new SortedSet<Chain>();
+                ISet<Chain> otherChains = new SortedSet<Chain>();
+
+                foreach (Chain chain in rule.Chains)
+                {
+                    if (chain.All(symbol => symbol.SymbolType == SymbolType.Terminal))
+                    {
+                        terminalSymbolsOnlyChains.Add(chain);
+                    }
+                    else
+                    {
+                        otherChains.Add(chain);
+                    }
+                }
+
+                if (terminalSymbolsOnlyChains.Count > 0)
+                {
+                    terminalSymbolsOnlyRulesInternal.Add(new Rule(terminalSymbolsOnlyChains, rule.Target));
+                }
+
+                if (otherChains.Count > 0)
+                {
+                    otherRulesInternal.Add(new Rule(otherChains, rule.Target));
+                }
+            }
+
+            terminalSymbolsOnlyRules = terminalSymbolsOnlyRulesInternal.AsReadOnly();
+            otherRules = otherRulesInternal.AsReadOnly();
         }
 
         public static bool operator ==(Grammar objA, Grammar objB)
@@ -150,6 +214,16 @@ namespace FLaGLib.Data.Grammar
             }
 
             return Rules.SequenceCompare(other.Rules);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("N = {0}, Σ = {1}, S = {2}, P = {3}", 
+                string.Concat("{",string.Join<NonTerminalSymbol>(",",NonTerminals),"}"),
+                string.Concat("{",string.Join<TerminalSymbol>(",",Alphabet),"}"),
+                Target,
+                string.Concat("{",string.Join<Rule>(",",Rules),"}")
+            );
         }
     }
 }

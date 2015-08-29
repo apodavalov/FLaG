@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
+using FLaGLib.Data.Grammars;
 
 namespace FLaGLib.Data.RegExps
 {
@@ -161,6 +163,24 @@ namespace FLaGLib.Data.RegExps
         protected override bool GetIsRegularSet()
         {
             return true;
+        }
+
+        protected override IReadOnlyList<Expression> GetDirectDependencies()
+        {
+            return Enumerable.Empty<Expression>().ToList().AsReadOnly();
+        }
+
+        protected override Grammar GenerateGrammar(GrammarType grammarType)
+        {
+            NonTerminalSymbol target = new NonTerminalSymbol(new Label(new SingleLabel('S', _StartIndex)));
+
+            return
+                new Grammar(
+                    EnumerateHelper.Sequence(
+                        new Rule(EnumerateHelper.Sequence(new Chain(Enumerable.Empty<Grammars.Symbol>())), target)
+                    ),
+                    target
+                );
         }
     }
 }

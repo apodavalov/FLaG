@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using FLaGLib.Helpers;
 using System.Text;
+using System.Linq;
+using FLaGLib.Data.Grammars;
+using FLaGLib.Extensions;
 
 namespace FLaGLib.Data.RegExps
 {
@@ -196,6 +199,49 @@ namespace FLaGLib.Data.RegExps
         protected override bool GetIsRegularSet()
         {
             return Left.IsRegularSet && Right.IsRegularSet;
+        }
+
+        protected override IReadOnlyList<Expression> GetDirectDependencies()
+        {
+            return EnumerateHelper.Sequence(Left, Right).ToList().AsReadOnly();
+        }
+
+        protected override Grammar GenerateGrammar(GrammarType grammarType)
+        {
+            Grammar leftExpGrammar;
+            Grammar rightExpGrammar;
+
+            int index = _StartIndex;
+
+            switch (grammarType)
+            {
+                case GrammarType.Left:
+                    leftExpGrammar = Left.LeftGrammar.Reorganize(index);
+                    index += leftExpGrammar.NonTerminals.Count;
+                    rightExpGrammar = Right.LeftGrammar.Reorganize(index);
+                    index += rightExpGrammar.NonTerminals.Count;
+                    break;
+                case GrammarType.Right:
+                    leftExpGrammar = Left.RightGrammar.Reorganize(index);
+                    index += leftExpGrammar.NonTerminals.Count;
+                    rightExpGrammar = Right.RightGrammar.Reorganize(index);
+                    index += rightExpGrammar.NonTerminals.Count;
+                    break;
+                default:
+                    throw new InvalidOperationException(UnknownGrammarMessage(grammarType));
+            }
+
+            NonTerminalSymbol target = new NonTerminalSymbol(new Label(new SingleLabel('S',index++)));
+
+            Rule rule = new Rule(
+                EnumerateHelper.Sequence(
+                    new Chain(EnumerateHelper.Sequence(leftExpGrammar.Target)),
+                    new Chain(EnumerateHelper.Sequence(rightExpGrammar.Target))
+                ), target);
+
+            IEnumerable<Rule> newRules = leftExpGrammar.Rules.Concat(rightExpGrammar.Rules).Concat(rule);
+
+            return new Grammar(newRules, target);
         }
     }
 }

@@ -2,8 +2,9 @@
 using System.Linq;
 using FLaGLib.Helpers;
 using System;
+using FLaGLib.Extensions;
 
-namespace FLaGLib.Data.Grammar
+namespace FLaGLib.Data.Grammars
 {
     public class NonTerminalSymbol : Symbol, IComparable<NonTerminalSymbol>, IEquatable<NonTerminalSymbol>
     {
@@ -146,6 +147,29 @@ namespace FLaGLib.Data.Grammar
             }
 
             return string.Compare(GetType().FullName, other.GetType().FullName);
+        }
+
+        public override Symbol Reorganize(IDictionary<NonTerminalSymbol, NonTerminalSymbol> map)
+        {
+            if (map == null)
+            {
+                throw new ArgumentNullException("map");
+            }
+
+            return map.ValueOrDefault(this, this);
+        }
+
+        public override SymbolType SymbolType
+        {
+            get
+            {
+                return SymbolType.NonTerminal;
+            }
+        }
+
+        public override string ToString()
+        {
+            return Label.ToString();
         }
     }
 }

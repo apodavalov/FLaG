@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FLaGLib.Extensions;
 
-namespace FLaGLib.Data.Grammar
+namespace FLaGLib.Data.Grammars
 {
     public class Rule : IComparable<Rule>, IEquatable<Rule>
     {
@@ -45,9 +45,27 @@ namespace FLaGLib.Data.Grammar
             }
 
             Chains = chains.ToSortedSet().AsReadOnly();
-            Alphabet = chains.SelectMany(chain => chain.Alphabet).ToSortedSet().AsReadOnly();
-            NonTerminals = chains.SelectMany(chain => chain.NonTerminals).ToSortedSet().AsReadOnly();
+
+            if (Chains.Count < 1)
+            {
+                throw new ArgumentException("Rule must contain at least one chain.");
+            }
+
+            Alphabet = Chains.SelectMany(chain => chain.Alphabet).ToSortedSet().AsReadOnly();
             Target = target;
+            ISet<NonTerminalSymbol> nonTerminals = Chains.SelectMany(chain => chain.NonTerminals).ToSortedSet();
+            nonTerminals.Add(Target);
+            NonTerminals = nonTerminals.AsReadOnly();
+        }
+
+        public Rule Reorganize(IDictionary<NonTerminalSymbol,NonTerminalSymbol> map)
+        {
+            if (map == null)
+            {
+                throw new ArgumentNullException("map");
+            }
+
+            return new Rule(Chains.Select(chain => chain.Reorganize(map)),map.ValueOrDefault(Target,Target));
         }
 
         public static bool operator ==(Rule objA, Rule objB)
@@ -150,6 +168,14 @@ namespace FLaGLib.Data.Grammar
             }
 
             return Chains.SequenceCompare(other.Chains);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} -> {1}",
+                Target,
+                string.Join<Chain>("|", Chains)
+            );
         }
     }
 }

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using FLaGLib.Helpers;
 using System.Text;
+using System.Linq;
+using FLaGLib.Data.Grammars;
+using FLaGLib.Collections;
 
 namespace FLaGLib.Data.RegExps
 {
@@ -195,6 +198,86 @@ namespace FLaGLib.Data.RegExps
         protected override bool GetIsRegularSet()
         {
             return Left.IsRegularSet && Right.IsRegularSet;
+        }
+
+        protected override IReadOnlyList<Expression> GetDirectDependencies()
+        {
+            return EnumerateHelper.Sequence(Left, Right).ToList().AsReadOnly();
+        }
+
+        protected override Grammar GenerateGrammar(GrammarType grammarType)
+        {
+            switch (grammarType)
+            {
+                case GrammarType.Left:
+                    return GenerateLeftGrammar();
+                case GrammarType.Right:
+                    return GenerateRightGrammar();
+                default:
+                    throw new InvalidOperationException(UnknownGrammarMessage(grammarType));
+            }          
+        }
+
+        private Grammar GenerateRightGrammar()
+        {
+            int index = _StartIndex;
+
+            Grammar leftExpGrammar = Left.RightGrammar.Reorganize(index);
+            index += leftExpGrammar.NonTerminals.Count;
+            Grammar rightExpGrammar = Right.RightGrammar.Reorganize(index);
+
+            IReadOnlySet<Rule> terminalSymbolsOnlyRules;
+            IReadOnlySet<Rule> otherRules;
+
+            leftExpGrammar.SplitRules(out terminalSymbolsOnlyRules, out otherRules);
+
+            ISet<Rule> newRules = new HashSet<Rule>(otherRules.Concat(rightExpGrammar.Rules));
+
+            foreach (Rule rule in terminalSymbolsOnlyRules)
+            {
+                ISet<Chain> newChains = new HashSet<Chain>(
+                    rule.Chains.Select(
+                        chain => new Chain(
+                            chain.Concat(EnumerateHelper.Sequence(rightExpGrammar.Target))
+                        )
+                    )
+                );
+
+                newRules.Add(new Rule(newChains, rule.Target));
+            }
+
+            return new Grammar(newRules, leftExpGrammar.Target);
+        }
+
+        private Grammar GenerateLeftGrammar()
+        {
+            int index = _StartIndex;
+
+            Grammar leftExpGrammar = Left.LeftGrammar.Reorganize(index);
+            index += leftExpGrammar.NonTerminals.Count;
+            Grammar rightExpGrammar = Right.LeftGrammar.Reorganize(index);
+
+            IReadOnlySet<Rule> terminalSymbolsOnlyRules;
+            IReadOnlySet<Rule> otherRules;
+
+            rightExpGrammar.SplitRules(out terminalSymbolsOnlyRules, out otherRules);
+
+            ISet<Rule> newRules = new HashSet<Rule>(otherRules.Concat(leftExpGrammar.Rules));
+
+            foreach (Rule rule in terminalSymbolsOnlyRules)
+            {
+                ISet<Chain> newChains = new HashSet<Chain>(
+                    rule.Chains.Select(
+                        chain => new Chain(
+                            EnumerateHelper.Sequence(leftExpGrammar.Target).Concat(chain)
+                        )
+                    )
+                );
+
+                newRules.Add(new Rule(newChains, rule.Target));
+            }
+
+            return new Grammar(newRules, rightExpGrammar.Target);
         }
     }
 }

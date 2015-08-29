@@ -6,6 +6,19 @@ namespace FLaGLib.Extensions
 {
     public static class IEnumerableExtension
     {
+        public static IEnumerable<T> Concat<T>(this IEnumerable<T> obj, params T[] items)
+        {
+            foreach (T element in obj)
+            {
+                yield return element;
+            }
+
+            foreach (T element in items)
+            {
+                yield return element;
+            }
+        }
+
         public static List<T> ToListNullable<T>(this IEnumerable<T> obj)
         {
             if (obj == null)

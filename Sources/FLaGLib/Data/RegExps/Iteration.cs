@@ -2,6 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using FLaGLib.Extensions;
+using System.Linq;
+using FLaGLib.Data.Grammars;
+using FLaGLib.Collections;
 
 namespace FLaGLib.Data.RegExps
 {
@@ -196,5 +200,84 @@ namespace FLaGLib.Data.RegExps
         {
             return Expression.IsRegularSet;
         }
+
+        protected override IReadOnlyList<Expression> GetDirectDependencies()
+        {
+            return EnumerateHelper.Sequence(Expression).ToList().AsReadOnly();
+        }
+
+        protected override Grammar GenerateGrammar(GrammarType grammarType)
+        {
+            Func<Chain, NonTerminalSymbol, IEnumerable<Chain>> chainEnumerator;
+            Grammar expGrammar;
+
+            switch (grammarType)
+            {
+                case GrammarType.Left:
+                    chainEnumerator = LeftChainEnumerator;
+                    expGrammar = Expression.LeftGrammar;
+                    break;
+                case GrammarType.Right:
+                    chainEnumerator = RightChainEnumerator;
+                    expGrammar = Expression.RightGrammar;
+                    break;
+                default:
+                    throw new InvalidOperationException(UnknownGrammarMessage(grammarType));
+            }
+
+            int index = _StartIndex;
+
+            expGrammar = expGrammar.Reorganize(index);
+            index += expGrammar.NonTerminals.Count;
+
+            IReadOnlySet<Rule> terminalSymbolsOnlyRules;
+            IReadOnlySet<Rule> otherRules;
+
+            expGrammar.SplitRules(out terminalSymbolsOnlyRules, out otherRules);
+
+            ISet<Rule> newRules = new HashSet<Rule>(otherRules);
+
+            foreach (Rule rule in terminalSymbolsOnlyRules)
+            {
+                ISet<Chain> newChains = new HashSet<Chain>(
+                    rule.Chains.SelectMany(chain => chainEnumerator(chain,expGrammar.Target))
+                );
+
+                newRules.Add(new Rule(newChains, rule.Target));
+            }
+
+            NonTerminalSymbol symbol = new NonTerminalSymbol(new Label(new SingleLabel('S', index++)));
+
+            IEnumerable<Chain> chains = EnumerateHelper.Sequence(new Chain(EnumerateHelper.Sequence(expGrammar.Target)));
+
+            if (!IsPositive)
+            {
+                chains = chains.Concat(new Chain(Enumerable.Empty<Grammars.Symbol>()));
+            }
+
+            newRules.Add(new Rule(chains, symbol));
+
+            return new Grammar(newRules, symbol);
+        }
+
+        private static IEnumerable<Chain> LeftChainEnumerator(Chain chain, NonTerminalSymbol target)
+        {
+            return EnumerateHelper.Sequence(
+                new Chain(
+                    EnumerateHelper.Sequence(target).Concat(chain)                    
+                ),
+                chain
+            );
+        }
+
+        private static IEnumerable<Chain> RightChainEnumerator(Chain chain, NonTerminalSymbol target)
+        {
+            return EnumerateHelper.Sequence(
+                new Chain(
+                    chain.Concat(EnumerateHelper.Sequence(target))
+                ),
+                chain
+            );
+        }        
     }
 }
