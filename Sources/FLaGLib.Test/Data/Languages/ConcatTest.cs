@@ -3,7 +3,6 @@ using FLaGLib.Helpers;
 using FLaGLib.Test.TestHelpers;
 using NUnit.Framework;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace FLaGLib.Test.Data.Languages

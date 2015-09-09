@@ -1,5 +1,5 @@
-﻿using System;
-using FLaGLib.Extensions;
+﻿using FLaGLib.Extensions;
+using System;
 
 namespace FLaGLib.Data.RegExps
 {

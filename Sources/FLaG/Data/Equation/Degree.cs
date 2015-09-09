@@ -1,9 +1,8 @@
-using System;
 using FLaG.Output;
 
 namespace FLaG.Data.Equation
 {
-	class Degree : Expression
+    class Degree : Expression
 	{
 		public Expression Base
 		{

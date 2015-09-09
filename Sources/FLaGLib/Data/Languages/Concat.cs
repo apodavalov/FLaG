@@ -1,11 +1,11 @@
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using FLaGLib.Extensions;
 using FLaGLib.Collections;
+using FLaGLib.Data.RegExps;
+using FLaGLib.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using RegExpBinaryConcat = FLaGLib.Data.RegExps.BinaryConcat;
-using FLaGLib.Data.RegExps;
 
 namespace FLaGLib.Data.Languages
 {

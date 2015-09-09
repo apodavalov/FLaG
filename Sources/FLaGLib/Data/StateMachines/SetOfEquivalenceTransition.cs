@@ -1,7 +1,7 @@
 ﻿using FLaGLib.Collections;
+using FLaGLib.Extensions;
 using System;
 using System.Collections.Generic;
-using FLaGLib.Extensions;
 
 namespace FLaGLib.Data.StateMachines
 {

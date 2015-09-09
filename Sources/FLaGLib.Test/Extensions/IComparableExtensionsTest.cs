@@ -1,5 +1,5 @@
-﻿using NUnit.Framework;
-using FLaGLib.Extensions;
+﻿using FLaGLib.Extensions;
+using NUnit.Framework;
 
 namespace FLaGLib.Test.Extensions
 {

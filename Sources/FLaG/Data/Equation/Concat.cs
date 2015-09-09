@@ -1,10 +1,9 @@
-using System;
-using System.Collections.Generic;
 using FLaG.Output;
+using System.Collections.Generic;
 
 namespace FLaG.Data.Equation
 {
-	class Concat : Expression
+    class Concat : Expression
 	{
 		public List<Expression> Expressions
 		{

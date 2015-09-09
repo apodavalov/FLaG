@@ -1,9 +1,8 @@
-using System;
 using FLaG.Output;
 
 namespace FLaG.Data.Equation
 {
-	class Repeat : Expression
+    class Repeat : Expression
 	{
 		public Expression Expression
 		{

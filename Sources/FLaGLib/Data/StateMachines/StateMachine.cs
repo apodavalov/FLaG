@@ -1,11 +1,10 @@
-﻿using System;
+﻿using FLaGLib.Collections;
+using FLaGLib.Extensions;
+using FLaGLib.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using FLaGLib.Extensions;
-using FLaGLib.Collections;
-using FLaGLib.Helpers;
-using System.Collections;
 
 namespace FLaGLib.Data.StateMachines
 {

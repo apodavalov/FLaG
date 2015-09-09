@@ -1,8 +1,8 @@
-﻿using NUnit.Framework;
+﻿using FLaGLib.Extensions;
+using FLaGLib.Helpers;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using FLaGLib.Extensions;
-using FLaGLib.Helpers;
 
 namespace FLaGLib.Test.Extensions
 {

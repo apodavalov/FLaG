@@ -1,5 +1,5 @@
-﻿using System;
-using FLaGLib.Extensions;
+﻿using FLaGLib.Extensions;
+using System;
 using RegExpTree = FLaGLib.Data.RegExps.Tree;
 using RegExpTreeCollection = FLaGLib.Data.RegExps.TreeCollection;
 

@@ -1,10 +1,10 @@
-﻿using NUnit.Framework;
-using RegExs = FLaGLib.Data.RegExps;
-using Langs = FLaGLib.Data.Languages;
+﻿using FLaGLib.Data.Languages;
 using FLaGLib.Helpers;
-using FLaGLib.Data.Languages;
-using System;
 using FLaGLib.Test.TestHelpers;
+using NUnit.Framework;
+using System;
+using Langs = FLaGLib.Data.Languages;
+using RegExs = FLaGLib.Data.RegExps;
 
 namespace FLaGLib.Test.Data.Languages
 {

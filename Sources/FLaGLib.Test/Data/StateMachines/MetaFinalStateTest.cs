@@ -1,11 +1,9 @@
-﻿using NUnit.Framework;
-using FLaGLib.Collections;
+﻿using FLaGLib.Data;
+using FLaGLib.Data.StateMachines;
+using FLaGLib.Helpers;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using FLaGLib.Data;
-using FLaGLib.Data.StateMachines;
-using FLaGLib.Extensions;
-using FLaGLib.Helpers;
 
 namespace FLaGLib.Test.Data.StateMachines
 {

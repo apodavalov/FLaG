@@ -1,6 +1,6 @@
+using FLaG.Output;
 using System;
 using System.Collections.Generic;
-using FLaG.Output;
 
 namespace FLaG.Data.Equation
 {

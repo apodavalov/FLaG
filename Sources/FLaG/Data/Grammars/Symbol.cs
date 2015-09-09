@@ -1,10 +1,9 @@
-using System.Collections.Generic;
-using System;
 using FLaG.Output;
+using System;
 
 namespace FLaG.Data.Grammars
 {
-	abstract class Symbol : IComparable<Symbol>
+    abstract class Symbol : IComparable<Symbol>
 	{
 		public abstract void Save(Writer writer, bool isLeft);
 		

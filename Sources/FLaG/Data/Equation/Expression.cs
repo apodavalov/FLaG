@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
 using FLaG.Output;
 
 namespace FLaG.Data.Equation
 {
-	abstract class Expression
+    abstract class Expression
 	{
 		public Expression()
 		{

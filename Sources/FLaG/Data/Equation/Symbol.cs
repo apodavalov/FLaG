@@ -1,9 +1,8 @@
-using System;
 using FLaG.Output;
 
 namespace FLaG.Data.Equation
 {
-	class Symbol : Expression
+    class Symbol : Expression
 	{
 		public char Value
 		{

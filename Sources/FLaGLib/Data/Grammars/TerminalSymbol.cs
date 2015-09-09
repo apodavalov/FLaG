@@ -1,7 +1,7 @@
-﻿using System;
+﻿using FLaGLib.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using FLaGLib.Helpers;
 
 namespace FLaGLib.Data.Grammars
 {

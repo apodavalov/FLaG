@@ -1,6 +1,6 @@
-﻿using NUnit.Framework;
+﻿using FLaGLib.Data.RegExps;
 using FLaGLib.Extensions;
-using FLaGLib.Data.RegExps;
+using NUnit.Framework;
 
 namespace FLaGLib.Test.Extensions
 {

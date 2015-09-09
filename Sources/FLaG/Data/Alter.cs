@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
-using FLaG.Output;
 using FLaG.Data.Grammars;
+using FLaG.Output;
+using System.Collections.Generic;
+using System.Xml;
 
 namespace FLaG.Data
 {
-	class Alter : Entity
+    class Alter : Entity
 	{
 		public Alter() 
             : base()

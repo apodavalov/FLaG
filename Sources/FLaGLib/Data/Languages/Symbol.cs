@@ -1,8 +1,8 @@
 ﻿using FLaGLib.Collections;
+using FLaGLib.Data.RegExps;
+using FLaGLib.Extensions;
 using System;
 using System.Collections.Generic;
-using FLaGLib.Extensions;
-using FLaGLib.Data.RegExps;
 using RegExpSymbol = FLaGLib.Data.RegExps.Symbol;
 
 namespace FLaGLib.Data.Languages

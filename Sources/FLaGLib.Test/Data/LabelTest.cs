@@ -1,11 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using NUnit.Framework;
-using FLaGLib.Data;
-using FLaGLib.Test.TestHelpers;
+﻿using FLaGLib.Data;
 using FLaGLib.Helpers;
-using FLaGLib.Extensions;
+using FLaGLib.Test.TestHelpers;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FLaGLib.Test.Data
 {

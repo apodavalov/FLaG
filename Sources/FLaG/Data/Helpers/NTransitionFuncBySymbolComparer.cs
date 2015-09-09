@@ -1,10 +1,9 @@
-using System;
-using System.Collections.Generic;
 using FLaG.Data.Automaton;
+using System.Collections.Generic;
 
 namespace FLaG.Data.Helpers
 {
-	class NTransitionFuncBySymbolComparer : IComparer<NTransitionFunc>
+    class NTransitionFuncBySymbolComparer : IComparer<NTransitionFunc>
 	{
 		public int Compare (NTransitionFunc x, NTransitionFunc y)
 		{

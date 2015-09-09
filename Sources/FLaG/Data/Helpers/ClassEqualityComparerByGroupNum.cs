@@ -1,10 +1,9 @@
-using System;
-using System.Collections.Generic;
 using FLaG.Data.Automaton;
+using System.Collections.Generic;
 
 namespace FLaG.Data.Helpers
 {
-	class ClassEqualityComparerByGroupNum : IComparer<ClassEquality>
+    class ClassEqualityComparerByGroupNum : IComparer<ClassEquality>
 	{
 		public int Compare (ClassEquality x, ClassEquality y)
 		{

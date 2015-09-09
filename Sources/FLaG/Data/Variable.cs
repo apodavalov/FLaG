@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using FLaG.Output;
+using System;
 using System.Xml;
-using FLaG.Output;
- 
+
 namespace FLaG.Data
 {
     class Variable : Quantity, IComparable<Variable>

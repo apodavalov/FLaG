@@ -1,10 +1,8 @@
 ﻿using FLaGLib.Data.StateMachines;
 using FLaGLib.Helpers;
 using FLaGLib.Test.TestHelpers;
-using FLaGLib.Extensions;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 
 namespace FLaGLib.Test.Data.StateMachines
 {

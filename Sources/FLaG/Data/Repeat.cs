@@ -1,7 +1,7 @@
-using System;
-using FLaG.Output;
-using System.Collections.Generic;
 using FLaG.Data.Grammars;
+using FLaG.Output;
+using System;
+using System.Collections.Generic;
 
 namespace FLaG.Data
 {

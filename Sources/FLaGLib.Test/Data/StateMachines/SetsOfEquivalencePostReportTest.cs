@@ -3,7 +3,6 @@ using FLaGLib.Data.StateMachines;
 using FLaGLib.Helpers;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 
 namespace FLaGLib.Test.Data.StateMachines
 {

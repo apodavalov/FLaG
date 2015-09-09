@@ -1,10 +1,9 @@
-using System;
-using System.Collections.Generic;
 using FLaG.Data.Grammars;
+using System.Collections.Generic;
 
 namespace FLaG.Data.Helpers
 {
-	class FlaggedUnterminalSet
+    class FlaggedUnterminalSet
 	{
 		public FlaggedUnterminalSet()
 		{

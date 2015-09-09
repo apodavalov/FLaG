@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using FLaG.Data;
-using FLaG.Data.Grammars;
+﻿using FLaG.Data;
 using FLaG.Data.Automaton;
 using FLaG.Data.Equation;
+using FLaG.Data.Grammars;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Text;
 
 namespace FLaG.Output
 {

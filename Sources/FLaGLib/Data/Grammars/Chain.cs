@@ -1,9 +1,9 @@
-﻿using System;
+﻿using FLaGLib.Collections;
+using FLaGLib.Extensions;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using FLaGLib.Extensions;
-using FLaGLib.Collections;
-using System.Collections;
 
 namespace FLaGLib.Data.Grammars
 {

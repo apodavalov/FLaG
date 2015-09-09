@@ -1,9 +1,8 @@
-using System;
 using FLaG.Output;
 
 namespace FLaG.Data.Equation
 {
-	class Empty : Expression
+    class Empty : Expression
 	{
 		public Empty()
 		{

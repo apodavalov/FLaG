@@ -1,11 +1,10 @@
+using FLaG.Output;
 using System;
 using System.Collections.Generic;
-using FLaG.Output;
-using FLaG.Data.Helpers;
 
 namespace FLaG.Data.Automaton
 {
-	class DAutomaton
+    class DAutomaton
 	{		
 		public void SaveP(Writer writer, int number)
 		{

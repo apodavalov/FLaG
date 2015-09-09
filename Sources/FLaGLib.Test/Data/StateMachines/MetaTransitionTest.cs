@@ -1,6 +1,5 @@
 ﻿using FLaGLib.Data;
 using FLaGLib.Data.StateMachines;
-using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using FLaGLib.Test.TestHelpers;
 using NUnit.Framework;

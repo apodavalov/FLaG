@@ -1,11 +1,11 @@
 using FLaGLib.Collections;
-using System;
-using System.Linq;
-using System.Collections.Generic;
+using FLaGLib.Data.RegExps;
 using FLaGLib.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using RegExpBinaryUnion = FLaGLib.Data.RegExps.BinaryUnion;
-using FLaGLib.Data.RegExps;
 
 namespace FLaGLib.Data.Languages
 {

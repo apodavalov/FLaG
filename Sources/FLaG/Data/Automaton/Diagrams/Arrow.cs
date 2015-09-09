@@ -1,6 +1,6 @@
+using FLaG.Data.Automaton;
 using System;
 using System.Collections.Generic;
-using FLaG.Data.Automaton;
 using System.Text;
 
 namespace FLaG.Automaton.Diagrams

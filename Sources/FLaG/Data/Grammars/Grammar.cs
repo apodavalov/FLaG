@@ -1,8 +1,8 @@
+using FLaG.Data.Automaton;
+using FLaG.Data.Helpers;
+using FLaG.Output;
 using System;
 using System.Collections.Generic;
-using FLaG.Output;
-using FLaG.Data.Helpers;
-using FLaG.Data.Automaton;
 
 namespace FLaG.Data.Grammars
 {

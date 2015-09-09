@@ -1,10 +1,8 @@
-﻿using System;
+﻿using FLaG.Data.Grammars;
+using FLaG.Output;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml;
-using FLaG.Output;
-using FLaG.Data.Grammars;
 
 namespace FLaG.Data
 {

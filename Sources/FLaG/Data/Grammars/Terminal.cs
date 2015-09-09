@@ -1,5 +1,5 @@
-using System;
 using FLaG.Output;
+using System;
 
 namespace FLaG.Data.Grammars
 {

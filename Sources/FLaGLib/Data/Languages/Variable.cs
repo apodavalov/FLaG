@@ -1,8 +1,8 @@
-﻿using System;
+﻿using FLaGLib.Data.RegExps;
+using System;
+using RegExpConcat = FLaGLib.Data.RegExps.BinaryConcat;
 using RegExpConstIteration = FLaGLib.Data.RegExps.ConstIteration;
 using RegExpIteration = FLaGLib.Data.RegExps.Iteration;
-using RegExpConcat = FLaGLib.Data.RegExps.BinaryConcat;
-using FLaGLib.Data.RegExps;
 
 namespace FLaGLib.Data.Languages
 {

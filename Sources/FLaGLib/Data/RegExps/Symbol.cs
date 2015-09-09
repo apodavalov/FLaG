@@ -1,9 +1,9 @@
-﻿using FLaGLib.Helpers;
+﻿using FLaGLib.Data.Grammars;
+using FLaGLib.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using FLaGLib.Data.Grammars;
+using System.Text;
 
 namespace FLaGLib.Data.RegExps
 {

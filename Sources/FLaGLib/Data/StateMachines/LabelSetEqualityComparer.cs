@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using FLaGLib.Extensions;
+using System.Collections.Generic;
 using System.Linq;
-using FLaGLib.Extensions;
 
 namespace FLaGLib.Data.StateMachines
 {

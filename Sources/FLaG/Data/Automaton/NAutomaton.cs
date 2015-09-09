@@ -1,11 +1,11 @@
+using FLaG.Automaton.Diagrams;
+using FLaG.Data.Helpers;
+using FLaG.Output;
 using System;
 using System.Collections.Generic;
-using FLaG.Output;
-using FLaG.Data.Helpers;
-using Gram=FLaG.Data.Grammars;
 using System.Drawing;
-using FLaG.Automaton.Diagrams;
 using System.Drawing.Drawing2D;
+using Gram=FLaG.Data.Grammars;
 
 namespace FLaG.Data.Automaton
 {

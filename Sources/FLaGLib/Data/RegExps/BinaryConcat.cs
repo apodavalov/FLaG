@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using FLaGLib.Helpers;
-using System.Text;
-using System.Linq;
+﻿using FLaGLib.Collections;
 using FLaGLib.Data.Grammars;
-using FLaGLib.Collections;
+using FLaGLib.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace FLaGLib.Data.RegExps
 {

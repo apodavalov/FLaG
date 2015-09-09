@@ -1,7 +1,7 @@
-using System;
 using FLaG.Output;
-using Gram=FLaG.Data.Grammars;
+using System;
 using System.Collections.Generic;
+using Gram=FLaG.Data.Grammars;
 using Machine=FLaG.Data.Automaton;
 
 namespace FLaG.Data.Equation
