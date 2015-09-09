@@ -24,7 +24,7 @@ namespace FLaGLib.Data.StateMachines
         {
             if (symbols == null)
             {
-                throw new ArgumentNullException("symbols");
+                throw new ArgumentNullException(nameof(symbols));
             }
 
             SetNum = setNum;

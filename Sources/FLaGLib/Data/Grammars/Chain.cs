@@ -31,7 +31,7 @@ namespace FLaGLib.Data.Grammars
         {
             if (sequence == null)
             {
-                throw new ArgumentNullException("sequence");
+                throw new ArgumentNullException(nameof(sequence));
             }
 
             Sequence = sequence.ToList().AsReadOnly();
@@ -43,7 +43,7 @@ namespace FLaGLib.Data.Grammars
         {
             if (map == null)
             {
-                throw new ArgumentNullException("map");
+                throw new ArgumentNullException(nameof(map));
             }
 
             return new Chain(Sequence.Select(symbol => symbol.Reorganize(map)));

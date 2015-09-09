@@ -11,7 +11,7 @@ namespace FLaGLib.Extensions
         {
             if (obj == null)
             {
-                throw new ArgumentNullException("this");
+                throw new ArgumentNullException(nameof(obj));
             }
 
             List<T> list = obj.ToList();

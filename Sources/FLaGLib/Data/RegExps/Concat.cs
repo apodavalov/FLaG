@@ -20,7 +20,7 @@ namespace FLaGLib.Data.RegExps
         {
             if (expressions == null)
             {
-                throw new ArgumentNullException("expressions");
+                throw new ArgumentNullException(nameof(expressions));
             }
 
             Expressions = new List<Expression>(expressions).AsReadOnly();

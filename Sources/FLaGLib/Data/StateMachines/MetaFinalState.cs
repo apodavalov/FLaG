@@ -23,12 +23,12 @@ namespace FLaGLib.Data.StateMachines
         {
             if (requiredStates == null)
             {
-                throw new ArgumentNullException("requiredStates");
+                throw new ArgumentNullException(nameof(requiredStates));
             }
 
             if (optionalStates == null)
             {
-                throw new ArgumentNullException("optionalStates");
+                throw new ArgumentNullException(nameof(optionalStates));
             }
 
             RequiredStates = requiredStates.ToSortedSet().AsReadOnly();

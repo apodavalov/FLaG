@@ -11,7 +11,7 @@ namespace FLaGLib.Collections
         {
             if (set == null)
             {
-                throw new ArgumentNullException("set");
+                throw new ArgumentNullException(nameof(set));
             }
 
             _Set = set;

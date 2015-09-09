@@ -10,7 +10,7 @@ namespace FLaGLib.Extensions
         {
             if (obj == null)
             {
-                throw new ArgumentNullException("obj");
+                throw new ArgumentNullException(nameof(obj));
             }
 
             return obj.ContainsKey(key) ? obj[key] : defaultValue;

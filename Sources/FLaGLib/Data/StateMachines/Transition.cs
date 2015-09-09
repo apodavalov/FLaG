@@ -27,12 +27,12 @@ namespace FLaGLib.Data.StateMachines
         {
             if (currentState == null)
             {
-                throw new ArgumentNullException("currentState");
+                throw new ArgumentNullException(nameof(currentState));
             }
 
             if (nextState == null)
             {
-                throw new ArgumentNullException("nextState");
+                throw new ArgumentNullException(nameof(nextState));
             }
 
             CurrentState = currentState;

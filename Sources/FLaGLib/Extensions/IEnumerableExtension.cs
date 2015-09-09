@@ -6,6 +6,11 @@ namespace FLaGLib.Extensions
 {
     public static class IEnumerableExtension
     {
+        public static bool AnyNull<T>(this IEnumerable<T> obj) where T : class
+        {
+            return obj.Any(item => item == null);
+        }
+
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> obj, params T[] items)
         {
             foreach (T element in obj)
@@ -33,7 +38,7 @@ namespace FLaGLib.Extensions
         {
             if (obj == null)
             {
-                throw new ArgumentNullException("obj");
+                throw new ArgumentNullException(nameof(obj));
             }
 
             //if (obj.Is<HashSet<T>>())
@@ -48,7 +53,7 @@ namespace FLaGLib.Extensions
         {
             if (obj == null)
             {
-                throw new ArgumentNullException("obj");
+                throw new ArgumentNullException(nameof(obj));
             }
 
             //if (obj.Is<SortedSet<T>>())

@@ -36,12 +36,12 @@ namespace FLaGLib.Data.Grammars
         {
             if (rules == null)
             {
-                throw new ArgumentNullException("rules");
+                throw new ArgumentNullException(nameof(rules));
             }
 
             if (target == null)
             {
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
             }
 
             Rules = rules.ToHashSet().AsReadOnly();
@@ -56,7 +56,7 @@ namespace FLaGLib.Data.Grammars
         {
             if (map == null)
             {
-                throw new ArgumentNullException("map");
+                throw new ArgumentNullException(nameof(map));
             }
 
             return new Grammar(Rules.Select(rule => rule.Reorganize(map)), map[Target]);

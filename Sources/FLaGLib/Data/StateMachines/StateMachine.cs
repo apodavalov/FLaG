@@ -656,41 +656,35 @@ namespace FLaGLib.Data.StateMachines
         {
             if (initialState == null)
             {
-                throw new ArgumentNullException("initialState");
+                throw new ArgumentNullException(nameof(initialState));
             }
 
             if (finalStates == null)
             {
-                throw new ArgumentNullException("finalStates");
+                throw new ArgumentNullException(nameof(finalStates));
             }
 
             if (transitions == null)
             {
-                throw new ArgumentNullException("transitions");
+                throw new ArgumentNullException(nameof(transitions));
             }
 
-            foreach (Transition transition in transitions)
+            if (transitions.Any(t => t == null))
             {
-                if (transition == null)
-                {
-                    throw new ArgumentException("One of the transitions is null.");
-                }
-            }
+                throw new ArgumentException("One of the transitions is null.");
+            }            
 
             FinalStates = finalStates.ToSortedSet().AsReadOnly();
             Transitions = transitions.ToSortedSet().AsReadOnly();
 
-            if (FinalStates.Count == 0)
+            if (!FinalStates.Any())
             {
                 throw new ArgumentException("Final states set is empty.");
             }
 
-            foreach (Label finalState in FinalStates)
+            if (FinalStates.AnyNull())
             {
-                if (finalState == null)
-                {
-                    throw new ArgumentException("One of the final state is null.");
-                }
+                throw new ArgumentException("One of the final state is null.");                
             }
 
             ISet<Label> states = ExtractStates(Transitions);
@@ -702,16 +696,9 @@ namespace FLaGLib.Data.StateMachines
                 throw new ArgumentException("Set of states isn't the superset of final states.");
             }
 
-            ISet<char> alphabet = new SortedSet<char>();
-
-            foreach (Transition transition in Transitions)
-            {
-                alphabet.Add(transition.Symbol);
-            }
+            Alphabet = Transitions.Select(t => t.Symbol).ToSortedSet().AsReadOnly();
 
             States = states.AsReadOnly();                      
-
-            Alphabet = alphabet.AsReadOnly();
 
             InitialState = initialState;
         }

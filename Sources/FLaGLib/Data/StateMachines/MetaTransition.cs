@@ -41,17 +41,17 @@ namespace FLaGLib.Data.StateMachines
         {
             if (metaCurrentRequiredStates == null)
             {
-                throw new ArgumentNullException("metaCurrentRequiredStates");
+                throw new ArgumentNullException(nameof(metaCurrentRequiredStates));
             }
 
             if (metaCurrentOptionalStates == null)
             {
-                throw new ArgumentNullException("metaCurrentOptionalStates");
+                throw new ArgumentNullException(nameof(metaCurrentOptionalStates));
             }
 
             if (metaNextStates == null)
             {
-                throw new ArgumentNullException("metaNextStates");
+                throw new ArgumentNullException(nameof(metaNextStates));
             }
 
             CurrentOptionalStates = metaCurrentOptionalStates.ToSortedSet().AsReadOnly();

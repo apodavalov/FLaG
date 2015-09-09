@@ -25,7 +25,7 @@ namespace FLaGLib.Data
         {
             if (sublabels == null)
             {
-                throw new ArgumentNullException("sublabels");
+                throw new ArgumentNullException(nameof(sublabels));
             }
 
             if (!sublabels.Any())
@@ -33,12 +33,9 @@ namespace FLaGLib.Data
                 throw new ArgumentException("Parameter sublabels contains no labels.");
             }
 
-            foreach (SingleLabel label in sublabels)
+            if (sublabels.AnyNull())
             {
-                if (label == null)
-                {
-                    throw new ArgumentException("One of the sublabels is null.");
-                }
+                throw new ArgumentException("At least one sublabel is null.");
             }
 
             Sublabels = sublabels.ToSortedSet().AsReadOnly();
@@ -50,7 +47,7 @@ namespace FLaGLib.Data
         {
             if (singleLabel == null)
             {
-                throw new ArgumentNullException("singleLabel");
+                throw new ArgumentNullException(nameof(singleLabel));
             }
 
             Sublabels = new SortedSet<SingleLabel>(new SingleLabel[] { singleLabel } ).AsReadOnly();

@@ -21,12 +21,12 @@ namespace FLaGLib.Data.Languages
         {
             if (entities == null)
             {
-                throw new ArgumentNullException("entities");
+                throw new ArgumentNullException(nameof(entities));
             }
 
             EntityCollection = new SortedSet<Entity>(entities).AsReadOnly();
 
-            if (EntityCollection.Any(e => e == null))
+            if (EntityCollection.AnyNull())
             {
                 throw new ArgumentException("There are null items in collection.");
             }

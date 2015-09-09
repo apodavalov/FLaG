@@ -20,7 +20,7 @@ namespace FLaGLib.Data.StateMachines
         {
             if (setsOfEquivalence == null)
             {
-                throw new ArgumentNullException("setsOfEquivalence");
+                throw new ArgumentNullException(nameof(setsOfEquivalence));
             }
 
             SetsOfEquivalence = setsOfEquivalence;

@@ -34,7 +34,7 @@ namespace FLaGLib.Data.Grammars
         {
             if (label == null)
             {
-                throw new ArgumentNullException("label");
+                throw new ArgumentNullException(nameof(label));
             }
 
             Label = label;
@@ -153,7 +153,7 @@ namespace FLaGLib.Data.Grammars
         {
             if (map == null)
             {
-                throw new ArgumentNullException("map");
+                throw new ArgumentNullException(nameof(map));
             }
 
             return map.ValueOrDefault(this, this);

@@ -11,7 +11,7 @@ namespace FLaGLib.Collections
         {
             if (list == null)
             {
-                throw new ArgumentNullException("list");
+                throw new ArgumentNullException(nameof(list));
             }
 
             _List = list;

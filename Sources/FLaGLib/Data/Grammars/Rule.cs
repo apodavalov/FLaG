@@ -36,19 +36,24 @@ namespace FLaGLib.Data.Grammars
         {
             if (chains == null)
             {
-                throw new ArgumentNullException("chains");
+                throw new ArgumentNullException(nameof(chains));
             }
 
             if (target == null)
             {
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
             }
 
             Chains = chains.ToSortedSet().AsReadOnly();
 
-            if (Chains.Count < 1)
+            if (!Chains.Any())
             {
                 throw new ArgumentException("Rule must contain at least one chain.");
+            }
+
+            if (Chains.AnyNull())
+            {
+                throw new ArgumentException("At least one null chain was found.");
             }
 
             Alphabet = Chains.SelectMany(chain => chain.Alphabet).ToSortedSet().AsReadOnly();
@@ -62,7 +67,7 @@ namespace FLaGLib.Data.Grammars
         {
             if (map == null)
             {
-                throw new ArgumentNullException("map");
+                throw new ArgumentNullException(nameof(map));
             }
 
             return new Rule(Chains.Select(chain => chain.Reorganize(map)),map.ValueOrDefault(Target,Target));

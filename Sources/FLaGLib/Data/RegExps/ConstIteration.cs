@@ -25,7 +25,7 @@ namespace FLaGLib.Data.RegExps
         {
             if (expression == null)
             {
-                throw new ArgumentNullException("expression");
+                throw new ArgumentNullException(nameof(expression));
             }
 
             if (iterationCount < 0)

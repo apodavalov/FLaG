@@ -46,22 +46,22 @@ namespace FLaGLib.Data.StateMachines
         {
             if (currentReachableStates == null)
             {
-                throw new ArgumentNullException("currentReachableStates");
+                throw new ArgumentNullException(nameof(currentReachableStates));
             }
 
             if (nextReachableStates == null)
             {
-                throw new ArgumentNullException("nextReachableStates");
+                throw new ArgumentNullException(nameof(nextReachableStates));
             }
 
             if (currentApproachedStates == null)
             {
-                throw new ArgumentNullException("currentApproachedStates");
+                throw new ArgumentNullException(nameof(currentApproachedStates));
             }
 
             if (nextApproachedStates == null)
             {
-                throw new ArgumentNullException("nextApproachedStates");
+                throw new ArgumentNullException(nameof(nextApproachedStates));
             }
 
             CurrentReachableStates = currentReachableStates.ToHashSet().AsReadOnly();

@@ -161,7 +161,7 @@ namespace FLaGLib.Data.Languages
         {
             if (entity == null)
             {
-                throw new ArgumentNullException("entity");
+                throw new ArgumentNullException(nameof(entity));
             }
 
             int number = Number;

@@ -22,7 +22,7 @@ namespace FLaGLib.Data.StateMachines
         {
             if (setOfEquivalenceTransitions == null)
             {
-                throw new ArgumentNullException("setOfEquivalenceTransitions");
+                throw new ArgumentNullException(nameof(setOfEquivalenceTransitions));
             }
 
             SetOfEquivalenceTransitions = setOfEquivalenceTransitions.ToList().AsReadOnly();

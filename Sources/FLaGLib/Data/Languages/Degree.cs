@@ -25,12 +25,12 @@ namespace FLaGLib.Data.Languages
         {
             if (entity == null)
             {
-                throw new ArgumentNullException("entity");
+                throw new ArgumentNullException(nameof(entity));
             }
 
             if (exponent == null)
             {
-                throw new ArgumentNullException("exponent");
+                throw new ArgumentNullException(nameof(exponent));
             }
 
             Entity = entity;

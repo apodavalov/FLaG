@@ -39,17 +39,17 @@ namespace FLaGLib.Data.StateMachines
         {
             if (nextSetOfEquivalence == null)
             {
-                throw new ArgumentNullException("nextSetOfEquivalence");
+                throw new ArgumentNullException(nameof(nextSetOfEquivalence));
             }
 
             if (symbols == null)
             {
-                throw new ArgumentNullException("symbols");
+                throw new ArgumentNullException(nameof(symbols));
             }
 
             if (currentSetOfEquivalence == null)
             {
-                throw new ArgumentNullException("currentSetOfEquivalence");
+                throw new ArgumentNullException(nameof(currentSetOfEquivalence));
             }
 
             NextSetOfEquivalence = nextSetOfEquivalence;
