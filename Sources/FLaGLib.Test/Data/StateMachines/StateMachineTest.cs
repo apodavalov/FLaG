@@ -1252,27 +1252,30 @@ namespace FLaGLib.Test.Data.StateMachines
 
             Assert.AreEqual(expected.SetOfEquivalenceTransitions.Count, actualReport.SetOfEquivalenceTransitions.Count);
 
-            IEnumerator<SetOfEquivalenceTransition> currentSetOfEquivalenceTransitionsEnumerator = expected.SetOfEquivalenceTransitions.GetEnumerator();
-            IEnumerator<SetOfEquivalenceTransition> actualSetOfEquivalenceTransitionsEnumerator = actualReport.SetOfEquivalenceTransitions.GetEnumerator();
-
-            while (currentSetOfEquivalenceTransitionsEnumerator.MoveNext() && actualSetOfEquivalenceTransitionsEnumerator.MoveNext())
+            using (IEnumerator<SetOfEquivalenceTransition> currentSetOfEquivalenceTransitionsEnumerator = expected.SetOfEquivalenceTransitions.GetEnumerator())
             {
-                Assert.AreEqual(currentSetOfEquivalenceTransitionsEnumerator.Current.IndexOfCurrentSetOfEquivalence,
-                    actualSetOfEquivalenceTransitionsEnumerator.Current.IndexOfCurrentSetOfEquivalence);
+                using (IEnumerator<SetOfEquivalenceTransition> actualSetOfEquivalenceTransitionsEnumerator = actualReport.SetOfEquivalenceTransitions.GetEnumerator())
+                {
+                    while (currentSetOfEquivalenceTransitionsEnumerator.MoveNext() && actualSetOfEquivalenceTransitionsEnumerator.MoveNext())
+                    {
+                        Assert.AreEqual(currentSetOfEquivalenceTransitionsEnumerator.Current.IndexOfCurrentSetOfEquivalence,
+                            actualSetOfEquivalenceTransitionsEnumerator.Current.IndexOfCurrentSetOfEquivalence);
 
-                CollectionAssert.AreEquivalent(
-                    currentSetOfEquivalenceTransitionsEnumerator.Current.Symbols,
-                    actualSetOfEquivalenceTransitionsEnumerator.Current.Symbols);
+                        CollectionAssert.AreEquivalent(
+                            currentSetOfEquivalenceTransitionsEnumerator.Current.Symbols,
+                            actualSetOfEquivalenceTransitionsEnumerator.Current.Symbols);
 
-                Assert.AreEqual(currentSetOfEquivalenceTransitionsEnumerator.Current.CurrentSetOfEquivalence,
-                    actualSetOfEquivalenceTransitionsEnumerator.Current.CurrentSetOfEquivalence);
+                        Assert.AreEqual(currentSetOfEquivalenceTransitionsEnumerator.Current.CurrentSetOfEquivalence,
+                            actualSetOfEquivalenceTransitionsEnumerator.Current.CurrentSetOfEquivalence);
 
-                Assert.AreEqual(currentSetOfEquivalenceTransitionsEnumerator.Current.NextSetOfEquivalence,
-                    actualSetOfEquivalenceTransitionsEnumerator.Current.NextSetOfEquivalence);
+                        Assert.AreEqual(currentSetOfEquivalenceTransitionsEnumerator.Current.NextSetOfEquivalence,
+                            actualSetOfEquivalenceTransitionsEnumerator.Current.NextSetOfEquivalence);
+                    }
+
+                    Assert.AreEqual(actualSetsOfEquivalencePostReportCount, actualSetOfEquivalenceTransitionsPostReportCount + 1);
+                    return actualSetOfEquivalenceTransitionsPostReportCount + 1;
+                }
             }
-
-            Assert.AreEqual(actualSetsOfEquivalencePostReportCount, actualSetOfEquivalenceTransitionsPostReportCount + 1);
-            return actualSetOfEquivalenceTransitionsPostReportCount + 1;
         }
 
         [Test]

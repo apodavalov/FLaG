@@ -120,36 +120,40 @@ namespace FLaGLib.Extensions
 
             int result = 0;
 
-            IEnumerator<T> enumerator1 = obj.GetEnumerator();
-            IEnumerator<T> enumerator2 = other.GetEnumerator();
-
-            bool hasNext1 = enumerator1.MoveNext();
-            bool hasNext2 = enumerator2.MoveNext();
-
-            while (hasNext1 && hasNext2)
+            using (IEnumerator<T> enumerator1 = obj.GetEnumerator())
             {
-                result = enumerator1.Current.CompareToNullable(enumerator2.Current);
-
-                if (result != 0)
+                using (IEnumerator<T> enumerator2 = other.GetEnumerator())
                 {
-                    return result;
+
+                    bool hasNext1 = enumerator1.MoveNext();
+                    bool hasNext2 = enumerator2.MoveNext();
+
+                    while (hasNext1 && hasNext2)
+                    {
+                        result = enumerator1.Current.CompareToNullable(enumerator2.Current);
+
+                        if (result != 0)
+                        {
+                            return result;
+                        }
+
+                        hasNext1 = enumerator1.MoveNext();
+                        hasNext2 = enumerator2.MoveNext();
+                    }
+
+                    if (hasNext1)
+                    {
+                        return 1;
+                    }
+
+                    if (hasNext2)
+                    {
+                        return -1;
+                    }
+
+                    return 0;
                 }
-
-                hasNext1 = enumerator1.MoveNext();
-                hasNext2 = enumerator2.MoveNext();
             }
-
-            if (hasNext1)
-            {
-                return 1;
-            }
-
-            if (hasNext2)
-            {
-                return -1;
-            }
-
-            return 0;
         }
     }
 }

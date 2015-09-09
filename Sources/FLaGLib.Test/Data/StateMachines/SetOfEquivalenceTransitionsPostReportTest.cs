@@ -44,15 +44,18 @@ namespace FLaGLib.Test.Data.StateMachines
             Assert.AreEqual(expectedIteration, actualPostReport.Iteration);
             Assert.AreEqual(expectedTransitions.Count(), actualPostReport.SetOfEquivalenceTransitions.Count);
 
-            IEnumerator<SetOfEquivalenceTransition> expectedTransitionsEnumerator = expectedTransitions.GetEnumerator();
-            IEnumerator<SetOfEquivalenceTransition> actualTransitionsEnumerator = actualPostReport.SetOfEquivalenceTransitions.GetEnumerator();
-
-            while (expectedTransitionsEnumerator.MoveNext() && actualTransitionsEnumerator.MoveNext())
+            using (IEnumerator<SetOfEquivalenceTransition> expectedTransitionsEnumerator = expectedTransitions.GetEnumerator())
             {
-                Assert.AreEqual(expectedTransitionsEnumerator.Current.CurrentSetOfEquivalence, actualTransitionsEnumerator.Current.CurrentSetOfEquivalence);
-                Assert.AreEqual(expectedTransitionsEnumerator.Current.NextSetOfEquivalence, actualTransitionsEnumerator.Current.NextSetOfEquivalence);
-                CollectionAssert.AreEqual(expectedTransitionsEnumerator.Current.Symbols, actualTransitionsEnumerator.Current.Symbols);
-                Assert.AreEqual(expectedTransitionsEnumerator.Current.IndexOfCurrentSetOfEquivalence, actualTransitionsEnumerator.Current.IndexOfCurrentSetOfEquivalence);
+                using (IEnumerator<SetOfEquivalenceTransition> actualTransitionsEnumerator = actualPostReport.SetOfEquivalenceTransitions.GetEnumerator())
+                {
+                    while (expectedTransitionsEnumerator.MoveNext() && actualTransitionsEnumerator.MoveNext())
+                    {
+                        Assert.AreEqual(expectedTransitionsEnumerator.Current.CurrentSetOfEquivalence, actualTransitionsEnumerator.Current.CurrentSetOfEquivalence);
+                        Assert.AreEqual(expectedTransitionsEnumerator.Current.NextSetOfEquivalence, actualTransitionsEnumerator.Current.NextSetOfEquivalence);
+                        CollectionAssert.AreEqual(expectedTransitionsEnumerator.Current.Symbols, actualTransitionsEnumerator.Current.Symbols);
+                        Assert.AreEqual(expectedTransitionsEnumerator.Current.IndexOfCurrentSetOfEquivalence, actualTransitionsEnumerator.Current.IndexOfCurrentSetOfEquivalence);
+                    }
+                }
             }
         }
 
