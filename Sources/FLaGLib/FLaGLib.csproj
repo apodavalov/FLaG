@@ -43,6 +43,8 @@
     <Compile Include="Collections\ReadOnlyList.cs" />
     <Compile Include="Collections\ReadOnlySet.cs" />
     <Compile Include="Data\Grammars\Chain.cs" />
+    <Compile Include="Data\Grammars\IsLangEmptyBeginPostReport.cs" />
+    <Compile Include="Data\Grammars\IsLangEmptyIterationPostReport.cs" />
     <Compile Include="Data\Grammars\Grammar.cs" />
     <Compile Include="Data\Grammars\GrammarType.cs" />
     <Compile Include="Data\Grammars\NonTerminalSymbol.cs" />

@@ -44,12 +44,90 @@ namespace FLaGLib.Data.Grammars
                 throw new ArgumentNullException(nameof(target));
             }
 
-            Rules = rules.ToHashSet().AsReadOnly();
+            if (rules.AnyNull())
+            {
+                throw new ArgumentException("At least one rule is null.");
+            }
+
+            Rules = Normalize(rules).AsReadOnly();
             Alphabet = Rules.SelectMany(rule => rule.Alphabet).ToSortedSet().AsReadOnly();
             Target = target;
             ISet<NonTerminalSymbol> nonTerminals = Rules.SelectMany(rule => rule.NonTerminals).ToSortedSet();
             nonTerminals.Add(Target);
             NonTerminals = nonTerminals.AsReadOnly();
+        }
+
+        private ISet<Rule> Normalize(IEnumerable<Rule> rules)
+        {
+            return rules.GroupBy(r => r.Target).Select(g => new Rule(g.SelectMany(r => r.Chains), g.Key)).ToHashSet();            
+        }
+
+        public bool IsLangEmpty(Action<IsLangEmptyBeginPostReport> onBegin = null,
+                            Action<IsLangEmptyIterationPostReport> onIterate = null)
+        {
+            int i = 0;
+
+            ISet<NonTerminalSymbol> newNonTerminalSet = new HashSet<NonTerminalSymbol>();
+
+            if (onBegin != null)
+            {
+                onBegin(new IsLangEmptyBeginPostReport(i, newNonTerminalSet));
+            }
+            
+            bool isAddedSomething;
+            
+            do 
+            {
+                i++;
+
+                isAddedSomething = false;
+
+                ISet<NonTerminalSymbol> nextNonTerminalSet = newNonTerminalSet;
+                newNonTerminalSet = new HashSet<NonTerminalSymbol>();
+                
+                foreach (Rule rule in Rules)
+                {	
+                    foreach (Chain chain in rule.Chains)
+                    {
+                        bool isOurChain = true;
+
+                        foreach (Symbol symbol in chain)
+                        {
+                            NonTerminalSymbol nonTerminalSymbol = symbol.As<NonTerminalSymbol>();
+
+                            if (nonTerminalSymbol != null && !nextNonTerminalSet.Contains(nonTerminalSymbol))
+                            {
+                                isOurChain = false;
+                                break;
+                            }                            
+                        }
+                        
+                        if (isOurChain)
+                        {
+                            if (!newNonTerminalSet.Contains(rule.Target) && !nextNonTerminalSet.Contains(rule.Target))
+                            {
+                                newNonTerminalSet.Add(rule.Target);
+                                isAddedSomething = true;
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                ISet<NonTerminalSymbol> previousNonTerminalSet = nextNonTerminalSet.ToHashSet();
+                nextNonTerminalSet.UnionWith(newNonTerminalSet);
+
+                if (onIterate != null)
+                {
+                    onIterate(new IsLangEmptyIterationPostReport(i, 
+                        previousNonTerminalSet, newNonTerminalSet, nextNonTerminalSet, !isAddedSomething));
+                }
+
+                newNonTerminalSet = nextNonTerminalSet;                
+
+            } while (isAddedSomething);			
+            
+            return newNonTerminalSet.Contains(Target);
         }
 
         public Grammar Reorganize(IDictionary<NonTerminalSymbol,NonTerminalSymbol> map)
