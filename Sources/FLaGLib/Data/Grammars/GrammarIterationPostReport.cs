@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace FLaGLib.Data.Grammars
 {
-    public class IsLangEmptyIterationPostReport
+    public class GrammarIterationPostReport
     {
         private const string _AtLeastOneNonTerminalSymbolIsNullMessage = "At least one non terminal symbol is null.";
 
@@ -39,7 +39,7 @@ namespace FLaGLib.Data.Grammars
             private set;
         }
 
-        public IsLangEmptyIterationPostReport(int iteration, 
+        public GrammarIterationPostReport(int iteration, 
             IEnumerable<NonTerminalSymbol> previousNonTerminalSet,
             IEnumerable<NonTerminalSymbol> newNonTerminalSet,
             IEnumerable<NonTerminalSymbol> nextNonTerminalSet,

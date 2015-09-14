@@ -62,8 +62,76 @@ namespace FLaGLib.Data.Grammars
             return rules.GroupBy(r => r.Target).Select(g => new Rule(g.SelectMany(r => r.Chains), g.Key)).ToHashSet();            
         }
 
-        public bool IsLangEmpty(Action<IsLangEmptyBeginPostReport> onBegin = null,
-                            Action<IsLangEmptyIterationPostReport> onIterate = null)
+        public bool RemoveUselessSymbols(out Grammar grammar, 
+            Action<GrammarBeginPostReport> onBegin = null,
+            Action<GrammarIterationPostReport> onIterate = null)
+        {
+            int i = 0;
+
+            ISet<NonTerminalSymbol> newNonTerminalSet = new HashSet<NonTerminalSymbol>();
+            
+            if (onBegin != null)
+            {
+                onBegin(new GrammarBeginPostReport(i, newNonTerminalSet));
+            }
+
+            bool isAddedSomething;
+            ISet<Symbol> nonTerminalSet = Alphabet.OfType<Symbol>().ToHashSet();
+
+            do
+            {
+                i++;
+                isAddedSomething = false;
+                nonTerminalSet.UnionWith(newNonTerminalSet);
+                ISet<NonTerminalSymbol> nextNonTerminalSet = newNonTerminalSet;
+                newNonTerminalSet = new HashSet<NonTerminalSymbol>();
+
+                foreach (Rule rule in Rules)
+                {
+                    foreach (Chain chain in rule.Chains)
+                    {
+                        if (chain.All(c => nonTerminalSet.Contains(c)))
+                        {
+                            if (!newNonTerminalSet.Contains(rule.Target) && !nextNonTerminalSet.Contains(rule.Target))
+                            {
+                                newNonTerminalSet.Add(rule.Target);
+                                isAddedSomething = true;
+                            }
+                            
+                            break;
+                        }
+                    }
+                }
+
+                ISet<NonTerminalSymbol> previousNonTerminalSet = nextNonTerminalSet.ToHashSet();
+                nextNonTerminalSet.UnionWith(newNonTerminalSet);
+
+                if (onIterate != null)
+                {
+                    onIterate(new GrammarIterationPostReport(i,
+                        previousNonTerminalSet, newNonTerminalSet, nextNonTerminalSet, !isAddedSomething));
+                }
+
+                newNonTerminalSet = nextNonTerminalSet;
+
+            } while (isAddedSomething);
+
+            IEnumerable<Rule> newRules = Rules.Where(r => newNonTerminalSet.Contains(r.Target));
+
+            if (newRules.Count() < Rules.Count)
+            {
+                grammar = new Grammar(newRules, Target);
+
+                return true;
+            }
+
+            grammar = this;
+
+            return false;
+        }
+
+        public bool IsLangEmpty(Action<GrammarBeginPostReport> onBegin = null,
+                            Action<GrammarIterationPostReport> onIterate = null)
         {
             int i = 0;
 
@@ -71,7 +139,7 @@ namespace FLaGLib.Data.Grammars
 
             if (onBegin != null)
             {
-                onBegin(new IsLangEmptyBeginPostReport(i, newNonTerminalSet));
+                onBegin(new GrammarBeginPostReport(i, newNonTerminalSet));
             }
             
             bool isAddedSomething;
@@ -119,7 +187,7 @@ namespace FLaGLib.Data.Grammars
 
                 if (onIterate != null)
                 {
-                    onIterate(new IsLangEmptyIterationPostReport(i, 
+                    onIterate(new GrammarIterationPostReport(i, 
                         previousNonTerminalSet, newNonTerminalSet, nextNonTerminalSet, !isAddedSomething));
                 }
 
