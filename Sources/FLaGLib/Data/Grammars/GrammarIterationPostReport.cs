@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace FLaGLib.Data.Grammars
 {
-    public class GrammarIterationPostReport
+    public class GrammarIterationPostReport<T> where T : Symbol
     {
-        private const string _AtLeastOneNonTerminalSymbolIsNullMessage = "At least one non terminal symbol is null.";
+        private const string _AtLeastOneSymbolIsNullMessage = "At least one symbol is null.";
 
         public int Iteration
         {
@@ -15,19 +15,19 @@ namespace FLaGLib.Data.Grammars
             private set;
         }
 
-        public IReadOnlySet<NonTerminalSymbol> PreviousNonTerminalSet
+        public IReadOnlySet<T> PreviousSymbolSet
         {
             get;
             private set;
         }
 
-        public IReadOnlySet<NonTerminalSymbol> NewNonTerminalSet
+        public IReadOnlySet<T> NewSymbolSet
         {
             get;
             private set;
         }
 
-        public IReadOnlySet<NonTerminalSymbol> NextNonTerminalSet
+        public IReadOnlySet<T> NextSymbolSet
         {
             get;
             private set;
@@ -40,43 +40,43 @@ namespace FLaGLib.Data.Grammars
         }
 
         public GrammarIterationPostReport(int iteration, 
-            IEnumerable<NonTerminalSymbol> previousNonTerminalSet,
-            IEnumerable<NonTerminalSymbol> newNonTerminalSet,
-            IEnumerable<NonTerminalSymbol> nextNonTerminalSet,
+            IEnumerable<T> previousSymbolSet,
+            IEnumerable<T> newSymbolSet,
+            IEnumerable<T> nextSymbolSet,
             bool isLastIteration)
         {
-            if (previousNonTerminalSet == null)
+            if (previousSymbolSet == null)
             {
-                throw new ArgumentNullException(nameof(previousNonTerminalSet));
+                throw new ArgumentNullException(nameof(previousSymbolSet));
             }
 
-            if (newNonTerminalSet == null)
+            if (newSymbolSet == null)
             {
-                throw new ArgumentNullException(nameof(newNonTerminalSet));
+                throw new ArgumentNullException(nameof(newSymbolSet));
             }
 
-            if (nextNonTerminalSet == null)
+            if (nextSymbolSet == null)
             {
-                throw new ArgumentNullException(nameof(nextNonTerminalSet));
+                throw new ArgumentNullException(nameof(nextSymbolSet));
             }
 
-            PreviousNonTerminalSet = previousNonTerminalSet.ToHashSet().AsReadOnly();
-            NewNonTerminalSet = newNonTerminalSet.ToHashSet().AsReadOnly();
-            NextNonTerminalSet = nextNonTerminalSet.ToHashSet().AsReadOnly();
+            PreviousSymbolSet = previousSymbolSet.ToHashSet().AsReadOnly();
+            NewSymbolSet = newSymbolSet.ToHashSet().AsReadOnly();
+            NextSymbolSet = nextSymbolSet.ToHashSet().AsReadOnly();
 
-            if (PreviousNonTerminalSet.AnyNull())
+            if (PreviousSymbolSet.AnyNull())
             {
-                throw new ArgumentException(_AtLeastOneNonTerminalSymbolIsNullMessage, nameof(previousNonTerminalSet));
+                throw new ArgumentException(_AtLeastOneSymbolIsNullMessage, nameof(previousSymbolSet));
             }
 
-            if (NewNonTerminalSet.AnyNull())
+            if (NewSymbolSet.AnyNull())
             {
-                throw new ArgumentException(_AtLeastOneNonTerminalSymbolIsNullMessage, nameof(newNonTerminalSet));
+                throw new ArgumentException(_AtLeastOneSymbolIsNullMessage, nameof(newSymbolSet));
             }
 
-            if (NextNonTerminalSet.AnyNull())
+            if (NextSymbolSet.AnyNull())
             {
-                throw new ArgumentException(_AtLeastOneNonTerminalSymbolIsNullMessage, nameof(nextNonTerminalSet));
+                throw new ArgumentException(_AtLeastOneSymbolIsNullMessage, nameof(nextSymbolSet));
             }
 
             Iteration = iteration;

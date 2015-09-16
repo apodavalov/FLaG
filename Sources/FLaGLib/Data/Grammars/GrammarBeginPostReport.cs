@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace FLaGLib.Data.Grammars
 {
-    public class GrammarBeginPostReport
+    public class GrammarBeginPostReport<T> where T : Symbol
     {
-        private const string _AtLeastOneNonTerminalSymbolIsNullMessage = "At least one non terminal symbol is null.";
+        private const string _AtLeastOneSymbolIsNullMessage = "At least one symbol is null.";
 
         public int Iteration
         {
@@ -15,25 +15,25 @@ namespace FLaGLib.Data.Grammars
             private set;
         }
 
-        public IReadOnlySet<NonTerminalSymbol> NonTerminalSet
+        public IReadOnlySet<T> NonTerminalSet
         {
             get;
             private set;
         }
 
         public GrammarBeginPostReport(int iteration,
-            IEnumerable<NonTerminalSymbol> nonTerminalSet)
+            IEnumerable<T> symbolSet)
         {
-            if (nonTerminalSet == null)
+            if (symbolSet == null)
             {
-                throw new ArgumentNullException(nameof(nonTerminalSet));
+                throw new ArgumentNullException(nameof(symbolSet));
             }
             
-            NonTerminalSet = nonTerminalSet.ToHashSet().AsReadOnly();
+            NonTerminalSet = symbolSet.ToHashSet().AsReadOnly();
 
             if (NonTerminalSet.AnyNull())
             {
-                throw new ArgumentException(_AtLeastOneNonTerminalSymbolIsNullMessage, nameof(nonTerminalSet));
+                throw new ArgumentException(_AtLeastOneSymbolIsNullMessage, nameof(symbolSet));
             }
 
             Iteration = iteration;
