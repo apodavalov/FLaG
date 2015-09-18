@@ -1,5 +1,6 @@
 ﻿using FLaGLib.Collections;
 using FLaGLib.Extensions;
+using FLaGLib.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,60 +68,145 @@ namespace FLaGLib.Data.Grammars
 
         private static ISet<Rule> Normalize(IEnumerable<Rule> rules, NonTerminalSymbol grammarTarget)
         {
-            ISet<Rule> newRules = rules.ToHashSet();
-            ISet<NonTerminalSymbol> emptyNonTerminals;
+            return rules.GroupBy(r => r.Target).Select(g => new Rule(g.SelectMany(r => r.Chains), g.Key)).ToHashSet();
+        }
 
-            bool changed;
-            
+        public bool RemoveEmptyRules(out Grammar grammar,
+            Action<GrammarBeginPostReport<NonTerminalSymbol>> onBegin = null,
+            Action<GrammarIterationPostReport<NonTerminalSymbol>> onIterate = null)
+        {
+            int i = 0;
+
+            ISet<NonTerminalSymbol> newSymbolSet = Rules.Where(r => r.Chains.Any(c => !c.Any())).Select(r => r.Target).ToHashSet();
+
+            if (onBegin != null)
+            {
+                onBegin(new GrammarBeginPostReport<NonTerminalSymbol>(i, newSymbolSet));
+            }
+
+            bool isAddedSomething;
+
             do
             {
-                changed = false;
+                i++;
 
-                newRules = newRules.GroupBy(r => r.Target).Select(g => new Rule(g.SelectMany(r => r.Chains), g.Key)).ToHashSet();
+                isAddedSomething = false;
+                ISet<NonTerminalSymbol> nextSymbolSet = newSymbolSet;
+                newSymbolSet = new HashSet<NonTerminalSymbol>();
 
-                emptyNonTerminals = rules.Where(r => r.Chains.All(c => !c.Any())).Select(r => r.Target).ToHashSet();
-
-                ISet<Rule> tempRules = new HashSet<Rule>();
-
-                foreach (Rule rule in newRules)
+                foreach (Rule rule in Rules)
                 {
-                    if (!emptyNonTerminals.Contains(rule.Target) || grammarTarget == rule.Target)
+                    foreach (Chain chain in rule.Chains)
                     {
-                        ISet<Chain> tempChains = new HashSet<Chain>();
+                        bool isAllSymbolsInNext = true;
 
-                        foreach (Chain chain in rule.Chains)
+                        foreach (Symbol symbol in chain.Sequence)
                         {
-                            IList<Symbol> tempSymbols = new List<Symbol>();
-                               
-                            foreach (Symbol symbol in chain.Sequence)
+                            NonTerminalSymbol nonTerminal = symbol.As<NonTerminalSymbol>();
+
+                            if (nonTerminal == null || !nextSymbolSet.Contains(nonTerminal))
                             {
-                                NonTerminalSymbol nonTerminal = symbol.As<NonTerminalSymbol>();
-
-                                if (nonTerminal == null || !emptyNonTerminals.Contains(nonTerminal))
-                                {
-                                    tempSymbols.Add(symbol);
-                                }
-                                else
-                                {
-                                    changed = true;
-                                }
+                                isAllSymbolsInNext = false;
+                                break;
                             }
-
-                            tempChains.Add(new Chain(tempSymbols));
                         }
 
-                        tempRules.Add(new Rule(tempChains, rule.Target));
-                    }
-                    else
-                    {
-                        changed = true;
+                        if (isAllSymbolsInNext)
+                        {
+                            if (!newSymbolSet.Contains(rule.Target) && !nextSymbolSet.Contains(rule.Target))
+                            {
+                                newSymbolSet.Add(rule.Target);
+                                isAddedSomething = true;
+                            }
+                        }
                     }
                 }
 
-                newRules = tempRules;
-            } while (changed);
+                ISet<NonTerminalSymbol> previousSymbolSet = nextSymbolSet.ToHashSet();
+                nextSymbolSet.UnionWith(newSymbolSet);
 
-            return newRules.ToSortedSet();           
+                if (onIterate != null)
+                {
+                    onIterate(new GrammarIterationPostReport<NonTerminalSymbol>(i,
+                        previousSymbolSet, newSymbolSet, nextSymbolSet, !isAddedSomething));
+                }
+
+                newSymbolSet = nextSymbolSet;
+
+            } while (isAddedSomething);
+
+            ISet<Rule> newRules = new HashSet<Rule>();
+
+            foreach (Rule rule in Rules)
+            {
+                newRules.Add(new Rule(rule.Chains.SelectMany(c => ForkByEmpty(c, newSymbolSet).Where(chain => chain != Chain.Empty)), rule.Target));
+            }
+
+            IDictionary<NonTerminalSymbol, Rule> targetRuleMap = Rules.ToDictionary(r => r.Target);
+
+            NonTerminalSymbol newTarget = Target;
+
+            if (targetRuleMap.ContainsKey(Target) && targetRuleMap[Target].Chains.Contains(Chain.Empty))
+            {
+                Chain targetChain = new Chain(EnumerateHelper.Sequence(Target));
+
+                newTarget = new NonTerminalSymbol(
+                        new Label(
+                            new SingleLabel('S',
+                                NonTerminals
+                                    .Where(s => s.Label.LabelType == LabelType.Simple)
+                                    .Max(s => s.Label.ExtractSingleLabel().SignIndex ?? 0) + 1
+                            )
+                        )
+                    );
+
+                Rule rule = new Rule(EnumerateHelper.Sequence(targetChain, Chain.Empty), newTarget);
+
+                newRules.Add(rule);
+            }
+
+            if (!newRules.SetEquals(Rules))
+            {
+                grammar = new Grammar(newRules, newTarget);
+
+                return true;
+            }
+
+            grammar = this;
+
+            return false;            
+        }
+
+        private static IEnumerable<Chain> ForkByEmpty(Chain chain, ISet<NonTerminalSymbol> symbolSet)
+        {
+            return ForkByEmpty(chain.Sequence.ToList(), new List<Symbol>(), symbolSet, 0);
+        }
+
+        private static IEnumerable<Chain> ForkByEmpty(IList<Symbol> sequence, IList<Symbol> symbols, ISet<NonTerminalSymbol> symbolSet, int offset)
+        {
+            for (int i = offset; i < sequence.Count; i++)
+            {
+                NonTerminalSymbol nonTerminalSymbol = sequence[i].As<NonTerminalSymbol>();
+
+                if (nonTerminalSymbol != null && symbolSet.Contains(nonTerminalSymbol))
+                {
+                    foreach (Chain chain in ForkByEmpty(sequence, symbols, symbolSet, offset + 1))
+                    {
+                        yield return chain;
+                    }
+                }
+
+                symbols.Add(sequence[i]);
+
+                foreach (Chain chain in ForkByEmpty(sequence, symbols, symbolSet, offset + 1))
+                {
+                    yield return chain;
+                }
+
+                symbols.RemoveAt(symbols.Count - 1);
+            }
+
+            yield return new Chain(symbols);
         }
 
         public bool RemoveUnreachedSymbols(out Grammar grammar,

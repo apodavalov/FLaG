@@ -9,6 +9,21 @@ namespace FLaGLib.Data.Grammars
 {
     public class Chain : IComparable<Chain>, IEquatable<Chain>, IReadOnlyList<Symbol>
     {
+        private static Chain _EmptyChain;
+
+        public static Chain Empty
+        {
+            get
+            {
+                if (_EmptyChain == null)
+                {
+                    _EmptyChain = new Chain(Enumerable.Empty<Symbol>());
+                }
+
+                return _EmptyChain;
+            }
+        }
+
         public IReadOnlyList<Symbol> Sequence
         {
             get;
