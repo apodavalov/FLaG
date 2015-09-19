@@ -179,34 +179,58 @@ namespace FLaGLib.Data.Grammars
 
         private static IEnumerable<Chain> ForkByEmpty(Chain chain, ISet<NonTerminalSymbol> symbolSet)
         {
-            return ForkByEmpty(chain.Sequence.ToList(), new List<Symbol>(), symbolSet, 0);
-        }
+            ISet<Symbol> symbolSetInternal = symbolSet.OfType<Symbol>().ToHashSet();
 
-        private static IEnumerable<Chain> ForkByEmpty(IList<Symbol> sequence, IList<Symbol> symbols, ISet<NonTerminalSymbol> symbolSet, int offset)
-        {
-            for (int i = offset; i < sequence.Count; i++)
+            IList<Symbol> symbols = new List<Symbol>(chain.Sequence.Count);
+            Stack<bool> stack = new Stack<bool>();
+
+            int i = 0;
+
+            do
             {
-                NonTerminalSymbol nonTerminalSymbol = sequence[i].As<NonTerminalSymbol>();
-
-                if (nonTerminalSymbol != null && symbolSet.Contains(nonTerminalSymbol))
+                while (i < chain.Sequence.Count)
                 {
-                    foreach (Chain chain in ForkByEmpty(sequence, symbols, symbolSet, offset + 1))
+                    if (symbolSetInternal.Contains(chain.Sequence[i]))
                     {
-                        yield return chain;
+                        stack.Push(true);
                     }
+
+                    symbols.Add(chain.Sequence[i]);
+
+                    i++;
                 }
 
-                symbols.Add(sequence[i]);
+                yield return new Chain(symbols);
 
-                foreach (Chain chain in ForkByEmpty(sequence, symbols, symbolSet, offset + 1))
+                do
                 {
-                    yield return chain;
-                }
+                    while (i > 0 && !symbolSetInternal.Contains(chain.Sequence[i - 1]))
+                    {
+                        symbols.RemoveAt(symbols.Count - 1);
+                        i--;
+                    }
 
-                symbols.RemoveAt(symbols.Count - 1);
-            }
+                    if (i > 0)
+                    {
+                        bool value = stack.Pop();
+                        symbols.RemoveAt(symbols.Count - 1);
 
-            yield return new Chain(symbols);
+                        if (value)
+                        {
+                            stack.Push(false);
+                            break;
+                        }
+                        else
+                        {
+                            i--;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                } while (true);
+            } while (stack.Count > 0);
         }
 
         public bool RemoveUnreachedSymbols(out Grammar grammar,
