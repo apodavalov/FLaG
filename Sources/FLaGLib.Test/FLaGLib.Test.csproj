@@ -52,6 +52,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Collections\ReadOnlySetTest.cs" />
+    <Compile Include="Data\Grammars\GrammarTest.cs" />
     <Compile Include="Data\LabelTest.cs" />
     <Compile Include="Data\Languages\EntityTest.cs" />
     <Compile Include="Data\Languages\ExponentTest.cs" />

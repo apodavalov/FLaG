@@ -213,10 +213,10 @@ namespace FLaGLib.Data.Grammars
                     if (i > 0)
                     {
                         bool value = stack.Pop();
-                        symbols.RemoveAt(symbols.Count - 1);
-
+                        
                         if (value)
                         {
+                            symbols.RemoveAt(symbols.Count - 1);
                             stack.Push(false);
                             break;
                         }
