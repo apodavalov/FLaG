@@ -451,13 +451,11 @@ namespace FLaGLib.Data.Grammars
             }
 
             bool isAddedSomething;
-            ISet<Symbol> nonTerminalSet = Alphabet.OfType<Symbol>().ToHashSet();
 
             do
             {
                 i++;
                 isAddedSomething = false;
-                nonTerminalSet.UnionWith(newNonTerminalSet);
                 ISet<NonTerminalSymbol> nextNonTerminalSet = newNonTerminalSet;
                 newNonTerminalSet = new HashSet<NonTerminalSymbol>();
 
@@ -465,7 +463,7 @@ namespace FLaGLib.Data.Grammars
                 {
                     foreach (Chain chain in rule.Chains)
                     {
-                        if (chain.All(c => nonTerminalSet.Contains(c)))
+                        if (chain.All(s => TerminalOrSetContains(s, nextNonTerminalSet)))
                         {
                             if (!newNonTerminalSet.Contains(rule.Target) && !nextNonTerminalSet.Contains(rule.Target))
                             {
@@ -491,9 +489,9 @@ namespace FLaGLib.Data.Grammars
 
             } while (isAddedSomething);
 
-            IEnumerable<Rule> newRules = Rules.Where(r => newNonTerminalSet.Contains(r.Target));
+            ISet<Rule> newRules = Normalize(GetRulesWithoutUselessSymbols(Rules, newNonTerminalSet));
 
-            if (newRules.Count() < Rules.Count)
+            if (!newRules.SetEquals(Rules))
             {
                 grammar = new Grammar(newRules, Target);
 
@@ -503,6 +501,38 @@ namespace FLaGLib.Data.Grammars
             grammar = this;
 
             return false;
+        }
+
+        private IEnumerable<Rule> GetRulesWithoutUselessSymbols(IEnumerable<Rule> rules, ISet<NonTerminalSymbol> nonTerminalSet)
+        {
+            foreach (Rule rule in rules)
+            {
+                if (!nonTerminalSet.Contains(rule.Target))
+                {
+                    continue;
+                }
+
+                ISet<Chain> newChains = new HashSet<Chain>();
+
+                foreach (Chain chain in rule.Chains)
+                {
+                    if (chain.All(s => TerminalOrSetContains(s, nonTerminalSet)))
+                    {
+                        newChains.Add(chain);
+                    }
+                }
+
+                if (newChains.Count > 0)
+                {
+                    yield return new Rule(newChains, rule.Target);
+                }
+            }
+        }
+
+        private static bool TerminalOrSetContains(Symbol symbol, ISet<NonTerminalSymbol> nonTerminalSet)
+        {
+            NonTerminalSymbol nonTerminalSymbol = symbol.As<NonTerminalSymbol>();
+            return nonTerminalSymbol == null || nonTerminalSet.Contains(nonTerminalSymbol);
         }
 
         public bool IsLangEmpty(Action<GrammarBeginPostReport<NonTerminalSymbol>> onBegin = null,
