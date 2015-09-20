@@ -363,7 +363,7 @@ namespace FLaGLib.Data.Grammars
             } while (stack.Count > 0);
         }
 
-        public bool RemoveUnreachedSymbols(out Grammar grammar,
+        public bool RemoveUnreachableSymbols(out Grammar grammar,
             Action<GrammarBeginPostReport<Symbol>> onBegin = null,
             Action<GrammarIterationPostReport<Symbol>> onIterate = null)
         {
