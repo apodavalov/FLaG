@@ -11,6 +11,123 @@ namespace FLaGLib.Test.Data.Grammars
     public class GrammarTest
     {
         [Test]
+        public void RemoveUselessSymbolsTest_Ok()
+        {
+            NonTerminalSymbol s1 = new NonTerminalSymbol(new Label(new SingleLabel('S', 1)));
+            NonTerminalSymbol s2 = new NonTerminalSymbol(new Label(new SingleLabel('S', 2)));
+            NonTerminalSymbol s3 = new NonTerminalSymbol(new Label(new SingleLabel('S', 3)));
+
+            TerminalSymbol a = new TerminalSymbol('a');
+            TerminalSymbol c = new TerminalSymbol('c');
+
+            Grammar grammar = new Grammar(
+                EnumerateHelper.Sequence(
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    s2, c
+                                )
+                            )
+                        ), s1
+                    ),
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    s1, s3
+                                )
+                            ),
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    a
+                                )
+                            )
+                        ), s2
+                    ),
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    a, s3
+                                )
+                            )
+                        ), s3
+                    )
+                ), s2
+            );
+
+            Grammar expectedGrammar = new Grammar(
+                EnumerateHelper.Sequence(
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    s2, c
+                                )
+                            )
+                        ), s1
+                    ),
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    a
+                                )
+                            )
+                        ), s2
+                    )
+                ), s2
+            );
+
+            Grammar actualGrammar;
+
+            GrammarBeginPostReport<NonTerminalSymbol> expectedBegin = new GrammarBeginPostReport<NonTerminalSymbol>(0, EnumerateHelper.Sequence<NonTerminalSymbol>());
+            IReadOnlyList<GrammarIterationPostReport<NonTerminalSymbol>> expectedPostReports = EnumerateHelper.Sequence(
+                new GrammarIterationPostReport<NonTerminalSymbol>(
+                    1,
+                    EnumerateHelper.Sequence<NonTerminalSymbol>(),
+                    EnumerateHelper.Sequence(s2),
+                    EnumerateHelper.Sequence(s2),
+                    false
+                ),
+                new GrammarIterationPostReport<NonTerminalSymbol>(
+                    2,
+                    EnumerateHelper.Sequence(s2),
+                    EnumerateHelper.Sequence(s1),
+                    EnumerateHelper.Sequence(s1,s2),
+                    false
+                ),
+                new GrammarIterationPostReport<NonTerminalSymbol>(
+                    3,
+                    EnumerateHelper.Sequence(s1, s2),
+                    EnumerateHelper.Sequence<NonTerminalSymbol>(),
+                    EnumerateHelper.Sequence(s1, s2),
+                    true
+                )
+            ).ToList().AsReadOnly();
+
+            int actualPostReportCount = 0;
+            bool beginInvoked = false;
+
+            Assert.IsTrue(grammar.RemoveUselessSymbols(out actualGrammar,
+                tuple =>
+                {
+                    Assert.AreEqual(0, actualPostReportCount);
+
+                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked);
+                },
+                tuple =>
+                {
+                    actualPostReportCount = OnTuple(tuple, expectedPostReports, actualPostReportCount);
+                }));
+
+            Assert.AreEqual(expectedPostReports.Count, actualPostReportCount);
+            Assert.IsTrue(beginInvoked);
+            Assert.AreEqual(expectedGrammar, actualGrammar);
+        }
+
+        [Test]
         public void RemoveEmptyRulesTest_Ok()
         {
             NonTerminalSymbol s1 = new NonTerminalSymbol(new Label(new SingleLabel('S', 1)));
