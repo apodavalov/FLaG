@@ -1,7 +1,14 @@
-﻿namespace FLaGLib.Extensions
+﻿using System.Collections.Generic;
+
+namespace FLaGLib.Extensions
 {
     public static class ObjectExtensions
     {
+        public static IEnumerable<T> AsSequence<T>(this T obj)
+        {
+            yield return obj;
+        }
+
         public static int GetHashCodeNullable(this object obj)
         {
             if (obj == null)

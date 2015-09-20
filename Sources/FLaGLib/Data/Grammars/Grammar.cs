@@ -56,7 +56,7 @@ namespace FLaGLib.Data.Grammars
                 throw new ArgumentException("At least one rule is null.");
             }
 
-            Rules = Normalize(rules, target).AsReadOnly();
+            Rules = Normalize(rules).AsReadOnly();
             Alphabet = Rules.SelectMany(rule => rule.Alphabet).ToSortedSet().AsReadOnly();
             Target = target;
             ISet<NonTerminalSymbol> nonTerminals = Rules.SelectMany(rule => rule.NonTerminals).ToSortedSet();
@@ -66,9 +66,137 @@ namespace FLaGLib.Data.Grammars
         }
        
 
-        private static ISet<Rule> Normalize(IEnumerable<Rule> rules, NonTerminalSymbol grammarTarget)
+        private static ISet<Rule> Normalize(IEnumerable<Rule> rules)
         {
             return rules.GroupBy(r => r.Target).Select(g => new Rule(g.SelectMany(r => r.Chains), g.Key)).ToHashSet();
+        }
+
+        public bool RemoveChainRules(out Grammar grammar)
+        {
+            IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> symbolSetMap =
+                new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>();
+
+            IDictionary<NonTerminalSymbol, bool> symbolChangedMap =
+                new Dictionary<NonTerminalSymbol, bool>();
+
+            foreach (NonTerminalSymbol nonTerminalSymbol in NonTerminals)
+            {
+                symbolSetMap[nonTerminalSymbol] = new HashSet<NonTerminalSymbol>(nonTerminalSymbol.AsSequence());
+            }
+
+            IDictionary<NonTerminalSymbol, ChainRulesTuple> unchangeableSymbolSetMap = new Dictionary<NonTerminalSymbol, ChainRulesTuple>();
+            IDictionary<NonTerminalSymbol, Rule> targetRuleMap = Rules.ToDictionary(r => r.Target);
+
+            // IReadOnlyDictionary<NonTerminalSymbol,IReadOnlySet<NonTerminalSet>> - symbolSetMap
+
+            int i = 0;
+
+            do
+            {
+                i++;
+                
+                foreach (KeyValuePair<NonTerminalSymbol, ISet<NonTerminalSymbol>> symbolSet in symbolSetMap)
+                {
+                    symbolChangedMap[symbolSet.Key] = false;
+
+                    foreach (NonTerminalSymbol nonTerminalSymbol in symbolSet.Value)
+                    {
+                        if (targetRuleMap.ContainsKey(nonTerminalSymbol))
+                        {
+                            Rule rule = targetRuleMap[nonTerminalSymbol];
+
+                            foreach (Chain chain in rule.Chains.Where(c => c.Sequence.Count == 1))
+                            {
+                                NonTerminalSymbol symbol = chain.Sequence.First().As<NonTerminalSymbol>();
+                                if (symbol != null && symbolSet.Value.Add(symbol))
+                                {
+                                    symbolChangedMap[symbolSet.Key] = true;                                        
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Save old symbolSetMap
+
+                foreach (KeyValuePair<NonTerminalSymbol, bool> symbolChanged in symbolChangedMap)
+                {
+                    if (!symbolChanged.Value)
+                    {
+                        unchangeableSymbolSetMap[symbolChanged.Key] = new ChainRulesTuple(symbolSetMap[symbolChanged.Key], i);
+                        symbolSetMap.Remove(symbolChanged.Key);
+                    }
+                }
+
+                // oldSymbolSetMap, nextSymbolSetMap, leaveSymbolSetMap (unchangeableSymbolSetMap)
+
+                symbolChangedMap.Clear();                
+            } while (symbolSetMap.Any());
+
+            IDictionary<NonTerminalSymbol, ChainRulesTuple> unchangeableSymbolSetMapWithoutKey = unchangeableSymbolSetMap
+                .Select(kv => 
+                    new KeyValuePair<NonTerminalSymbol, ChainRulesTuple>(
+                        kv.Key, 
+                        new ChainRulesTuple(kv.Value.NonTerminals.Where(s => s != kv.Key), kv.Value.Iteration)
+                    )
+                ).ToDictionary();
+
+            // unchangeableSymbolSetMap, unchangeableSymbolSetMapWithoutKey
+
+            ISet<Rule> newRules = new HashSet<Rule>();
+
+            foreach (Rule rule in Rules)
+            {
+                ISet<Chain> newChains = new HashSet<Chain>();
+
+                foreach (Chain chain in rule.Chains)
+                {
+                    if (chain.Sequence.Count != 1 || chain.Sequence.FirstOrDefault().As<NonTerminalSymbol>() == null)
+                    {
+                        newChains.Add(chain);
+                    }
+                }
+
+                if (newChains.Any())
+                {
+                    newRules.Add(new Rule(newChains, rule.Target));
+                }
+            }
+
+            ISet<Rule> additionalRules = new HashSet<Rule>();            
+
+            do
+            {
+                ISet<Rule> temp = additionalRules;
+                additionalRules = newRules;
+                newRules = temp;                
+
+                foreach (Rule rule in additionalRules)
+                {
+                    foreach (KeyValuePair<NonTerminalSymbol, ChainRulesTuple> symbolSet in unchangeableSymbolSetMapWithoutKey)
+                    {
+                        if (symbolSet.Value.NonTerminals.Contains(rule.Target))
+                        {
+                            newRules.Add(new Rule(rule.Chains, symbolSet.Key));                            
+                        }
+                    }
+                }
+
+                newRules.UnionWith(additionalRules);
+                newRules = Normalize(newRules);
+
+            } while (!newRules.SetEquals(additionalRules));
+            
+            if (!newRules.SetEquals(Rules))
+            {
+                grammar = new Grammar(newRules, Target);
+
+                return true;
+            }
+
+            grammar = this;
+
+            return false;
         }
 
         public bool RemoveEmptyRules(out Grammar grammar,
@@ -164,6 +292,8 @@ namespace FLaGLib.Data.Grammars
 
                 newRules.Add(rule);
             }
+
+            newRules = Normalize(newRules);
 
             if (!newRules.SetEquals(Rules))
             {

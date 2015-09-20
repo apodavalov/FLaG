@@ -6,6 +6,11 @@ namespace FLaGLib.Extensions
 {
     public static class IEnumerableExtension
     {
+        public static IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> obj)
+        {
+            return obj.ToDictionary(x => x.Key, x => x.Value);
+        }
+
         public static bool AnyNull<T>(this IEnumerable<T> obj) where T : class
         {
             return obj.Any(item => item == null);
