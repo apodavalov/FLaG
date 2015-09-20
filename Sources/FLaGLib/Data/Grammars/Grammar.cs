@@ -570,7 +570,7 @@ namespace FLaGLib.Data.Grammars
 
             } while (isAddedSomething);			
             
-            return newNonTerminalSet.Contains(Target);
+            return !newNonTerminalSet.Contains(Target);
         }
 
         public Grammar Reorganize(IDictionary<NonTerminalSymbol,NonTerminalSymbol> map)
