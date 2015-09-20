@@ -15,7 +15,7 @@ namespace FLaGLib.Data.Grammars
             private set;
         }
 
-        public IReadOnlySet<T> NonTerminalSet
+        public IReadOnlySet<T> SymbolSet
         {
             get;
             private set;
@@ -29,9 +29,9 @@ namespace FLaGLib.Data.Grammars
                 throw new ArgumentNullException(nameof(symbolSet));
             }
             
-            NonTerminalSet = symbolSet.ToHashSet().AsReadOnly();
+            SymbolSet = symbolSet.ToSortedSet().AsReadOnly();
 
-            if (NonTerminalSet.AnyNull())
+            if (SymbolSet.AnyNull())
             {
                 throw new ArgumentException(_AtLeastOneSymbolIsNullMessage, nameof(symbolSet));
             }

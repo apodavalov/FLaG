@@ -2,6 +2,8 @@
 using FLaGLib.Data.Grammars;
 using FLaGLib.Helpers;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FLaGLib.Test.Data.Grammars
 {
@@ -297,13 +299,72 @@ namespace FLaGLib.Test.Data.Grammars
                     )
                 ), s14
             );
-
             
             Grammar actualGrammar;
 
-            Assert.IsTrue(grammar.RemoveEmptyRules(out actualGrammar));
+            GrammarBeginPostReport<NonTerminalSymbol> expectedBegin = new GrammarBeginPostReport<NonTerminalSymbol>(0, EnumerateHelper.Sequence(s10, s11));
+            IReadOnlyList<GrammarIterationPostReport<NonTerminalSymbol>> expectedPostReports = EnumerateHelper.Sequence(
+                new GrammarIterationPostReport<NonTerminalSymbol>(
+                    1, 
+                    EnumerateHelper.Sequence(s10, s11), 
+                    EnumerateHelper.Sequence(s12, s14),
+                    EnumerateHelper.Sequence(s10, s11, s12, s14), 
+                    false
+                ),
+                new GrammarIterationPostReport<NonTerminalSymbol>(
+                    2,
+                    EnumerateHelper.Sequence(s10, s11, s12, s14),
+                    EnumerateHelper.Sequence<NonTerminalSymbol>(),
+                    EnumerateHelper.Sequence(s10, s11, s12, s14),
+                    true
+                )
+            ).ToList().AsReadOnly();
+
+            int actualPostReportCount = 0;
+            bool beginInvoked = false;
+
+            Assert.IsTrue(grammar.RemoveEmptyRules(out actualGrammar,
+                tuple =>
+                { 
+                    Assert.AreEqual(0, actualPostReportCount);
+
+                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked);
+                },
+                tuple =>
+                {
+                    actualPostReportCount = OnTuple(tuple, expectedPostReports, actualPostReportCount);
+                }));
+
+            Assert.AreEqual(expectedPostReports.Count, actualPostReportCount);
+            Assert.IsTrue(beginInvoked);
             Assert.AreEqual(expectedGrammar, actualGrammar);
-            Assert.Fail("Not fully implemented.");
+        }
+
+        private bool OnTuple<T>(GrammarBeginPostReport<T> actualCurrentIteration, GrammarBeginPostReport<T> expectedCurrentIteration, bool beginInvoked) where T : Symbol
+        {
+            Assert.IsFalse(beginInvoked);
+
+            Assert.AreEqual(expectedCurrentIteration.Iteration, actualCurrentIteration.Iteration);
+
+            CollectionAssert.AreEquivalent(expectedCurrentIteration.SymbolSet, actualCurrentIteration.SymbolSet);
+
+            return true;
+        }
+
+        private int OnTuple<T>(GrammarIterationPostReport<T> actualCurrentIteration, IReadOnlyList<GrammarIterationPostReport<T>> expectedIterations, int actualPostReportProcessedCount) where T : Symbol
+        {
+            Assert.IsTrue(actualPostReportProcessedCount < expectedIterations.Count);
+
+            GrammarIterationPostReport<T> expectedCurrentIteration = expectedIterations[actualPostReportProcessedCount];
+
+            Assert.AreEqual(expectedCurrentIteration.Iteration, actualCurrentIteration.Iteration);
+            Assert.AreEqual(expectedCurrentIteration.IsLastIteration, actualCurrentIteration.IsLastIteration);
+
+            CollectionAssert.AreEquivalent(expectedCurrentIteration.NewSymbolSet, actualCurrentIteration.NewSymbolSet);
+            CollectionAssert.AreEquivalent(expectedCurrentIteration.NextSymbolSet, actualCurrentIteration.NextSymbolSet);
+            CollectionAssert.AreEquivalent(expectedCurrentIteration.PreviousSymbolSet, actualCurrentIteration.PreviousSymbolSet);
+
+            return actualPostReportProcessedCount + 1;
         }
     }
 }

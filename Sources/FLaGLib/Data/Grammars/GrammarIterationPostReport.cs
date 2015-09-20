@@ -60,9 +60,9 @@ namespace FLaGLib.Data.Grammars
                 throw new ArgumentNullException(nameof(nextSymbolSet));
             }
 
-            PreviousSymbolSet = previousSymbolSet.ToHashSet().AsReadOnly();
-            NewSymbolSet = newSymbolSet.ToHashSet().AsReadOnly();
-            NextSymbolSet = nextSymbolSet.ToHashSet().AsReadOnly();
+            PreviousSymbolSet = previousSymbolSet.ToSortedSet().AsReadOnly();
+            NewSymbolSet = newSymbolSet.ToSortedSet().AsReadOnly();
+            NextSymbolSet = nextSymbolSet.ToSortedSet().AsReadOnly();
 
             if (PreviousSymbolSet.AnyNull())
             {
