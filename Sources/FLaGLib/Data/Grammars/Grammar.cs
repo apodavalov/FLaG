@@ -71,35 +71,40 @@ namespace FLaGLib.Data.Grammars
             return rules.GroupBy(r => r.Target).Select(g => new Rule(g.SelectMany(r => r.Chains), g.Key)).ToHashSet();
         }
 
-        public bool RemoveChainRules(out Grammar grammar)
+        public bool RemoveChainRules(out Grammar grammar,
+            Action<ChainRulesBeginPostReport> onBegin = null,
+            Action<ChainRulesIterationPostReport> onIterate = null)
         {
-            IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> symbolSetMap =
-                new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>();
+            IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> newSymbolSetMap =
+                NonTerminals.ToDictionary(s => s, 
+                    s => new HashSet<NonTerminalSymbol>(s.AsSequence()).Of<ISet<NonTerminalSymbol>>());
 
-            IDictionary<NonTerminalSymbol, bool> symbolChangedMap =
-                new Dictionary<NonTerminalSymbol, bool>();
+            IDictionary<NonTerminalSymbol, ChainRulesTuple> unchangeableSymbolSetMap = 
+                new Dictionary<NonTerminalSymbol, ChainRulesTuple>();
 
-            foreach (NonTerminalSymbol nonTerminalSymbol in NonTerminals)
-            {
-                symbolSetMap[nonTerminalSymbol] = new HashSet<NonTerminalSymbol>(nonTerminalSymbol.AsSequence());
-            }
-
-            IDictionary<NonTerminalSymbol, ChainRulesTuple> unchangeableSymbolSetMap = new Dictionary<NonTerminalSymbol, ChainRulesTuple>();
             IDictionary<NonTerminalSymbol, Rule> targetRuleMap = Rules.ToDictionary(r => r.Target);
 
-            // IReadOnlyDictionary<NonTerminalSymbol,IReadOnlySet<NonTerminalSet>> - symbolSetMap
+            if (onBegin != null)
+            {
+                onBegin(new ChainRulesBeginPostReport(0, newSymbolSetMap));
+            }
 
             int i = 0;
+
+            bool somethingChanged;
 
             do
             {
                 i++;
-                
-                foreach (KeyValuePair<NonTerminalSymbol, ISet<NonTerminalSymbol>> symbolSet in symbolSetMap)
-                {
-                    symbolChangedMap[symbolSet.Key] = false;
 
-                    foreach (NonTerminalSymbol nonTerminalSymbol in symbolSet.Value)
+                somethingChanged = false;
+
+                IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> nextSymbolSetMap = newSymbolSetMap;
+                newSymbolSetMap = nextSymbolSetMap.Keys.ToDictionary(s => s, s => new HashSet<NonTerminalSymbol>().Of<ISet<NonTerminalSymbol>>()); 
+                
+                foreach (KeyValuePair<NonTerminalSymbol, ISet<NonTerminalSymbol>> nextSymbolSet in nextSymbolSetMap)
+                {
+                    foreach (NonTerminalSymbol nonTerminalSymbol in nextSymbolSet.Value)
                     {
                         if (targetRuleMap.ContainsKey(nonTerminalSymbol))
                         {
@@ -108,30 +113,51 @@ namespace FLaGLib.Data.Grammars
                             foreach (Chain chain in rule.Chains.Where(c => c.Sequence.Count == 1))
                             {
                                 NonTerminalSymbol symbol = chain.Sequence.First().As<NonTerminalSymbol>();
-                                if (symbol != null && symbolSet.Value.Add(symbol))
+                                ISet<NonTerminalSymbol> newSymbolSet = newSymbolSetMap[nextSymbolSet.Key];
+                                if (symbol != null && !newSymbolSet.Contains(symbol) && !nextSymbolSet.Value.Contains(symbol))
                                 {
-                                    symbolChangedMap[symbolSet.Key] = true;                                        
+                                    newSymbolSet.Add(symbol);
+                                    somethingChanged = true;
                                 }
                             }
                         }
                     }
                 }
 
-                // Save old symbolSetMap
+                IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> previousSymbolSetMap = nextSymbolSetMap.ToDictionary();
+                IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> notBeConsideredOnTheNextStepSymbolSetMap = new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>();
+                IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> beConsideredOnTheNextStepSymbolSetMap = new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>();
 
-                foreach (KeyValuePair<NonTerminalSymbol, bool> symbolChanged in symbolChangedMap)
+                foreach (KeyValuePair<NonTerminalSymbol, ISet<NonTerminalSymbol>> symbolSet in previousSymbolSetMap)
                 {
-                    if (!symbolChanged.Value)
+                    ISet<NonTerminalSymbol> newSymbolSet = newSymbolSetMap[symbolSet.Key];
+
+                    if (newSymbolSet.Count == 0)
                     {
-                        unchangeableSymbolSetMap[symbolChanged.Key] = new ChainRulesTuple(symbolSetMap[symbolChanged.Key], i);
-                        symbolSetMap.Remove(symbolChanged.Key);
+                        unchangeableSymbolSetMap[symbolSet.Key] = new ChainRulesTuple(nextSymbolSetMap[symbolSet.Key], i);
+                        notBeConsideredOnTheNextStepSymbolSetMap[symbolSet.Key] = symbolSet.Value;
+                        nextSymbolSetMap.Remove(symbolSet.Key);
+                    }
+                    else
+                    {
+                        ISet<NonTerminalSymbol> nextSymbolSet = nextSymbolSetMap[symbolSet.Key];
+                        nextSymbolSet.UnionWith(newSymbolSet);
+                        beConsideredOnTheNextStepSymbolSetMap[symbolSet.Key] = nextSymbolSet;
                     }
                 }
 
-                // oldSymbolSetMap, nextSymbolSetMap, leaveSymbolSetMap (unchangeableSymbolSetMap)
+                if (onIterate != null)
+                {
+                    onIterate(new ChainRulesIterationPostReport(i,
+                        previousSymbolSetMap, 
+                        newSymbolSetMap,
+                        beConsideredOnTheNextStepSymbolSetMap, 
+                        notBeConsideredOnTheNextStepSymbolSetMap, 
+                        !somethingChanged));
+                }
 
-                symbolChangedMap.Clear();                
-            } while (symbolSetMap.Any());
+                newSymbolSetMap = beConsideredOnTheNextStepSymbolSetMap;
+            } while (somethingChanged);
 
             IDictionary<NonTerminalSymbol, ChainRulesTuple> unchangeableSymbolSetMapWithoutKey = unchangeableSymbolSetMap
                 .Select(kv => 
@@ -200,8 +226,8 @@ namespace FLaGLib.Data.Grammars
         }
 
         public bool RemoveEmptyRules(out Grammar grammar,
-            Action<GrammarBeginPostReport<NonTerminalSymbol>> onBegin = null,
-            Action<GrammarIterationPostReport<NonTerminalSymbol>> onIterate = null)
+            Action<BeginPostReport<NonTerminalSymbol>> onBegin = null,
+            Action<IterationPostReport<NonTerminalSymbol>> onIterate = null)
         {
             int i = 0;
 
@@ -209,7 +235,7 @@ namespace FLaGLib.Data.Grammars
 
             if (onBegin != null)
             {
-                onBegin(new GrammarBeginPostReport<NonTerminalSymbol>(i, newSymbolSet));
+                onBegin(new BeginPostReport<NonTerminalSymbol>(i, newSymbolSet));
             }
 
             bool isAddedSomething;
@@ -255,7 +281,7 @@ namespace FLaGLib.Data.Grammars
 
                 if (onIterate != null)
                 {
-                    onIterate(new GrammarIterationPostReport<NonTerminalSymbol>(i,
+                    onIterate(new IterationPostReport<NonTerminalSymbol>(i,
                         previousSymbolSet, newSymbolSet, nextSymbolSet, !isAddedSomething));
                 }
 
@@ -364,8 +390,8 @@ namespace FLaGLib.Data.Grammars
         }
 
         public bool RemoveUnreachableSymbols(out Grammar grammar,
-            Action<GrammarBeginPostReport<Symbol>> onBegin = null,
-            Action<GrammarIterationPostReport<Symbol>> onIterate = null)
+            Action<BeginPostReport<Symbol>> onBegin = null,
+            Action<IterationPostReport<Symbol>> onIterate = null)
         {
             int i = 0;
 
@@ -374,7 +400,7 @@ namespace FLaGLib.Data.Grammars
 
             if (onBegin != null)
             {
-                onBegin(new GrammarBeginPostReport<Symbol>(i, newSymbolSet));
+                onBegin(new BeginPostReport<Symbol>(i, newSymbolSet));
             }
 
             IDictionary<NonTerminalSymbol,Rule> targetRuleMap = Rules.ToDictionary(r => r.Target);
@@ -415,7 +441,7 @@ namespace FLaGLib.Data.Grammars
 
                 if (onIterate != null)
                 {
-                    onIterate(new GrammarIterationPostReport<Symbol>(i,
+                    onIterate(new IterationPostReport<Symbol>(i,
                         previousSymbolSet, newSymbolSet, nextSymbolSet, !isAddedSomething));
                 }
 
@@ -438,8 +464,8 @@ namespace FLaGLib.Data.Grammars
         }
 
         public bool RemoveUselessSymbols(out Grammar grammar, 
-            Action<GrammarBeginPostReport<NonTerminalSymbol>> onBegin = null,
-            Action<GrammarIterationPostReport<NonTerminalSymbol>> onIterate = null)
+            Action<BeginPostReport<NonTerminalSymbol>> onBegin = null,
+            Action<IterationPostReport<NonTerminalSymbol>> onIterate = null)
         {
             int i = 0;
 
@@ -447,7 +473,7 @@ namespace FLaGLib.Data.Grammars
             
             if (onBegin != null)
             {
-                onBegin(new GrammarBeginPostReport<NonTerminalSymbol>(i, newNonTerminalSet));
+                onBegin(new BeginPostReport<NonTerminalSymbol>(i, newNonTerminalSet));
             }
 
             bool isAddedSomething;
@@ -481,7 +507,7 @@ namespace FLaGLib.Data.Grammars
 
                 if (onIterate != null)
                 {
-                    onIterate(new GrammarIterationPostReport<NonTerminalSymbol>(i,
+                    onIterate(new IterationPostReport<NonTerminalSymbol>(i,
                         previousNonTerminalSet, newNonTerminalSet, nextNonTerminalSet, !isAddedSomething));
                 }
 
@@ -535,8 +561,8 @@ namespace FLaGLib.Data.Grammars
             return nonTerminalSymbol == null || nonTerminalSet.Contains(nonTerminalSymbol);
         }
 
-        public bool IsLangEmpty(Action<GrammarBeginPostReport<NonTerminalSymbol>> onBegin = null,
-                            Action<GrammarIterationPostReport<NonTerminalSymbol>> onIterate = null)
+        public bool IsLangEmpty(Action<BeginPostReport<NonTerminalSymbol>> onBegin = null,
+                            Action<IterationPostReport<NonTerminalSymbol>> onIterate = null)
         {
             int i = 0;
 
@@ -544,7 +570,7 @@ namespace FLaGLib.Data.Grammars
 
             if (onBegin != null)
             {
-                onBegin(new GrammarBeginPostReport<NonTerminalSymbol>(i, newNonTerminalSet));
+                onBegin(new BeginPostReport<NonTerminalSymbol>(i, newNonTerminalSet));
             }
             
             bool isAddedSomething;
@@ -592,7 +618,7 @@ namespace FLaGLib.Data.Grammars
 
                 if (onIterate != null)
                 {
-                    onIterate(new GrammarIterationPostReport<NonTerminalSymbol>(i, 
+                    onIterate(new IterationPostReport<NonTerminalSymbol>(i, 
                         previousNonTerminalSet, newNonTerminalSet, nextNonTerminalSet, !isAddedSomething));
                 }
 

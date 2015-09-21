@@ -6,6 +6,56 @@ namespace FLaGLib.Extensions
 {
     public static class IEnumerableExtension
     {
+        public static SortedDictionary<TKey, TSource> ToSortedDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            if (keySelector == null)
+            {
+                throw new ArgumentNullException(nameof(keySelector));
+            }
+
+            SortedDictionary<TKey, TSource> result = new SortedDictionary<TKey, TSource>();
+
+            foreach (TSource item in source)
+            {
+                result.Add(keySelector(item), item);
+            }
+
+            return result;
+
+        }
+
+        public static SortedDictionary<TKey, TElement> ToSortedDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            if (keySelector == null)
+            {
+                throw new ArgumentNullException(nameof(keySelector));
+            }
+
+            if (elementSelector == null)
+            {
+                throw new ArgumentNullException(nameof(elementSelector));
+            }
+
+            SortedDictionary<TKey, TElement> result = new SortedDictionary<TKey, TElement>();
+
+            foreach (TSource item in source)
+            {
+                result.Add(keySelector(item),elementSelector(item));
+            }
+
+            return result;
+        }
+
         public static IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> obj)
         {
             return obj.ToDictionary(x => x.Key, x => x.Value);

@@ -109,23 +109,23 @@ namespace FLaGLib.Test.Data.Grammars
 
             Grammar actualGrammar;
 
-            GrammarBeginPostReport<Symbol> expectedBegin = new GrammarBeginPostReport<Symbol>(0, EnumerateHelper.Sequence(s1));
-            IReadOnlyList<GrammarIterationPostReport<Symbol>> expectedPostReports = EnumerateHelper.Sequence(
-                new GrammarIterationPostReport<Symbol>(
+            BeginPostReport<Symbol> expectedBegin = new BeginPostReport<Symbol>(0, EnumerateHelper.Sequence(s1));
+            IReadOnlyList<IterationPostReport<Symbol>> expectedPostReports = EnumerateHelper.Sequence(
+                new IterationPostReport<Symbol>(
                     1,
                     EnumerateHelper.Sequence(s1),
                     EnumerateHelper.Sequence(s2,s3,s4,s5),
                     EnumerateHelper.Sequence(s1,s2,s3,s4,s5),
                     false
                 ),
-                new GrammarIterationPostReport<Symbol>(
+                new IterationPostReport<Symbol>(
                     2,
                     EnumerateHelper.Sequence(s1, s2, s3, s4, s5),
                     EnumerateHelper.Sequence<Symbol>(s6,s7,c),
                     EnumerateHelper.Sequence<Symbol>(s1, s2, s3, s4, s5, s6, s7, c),
                     false
                 ),
-                new GrammarIterationPostReport<Symbol>(
+                new IterationPostReport<Symbol>(
                     3,
                     EnumerateHelper.Sequence<Symbol>(s1, s2, s3, s4, s5, s6, s7, c),
                     EnumerateHelper.Sequence<Symbol>(),
@@ -226,23 +226,23 @@ namespace FLaGLib.Test.Data.Grammars
 
             Grammar actualGrammar;
 
-            GrammarBeginPostReport<NonTerminalSymbol> expectedBegin = new GrammarBeginPostReport<NonTerminalSymbol>(0, EnumerateHelper.Sequence<NonTerminalSymbol>());
-            IReadOnlyList<GrammarIterationPostReport<NonTerminalSymbol>> expectedPostReports = EnumerateHelper.Sequence(
-                new GrammarIterationPostReport<NonTerminalSymbol>(
+            BeginPostReport<NonTerminalSymbol> expectedBegin = new BeginPostReport<NonTerminalSymbol>(0, EnumerateHelper.Sequence<NonTerminalSymbol>());
+            IReadOnlyList<IterationPostReport<NonTerminalSymbol>> expectedPostReports = EnumerateHelper.Sequence(
+                new IterationPostReport<NonTerminalSymbol>(
                     1,
                     EnumerateHelper.Sequence<NonTerminalSymbol>(),
                     EnumerateHelper.Sequence(s2),
                     EnumerateHelper.Sequence(s2),
                     false
                 ),
-                new GrammarIterationPostReport<NonTerminalSymbol>(
+                new IterationPostReport<NonTerminalSymbol>(
                     2,
                     EnumerateHelper.Sequence(s2),
                     EnumerateHelper.Sequence(s1),
                     EnumerateHelper.Sequence(s1,s2),
                     false
                 ),
-                new GrammarIterationPostReport<NonTerminalSymbol>(
+                new IterationPostReport<NonTerminalSymbol>(
                     3,
                     EnumerateHelper.Sequence(s1, s2),
                     EnumerateHelper.Sequence<NonTerminalSymbol>(),
@@ -563,16 +563,16 @@ namespace FLaGLib.Test.Data.Grammars
             
             Grammar actualGrammar;
 
-            GrammarBeginPostReport<NonTerminalSymbol> expectedBegin = new GrammarBeginPostReport<NonTerminalSymbol>(0, EnumerateHelper.Sequence(s10, s11));
-            IReadOnlyList<GrammarIterationPostReport<NonTerminalSymbol>> expectedPostReports = EnumerateHelper.Sequence(
-                new GrammarIterationPostReport<NonTerminalSymbol>(
+            BeginPostReport<NonTerminalSymbol> expectedBegin = new BeginPostReport<NonTerminalSymbol>(0, EnumerateHelper.Sequence(s10, s11));
+            IReadOnlyList<IterationPostReport<NonTerminalSymbol>> expectedPostReports = EnumerateHelper.Sequence(
+                new IterationPostReport<NonTerminalSymbol>(
                     1, 
                     EnumerateHelper.Sequence(s10, s11), 
                     EnumerateHelper.Sequence(s12, s14),
                     EnumerateHelper.Sequence(s10, s11, s12, s14), 
                     false
                 ),
-                new GrammarIterationPostReport<NonTerminalSymbol>(
+                new IterationPostReport<NonTerminalSymbol>(
                     2,
                     EnumerateHelper.Sequence(s10, s11, s12, s14),
                     EnumerateHelper.Sequence<NonTerminalSymbol>(),
@@ -741,30 +741,30 @@ namespace FLaGLib.Test.Data.Grammars
                 ), s14
             );
             
-            GrammarBeginPostReport<NonTerminalSymbol> expectedBegin = new GrammarBeginPostReport<NonTerminalSymbol>(0, Enumerable.Empty<NonTerminalSymbol>());
-            IReadOnlyList<GrammarIterationPostReport<NonTerminalSymbol>> expectedPostReports = EnumerateHelper.Sequence(
-                new GrammarIterationPostReport<NonTerminalSymbol>(
+            BeginPostReport<NonTerminalSymbol> expectedBegin = new BeginPostReport<NonTerminalSymbol>(0, Enumerable.Empty<NonTerminalSymbol>());
+            IReadOnlyList<IterationPostReport<NonTerminalSymbol>> expectedPostReports = EnumerateHelper.Sequence(
+                new IterationPostReport<NonTerminalSymbol>(
                     1,
                     EnumerateHelper.Sequence<NonTerminalSymbol>(),
                     EnumerateHelper.Sequence(s1, s3, s10, s11),
                     EnumerateHelper.Sequence(s1, s3, s10, s11),
                     false
                 ),
-                new GrammarIterationPostReport<NonTerminalSymbol>(
+                new IterationPostReport<NonTerminalSymbol>(
                     2,
                     EnumerateHelper.Sequence(s1, s3, s10, s11),
                     EnumerateHelper.Sequence(s2, s4, s5, s12, s14),
                     EnumerateHelper.Sequence(s1, s2, s3, s4, s5, s10, s11, s12, s14),
                     false
                 ),
-                new GrammarIterationPostReport<NonTerminalSymbol>(
+                new IterationPostReport<NonTerminalSymbol>(
                     3,
                     EnumerateHelper.Sequence(s1, s2, s3, s4, s5, s10, s11, s12, s14),
                     EnumerateHelper.Sequence(s6),
                     EnumerateHelper.Sequence(s1, s2, s3, s4, s5, s6, s10, s11, s12, s14),
                     false
                 ),
-                new GrammarIterationPostReport<NonTerminalSymbol>(
+                new IterationPostReport<NonTerminalSymbol>(
                     4,
                     EnumerateHelper.Sequence(s1, s2, s3, s4, s5, s6, s10, s11, s12, s14),
                     EnumerateHelper.Sequence<NonTerminalSymbol>(),
@@ -792,7 +792,7 @@ namespace FLaGLib.Test.Data.Grammars
             Assert.IsTrue(beginInvoked);
         }
 
-        private bool OnTuple<T>(GrammarBeginPostReport<T> actualCurrentIteration, GrammarBeginPostReport<T> expectedCurrentIteration, bool beginInvoked) where T : Symbol
+        private bool OnTuple<T>(BeginPostReport<T> actualCurrentIteration, BeginPostReport<T> expectedCurrentIteration, bool beginInvoked) where T : Symbol
         {
             Assert.IsFalse(beginInvoked);
 
@@ -803,11 +803,11 @@ namespace FLaGLib.Test.Data.Grammars
             return true;
         }
 
-        private int OnTuple<T>(GrammarIterationPostReport<T> actualCurrentIteration, IReadOnlyList<GrammarIterationPostReport<T>> expectedIterations, int actualPostReportProcessedCount) where T : Symbol
+        private int OnTuple<T>(IterationPostReport<T> actualCurrentIteration, IReadOnlyList<IterationPostReport<T>> expectedIterations, int actualPostReportProcessedCount) where T : Symbol
         {
             Assert.IsTrue(actualPostReportProcessedCount < expectedIterations.Count);
 
-            GrammarIterationPostReport<T> expectedCurrentIteration = expectedIterations[actualPostReportProcessedCount];
+            IterationPostReport<T> expectedCurrentIteration = expectedIterations[actualPostReportProcessedCount];
 
             Assert.AreEqual(expectedCurrentIteration.Iteration, actualCurrentIteration.Iteration);
             Assert.AreEqual(expectedCurrentIteration.IsLastIteration, actualCurrentIteration.IsLastIteration);

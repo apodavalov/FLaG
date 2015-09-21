@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace FLaGLib.Data.Grammars
 {
-    public class GrammarIterationPostReport<T> where T : Symbol
+    public class IterationPostReport<T> where T : Symbol
     {
         private const string _AtLeastOneSymbolIsNullMessage = "At least one symbol is null.";
 
@@ -39,7 +39,7 @@ namespace FLaGLib.Data.Grammars
             private set;
         }
 
-        public GrammarIterationPostReport(int iteration, 
+        public IterationPostReport(int iteration, 
             IEnumerable<T> previousSymbolSet,
             IEnumerable<T> newSymbolSet,
             IEnumerable<T> nextSymbolSet,
