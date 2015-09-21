@@ -68,7 +68,7 @@ namespace FLaGLib.Data.Grammars
 
         private static ISet<Rule> Normalize(IEnumerable<Rule> rules)
         {
-            return rules.GroupBy(r => r.Target).Select(g => new Rule(g.SelectMany(r => r.Chains), g.Key)).ToHashSet();
+            return rules.GroupBy(r => r.Target).Select(g => new Rule(g.SelectMany(r => r.Chains), g.Key)).ToSortedSet();
         }
 
         public bool RemoveChainRules(out Grammar grammar,
@@ -92,13 +92,9 @@ namespace FLaGLib.Data.Grammars
 
             int i = 0;
 
-            bool somethingChanged;
-
             do
             {
                 i++;
-
-                somethingChanged = false;
 
                 IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> nextSymbolSetMap = newSymbolSetMap;
                 newSymbolSetMap = nextSymbolSetMap.Keys.ToDictionary(s => s, s => new HashSet<NonTerminalSymbol>().Of<ISet<NonTerminalSymbol>>()); 
@@ -118,14 +114,13 @@ namespace FLaGLib.Data.Grammars
                                 if (symbol != null && !newSymbolSet.Contains(symbol) && !nextSymbolSet.Value.Contains(symbol))
                                 {
                                     newSymbolSet.Add(symbol);
-                                    somethingChanged = true;
                                 }
                             }
                         }
                     }
                 }
 
-                IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> previousSymbolSetMap = nextSymbolSetMap.ToDictionary();
+                IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> previousSymbolSetMap = nextSymbolSetMap.ToDictionary(kv => kv.Key, kv => kv.Value.ToHashSet().Of<ISet<NonTerminalSymbol>>());
                 IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> notBeConsideredOnTheNextStepSymbolSetMap = new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>();
                 IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> beConsideredOnTheNextStepSymbolSetMap = new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>();
 
@@ -153,12 +148,12 @@ namespace FLaGLib.Data.Grammars
                         previousSymbolSetMap, 
                         newSymbolSetMap,
                         beConsideredOnTheNextStepSymbolSetMap, 
-                        notBeConsideredOnTheNextStepSymbolSetMap, 
-                        !somethingChanged));
+                        notBeConsideredOnTheNextStepSymbolSetMap,
+                        beConsideredOnTheNextStepSymbolSetMap.Count == 0));
                 }
 
                 newSymbolSetMap = beConsideredOnTheNextStepSymbolSetMap;
-            } while (somethingChanged);
+            } while (newSymbolSetMap.Count > 0);
 
             IDictionary<NonTerminalSymbol, ChainRulesTuple> unchangeableSymbolSetMapWithoutKey = unchangeableSymbolSetMap
                 .Select(kv => 

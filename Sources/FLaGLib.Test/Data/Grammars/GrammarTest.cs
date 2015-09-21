@@ -1,5 +1,7 @@
-﻿using FLaGLib.Data;
+﻿using FLaGLib.Collections;
+using FLaGLib.Data;
 using FLaGLib.Data.Grammars;
+using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -10,6 +12,370 @@ namespace FLaGLib.Test.Data.Grammars
     [TestFixture]
     public class GrammarTest
     {
+        [Test]
+        public void RemoveChainRulesTest_Ok()
+        {
+            NonTerminalSymbol s1 = new NonTerminalSymbol(new Label(new SingleLabel('S', 1)));
+            NonTerminalSymbol s2 = new NonTerminalSymbol(new Label(new SingleLabel('S', 2)));
+            NonTerminalSymbol s3 = new NonTerminalSymbol(new Label(new SingleLabel('S', 3)));
+            NonTerminalSymbol s4 = new NonTerminalSymbol(new Label(new SingleLabel('S', 4)));
+            NonTerminalSymbol s5 = new NonTerminalSymbol(new Label(new SingleLabel('S', 5)));
+
+            TerminalSymbol c = new TerminalSymbol('c');
+
+            Grammar grammar = new Grammar(
+                EnumerateHelper.Sequence(
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    s2
+                                )
+                            )
+                        ), s1
+                    ),
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    s3
+                                )
+                            )
+                        ), s2
+                    ),
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    s4
+                                )
+                            )
+                        ), s3
+                    ),
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    s5
+                                )
+                            )
+                        ), s4
+                    ),
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    c
+                                )
+                            )
+                        ), s5
+                    )
+                ), s1
+            );
+
+            Grammar expectedGrammar = new Grammar(
+               EnumerateHelper.Sequence(
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    c
+                                )
+                            )
+                        ), s1
+                    ),
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    c
+                                )
+                            )
+                        ), s2
+                    ),
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    c
+                                )
+                            )
+                        ), s3
+                    ),
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    c
+                                )
+                            )
+                        ), s4
+                    ),
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    c
+                                )
+                            )
+                        ), s5
+                    )
+                ), s1
+            );
+
+            Grammar actualGrammar;
+
+            ChainRulesBeginPostReport expectedBegin = new ChainRulesBeginPostReport(0, 
+                new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                {
+                    { s1, EnumerateHelper.Sequence(s1).ToHashSet() },
+                    { s2, EnumerateHelper.Sequence(s2).ToHashSet() },
+                    { s3, EnumerateHelper.Sequence(s3).ToHashSet() },
+                    { s4, EnumerateHelper.Sequence(s4).ToHashSet() },
+                    { s5, EnumerateHelper.Sequence(s5).ToHashSet() }
+                });
+
+            IReadOnlyList<ChainRulesIterationPostReport> expectedIterationPostReports = EnumerateHelper.Sequence(
+                new ChainRulesIterationPostReport(
+                    1,
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s1, EnumerateHelper.Sequence(s1).ToHashSet() },
+                        { s2, EnumerateHelper.Sequence(s2).ToHashSet() },
+                        { s3, EnumerateHelper.Sequence(s3).ToHashSet() },
+                        { s4, EnumerateHelper.Sequence(s4).ToHashSet() },
+                        { s5, EnumerateHelper.Sequence(s5).ToHashSet() }
+                    },
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s1, EnumerateHelper.Sequence(s2).ToHashSet() },
+                        { s2, EnumerateHelper.Sequence(s3).ToHashSet() },
+                        { s3, EnumerateHelper.Sequence(s4).ToHashSet() },
+                        { s4, EnumerateHelper.Sequence(s5).ToHashSet() },
+                        { s5, EnumerateHelper.Sequence<NonTerminalSymbol>().ToHashSet() }
+                    },
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s1, EnumerateHelper.Sequence(s1,s2).ToHashSet() },
+                        { s2, EnumerateHelper.Sequence(s2,s3).ToHashSet() },
+                        { s3, EnumerateHelper.Sequence(s3,s4).ToHashSet() },
+                        { s4, EnumerateHelper.Sequence(s4,s5).ToHashSet() }
+                    },
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s5, EnumerateHelper.Sequence(s5).ToHashSet() }
+                    },
+                    false
+                ),
+                new ChainRulesIterationPostReport(
+                    2,
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s1, EnumerateHelper.Sequence(s1,s2).ToHashSet() },
+                        { s2, EnumerateHelper.Sequence(s2,s3).ToHashSet() },
+                        { s3, EnumerateHelper.Sequence(s3,s4).ToHashSet() },
+                        { s4, EnumerateHelper.Sequence(s4,s5).ToHashSet() }
+                    },
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s1, EnumerateHelper.Sequence(s3).ToHashSet() },
+                        { s2, EnumerateHelper.Sequence(s4).ToHashSet() },
+                        { s3, EnumerateHelper.Sequence(s5).ToHashSet() },
+                        { s4, EnumerateHelper.Sequence<NonTerminalSymbol>().ToHashSet() }
+                    },
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s1, EnumerateHelper.Sequence(s1,s2,s3).ToHashSet() },
+                        { s2, EnumerateHelper.Sequence(s2,s3,s4).ToHashSet() },
+                        { s3, EnumerateHelper.Sequence(s3,s4,s5).ToHashSet() }
+                    },
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s4, EnumerateHelper.Sequence(s4,s5).ToHashSet() }
+                    },
+                    false
+                ),
+                new ChainRulesIterationPostReport(
+                    3,
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s1, EnumerateHelper.Sequence(s1,s2,s3).ToHashSet() },
+                        { s2, EnumerateHelper.Sequence(s2,s3,s4).ToHashSet() },
+                        { s3, EnumerateHelper.Sequence(s3,s4,s5).ToHashSet() }
+                    },
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s1, EnumerateHelper.Sequence(s4).ToHashSet() },
+                        { s2, EnumerateHelper.Sequence(s5).ToHashSet() },
+                        { s3, EnumerateHelper.Sequence<NonTerminalSymbol>().ToHashSet() }
+                    },
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s1, EnumerateHelper.Sequence(s1,s2,s3,s4).ToHashSet() },
+                        { s2, EnumerateHelper.Sequence(s2,s3,s4,s5).ToHashSet() }
+                    },
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s3, EnumerateHelper.Sequence(s3,s4,s5).ToHashSet() }
+                    },
+                    false
+                ),
+                new ChainRulesIterationPostReport(
+                    4,
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s1, EnumerateHelper.Sequence(s1,s2,s3,s4).ToHashSet() },
+                        { s2, EnumerateHelper.Sequence(s2,s3,s4,s5).ToHashSet() }
+                    },
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s1, EnumerateHelper.Sequence(s5).ToHashSet() },
+                        { s2, EnumerateHelper.Sequence<NonTerminalSymbol>().ToHashSet() }
+                    },
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s1, EnumerateHelper.Sequence(s1,s2,s3,s4,s5).ToHashSet() }
+                    },
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s2, EnumerateHelper.Sequence(s2,s3,s4,s5).ToHashSet() }
+                    },
+                    false
+                ),
+                new ChainRulesIterationPostReport(
+                    5,
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s1, EnumerateHelper.Sequence(s1,s2,s3,s4,s5).ToHashSet() }
+                    },
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s1, EnumerateHelper.Sequence<NonTerminalSymbol>().ToHashSet() }
+                    },
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+
+                    },
+                    new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>
+                    {
+                        { s1, EnumerateHelper.Sequence(s1,s2,s3,s4,s5).ToHashSet() }
+                    },
+                    true
+                )
+            ).ToList().AsReadOnly();
+
+            ChainRulesEndPostReport expectedEnd = new ChainRulesEndPostReport(
+                new Dictionary<NonTerminalSymbol, ChainRulesTuple>
+                {
+                    { s1, new ChainRulesTuple(EnumerateHelper.Sequence(s1,s2,s3,s4,s5).ToHashSet(), 5) },
+                    { s2, new ChainRulesTuple(EnumerateHelper.Sequence(s2,s3,s4,s5).ToHashSet(), 4) },
+                    { s3, new ChainRulesTuple(EnumerateHelper.Sequence(s3,s4,s5).ToHashSet(), 3) },
+                    { s4, new ChainRulesTuple(EnumerateHelper.Sequence(s4,s5).ToHashSet(), 2) },
+                    { s5, new ChainRulesTuple(EnumerateHelper.Sequence(s5).ToHashSet(), 1) }
+                },
+                new Dictionary<NonTerminalSymbol, ChainRulesTuple>
+                {
+                    { s1, new ChainRulesTuple(EnumerateHelper.Sequence(s2,s3,s4,s5).ToHashSet(), 5) },
+                    { s2, new ChainRulesTuple(EnumerateHelper.Sequence(s3,s4,s5).ToHashSet(), 4) },
+                    { s3, new ChainRulesTuple(EnumerateHelper.Sequence(s4,s5).ToHashSet(), 3) },
+                    { s4, new ChainRulesTuple(EnumerateHelper.Sequence(s5).ToHashSet(), 2) },
+                    { s5, new ChainRulesTuple(EnumerateHelper.Sequence<NonTerminalSymbol>().ToHashSet(), 1) }
+                }
+            );
+
+            int actualPostReportCount = 0;
+            bool beginInvoked = false;
+            bool endInvoked = false;
+
+            Assert.IsTrue(grammar.RemoveChainRules(out actualGrammar,
+                tuple =>
+                {
+                    Assert.AreEqual(0, actualPostReportCount);
+
+                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked, endInvoked, actualPostReportCount);
+                },
+                tuple =>
+                {
+                    actualPostReportCount = OnTuple(tuple, expectedIterationPostReports, beginInvoked, endInvoked, actualPostReportCount);
+                },
+                tuple =>
+                {
+                    endInvoked = OnTuple(tuple, expectedEnd, beginInvoked, endInvoked, actualPostReportCount, expectedIterationPostReports.Count);
+                }));
+
+            Assert.AreEqual(expectedIterationPostReports.Count, actualPostReportCount);
+            Assert.IsTrue(beginInvoked);
+            Assert.IsTrue(endInvoked);
+            Assert.AreEqual(expectedGrammar, actualGrammar);
+        }
+
+        private bool OnTuple(ChainRulesBeginPostReport actualBegin, ChainRulesBeginPostReport expectedBegin, bool beginInvoked, bool endInvoked, int actualPostReportProcessedCount)
+        {
+            Assert.IsFalse(beginInvoked);
+            Assert.IsFalse(endInvoked);
+            Assert.AreEqual(0, actualPostReportProcessedCount);
+
+            Assert.AreEqual(expectedBegin.Iteration, actualBegin.Iteration);
+            AssertSymbolMap(expectedBegin.SymbolMap, actualBegin.SymbolMap);
+
+            return true;
+        }
+
+        private void AssertSymbolMap(IReadOnlyDictionary<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> expected, IReadOnlyDictionary<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> actual)
+        {
+            CollectionAssert.AreEquivalent(expected.Keys, actual.Keys);
+
+            foreach (NonTerminalSymbol symbol in expected.Keys)
+            {
+                CollectionAssert.AreEquivalent(expected[symbol], actual[symbol]);
+            }
+        }
+
+        private void AssertSymbolMap(IReadOnlyDictionary<NonTerminalSymbol, ChainRulesTuple> expected, IReadOnlyDictionary<NonTerminalSymbol, ChainRulesTuple> actual)
+        {
+            CollectionAssert.AreEquivalent(expected.Keys, actual.Keys);
+
+            foreach (NonTerminalSymbol symbol in expected.Keys)
+            {
+                ChainRulesTuple actualChainRulesTuple = actual[symbol];
+                ChainRulesTuple expectedChainRulesTuple = expected[symbol];
+
+                CollectionAssert.AreEquivalent(expectedChainRulesTuple.NonTerminals, actualChainRulesTuple.NonTerminals);
+                Assert.AreEqual(expectedChainRulesTuple.Iteration, actualChainRulesTuple.Iteration);
+            }
+        }
+
+        private int OnTuple(ChainRulesIterationPostReport actualCurrentIteration, IReadOnlyList<ChainRulesIterationPostReport> expectedIterations, bool beginInvoked, bool endInvoked, int actualPostReportProcessedCount)
+        {
+            Assert.IsTrue(beginInvoked);
+            Assert.IsFalse(endInvoked);
+
+            Assert.IsTrue(actualPostReportProcessedCount < expectedIterations.Count);
+
+            ChainRulesIterationPostReport expectedCurrentIteration = expectedIterations[actualPostReportProcessedCount];
+
+            Assert.AreEqual(expectedCurrentIteration.Iteration, actualCurrentIteration.Iteration);
+            AssertSymbolMap(expectedCurrentIteration.PreviousMap, actualCurrentIteration.PreviousMap);
+            AssertSymbolMap(expectedCurrentIteration.NewMap, actualCurrentIteration.NewMap);
+            AssertSymbolMap(expectedCurrentIteration.ConsideredNextMap, actualCurrentIteration.ConsideredNextMap);
+            AssertSymbolMap(expectedCurrentIteration.NotConsideredNextMap, actualCurrentIteration.NotConsideredNextMap);
+            Assert.AreEqual(expectedCurrentIteration.IsLastIteration, actualCurrentIteration.IsLastIteration);
+
+            return actualPostReportProcessedCount + 1;
+        }
+
+        private bool OnTuple(ChainRulesEndPostReport actualEnd, ChainRulesEndPostReport expectedEnd, bool beginInvoked, bool endInvoked, int actualPostReportProcessedCount, int expectedPostReportProcessedCount)
+        {
+            Assert.IsTrue(beginInvoked);
+            Assert.IsFalse(endInvoked);
+            Assert.AreEqual(expectedPostReportProcessedCount, actualPostReportProcessedCount);
+
+            AssertSymbolMap(expectedEnd.SymbolMap, actualEnd.SymbolMap);
+            AssertSymbolMap(expectedEnd.SymbolMapFinal, actualEnd.SymbolMapFinal);
+
+            return true;
+        }
+
         [Test]
         public void RemoveUnreachableSymbolsTest_Ok()
         {
@@ -142,11 +508,11 @@ namespace FLaGLib.Test.Data.Grammars
                 {
                     Assert.AreEqual(0, actualPostReportCount);
 
-                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked);
+                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked, actualPostReportCount);
                 },
                 tuple =>
                 {
-                    actualPostReportCount = OnTuple(tuple, expectedPostReports, actualPostReportCount);
+                    actualPostReportCount = OnTuple(tuple, expectedPostReports, beginInvoked, actualPostReportCount);
                 }));
 
             Assert.AreEqual(expectedPostReports.Count, actualPostReportCount);
@@ -259,11 +625,11 @@ namespace FLaGLib.Test.Data.Grammars
                 {
                     Assert.AreEqual(0, actualPostReportCount);
 
-                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked);
+                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked, actualPostReportCount);
                 },
                 tuple =>
                 {
-                    actualPostReportCount = OnTuple(tuple, expectedPostReports, actualPostReportCount);
+                    actualPostReportCount = OnTuple(tuple, expectedPostReports, beginInvoked, actualPostReportCount);
                 }));
 
             Assert.AreEqual(expectedPostReports.Count, actualPostReportCount);
@@ -589,11 +955,11 @@ namespace FLaGLib.Test.Data.Grammars
                 { 
                     Assert.AreEqual(0, actualPostReportCount);
 
-                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked);
+                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked, actualPostReportCount);
                 },
                 tuple =>
                 {
-                    actualPostReportCount = OnTuple(tuple, expectedPostReports, actualPostReportCount);
+                    actualPostReportCount = OnTuple(tuple, expectedPostReports, beginInvoked, actualPostReportCount);
                 }));
 
             Assert.AreEqual(expectedPostReports.Count, actualPostReportCount);
@@ -781,20 +1147,21 @@ namespace FLaGLib.Test.Data.Grammars
                 {
                     Assert.AreEqual(0, actualPostReportCount);
 
-                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked);
+                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked, actualPostReportCount);
                 },
                 tuple =>
                 {
-                    actualPostReportCount = OnTuple(tuple, expectedPostReports, actualPostReportCount);
+                    actualPostReportCount = OnTuple(tuple, expectedPostReports, beginInvoked, actualPostReportCount);
                 }));
 
             Assert.AreEqual(expectedPostReports.Count, actualPostReportCount);
             Assert.IsTrue(beginInvoked);
         }
 
-        private bool OnTuple<T>(BeginPostReport<T> actualCurrentIteration, BeginPostReport<T> expectedCurrentIteration, bool beginInvoked) where T : Symbol
+        private bool OnTuple<T>(BeginPostReport<T> actualCurrentIteration, BeginPostReport<T> expectedCurrentIteration, bool beginInvoked, int actualPostReportProcessedCount) where T : Symbol
         {
             Assert.IsFalse(beginInvoked);
+            Assert.AreEqual(0, actualPostReportProcessedCount);
 
             Assert.AreEqual(expectedCurrentIteration.Iteration, actualCurrentIteration.Iteration);
 
@@ -803,8 +1170,10 @@ namespace FLaGLib.Test.Data.Grammars
             return true;
         }
 
-        private int OnTuple<T>(IterationPostReport<T> actualCurrentIteration, IReadOnlyList<IterationPostReport<T>> expectedIterations, int actualPostReportProcessedCount) where T : Symbol
+        private int OnTuple<T>(IterationPostReport<T> actualCurrentIteration, IReadOnlyList<IterationPostReport<T>> expectedIterations, bool beginInvoked, int actualPostReportProcessedCount) where T : Symbol
         {
+            Assert.IsTrue(beginInvoked);
+
             Assert.IsTrue(actualPostReportProcessedCount < expectedIterations.Count);
 
             IterationPostReport<T> expectedCurrentIteration = expectedIterations[actualPostReportProcessedCount];
