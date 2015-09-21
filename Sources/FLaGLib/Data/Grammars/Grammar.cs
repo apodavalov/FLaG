@@ -73,7 +73,8 @@ namespace FLaGLib.Data.Grammars
 
         public bool RemoveChainRules(out Grammar grammar,
             Action<ChainRulesBeginPostReport> onBegin = null,
-            Action<ChainRulesIterationPostReport> onIterate = null)
+            Action<ChainRulesIterationPostReport> onIterate = null,
+            Action<ChainRulesEndPostReport> onEnd = null)
         {
             IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> newSymbolSetMap =
                 NonTerminals.ToDictionary(s => s, 
@@ -167,8 +168,6 @@ namespace FLaGLib.Data.Grammars
                     )
                 ).ToDictionary();
 
-            // unchangeableSymbolSetMap, unchangeableSymbolSetMapWithoutKey
-
             ISet<Rule> newRules = new HashSet<Rule>();
 
             foreach (Rule rule in Rules)
@@ -189,29 +188,25 @@ namespace FLaGLib.Data.Grammars
                 }
             }
 
-            ISet<Rule> additionalRules = new HashSet<Rule>();            
-
-            do
+            if (onEnd != null)
             {
-                ISet<Rule> temp = additionalRules;
-                additionalRules = newRules;
-                newRules = temp;                
+                onEnd(new ChainRulesEndPostReport(unchangeableSymbolSetMap, unchangeableSymbolSetMapWithoutKey));
+            }
 
-                foreach (Rule rule in additionalRules)
+            ISet<Rule> additionalRules = new HashSet<Rule>();            
+            
+            foreach (Rule rule in newRules)
+            {
+                foreach (KeyValuePair<NonTerminalSymbol, ChainRulesTuple> symbolSet in unchangeableSymbolSetMapWithoutKey)
                 {
-                    foreach (KeyValuePair<NonTerminalSymbol, ChainRulesTuple> symbolSet in unchangeableSymbolSetMapWithoutKey)
+                    if (symbolSet.Value.NonTerminals.Contains(rule.Target))
                     {
-                        if (symbolSet.Value.NonTerminals.Contains(rule.Target))
-                        {
-                            newRules.Add(new Rule(rule.Chains, symbolSet.Key));                            
-                        }
+                        additionalRules.Add(new Rule(rule.Chains, symbolSet.Key));                            
                     }
                 }
-
-                newRules.UnionWith(additionalRules);
-                newRules = Normalize(newRules);
-
-            } while (!newRules.SetEquals(additionalRules));
+            }
+            
+            newRules = Normalize(newRules.Concat(additionalRules));
             
             if (!newRules.SetEquals(Rules))
             {

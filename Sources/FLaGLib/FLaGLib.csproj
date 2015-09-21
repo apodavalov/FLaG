@@ -43,6 +43,7 @@
     <Compile Include="Collections\ReadOnlyList.cs" />
     <Compile Include="Collections\ReadOnlySet.cs" />
     <Compile Include="Data\Grammars\Chain.cs" />
+    <Compile Include="Data\Grammars\ChainRulesEndPostReport.cs" />
     <Compile Include="Data\Grammars\ChainRulesTuple.cs" />
     <Compile Include="Data\Grammars\BeginPostReport.cs" />
     <Compile Include="Data\Grammars\ChainRulesBeginPostReport.cs" />
