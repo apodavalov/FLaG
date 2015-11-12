@@ -9,6 +9,8 @@ namespace FLaGLib.Data.Grammars
 {
     public class Grammar : IComparable<Grammar>, IEquatable<Grammar>
     {
+        private const string _GrammarIsNotSupportedMessage = "Grammar type {0} is not supported.";
+
         public IReadOnlySet<Rule> Rules
         {
             get;
@@ -69,6 +71,108 @@ namespace FLaGLib.Data.Grammars
         private static ISet<Rule> Normalize(IEnumerable<Rule> rules)
         {
             return rules.GroupBy(r => r.Target).Select(g => new Rule(g.SelectMany(r => r.Chains), g.Key)).ToSortedSet();
+        }
+
+        private static IEnumerable<T> Enumerate<T>(GrammarType grammarType, params T[] items)
+        {
+            switch (grammarType)
+            {
+                case GrammarType.Left:
+                    return EnumerateHelper.Sequence(items);
+                case GrammarType.Right:
+                    return EnumerateHelper.ReverseSequence(items);
+                default:
+                    throw new NotSupportedException(string.Format(_GrammarIsNotSupportedMessage, grammarType));
+            }
+        }
+
+        private static IEnumerable<T> Enumerate<T>(IReadOnlyList<T> list, GrammarType grammarType)
+        {
+            switch (grammarType)
+            {
+                case GrammarType.Left:
+                    return list;
+                case GrammarType.Right:
+                    return list.FastReverse();
+                default:
+                    throw new NotSupportedException(string.Format(_GrammarIsNotSupportedMessage, grammarType));
+            }
+        } 
+
+        public Grammar MakeStateMachineGrammar(GrammarType grammarType)
+        {
+            ISet<Rule> newRules = new HashSet<Rule>();
+
+            ISet<NonTerminalSymbol> newNonTerminals = new HashSet<NonTerminalSymbol>(NonTerminals);
+
+            foreach (Rule rule in Rules)
+            {
+                foreach (Chain chain in rule.Chains)
+                {
+                    int state = 0;
+                    NonTerminalSymbol nonTerminalSymbol = null;
+                    Symbol otherSymbol = null;
+                    Chain newChain;
+
+                    foreach (Symbol symbol in Enumerate(chain,grammarType))
+                    {
+                        switch (state)
+                        {
+                            case 0:
+                                nonTerminalSymbol = symbol.As<NonTerminalSymbol>();
+                                otherSymbol = symbol;
+
+                                if (nonTerminalSymbol != null)
+                                {
+                                    state = 1;
+                                }
+                                else
+                                {
+                                    state = 2;
+                                }
+
+                                break;
+                            case 1:
+                                otherSymbol = symbol;
+                                state = 3;
+                                break;
+                            case 2:
+                                newChain = new Chain(otherSymbol.AsSequence());
+                                newNonTerminals.Add(nonTerminalSymbol = GetNewNonTerminal(newNonTerminals));
+                                newRules.Add(new Rule(newChain.AsSequence(), nonTerminalSymbol));
+                                otherSymbol = symbol;
+                                state = 3;
+                                break;
+                            case 3:
+                            default:
+                                newChain = new Chain(Enumerate(grammarType, nonTerminalSymbol, otherSymbol));
+                                newNonTerminals.Add(nonTerminalSymbol = GetNewNonTerminal(newNonTerminals));
+                                newRules.Add(new Rule(newChain.AsSequence(), nonTerminalSymbol));
+                                otherSymbol = symbol;
+                                state = 4;
+                                break;
+                        }
+                    }
+
+                    switch (state)
+                    {
+                        case 0:
+                            newChain = Chain.Empty;
+                            break;
+                        case 1:
+                        case 2:
+                            newChain = new Chain(otherSymbol.AsSequence());
+                            break;
+                        default:
+                            newChain = new Chain(Enumerate(grammarType, nonTerminalSymbol, otherSymbol));
+                            break;
+                    }
+
+                    newRules.Add(new Rule(newChain.AsSequence(), rule.Target));
+                }
+            }
+
+            return new Grammar(newRules, Target);
         }
 
         public bool RemoveChainRules(out Grammar grammar,
@@ -294,15 +398,7 @@ namespace FLaGLib.Data.Grammars
             {
                 Chain targetChain = new Chain(EnumerateHelper.Sequence(Target));
 
-                newTarget = new NonTerminalSymbol(
-                        new Label(
-                            new SingleLabel('S',
-                                NonTerminals
-                                    .Where(s => s.Label.LabelType == LabelType.Simple)
-                                    .Max(s => s.Label.ExtractSingleLabel().SignIndex ?? 0) + 1
-                            )
-                        )
-                    );
+                newTarget = GetNewNonTerminal(NonTerminals);
 
                 Rule rule = new Rule(EnumerateHelper.Sequence(targetChain, Chain.Empty), newTarget);
 
@@ -321,6 +417,21 @@ namespace FLaGLib.Data.Grammars
             grammar = this;
 
             return false;            
+        }
+
+        private NonTerminalSymbol GetNewNonTerminal(IEnumerable<NonTerminalSymbol> nonTerminals)
+        {
+            return
+                new NonTerminalSymbol(
+                    new Label(
+                        new SingleLabel(
+                            'S',
+                            NonTerminals
+                                .Where(s => s.Label.LabelType == LabelType.Simple)
+                                .Max(s => s.Label.ExtractSingleLabel().SignIndex ?? 0) + 1
+                        )
+                    )
+                );
         }
 
         private static IEnumerable<Chain> ForkByEmpty(Chain chain, ISet<NonTerminalSymbol> symbolSet)
