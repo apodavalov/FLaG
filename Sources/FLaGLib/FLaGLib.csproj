@@ -51,6 +51,7 @@
     <Compile Include="Data\Grammars\IterationPostReport.cs" />
     <Compile Include="Data\Grammars\Grammar.cs" />
     <Compile Include="Data\Grammars\GrammarType.cs" />
+    <Compile Include="Data\Grammars\MakeStateMachineGrammarPostReport.cs" />
     <Compile Include="Data\Grammars\NonTerminalSymbol.cs" />
     <Compile Include="Data\Grammars\Rule.cs" />
     <Compile Include="Data\Grammars\Symbol.cs" />

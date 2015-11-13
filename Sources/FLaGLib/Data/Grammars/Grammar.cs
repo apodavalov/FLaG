@@ -99,7 +99,7 @@ namespace FLaGLib.Data.Grammars
             }
         } 
 
-        public Grammar MakeStateMachineGrammar(GrammarType grammarType)
+        public Grammar MakeStateMachineGrammar(GrammarType grammarType, Action<MakeStateMachineGrammarPostReport> onIterate = null)
         {
             ISet<Rule> newRules = new HashSet<Rule>();
 
@@ -109,6 +109,8 @@ namespace FLaGLib.Data.Grammars
             {
                 foreach (Chain chain in rule.Chains)
                 {
+                    ISet<Rule> newChainRules = new HashSet<Rule>();
+
                     int state = 0;
                     NonTerminalSymbol nonTerminalSymbol = null;
                     Symbol otherSymbol = null;
@@ -139,17 +141,15 @@ namespace FLaGLib.Data.Grammars
                             case 2:
                                 newChain = new Chain(otherSymbol.AsSequence());
                                 newNonTerminals.Add(nonTerminalSymbol = GetNewNonTerminal(newNonTerminals));
-                                newRules.Add(new Rule(newChain.AsSequence(), nonTerminalSymbol));
+                                newChainRules.Add(new Rule(newChain.AsSequence(), nonTerminalSymbol));
                                 otherSymbol = symbol;
                                 state = 3;
                                 break;
-                            case 3:
                             default:
                                 newChain = new Chain(Enumerate(grammarType, nonTerminalSymbol, otherSymbol));
                                 newNonTerminals.Add(nonTerminalSymbol = GetNewNonTerminal(newNonTerminals));
-                                newRules.Add(new Rule(newChain.AsSequence(), nonTerminalSymbol));
+                                newChainRules.Add(new Rule(newChain.AsSequence(), nonTerminalSymbol));
                                 otherSymbol = symbol;
-                                state = 4;
                                 break;
                         }
                     }
@@ -168,7 +168,15 @@ namespace FLaGLib.Data.Grammars
                             break;
                     }
 
-                    newRules.Add(new Rule(newChain.AsSequence(), rule.Target));
+                    newChainRules.Add(new Rule(newChain.AsSequence(), rule.Target));
+                    newChainRules = Normalize(newChainRules);
+                    
+                    if (onIterate != null)
+                    {
+                        onIterate(new MakeStateMachineGrammarPostReport(rule.Target, chain, newChainRules, newChainRules.Count > 1));
+                    }
+
+                    newRules.AddRange(newChainRules);
                 }
             }
 
@@ -426,7 +434,7 @@ namespace FLaGLib.Data.Grammars
                     new Label(
                         new SingleLabel(
                             'S',
-                            NonTerminals
+                            nonTerminals
                                 .Where(s => s.Label.LabelType == LabelType.Simple)
                                 .Max(s => s.Label.ExtractSingleLabel().SignIndex ?? 0) + 1
                         )
