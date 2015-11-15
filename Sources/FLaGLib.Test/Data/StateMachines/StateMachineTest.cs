@@ -1,7 +1,9 @@
 ﻿using FLaGLib.Collections;
 using FLaGLib.Data;
 using FLaGLib.Data.StateMachines;
+using FLaGLib.Extensions;
 using FLaGLib.Helpers;
+using FLaGLib.Test.TestHelpers;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -138,7 +140,7 @@ namespace FLaGLib.Test.Data.StateMachines
             Label s7NewState = new Label(new SingleLabel('S', subIndex: 7));
             Label s8NewState = new Label(new SingleLabel('S', subIndex: 8));
 
-            IEnumerable<KeyValuePair<Label, Label>> expectedDictionary = EnumerateHelper.Sequence(
+            IReadOnlyDictionary<Label, Label> expectedDictionary = EnumerateHelper.Sequence(
                 new KeyValuePair<Label, Label>(hState, s1NewState),
                 new KeyValuePair<Label, Label>(s2State, s2NewState),
                 new KeyValuePair<Label, Label>(s7State, s3NewState),
@@ -147,7 +149,7 @@ namespace FLaGLib.Test.Data.StateMachines
                 new KeyValuePair<Label, Label>(s13State, s6NewState),
                 new KeyValuePair<Label, Label>(s15State, s7NewState),
                 new KeyValuePair<Label, Label>(s16State, s8NewState)
-            );
+            ).ToDictionary().AsReadOnly();
 
             IEnumerable<Label> expectedStates = EnumerateHelper.Sequence(
                 s1NewState,
@@ -186,23 +188,24 @@ namespace FLaGLib.Test.Data.StateMachines
                 new Transition(s8NewState, 'c', s8NewState)
             );
 
-            bool onStateMapInvoked = false;
+            PostReportTestHelper<IReadOnlyDictionary<Label, Label>> helper =
+                new PostReportTestHelper<IReadOnlyDictionary<Label, Label>>(expectedDictionary.AsSequence(), OnTuple);
 
-            StateMachine actualStateMachine = stateMachine.Reorganize('S', 
-                stateMap => 
-                {
-                    Assert.IsFalse(onStateMapInvoked);
-                    CollectionAssert.AreEquivalent(expectedDictionary, stateMap);
-                    onStateMapInvoked = true;
-                }
-                );
+            helper.StartTest();
 
-            Assert.IsTrue(onStateMapInvoked);
+            StateMachine actualStateMachine = stateMachine.Reorganize('S', helper.OnIterationPostReport);
+
+            helper.FinishTest();
 
             CollectionAssert.AreEquivalent(stateMachine.Alphabet, actualStateMachine.Alphabet);
             CollectionAssert.AreEquivalent(expectedStates, actualStateMachine.States);
             CollectionAssert.AreEquivalent(expectedTransitions, actualStateMachine.Transitions);
-            CollectionAssert.AreEquivalent(expectedFinalStates, actualStateMachine.FinalStates);            
+            CollectionAssert.AreEquivalent(expectedFinalStates, actualStateMachine.FinalStates);
+        }
+
+        private void OnTuple(IReadOnlyDictionary<Label, Label> expected, IReadOnlyDictionary<Label, Label> actual)
+        {
+            CollectionAssert.AreEquivalent(expected, actual);
         }
 
         [Test]
@@ -279,13 +282,15 @@ namespace FLaGLib.Test.Data.StateMachines
 
             StateMachine stateMachine = new StateMachine(expectedInitialState, finalStates, transitions);
 
-            IReadOnlyList<RemovingUnreachableStatesPostReport> expectedSequence = EnumerateHelper.Sequence(
+            RemovingUnreachableStatesPostReport expectedBegin = 
                 new RemovingUnreachableStatesPostReport(
                     EnumerateHelper.Sequence(s16State),
                     EnumerateHelper.Sequence(s16State),
                     EnumerateHelper.Sequence(s16State),
                     EnumerateHelper.Sequence(s16State),
-                    0),
+                    0);
+
+            IReadOnlyList<RemovingUnreachableStatesPostReport> expectedSequence = EnumerateHelper.Sequence(
                 new RemovingUnreachableStatesPostReport(
                     EnumerateHelper.Sequence(s16State),
                     EnumerateHelper.Sequence(s2State,s7State,s12State,s16State),
@@ -297,43 +302,32 @@ namespace FLaGLib.Test.Data.StateMachines
                     EnumerateHelper.Sequence(s2State,s4State,s7State,s9State,s12State,s14State,s16State),
                     EnumerateHelper.Sequence(s4State,s9State,s14State),
                     EnumerateHelper.Sequence(s4State,s9State,s14State),
-                    2),
-                new RemovingUnreachableStatesPostReport(
-                    EnumerateHelper.Sequence(s2State,s4State,s7State,s9State,s12State,s14State,s16State),
-                    EnumerateHelper.Sequence(s2State,s4State,s7State,s9State,s12State,s14State,s16State),
-                    EnumerateHelper.Sequence(s2State,s7State,s12State),
-                    Enumerable.Empty<Label>(),
-                    3)
+                    2)
             ).ToList().AsReadOnly();
 
-            int actualPostReportCount = 0;
-            bool onBeginInvoked = false;
-            bool onEndInvoked = false;
+            RemovingUnreachableStatesPostReport expectedEnd =
+                new RemovingUnreachableStatesPostReport(
+                    EnumerateHelper.Sequence(s2State, s4State, s7State, s9State, s12State, s14State, s16State),
+                    EnumerateHelper.Sequence(s2State, s4State, s7State, s9State, s12State, s14State, s16State),
+                    EnumerateHelper.Sequence(s2State, s7State, s12State),
+                    Enumerable.Empty<Label>(),
+                    3);
 
-            StateMachine actualStateMachine = stateMachine.RemoveUnreachableStates(
-                tuple =>
-                {   
-                    Assert.IsFalse(onBeginInvoked);
-                    Assert.AreEqual(0, actualPostReportCount);
-                    onBeginInvoked = true;
-                    actualPostReportCount = OnTuple(tuple, expectedSequence, actualPostReportCount);    
-                },
-                tuple =>
-                {
-                    actualPostReportCount = OnTuple(tuple, expectedSequence, actualPostReportCount);    
-                },
-                tuple =>
-                {
-                    Assert.IsFalse(onEndInvoked);
-                    onEndInvoked = true;
-                    actualPostReportCount = OnTuple(tuple, expectedSequence, actualPostReportCount);
-                    Assert.AreEqual(expectedSequence.Count, actualPostReportCount);
-                }
-            );
+            PostReportTestHelper<RemovingUnreachableStatesPostReport, RemovingUnreachableStatesPostReport, RemovingUnreachableStatesPostReport> helper =
+                new PostReportTestHelper<RemovingUnreachableStatesPostReport, RemovingUnreachableStatesPostReport, RemovingUnreachableStatesPostReport>(
+                    expectedBegin,    
+                    expectedSequence,
+                    expectedEnd,
+                    OnTuple,
+                    OnTuple,
+                    OnTuple);
 
-            Assert.AreEqual(expectedSequence.Count, actualPostReportCount);
-            Assert.IsTrue(onBeginInvoked);
-            Assert.IsTrue(onEndInvoked);
+            helper.StartTest();
+
+            StateMachine actualStateMachine = stateMachine.RemoveUnreachableStates(helper.OnBeginPostReport, helper.OnIterationPostReport, helper.OnEndPostReport);
+
+            helper.FinishTest();
+
             CollectionAssert.AreEquivalent(expectedStates, actualStateMachine.States);
             CollectionAssert.AreEquivalent(expectedAlphabet, actualStateMachine.Alphabet);
             CollectionAssert.AreEquivalent(expectedFinalStates, actualStateMachine.FinalStates);
@@ -341,20 +335,13 @@ namespace FLaGLib.Test.Data.StateMachines
             Assert.AreEqual(expectedInitialState, actualStateMachine.InitialState);
         }
 
-        private int OnTuple(RemovingUnreachableStatesPostReport tuple, IReadOnlyList<RemovingUnreachableStatesPostReport> expectedSequence, int actualPostReportProcessedCount)
+        private void OnTuple(RemovingUnreachableStatesPostReport current, RemovingUnreachableStatesPostReport tuple)
         {
-            Assert.IsTrue(actualPostReportProcessedCount < expectedSequence.Count);
-
-            RemovingUnreachableStatesPostReport current = expectedSequence[actualPostReportProcessedCount];
-
             Assert.AreEqual(current.Iteration, tuple.Iteration);
-
             CollectionAssert.AreEquivalent(current.CurrentApproachedStates, tuple.CurrentApproachedStates);
             CollectionAssert.AreEquivalent(current.NextApproachedStates, tuple.NextApproachedStates);
             CollectionAssert.AreEquivalent(current.CurrentReachableStates, tuple.CurrentReachableStates);
             CollectionAssert.AreEquivalent(current.NextReachableStates, tuple.NextReachableStates);
-
-            return actualPostReportProcessedCount + 1;
         }
 
         [Test]
