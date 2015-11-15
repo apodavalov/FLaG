@@ -3,6 +3,7 @@ using FLaGLib.Data;
 using FLaGLib.Data.Grammars;
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
+using FLaGLib.Test.TestHelpers;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
@@ -617,42 +618,39 @@ namespace FLaGLib.Test.Data.Grammars
                 }
             );
 
-            int actualPostReportCount = 0;
-            bool beginInvoked = false;
-            bool endInvoked = false;
+            PostReportTestHelper<ChainRulesBeginPostReport, ChainRulesIterationPostReport, ChainRulesEndPostReport> helper
+                = new PostReportTestHelper<ChainRulesBeginPostReport, ChainRulesIterationPostReport, ChainRulesEndPostReport>
+                (expectedBegin, expectedIterationPostReports, expectedEnd, OnTuple, OnTuple, OnTuple);
 
-            Assert.IsTrue(grammar.RemoveChainRules(out actualGrammar,
-                tuple =>
-                {
-                    Assert.AreEqual(0, actualPostReportCount);
+            helper.StartTest();
 
-                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked, endInvoked, actualPostReportCount);
-                },
-                tuple =>
-                {
-                    actualPostReportCount = OnTuple(tuple, expectedIterationPostReports, beginInvoked, endInvoked, actualPostReportCount);
-                },
-                tuple =>
-                {
-                    endInvoked = OnTuple(tuple, expectedEnd, beginInvoked, endInvoked, actualPostReportCount, expectedIterationPostReports.Count);
-                }));
+            Assert.IsTrue(grammar.RemoveChainRules(out actualGrammar, helper.OnBeginPostReport, helper.OnIterationPostReport, helper.OnEndPostReport));
 
-            Assert.AreEqual(expectedIterationPostReports.Count, actualPostReportCount);
-            Assert.IsTrue(beginInvoked);
-            Assert.IsTrue(endInvoked);
+            helper.FinishTest();
+
             Assert.AreEqual(expectedGrammar, actualGrammar);
         }
 
-        private bool OnTuple(ChainRulesBeginPostReport actualBegin, ChainRulesBeginPostReport expectedBegin, bool beginInvoked, bool endInvoked, int actualPostReportProcessedCount)
+        private void OnTuple(ChainRulesBeginPostReport expectedBegin, ChainRulesBeginPostReport actualBegin)
         {
-            Assert.IsFalse(beginInvoked);
-            Assert.IsFalse(endInvoked);
-            Assert.AreEqual(0, actualPostReportProcessedCount);
-
             Assert.AreEqual(expectedBegin.Iteration, actualBegin.Iteration);
             AssertSymbolMap(expectedBegin.SymbolMap, actualBegin.SymbolMap);
+        }
 
-            return true;
+        private void OnTuple(ChainRulesIterationPostReport expectedCurrentIteration, ChainRulesIterationPostReport actualCurrentIteration)
+        {
+            Assert.AreEqual(expectedCurrentIteration.Iteration, actualCurrentIteration.Iteration);
+            AssertSymbolMap(expectedCurrentIteration.PreviousMap, actualCurrentIteration.PreviousMap);
+            AssertSymbolMap(expectedCurrentIteration.NewMap, actualCurrentIteration.NewMap);
+            AssertSymbolMap(expectedCurrentIteration.ConsideredNextMap, actualCurrentIteration.ConsideredNextMap);
+            AssertSymbolMap(expectedCurrentIteration.NotConsideredNextMap, actualCurrentIteration.NotConsideredNextMap);
+            Assert.AreEqual(expectedCurrentIteration.IsLastIteration, actualCurrentIteration.IsLastIteration);
+        }
+
+        private void OnTuple(ChainRulesEndPostReport expectedEnd, ChainRulesEndPostReport actualEnd)
+        {
+            AssertSymbolMap(expectedEnd.SymbolMap, actualEnd.SymbolMap);
+            AssertSymbolMap(expectedEnd.SymbolMapFinal, actualEnd.SymbolMapFinal);
         }
 
         private void AssertSymbolMap(IReadOnlyDictionary<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> expected, IReadOnlyDictionary<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> actual)
@@ -677,37 +675,6 @@ namespace FLaGLib.Test.Data.Grammars
                 CollectionAssert.AreEquivalent(expectedChainRulesTuple.NonTerminals, actualChainRulesTuple.NonTerminals);
                 Assert.AreEqual(expectedChainRulesTuple.Iteration, actualChainRulesTuple.Iteration);
             }
-        }
-
-        private int OnTuple(ChainRulesIterationPostReport actualCurrentIteration, IReadOnlyList<ChainRulesIterationPostReport> expectedIterations, bool beginInvoked, bool endInvoked, int actualPostReportProcessedCount)
-        {
-            Assert.IsTrue(beginInvoked);
-            Assert.IsFalse(endInvoked);
-
-            Assert.IsTrue(actualPostReportProcessedCount < expectedIterations.Count);
-
-            ChainRulesIterationPostReport expectedCurrentIteration = expectedIterations[actualPostReportProcessedCount];
-
-            Assert.AreEqual(expectedCurrentIteration.Iteration, actualCurrentIteration.Iteration);
-            AssertSymbolMap(expectedCurrentIteration.PreviousMap, actualCurrentIteration.PreviousMap);
-            AssertSymbolMap(expectedCurrentIteration.NewMap, actualCurrentIteration.NewMap);
-            AssertSymbolMap(expectedCurrentIteration.ConsideredNextMap, actualCurrentIteration.ConsideredNextMap);
-            AssertSymbolMap(expectedCurrentIteration.NotConsideredNextMap, actualCurrentIteration.NotConsideredNextMap);
-            Assert.AreEqual(expectedCurrentIteration.IsLastIteration, actualCurrentIteration.IsLastIteration);
-
-            return actualPostReportProcessedCount + 1;
-        }
-
-        private bool OnTuple(ChainRulesEndPostReport actualEnd, ChainRulesEndPostReport expectedEnd, bool beginInvoked, bool endInvoked, int actualPostReportProcessedCount, int expectedPostReportProcessedCount)
-        {
-            Assert.IsTrue(beginInvoked);
-            Assert.IsFalse(endInvoked);
-            Assert.AreEqual(expectedPostReportProcessedCount, actualPostReportProcessedCount);
-
-            AssertSymbolMap(expectedEnd.SymbolMap, actualEnd.SymbolMap);
-            AssertSymbolMap(expectedEnd.SymbolMapFinal, actualEnd.SymbolMapFinal);
-
-            return true;
         }
 
         [Test]
@@ -834,23 +801,16 @@ namespace FLaGLib.Test.Data.Grammars
                 )
             ).ToList().AsReadOnly();
 
-            int actualPostReportCount = 0;
-            bool beginInvoked = false;
+            PostReportTestHelper<BeginPostReport<Symbol>, IterationPostReport<Symbol>> helper
+                = new PostReportTestHelper<BeginPostReport<Symbol>, IterationPostReport<Symbol>>
+                (expectedBegin, expectedPostReports, OnTuple, OnTuple);
 
-            Assert.IsTrue(grammar.RemoveUnreachableSymbols(out actualGrammar,
-                tuple =>
-                {
-                    Assert.AreEqual(0, actualPostReportCount);
+            helper.StartTest();
 
-                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked, actualPostReportCount);
-                },
-                tuple =>
-                {
-                    actualPostReportCount = OnTuple(tuple, expectedPostReports, beginInvoked, actualPostReportCount);
-                }));
+            Assert.IsTrue(grammar.RemoveUnreachableSymbols(out actualGrammar, helper.OnBeginPostReport, helper.OnIterationPostReport));
 
-            Assert.AreEqual(expectedPostReports.Count, actualPostReportCount);
-            Assert.IsTrue(beginInvoked);
+            helper.FinishTest();
+
             Assert.AreEqual(expectedGrammar, actualGrammar);
         }
 
@@ -951,23 +911,16 @@ namespace FLaGLib.Test.Data.Grammars
                 )
             ).ToList().AsReadOnly();
 
-            int actualPostReportCount = 0;
-            bool beginInvoked = false;
+            PostReportTestHelper<BeginPostReport<NonTerminalSymbol>, IterationPostReport<NonTerminalSymbol>> helper
+                = new PostReportTestHelper<BeginPostReport<NonTerminalSymbol>, IterationPostReport<NonTerminalSymbol>>
+                (expectedBegin, expectedPostReports, OnTuple, OnTuple);
 
-            Assert.IsTrue(grammar.RemoveUselessSymbols(out actualGrammar,
-                tuple =>
-                {
-                    Assert.AreEqual(0, actualPostReportCount);
+            helper.StartTest();
 
-                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked, actualPostReportCount);
-                },
-                tuple =>
-                {
-                    actualPostReportCount = OnTuple(tuple, expectedPostReports, beginInvoked, actualPostReportCount);
-                }));
+            Assert.IsTrue(grammar.RemoveUselessSymbols(out actualGrammar, helper.OnBeginPostReport, helper.OnIterationPostReport));
 
-            Assert.AreEqual(expectedPostReports.Count, actualPostReportCount);
-            Assert.IsTrue(beginInvoked);
+            helper.FinishTest();
+
             Assert.AreEqual(expectedGrammar, actualGrammar);
         }
 
@@ -1281,23 +1234,16 @@ namespace FLaGLib.Test.Data.Grammars
                 )
             ).ToList().AsReadOnly();
 
-            int actualPostReportCount = 0;
-            bool beginInvoked = false;
+            PostReportTestHelper<BeginPostReport<NonTerminalSymbol>, IterationPostReport<NonTerminalSymbol>> helper
+                = new PostReportTestHelper<BeginPostReport<NonTerminalSymbol>, IterationPostReport<NonTerminalSymbol>>
+                (expectedBegin, expectedPostReports, OnTuple, OnTuple);
 
-            Assert.IsTrue(grammar.RemoveEmptyRules(out actualGrammar,
-                tuple =>
-                { 
-                    Assert.AreEqual(0, actualPostReportCount);
+            helper.StartTest();
 
-                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked, actualPostReportCount);
-                },
-                tuple =>
-                {
-                    actualPostReportCount = OnTuple(tuple, expectedPostReports, beginInvoked, actualPostReportCount);
-                }));
+            Assert.IsTrue(grammar.RemoveEmptyRules(out actualGrammar, helper.OnBeginPostReport, helper.OnIterationPostReport));
 
-            Assert.AreEqual(expectedPostReports.Count, actualPostReportCount);
-            Assert.IsTrue(beginInvoked);
+            helper.FinishTest();
+
             Assert.AreEqual(expectedGrammar, actualGrammar);
         }
 
@@ -1473,53 +1419,32 @@ namespace FLaGLib.Test.Data.Grammars
                 )
             ).ToList().AsReadOnly();
 
-            int actualPostReportCount = 0;
-            bool beginInvoked = false;
 
-            Assert.IsFalse(grammar.IsLangEmpty(
-                tuple =>
-                {
-                    Assert.AreEqual(0, actualPostReportCount);
+            PostReportTestHelper<BeginPostReport<NonTerminalSymbol>, IterationPostReport<NonTerminalSymbol>> helper
+                = new PostReportTestHelper<BeginPostReport<NonTerminalSymbol>, IterationPostReport<NonTerminalSymbol>>
+                (expectedBegin, expectedPostReports, OnTuple, OnTuple);
 
-                    beginInvoked = OnTuple(tuple, expectedBegin, beginInvoked, actualPostReportCount);
-                },
-                tuple =>
-                {
-                    actualPostReportCount = OnTuple(tuple, expectedPostReports, beginInvoked, actualPostReportCount);
-                }));
+            helper.StartTest();
 
-            Assert.AreEqual(expectedPostReports.Count, actualPostReportCount);
-            Assert.IsTrue(beginInvoked);
+            Assert.IsFalse(grammar.IsLangEmpty(helper.OnBeginPostReport, helper.OnIterationPostReport));
+
+            helper.FinishTest();
         }
 
-        private bool OnTuple<T>(BeginPostReport<T> actualCurrentIteration, BeginPostReport<T> expectedCurrentIteration, bool beginInvoked, int actualPostReportProcessedCount) where T : Symbol
+        private void OnTuple<T>(BeginPostReport<T> expectedCurrentIteration, BeginPostReport<T> actualCurrentIteration) where T : Symbol
         {
-            Assert.IsFalse(beginInvoked);
-            Assert.AreEqual(0, actualPostReportProcessedCount);
-
             Assert.AreEqual(expectedCurrentIteration.Iteration, actualCurrentIteration.Iteration);
-
             CollectionAssert.AreEquivalent(expectedCurrentIteration.SymbolSet, actualCurrentIteration.SymbolSet);
-
-            return true;
         }
 
-        private int OnTuple<T>(IterationPostReport<T> actualCurrentIteration, IReadOnlyList<IterationPostReport<T>> expectedIterations, bool beginInvoked, int actualPostReportProcessedCount) where T : Symbol
+        private void OnTuple<T>(IterationPostReport<T> expectedCurrentIteration, IterationPostReport<T> actualCurrentIteration) where T : Symbol
         {
-            Assert.IsTrue(beginInvoked);
-
-            Assert.IsTrue(actualPostReportProcessedCount < expectedIterations.Count);
-
-            IterationPostReport<T> expectedCurrentIteration = expectedIterations[actualPostReportProcessedCount];
-
             Assert.AreEqual(expectedCurrentIteration.Iteration, actualCurrentIteration.Iteration);
             Assert.AreEqual(expectedCurrentIteration.IsLastIteration, actualCurrentIteration.IsLastIteration);
 
             CollectionAssert.AreEquivalent(expectedCurrentIteration.NewSymbolSet, actualCurrentIteration.NewSymbolSet);
             CollectionAssert.AreEquivalent(expectedCurrentIteration.NextSymbolSet, actualCurrentIteration.NextSymbolSet);
             CollectionAssert.AreEquivalent(expectedCurrentIteration.PreviousSymbolSet, actualCurrentIteration.PreviousSymbolSet);
-
-            return actualPostReportProcessedCount + 1;
         }
     }
 }

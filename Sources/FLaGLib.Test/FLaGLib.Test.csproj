@@ -97,6 +97,7 @@
     <Compile Include="Helpers\EnumerateHelperTest.cs" />
     <Compile Include="TestHelpers\ComparableEquatableHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestHelpers\PostReportTestHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
