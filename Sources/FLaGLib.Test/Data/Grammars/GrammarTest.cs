@@ -173,11 +173,179 @@ namespace FLaGLib.Test.Data.Grammars
                 ), s1
             );
 
-            Grammar actualGrammar = grammar.MakeStateMachineGrammar(GrammarType.Left);
+            IReadOnlyList<MakeStateMachineGrammarPostReport> expectedIterationPostReports = EnumerateHelper.Sequence(
+                new MakeStateMachineGrammarPostReport(
+                    s1,
+                    Chain.Empty,
+                    EnumerateHelper.Sequence(
+                        new Rule(Chain.Empty.AsSequence(), s1)
+                    ).ToHashSet(),
+                    false
+                ),
+                new MakeStateMachineGrammarPostReport(
+                    s1,
+                    new Chain(EnumerateHelper.Sequence<Symbol>(
+                            s2,
+                            a,
+                            b
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s2,
+                                        a
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s4,
+                                        b
+                                    )
+                                )
+                            ), s1
+                        )
+                    ).ToHashSet(),
+                    true
+                ),
+                new MakeStateMachineGrammarPostReport(
+                    s1,
+                    new Chain(EnumerateHelper.Sequence<Symbol>(
+                            s3
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                )
+                            ), s1
+                        )
+                    ).ToHashSet(),
+                    false
+                ),
+                new MakeStateMachineGrammarPostReport(
+                    s2,
+                    new Chain(EnumerateHelper.Sequence<Symbol>(
+                            s3,
+                            a
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3,
+                                        a
+                                    )
+                                )
+                            ), s2
+                        )
+                    ).ToHashSet(),
+                    false
+                ),
+                new MakeStateMachineGrammarPostReport(
+                    s3,
+                    new Chain(EnumerateHelper.Sequence<Symbol>(
+                            a,
+                            b
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a
+                                    )
+                                )
+                            ), s5
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s5,
+                                        b
+                                    )
+                                )
+                            ), s3
+                        )
+                    ).ToHashSet(),
+                    true
+                ),
+                new MakeStateMachineGrammarPostReport(
+                    s3,
+                    new Chain(EnumerateHelper.Sequence<Symbol>(
+                            b
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b
+                                    )
+                                )
+                            ), s3
+                        )
+                    ).ToHashSet(),
+                    false
+                ),                
+                new MakeStateMachineGrammarPostReport(
+                    s3,
+                    new Chain(EnumerateHelper.Sequence<Symbol>(
+                            b,
+                            c,
+                            d
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b
+                                    )
+                                )
+                            ), s6
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s6,
+                                        c
+                                    )
+                                )
+                            ), s7
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s7,
+                                        d
+                                    )
+                                )
+                            ), s3
+                        )
+                    ).ToHashSet(),
+                    true
+                )
+            ).ToList().AsReadOnly();
+
+            PostReportTestHelper<MakeStateMachineGrammarPostReport> helper =
+                new PostReportTestHelper<MakeStateMachineGrammarPostReport>(expectedIterationPostReports, OnTuple);
+
+            helper.StartTest();
+
+            Grammar actualGrammar = grammar.MakeStateMachineGrammar(GrammarType.Left, helper.OnIterationPostReport);
+
+            helper.FinishTest();
 
             Assert.AreEqual(expectedGrammar, actualGrammar);
-
-            Assert.Fail("Check also onIterate");
         }
 
         [Test]
@@ -340,11 +508,188 @@ namespace FLaGLib.Test.Data.Grammars
                 ), s1
             );
 
-            Grammar actualGrammar = grammar.MakeStateMachineGrammar(GrammarType.Right);
+            IReadOnlyList<MakeStateMachineGrammarPostReport> expectedIterationPostReports = EnumerateHelper.Sequence(
+                new MakeStateMachineGrammarPostReport(
+                    s1,
+                    Chain.Empty,
+                    EnumerateHelper.Sequence(
+                        new Rule(Chain.Empty.AsSequence(), s1)
+                    ).ToHashSet(),
+                    false
+                ),
+                new MakeStateMachineGrammarPostReport(
+                    s1,
+                    new Chain(EnumerateHelper.Sequence<Symbol>(
+                            s3
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                )
+                            ), s1
+                        )
+                    ).ToHashSet(),
+                    false
+                ),
+                new MakeStateMachineGrammarPostReport(
+                    s1,
+                    new Chain(EnumerateHelper.Sequence<Symbol>(
+                            b,
+                            a,
+                            s2
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s2
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b,
+                                        s4
+                                    )
+                                )
+                            ), s1
+                        )
+                    ).ToHashSet(),
+                    true
+                ),
+                
+                new MakeStateMachineGrammarPostReport(
+                    s2,
+                    new Chain(EnumerateHelper.Sequence<Symbol>(
+                            a,
+                            s3
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s3
+                                    )
+                                )
+                            ), s2
+                        )
+                    ).ToHashSet(),
+                    false
+                ),
+                new MakeStateMachineGrammarPostReport(
+                    s3,
+                    new Chain(EnumerateHelper.Sequence<Symbol>(
+                            b
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b
+                                    )
+                                )
+                            ), s3
+                        )
+                    ).ToHashSet(),
+                    false
+                ),
+                new MakeStateMachineGrammarPostReport(
+                    s3,
+                    new Chain(EnumerateHelper.Sequence<Symbol>(
+                            b,
+                            a
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a
+                                    )
+                                )
+                            ), s5
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b,
+                                        s5
+                                    )
+                                )
+                            ), s3
+                        )
+                    ).ToHashSet(),
+                    true
+                ),
+                new MakeStateMachineGrammarPostReport(
+                    s3,
+                    new Chain(EnumerateHelper.Sequence<Symbol>(
+                            d,
+                            c,
+                            b
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b
+                                    )
+                                )
+                            ), s6
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        c,
+                                        s6
+                                    )
+                                )
+                            ), s7
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        d,
+                                        s7
+                                    )
+                                )
+                            ), s3
+                        )
+                    ).ToHashSet(),
+                    true
+                )
+            ).ToList().AsReadOnly();
+
+            PostReportTestHelper<MakeStateMachineGrammarPostReport> helper =
+                new PostReportTestHelper<MakeStateMachineGrammarPostReport>(expectedIterationPostReports, OnTuple);
+
+            helper.StartTest();
+
+            Grammar actualGrammar = grammar.MakeStateMachineGrammar(GrammarType.Right, helper.OnIterationPostReport);
+
+            helper.FinishTest();
 
             Assert.AreEqual(expectedGrammar, actualGrammar);
+        }
 
-            Assert.Fail("Check also onIterate");
+        private void OnTuple(MakeStateMachineGrammarPostReport expected, MakeStateMachineGrammarPostReport actual)
+        {
+            Assert.AreEqual(expected.Chain, actual.Chain);
+            Assert.AreEqual(expected.Converted, actual.Converted);
+            Assert.AreEqual(expected.Target, actual.Target);
+            CollectionAssert.AreEquivalent(expected.NewRules, actual.NewRules);
         }
 
         [Test]

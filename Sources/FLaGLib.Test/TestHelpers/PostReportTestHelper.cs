@@ -5,43 +5,11 @@ using System.Linq;
 
 namespace FLaGLib.Test.TestHelpers
 {
-    class PostReportTestHelper<B, I>
+    class PostReportTestHelper<I>
     {
         protected int _ActualIterationPostReportCount;
-        protected bool _BeginPostReportInvoked;
-
-        protected B _ExpectedBeginPostReport;
         protected IReadOnlyList<I> _ExpectedIterationPostReports;
-        protected Action<B, B> _BeginPostReportChecker;
         protected Action<I, I> _IterationPostReportChecker;
-
-        public virtual void OnBeginPostReport(B actualBeginPostReport)
-        {
-            Assert.IsFalse(_BeginPostReportInvoked);
-            Assert.AreEqual(0, _ActualIterationPostReportCount);
-            _BeginPostReportInvoked = true;
-            BeginPostReportChecker(_ExpectedBeginPostReport, actualBeginPostReport);
-        }
-
-        public virtual void OnIterationPostReport(I actualIterationPostReport)
-        {
-            Assert.IsTrue(_BeginPostReportInvoked);
-            Assert.IsTrue(_ActualIterationPostReportCount < _ExpectedIterationPostReports.Count);
-            _ActualIterationPostReportCount++;
-            IterationPostReportChecker(_ExpectedIterationPostReports[_ActualIterationPostReportCount-1], actualIterationPostReport);
-        }
-
-        private void IterationPostReportChecker(I expected, I actual)
-        {
-            CheckForNulls(expected, actual);
-            _IterationPostReportChecker(expected, actual);
-        }
-
-        private void BeginPostReportChecker(B expected, B actual)
-        {
-            CheckForNulls(expected, actual);
-            _BeginPostReportChecker(expected, actual);
-        }
 
         protected void CheckForNulls<T>(T expected, T actual)
         {
@@ -61,37 +29,36 @@ namespace FLaGLib.Test.TestHelpers
             }
         }
 
+        public virtual void OnIterationPostReport(I actualIterationPostReport)
+        {
+            Assert.IsTrue(_ActualIterationPostReportCount < _ExpectedIterationPostReports.Count);
+            _ActualIterationPostReportCount++;
+            IterationPostReportChecker(_ExpectedIterationPostReports[_ActualIterationPostReportCount - 1], actualIterationPostReport);
+        }
+
+        private void IterationPostReportChecker(I expected, I actual)
+        {
+            CheckForNulls(expected, actual);
+            _IterationPostReportChecker(expected, actual);
+        }
+
         public virtual void StartTest()
         {
             _ActualIterationPostReportCount = 0;
-            _BeginPostReportInvoked = false;
         }
 
         public virtual void FinishTest()
         {
-            Assert.IsTrue(_BeginPostReportInvoked);
             Assert.AreEqual(_ExpectedIterationPostReports.Count, _ActualIterationPostReportCount);
         }
 
         public PostReportTestHelper(
-            B expectedBeginPostReport,
             IEnumerable<I> expectedIterationPostReports,
-            Action<B, B> beginPostReportChecker,
             Action<I, I> iterationPostReportChecker)
         {
-            if (expectedBeginPostReport == null)
-            {
-                throw new ArgumentNullException(nameof(expectedBeginPostReport));
-            }
-
             if (expectedIterationPostReports == null)
             {
                 throw new ArgumentNullException(nameof(expectedIterationPostReports));
-            }
-
-            if (beginPostReportChecker == null)
-            {
-                throw new ArgumentNullException(nameof(beginPostReportChecker));
             }
 
             if (iterationPostReportChecker == null)
@@ -99,10 +66,62 @@ namespace FLaGLib.Test.TestHelpers
                 throw new ArgumentNullException(nameof(iterationPostReportChecker));
             }
 
-            _ExpectedBeginPostReport = expectedBeginPostReport;
             _ExpectedIterationPostReports = expectedIterationPostReports.ToList().AsReadOnly();
-            _BeginPostReportChecker = beginPostReportChecker;
             _IterationPostReportChecker = iterationPostReportChecker;
+        }
+    }
+
+    class PostReportTestHelper<B, I> : PostReportTestHelper<I>
+    {
+        protected bool _BeginPostReportInvoked;
+        protected B _ExpectedBeginPostReport;
+        protected Action<B, B> _BeginPostReportChecker;
+
+        public virtual void OnBeginPostReport(B actualBeginPostReport)
+        {
+            Assert.IsFalse(_BeginPostReportInvoked);
+            Assert.AreEqual(0, _ActualIterationPostReportCount);
+            _BeginPostReportInvoked = true;
+            BeginPostReportChecker(_ExpectedBeginPostReport, actualBeginPostReport);
+        }
+
+        private void BeginPostReportChecker(B expected, B actual)
+        {
+            CheckForNulls(expected, actual);
+            _BeginPostReportChecker(expected, actual);
+        }       
+
+        public override void StartTest()
+        {
+            _BeginPostReportInvoked = false;
+            base.StartTest();
+        }
+
+        public override void FinishTest()
+        {
+            Assert.IsTrue(_BeginPostReportInvoked);
+            base.FinishTest();
+        }
+
+        public PostReportTestHelper(
+            B expectedBeginPostReport,
+            IEnumerable<I> expectedIterationPostReports,
+            Action<B, B> beginPostReportChecker,
+            Action<I, I> iterationPostReportChecker)
+            : base(expectedIterationPostReports, iterationPostReportChecker)
+        {
+            if (expectedBeginPostReport == null)
+            {
+                throw new ArgumentNullException(nameof(expectedBeginPostReport));
+            }
+
+            if (beginPostReportChecker == null)
+            {
+                throw new ArgumentNullException(nameof(beginPostReportChecker));
+            }
+
+            _ExpectedBeginPostReport = expectedBeginPostReport;
+            _BeginPostReportChecker = beginPostReportChecker;
         }
     }
 
