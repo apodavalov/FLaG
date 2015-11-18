@@ -1,6 +1,7 @@
 ﻿using FLaGLib.Collections;
 using FLaGLib.Data;
 using FLaGLib.Data.Grammars;
+using FLaGLib.Data.StateMachines;
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using FLaGLib.Test.TestHelpers;
@@ -13,6 +14,298 @@ namespace FLaGLib.Test.Data.Grammars
     [TestFixture]
     public class GrammarTest
     {
+        [Test]
+        public void MakeStateMachine_Left_Ok()
+        {
+            NonTerminalSymbol s1 = new NonTerminalSymbol(new Label(new SingleLabel('S', 1)));
+            NonTerminalSymbol s2 = new NonTerminalSymbol(new Label(new SingleLabel('S', 2)));
+            NonTerminalSymbol s3 = new NonTerminalSymbol(new Label(new SingleLabel('S', 3)));
+            NonTerminalSymbol s4 = new NonTerminalSymbol(new Label(new SingleLabel('S', 4)));
+            NonTerminalSymbol s5 = new NonTerminalSymbol(new Label(new SingleLabel('S', 5)));
+            NonTerminalSymbol s6 = new NonTerminalSymbol(new Label(new SingleLabel('S', 6)));
+            NonTerminalSymbol s7 = new NonTerminalSymbol(new Label(new SingleLabel('S', 7)));
+
+            TerminalSymbol a = new TerminalSymbol('a');
+            TerminalSymbol b = new TerminalSymbol('b');
+            TerminalSymbol c = new TerminalSymbol('c');
+            TerminalSymbol d = new TerminalSymbol('d');
+
+            Grammar grammar = new Grammar(
+               EnumerateHelper.Sequence(
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           Chain.Empty,
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   s4,
+                                   b
+                               )
+                           )
+                       ), s1
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   s3,
+                                   a
+                               )
+                           )
+                       ), s2
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   s5,
+                                   b
+                               )
+                           ),
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   s7,
+                                   d
+                               )
+                           ),
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   b
+                               )
+                           )
+                       ), s3
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   s2,
+                                   a
+                               )
+                           )
+                       ), s4
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   a
+                               )
+                           )
+                       ), s5
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   b
+                               )
+                           )
+                       ), s6
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   s6,
+                                   c
+                               )
+                           )
+                       ), s7
+                   )
+               ), s1
+            );
+
+            Label s1State = new Label(new SingleLabel('S', 1));
+            Label s2State = new Label(new SingleLabel('S', 2));
+            Label s3State = new Label(new SingleLabel('S', 3));
+            Label s4State = new Label(new SingleLabel('S', 4));
+            Label s5State = new Label(new SingleLabel('S', 5));
+            Label s6State = new Label(new SingleLabel('S', 6));
+            Label s7State = new Label(new SingleLabel('S', 7));
+            Label s8State = new Label(new SingleLabel('S', 8));
+
+            Label expectedInitialState = s8State;
+
+            IEnumerable<Label> expectedStates = EnumerateHelper.Sequence(
+                s1State, s2State, s3State, s4State, s5State, s6State, s7State, s8State
+            );
+
+            IEnumerable<Transition> expectedTransitions = EnumerateHelper.Sequence(
+                new Transition(s2State, 'a', s4State),
+                new Transition(s3State, 'a', s2State),
+                new Transition(s4State, 'b', s1State),
+                new Transition(s5State, 'b', s3State),
+                new Transition(s6State, 'c', s7State),
+                new Transition(s7State, 'd', s3State),
+                new Transition(s8State, 'a', s5State),
+                new Transition(s8State, 'b', s3State),
+                new Transition(s8State, 'b', s6State)
+            );
+
+            IEnumerable<Label> expectedFinalStates = EnumerateHelper.Sequence(
+                s1State,s8State
+            );
+
+            IEnumerable<char> expectedAlphabet = EnumerateHelper.Sequence(
+                'a','b','c','d'
+            );
+
+            StateMachine actualStateMachine = grammar.MakeStateMachine(GrammarType.Left);
+
+            CollectionAssert.AreEquivalent(expectedAlphabet, actualStateMachine.Alphabet);
+            CollectionAssert.AreEquivalent(expectedStates, actualStateMachine.States);
+            CollectionAssert.AreEquivalent(expectedTransitions, actualStateMachine.Transitions);
+            CollectionAssert.AreEquivalent(expectedFinalStates, actualStateMachine.FinalStates);
+
+            Assert.AreEqual(expectedInitialState, actualStateMachine.InitialState);
+        }
+
+        [Test]
+        public void MakeStateMachine_Right_Ok()
+        {
+            NonTerminalSymbol s1 = new NonTerminalSymbol(new Label(new SingleLabel('S', 1)));
+            NonTerminalSymbol s2 = new NonTerminalSymbol(new Label(new SingleLabel('S', 2)));
+            NonTerminalSymbol s3 = new NonTerminalSymbol(new Label(new SingleLabel('S', 3)));
+            NonTerminalSymbol s4 = new NonTerminalSymbol(new Label(new SingleLabel('S', 4)));
+            NonTerminalSymbol s5 = new NonTerminalSymbol(new Label(new SingleLabel('S', 5)));
+            NonTerminalSymbol s6 = new NonTerminalSymbol(new Label(new SingleLabel('S', 6)));
+            NonTerminalSymbol s7 = new NonTerminalSymbol(new Label(new SingleLabel('S', 7)));
+
+            TerminalSymbol a = new TerminalSymbol('a');
+            TerminalSymbol b = new TerminalSymbol('b');
+            TerminalSymbol c = new TerminalSymbol('c');
+            TerminalSymbol d = new TerminalSymbol('d');
+
+            Grammar grammar = new Grammar(
+               EnumerateHelper.Sequence(
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           Chain.Empty,
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   b,
+                                   s4
+                               )
+                           )
+                       ), s1
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   a,
+                                   s3
+                               )
+                           )
+                       ), s2
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   b,
+                                   s5
+                               )
+                           ),
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   d,
+                                   s7
+                               )
+                           ),
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   b
+                               )
+                           )
+                       ), s3
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   a,
+                                   s2
+                               )
+                           )
+                       ), s4
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   a
+                               )
+                           )
+                       ), s5
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   b
+                               )
+                           )
+                       ), s6
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   c,
+                                   s6
+                               )
+                           )
+                       ), s7
+                   )
+               ), s1
+            );
+
+            Label s1State = new Label(new SingleLabel('S', 1));
+            Label s2State = new Label(new SingleLabel('S', 2));
+            Label s3State = new Label(new SingleLabel('S', 3));
+            Label s4State = new Label(new SingleLabel('S', 4));
+            Label s5State = new Label(new SingleLabel('S', 5));
+            Label s6State = new Label(new SingleLabel('S', 6));
+            Label s7State = new Label(new SingleLabel('S', 7));
+            Label s8State = new Label(new SingleLabel('S', 8));
+
+            Label expectedInitialState = s1State;
+
+            IEnumerable<Label> expectedStates = EnumerateHelper.Sequence(
+                s1State, s2State, s3State, s4State, s5State, s6State, s7State, s8State
+            );
+
+            IEnumerable<Transition> expectedTransitions = EnumerateHelper.Sequence(
+                new Transition(s1State, 'b', s4State),
+                new Transition(s2State, 'a', s3State),
+                new Transition(s3State, 'b', s5State),
+                new Transition(s3State, 'b', s8State),
+                new Transition(s3State, 'd', s7State),
+                new Transition(s4State, 'a', s2State),
+                new Transition(s5State, 'a', s8State),
+                new Transition(s6State, 'b', s8State),
+                new Transition(s7State, 'c', s6State)
+            );
+
+            IEnumerable<Label> expectedFinalStates = EnumerateHelper.Sequence(
+                s1State, s8State
+            );
+
+            IEnumerable<char> expectedAlphabet = EnumerateHelper.Sequence(
+                'a', 'b', 'c', 'd'
+            );
+
+            StateMachine actualStateMachine = grammar.MakeStateMachine(GrammarType.Right);
+
+            CollectionAssert.AreEquivalent(expectedAlphabet, actualStateMachine.Alphabet);
+            CollectionAssert.AreEquivalent(expectedStates, actualStateMachine.States);
+            CollectionAssert.AreEquivalent(expectedTransitions, actualStateMachine.Transitions);
+            CollectionAssert.AreEquivalent(expectedFinalStates, actualStateMachine.FinalStates);
+
+            Assert.AreEqual(expectedInitialState, actualStateMachine.InitialState);
+        }
+
         [Test]
         public void MakeStateMachineGrammar_Left_Ok()
         {
