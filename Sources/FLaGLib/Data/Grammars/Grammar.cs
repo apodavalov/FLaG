@@ -1,4 +1,5 @@
 ﻿using FLaGLib.Collections;
+using FLaGLib.Data.StateMachines;
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using System;
@@ -97,7 +98,140 @@ namespace FLaGLib.Data.Grammars
                 default:
                     throw new NotSupportedException(string.Format(_GrammarIsNotSupportedMessage, grammarType));
             }
-        } 
+        }
+
+        public StateMachine MakeStateMachine(GrammarType grammarType)
+        {
+            ISet<Transition> transitions = new HashSet<Transition>();
+            ISet<Label> finalStates = new HashSet<Label>();
+
+            NonTerminalSymbol additionalState = GetNewNonTerminal(NonTerminals);
+            
+            switch (grammarType)
+            {
+                case GrammarType.Left:
+                    finalStates.Add(Target.Label);
+                    break;
+                case GrammarType.Right:
+                    
+                    finalStates.Add(additionalState.Label);
+                    break;
+                default:
+                    throw new NotSupportedException(string.Format(_GrammarIsNotSupportedMessage, grammarType));
+            }
+
+            foreach (Rule rule in Rules)
+            {
+                foreach (Chain chain in rule.Chains)
+                {
+                    int state = 0;
+                    Symbol otherSymbol = null;
+                    NonTerminalSymbol nonTerminalSymbol = null;
+                    TerminalSymbol terminalSymbol = null;
+
+                    foreach (Symbol symbol in Enumerate(chain, grammarType))
+                    {
+                        switch (state)
+                        {
+                            case 0:
+                                otherSymbol = symbol;
+                                state = 1;
+                                break;
+                            case 1:
+                                nonTerminalSymbol = otherSymbol.As<NonTerminalSymbol>();
+
+                                if (nonTerminalSymbol == null)
+                                {
+                                    throw new InvalidOperationException("Expected non terminal symbol.");
+                                }
+
+                                terminalSymbol = symbol.As<TerminalSymbol>();
+
+                                if (terminalSymbol == null)
+                                {
+                                    throw new InvalidOperationException("Expected terminal symbol.");
+                                }
+
+                                state = 2;
+                                break;
+                            default:
+                                throw new InvalidOperationException("Expected 2 or less symbols.");
+                        }
+                    }
+
+                    switch (state)
+                    {
+                        case 0:
+                            if (rule.Target != Target)
+                            {
+                                throw new InvalidOperationException("Expected that rule target equals to grammar target.");
+                            }
+
+                            switch (grammarType)
+                            {
+                                case GrammarType.Left:
+                                    finalStates.Add(additionalState.Label);
+                                    break;
+                                case GrammarType.Right:
+                                    finalStates.Add(Target.Label);
+                                    break;
+                                default:
+                                    throw new NotSupportedException(string.Format(_GrammarIsNotSupportedMessage, grammarType));
+                            }
+                            
+                            break;
+                        case 1:
+                            terminalSymbol = otherSymbol.As<TerminalSymbol>();
+
+                            if (terminalSymbol == null)
+                            {
+                                throw new InvalidOperationException("One symbol chain must contain terminal symbol.");
+                            }
+
+                            nonTerminalSymbol = additionalState;
+
+                            goto case 2;
+                        case 2:
+                        default:
+                            Label currentState;
+                            Label nextState;
+
+                            switch (grammarType)
+                            {
+                                case GrammarType.Left:
+                                    currentState = nonTerminalSymbol.Label;
+                                    nextState = rule.Target.Label;
+                                    break;
+                                case GrammarType.Right:
+                                    currentState = rule.Target.Label;
+                                    nextState = nonTerminalSymbol.Label;
+                                    break;
+                                default:
+                                    throw new NotSupportedException(string.Format(_GrammarIsNotSupportedMessage, grammarType));
+                            }
+
+                            transitions.Add(new Transition(currentState, terminalSymbol.Symbol, nextState));
+                            break;
+                    }
+                }
+            }
+
+            StateMachine stateMachine;
+
+            switch (grammarType)
+            {
+                case GrammarType.Left:
+                    stateMachine = new StateMachine(additionalState.Label, finalStates, transitions);
+                    break;
+                case GrammarType.Right:
+                    stateMachine = new StateMachine(Target.Label, finalStates, transitions);
+                    break;
+                default:
+                    throw new NotSupportedException(string.Format(_GrammarIsNotSupportedMessage, grammarType));
+            }
+
+            return stateMachine;
+        }
 
         public Grammar MakeStateMachineGrammar(GrammarType grammarType, Action<MakeStateMachineGrammarPostReport> onIterate = null)
         {
