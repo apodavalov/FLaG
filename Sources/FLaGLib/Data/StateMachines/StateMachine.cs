@@ -1,4 +1,5 @@
 ﻿using FLaGLib.Collections;
+using FLaGLib.Data.Grammars;
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using System;
@@ -55,6 +56,74 @@ namespace FLaGLib.Data.StateMachines
             }
 
             return true;
+        }
+
+
+        public Grammar MakeGrammar(GrammarType grammarType)
+        {
+            switch (grammarType)
+            {
+                case GrammarType.Left:
+                    return MakeGrammarLeft();
+                case GrammarType.Right:
+                    return MakeGrammarRight();
+                default:
+                    throw new InvalidOperationException(Grammar.GrammarIsNotSupportedMessage);
+            }
+        }
+
+        private Grammar MakeGrammarLeft()
+        {
+            IDictionary<char, TerminalSymbol> charTerminalMap = Alphabet.ToDictionary(c => c, c => new TerminalSymbol(c));
+            IDictionary<Label, NonTerminalSymbol> stateNonTerminalMap = States.ToDictionary(s => s, s => new NonTerminalSymbol(s));
+
+            NonTerminalSymbol target = Grammar.GetNewNonTerminal(stateNonTerminalMap.Values);
+            
+            ISet<Rule> rules = new HashSet<Rule>();
+
+            foreach (Transition transition in Transitions)
+            {
+                Chain chain = new Chain(
+                    EnumerateHelper.Sequence<Symbol>(
+                        stateNonTerminalMap[transition.CurrentState], charTerminalMap[transition.Symbol]
+                    )
+                );
+
+                rules.Add(new Rule(chain.AsSequence(), stateNonTerminalMap[transition.NextState]));
+            }
+
+            rules.Add(new Rule(Chain.Empty.AsSequence(), stateNonTerminalMap[InitialState]));
+
+            IEnumerable<Chain> chains = FinalStates.Select(fs => new Chain(stateNonTerminalMap[fs].AsSequence()));
+
+            rules.Add(new Rule(chains, target));
+
+            return new Grammar(rules, target);
+        }
+
+        private Grammar MakeGrammarRight()
+        {
+            IDictionary<char, TerminalSymbol> charTerminalMap = Alphabet.ToDictionary(c => c, c => new TerminalSymbol(c));
+            IDictionary<Label, NonTerminalSymbol> stateNonTerminalMap = States.ToDictionary(s => s, s => new NonTerminalSymbol(s));
+
+            NonTerminalSymbol target = stateNonTerminalMap[InitialState];
+
+            ISet<Rule> rules = new HashSet<Rule>();
+
+            foreach (Transition transition in Transitions)
+            {
+                Chain chain = new Chain(
+                    EnumerateHelper.Sequence<Symbol>(
+                        charTerminalMap[transition.Symbol], stateNonTerminalMap[transition.NextState]
+                    )
+                );
+
+                rules.Add(new Rule(chain.AsSequence(), stateNonTerminalMap[transition.CurrentState]));
+            }
+
+            rules.AddRange(FinalStates.Select(fs => new Rule(Chain.Empty.AsSequence(), stateNonTerminalMap[fs])));
+
+            return new Grammar(rules, target);
         }
 
         public StateMachine RemoveUnreachableStates(

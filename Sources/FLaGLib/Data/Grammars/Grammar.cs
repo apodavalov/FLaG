@@ -10,7 +10,7 @@ namespace FLaGLib.Data.Grammars
 {
     public class Grammar : IComparable<Grammar>, IEquatable<Grammar>
     {
-        private const string _GrammarIsNotSupportedMessage = "Grammar type {0} is not supported.";
+        internal const string GrammarIsNotSupportedMessage = "Grammar type {0} is not supported.";
 
         public IReadOnlySet<Rule> Rules
         {
@@ -83,7 +83,7 @@ namespace FLaGLib.Data.Grammars
                 case GrammarType.Right:
                     return EnumerateHelper.ReverseSequence(items);
                 default:
-                    throw new NotSupportedException(string.Format(_GrammarIsNotSupportedMessage, grammarType));
+                    throw new NotSupportedException(string.Format(GrammarIsNotSupportedMessage, grammarType));
             }
         }
 
@@ -96,7 +96,7 @@ namespace FLaGLib.Data.Grammars
                 case GrammarType.Right:
                     return list.FastReverse();
                 default:
-                    throw new NotSupportedException(string.Format(_GrammarIsNotSupportedMessage, grammarType));
+                    throw new NotSupportedException(string.Format(GrammarIsNotSupportedMessage, grammarType));
             }
         }
 
@@ -117,7 +117,7 @@ namespace FLaGLib.Data.Grammars
                     finalStates.Add(additionalState.Label);
                     break;
                 default:
-                    throw new NotSupportedException(string.Format(_GrammarIsNotSupportedMessage, grammarType));
+                    throw new NotSupportedException(string.Format(GrammarIsNotSupportedMessage, grammarType));
             }
 
             foreach (Rule rule in Rules)
@@ -176,7 +176,7 @@ namespace FLaGLib.Data.Grammars
                                     finalStates.Add(Target.Label);
                                     break;
                                 default:
-                                    throw new NotSupportedException(string.Format(_GrammarIsNotSupportedMessage, grammarType));
+                                    throw new NotSupportedException(string.Format(GrammarIsNotSupportedMessage, grammarType));
                             }
                             
                             break;
@@ -207,7 +207,7 @@ namespace FLaGLib.Data.Grammars
                                     nextState = nonTerminalSymbol.Label;
                                     break;
                                 default:
-                                    throw new NotSupportedException(string.Format(_GrammarIsNotSupportedMessage, grammarType));
+                                    throw new NotSupportedException(string.Format(GrammarIsNotSupportedMessage, grammarType));
                             }
 
                             transitions.Add(new Transition(currentState, terminalSymbol.Symbol, nextState));
@@ -227,7 +227,7 @@ namespace FLaGLib.Data.Grammars
                     stateMachine = new StateMachine(Target.Label, finalStates, transitions);
                     break;
                 default:
-                    throw new NotSupportedException(string.Format(_GrammarIsNotSupportedMessage, grammarType));
+                    throw new NotSupportedException(string.Format(GrammarIsNotSupportedMessage, grammarType));
             }
 
             return stateMachine;
@@ -558,10 +558,10 @@ namespace FLaGLib.Data.Grammars
 
             grammar = this;
 
-            return false;            
+            return false;
         }
 
-        private NonTerminalSymbol GetNewNonTerminal(IEnumerable<NonTerminalSymbol> nonTerminals)
+        internal static NonTerminalSymbol GetNewNonTerminal(IEnumerable<NonTerminalSymbol> nonTerminals)
         {
             return
                 new NonTerminalSymbol(
