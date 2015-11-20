@@ -66,26 +66,23 @@ namespace FLaGLib.Test.Data.Languages
         };
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_EntitiesStateNull_Fail()
         {
-            new Concat(null);
+            Assert.Throws<ArgumentNullException>(() => new Concat(null));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_SetNullItems_Fail()
         {
             IEnumerable<Entity> sequence = EnumerateHelper.Sequence<Entity>(new Symbol('a'), null);
-            new Concat(sequence);
+            Assert.Throws<ArgumentException>(() => new Concat(sequence));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_SetLessTwoItems_Fail()
         {
             IEnumerable<Entity> sequence = EnumerateHelper.Sequence<Entity>(new Symbol('a'));
-            new Concat(sequence);
+            Assert.Throws<ArgumentException>(() => new Concat(sequence));
         }
 
         [Test]

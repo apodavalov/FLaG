@@ -55,10 +55,9 @@ namespace FLaGLib.Test.Data.RegExps
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_SetNullExpression_Fail()
         {
-            Iteration iteration = new Iteration(null, true);
+            Assert.Throws<ArgumentNullException>(() => new Iteration(null, true));
         }
 
         [Test]

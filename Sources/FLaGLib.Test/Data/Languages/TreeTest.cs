@@ -125,10 +125,9 @@ namespace FLaGLib.Test.Data.Languages
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CcrotTest_SetNull_Fail()
         {
-            Tree tree = new Tree(null);
+            Assert.Throws<ArgumentNullException>(() => new Tree(null));
         }
 
         [Test]

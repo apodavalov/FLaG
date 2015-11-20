@@ -25,10 +25,9 @@ namespace FLaGLib.Test.Collections
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_SetIsNull_Fail()
         {
-            new ReadOnlySet<int>(null);
+            Assert.Throws<ArgumentNullException>(() => new ReadOnlySet<int>(null));
         }
 
         [Test]

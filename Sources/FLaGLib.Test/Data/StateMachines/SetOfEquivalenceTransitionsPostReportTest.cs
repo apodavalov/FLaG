@@ -60,10 +60,9 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_SetOfEquivalenceTransitionsNull_Fail()
         {
-            new SetOfEquivalenceTransitionsPostReport(null, 4);
+            Assert.Throws<ArgumentNullException>(() => new SetOfEquivalenceTransitionsPostReport(null, 4));
         }
     }
 }

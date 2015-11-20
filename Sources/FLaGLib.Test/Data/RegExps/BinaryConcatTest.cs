@@ -66,17 +66,15 @@ namespace FLaGLib.Test.Data.RegExps
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_LeftExpressionIsNull_Fail()
         {
-            BinaryConcat binaryConcat = new BinaryConcat(null, new Symbol('b'));
+            Assert.Throws<ArgumentNullException>(() => new BinaryConcat(null, new Symbol('b')));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_RightExpressionIsNull_Fail()
         {
-            BinaryConcat binaryConcat = new BinaryConcat(new Symbol('a'), null);
+            Assert.Throws<ArgumentNullException>(() => new BinaryConcat(new Symbol('a'), null));
         }
 
         [Test]

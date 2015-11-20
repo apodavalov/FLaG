@@ -79,10 +79,9 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_SetNull_Fail()
         {
-            new SetOfEquivalence(null);
+            Assert.Throws<ArgumentNullException>(() => new SetOfEquivalence(null));
         }
 
         [Test]

@@ -80,11 +80,10 @@ namespace FLaGLib.Test.Extensions
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void ToHashSetTest_Fail()
         {
             IEnumerable<int> iEnumerable = null;
-            IEnumerableExtension.ToHashSet(iEnumerable);
+            Assert.Throws<ArgumentNullException>(() => IEnumerableExtension.ToHashSet(iEnumerable));
         }
 
         [Test]
@@ -102,11 +101,10 @@ namespace FLaGLib.Test.Extensions
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void ToSortedSetTest_Fail()
         {
             IEnumerable<int> iEnumerable = null;
-            IEnumerableExtension.ToSortedSet(iEnumerable);
+            Assert.Throws<ArgumentNullException>(() => IEnumerableExtension.ToSortedSet(iEnumerable));
         }
 
         [Test]

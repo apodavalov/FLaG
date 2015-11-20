@@ -105,23 +105,15 @@ namespace FLaGLib.Test.Data.Languages
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_EntitiesNull_Fail()
         {
-            Degree degree = new Degree(
-                                null,
-                                new Quantity(1)
-                            );
+            Assert.Throws<ArgumentNullException>(() => new Degree(null, new Quantity(1)));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_ExponentNull_Fail()
         {
-            Degree degree = new Degree(
-                                new Symbol('a'),
-                                null
-                            );
+            Assert.Throws<ArgumentNullException>(() => new Degree(new Symbol('a'), null));
         }
 
         [Test]

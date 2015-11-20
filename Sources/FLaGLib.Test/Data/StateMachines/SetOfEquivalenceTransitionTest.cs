@@ -31,24 +31,21 @@ namespace FLaGLib.Test.Data.StateMachines
         private IEnumerable<char> symbols = EnumerateHelper.Sequence('a', 'c');
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_NextSetOfEquivalenceNull_Fail()
         {
-            new SetOfEquivalenceTransition(null, symbols, setOfEquivalence1, 4);
+            Assert.Throws<ArgumentNullException>(() => new SetOfEquivalenceTransition(null, symbols, setOfEquivalence1, 4));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_CurrentSetOfEquivalenceNull_Fail()
         {
-            new SetOfEquivalenceTransition(setOfEquivalence1, symbols, null, 5);
+            Assert.Throws<ArgumentNullException>(() => new SetOfEquivalenceTransition(setOfEquivalence1, symbols, null, 5));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_SymbolsNull_Fail()
         {
-            new SetOfEquivalenceTransition(setOfEquivalence1, null, setOfEquivalence2, 2);
+            Assert.Throws<ArgumentNullException>(() => new SetOfEquivalenceTransition(setOfEquivalence1, null, setOfEquivalence2, 2));
         }
 
         [Test]

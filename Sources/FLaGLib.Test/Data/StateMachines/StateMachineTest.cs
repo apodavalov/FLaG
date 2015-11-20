@@ -345,7 +345,6 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void GetMetaTransitionsTest_AnyNonSimpleLabel_Fail()
         {
             Label s11State = new Label(new SingleLabel('S', subIndex: 11));
@@ -371,11 +370,13 @@ namespace FLaGLib.Test.Data.StateMachines
 
             Label initialState = s11State;
 
-            new StateMachine(
-                initialState, 
+            StateMachine stateMachine = new StateMachine(
+                initialState,
                 finalStates,
                 transitions
-            ).GetMetaTransitions();
+            );
+
+            Assert.Throws<InvalidOperationException>(() => stateMachine.GetMetaTransitions());
         }
 
         [Test]
@@ -415,7 +416,6 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void GetMetaStateTest_AnyNonSimpleLabel_Fail()
         {
             Label s11State = new Label(new SingleLabel('S', subIndex: 11));
@@ -441,15 +441,16 @@ namespace FLaGLib.Test.Data.StateMachines
 
             Label initialState = s11State;
 
-            new StateMachine(
+            StateMachine stateMachine = new StateMachine(
                 initialState,
                 finalStates,
                 transitions
-            ).GetMetaState();
+            );
+
+            Assert.Throws<InvalidOperationException>(() => stateMachine.GetMetaState());
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void GetMetaFinalStateTest_AnyNonSimpleLabel_Fail()
         {
             Label s11State = new Label(new SingleLabel('S', subIndex: 11));
@@ -475,11 +476,13 @@ namespace FLaGLib.Test.Data.StateMachines
 
             Label initialState = s11State;
 
-            new StateMachine(
+            StateMachine stateMachine = new StateMachine(
                 initialState,
                 finalStates,
                 transitions
-            ).GetMetaFinalState();
+            );
+
+            Assert.Throws<InvalidOperationException>(() => stateMachine.GetMetaFinalState());
         }
 
         [Test]
@@ -1266,66 +1269,60 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_InitialStateNull_Fail()
         {
             IEnumerable<Transition> transitions = EnumerateHelper.Sequence(new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))));
             IEnumerable<Label> finalStates = EnumerateHelper.Sequence(new Label(new SingleLabel('b')));
 
-            new StateMachine(null, finalStates, transitions);
+            Assert.Throws<ArgumentNullException>(() => new StateMachine(null, finalStates, transitions));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_FinalStatesNull_Fail()
         {
             IEnumerable<Transition> transitions = EnumerateHelper.Sequence(new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))));
             Label initialState = new Label(new SingleLabel('c'));
 
-            new StateMachine(initialState, null, transitions);
+            Assert.Throws<ArgumentNullException>(() => new StateMachine(initialState, null, transitions));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_TransitionsNull_Fail()
         {
             IEnumerable<Label> finalStates = EnumerateHelper.Sequence(new Label(new SingleLabel('b')));
             Label initialState = new Label(new SingleLabel('c'));
 
-            new StateMachine(initialState, finalStates, null);
+            Assert.Throws<ArgumentNullException>(() => new StateMachine(initialState, finalStates, null));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_OneFinalStateNull_Fail()
         {
             IEnumerable<Transition> transitions = EnumerateHelper.Sequence(new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))));
             IEnumerable<Label> finalStates = EnumerateHelper.Sequence(new Label(new SingleLabel('b')), null);
             Label initialState = new Label(new SingleLabel('c'));
 
-            new StateMachine(initialState, finalStates, transitions);
+            Assert.Throws<ArgumentException>(() => new StateMachine(initialState, finalStates, transitions));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_OneTransitionNull_Fail()
         {
             IEnumerable<Transition> transitions = EnumerateHelper.Sequence(new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))), null);
             IEnumerable<Label> finalStates = EnumerateHelper.Sequence(new Label(new SingleLabel('b')));
             Label initialState = new Label(new SingleLabel('c'));
 
-            new StateMachine(initialState, finalStates, transitions);
+            Assert.Throws<ArgumentException>(() => new StateMachine(initialState, finalStates, transitions));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_FinalStatesSetIsNotSupersetOfStates_Fail()
         {
             IEnumerable<Transition> transitions = EnumerateHelper.Sequence(new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))));
             IEnumerable<Label> finalStates = EnumerateHelper.Sequence(new Label(new SingleLabel('b')), new Label(new SingleLabel('d')));
             Label initialState = new Label(new SingleLabel('c'));
 
-            new StateMachine(initialState, finalStates, transitions);
+            Assert.Throws<ArgumentException>(() => new StateMachine(initialState, finalStates, transitions));
         }
 
         [Test]
@@ -1353,14 +1350,13 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_NoFinalStates_Fail()
         {
             IEnumerable<Transition> transitions = Enumerable.Empty<Transition>();
             Label initialState = new Label(new SingleLabel('b'));
             IEnumerable<Label> finalStates = Enumerable.Empty<Label>();
 
-            StateMachine stateMachine = new StateMachine(initialState, finalStates, transitions);
+            Assert.Throws<ArgumentException>(() => new StateMachine(initialState, finalStates, transitions));
         }
 
         [Test]

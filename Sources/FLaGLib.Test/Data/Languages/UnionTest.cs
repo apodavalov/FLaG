@@ -100,33 +100,34 @@ namespace FLaGLib.Test.Data.Languages
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_SetLessTwoItems_Fail()
         {
-            Union union = new Union(
-                                EnumerateHelper.Sequence<Entity>(
-                                    new Symbol('a')
-                                )
-                            );
+            Assert.Throws<ArgumentException>(() =>
+                new Union(
+                    EnumerateHelper.Sequence<Entity>(
+                        new Symbol('a')
+                    )
+                )
+            );
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_SetNull_Fail()
         {
-            Union union = new Union(null);
+            Assert.Throws<ArgumentNullException>(() => new Union(null));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_SetNullItems_Fail()
         {
-            Union union = new Union(
-                                EnumerateHelper.Sequence<Entity>(
-                                    new Symbol('a'),
-                                    null
-                                )
-                            );
+            Assert.Throws<ArgumentException>(() => 
+                new Union(
+                    EnumerateHelper.Sequence<Entity>(
+                        new Symbol('a'),
+                        null
+                    )
+                )
+            );
         }
 
         [Test]

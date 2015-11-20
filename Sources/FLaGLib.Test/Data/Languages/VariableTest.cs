@@ -61,23 +61,24 @@ namespace FLaGLib.Test.Data.Languages
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_SetVariableLessLatinLetter_Fail()
         {
-            for (int i = 32; i <= 255; i++)
+            Assert.Throws<ArgumentException>(() =>
             {
-                if ((char)i < 'a' || (char)i > 'z')
+                for (int i = 32; i <= 255; i++)
                 {
-                    Variable variable = new Variable((char)i, Sign.MoreThanOrEqual, 0);
+                    if ((char)i < 'a' || (char)i > 'z')
+                    {
+                        Variable variable = new Variable((char)i, Sign.MoreThanOrEqual, 0);
+                    }
                 }
-            }
+            });
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_SetNameLessZero_Fail()
         {
-            Variable variable = new Variable('k', Sign.MoreThanOrEqual, -1);
+            Assert.Throws<ArgumentException>(() => new Variable('k', Sign.MoreThanOrEqual, -1));
         }
 
         [Test]
@@ -186,11 +187,10 @@ namespace FLaGLib.Test.Data.Languages
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void ToRegExp_SetNull_Fail()
         {
             Variable variable = new Variable('k', Sign.MoreThanOrEqual, 0);
-            variable.ToRegExp(null);
+            Assert.Throws<ArgumentNullException>(() => variable.ToRegExp(null));
         }
 
         [Test]

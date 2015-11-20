@@ -10,10 +10,9 @@ namespace FLaGLib.Test.Data.StateMachines
     public class SetsOfEquivalencePostReportTest
     {
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_SetsOfEquivalenceNull_Fail()
         {
-            new SetsOfEquivalencePostReport(null, 56);
+            Assert.Throws<ArgumentNullException>(() => new SetsOfEquivalencePostReport(null, 56));
         }
 
         [Test]

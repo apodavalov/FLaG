@@ -66,17 +66,15 @@ namespace FLaGLib.Test.Data.RegExps
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_LeftExpressionIsNull_Fail()
-        { 
-            BinaryUnion binatyUnion = new BinaryUnion(null, new Symbol('b'));
+        {
+            Assert.Throws<ArgumentNullException>(() => new BinaryUnion(null, new Symbol('b')));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_RightExpressionIsNull_Fail()
-        { 
-            BinaryUnion binatyUnion = new BinaryUnion(new Symbol('a'), null);
+        {
+            Assert.Throws<ArgumentNullException>(() => new BinaryUnion(new Symbol('a'), null));
         }
 
         [Test]

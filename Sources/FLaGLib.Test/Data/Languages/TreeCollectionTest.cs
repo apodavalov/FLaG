@@ -201,20 +201,21 @@ namespace FLaGLib.Test.Data.Languages
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
-        public void CctorTest_Fil_SetSubtreesLessTwo()
+        public void CctorTest_Fail_SetSubtreesLessTwo()
         {
-            TreeCollection treeColletion = new TreeCollection(
-                                                EnumerateHelper.Sequence<Tree>(
-                                                    new Tree(new Union(
-                                                        EnumerateHelper.Sequence<Entity>(
-                                                            new Symbol('a'),
-                                                            new Symbol('b')
-                                                        )
-                                                    ))
-                                                ),
-                                                TreeOperator.Concat
-                                            );
+            Assert.Throws<ArgumentException>(() => 
+                new TreeCollection(
+                    EnumerateHelper.Sequence<Tree>(
+                        new Tree(new Union(
+                            EnumerateHelper.Sequence<Entity>(
+                                new Symbol('a'),
+                                new Symbol('b')
+                            )
+                        ))
+                    ),
+                    TreeOperator.Concat
+                )
+            );
         }
 
         [Test]

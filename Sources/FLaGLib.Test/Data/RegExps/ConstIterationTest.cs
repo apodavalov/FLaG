@@ -54,17 +54,15 @@ namespace FLaGLib.Test.Data.RegExps
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_SetNullExpression_Fail()
         {
-            ConstIteration constIteration = new ConstIteration(null, 0);
+            Assert.Throws<ArgumentNullException>(() => new ConstIteration(null, 0));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_SetIterationLessZero_Fail()
         {
-            ConstIteration constIteration = new ConstIteration(new Symbol('a'), -1);
+            Assert.Throws<ArgumentException>(() => new ConstIteration(new Symbol('a'), -1));
         }
 
         [Test]

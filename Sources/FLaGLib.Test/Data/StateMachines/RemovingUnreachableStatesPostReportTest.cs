@@ -12,54 +12,58 @@ namespace FLaGLib.Test.Data.StateMachines
     public class RemovingUnreachableStatesPostReportTest
     {
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void Cctor_CurrentReachableStatesNull_Fail()
         {
-            new RemovingUnreachableStatesPostReport(
-                null, 
-                Enumerable.Empty<Label>(),
-                Enumerable.Empty<Label>(),
-                Enumerable.Empty<Label>(),
-                0
+            Assert.Throws<ArgumentNullException>(() =>
+                new RemovingUnreachableStatesPostReport(
+                    null, 
+                    Enumerable.Empty<Label>(),
+                    Enumerable.Empty<Label>(),
+                    Enumerable.Empty<Label>(),
+                    0
+                )
             );
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void Cctor_CurrentApproachedStatesNull_Fail()
         {
-            new RemovingUnreachableStatesPostReport(
-                Enumerable.Empty<Label>(),
-                Enumerable.Empty<Label>(), 
-                null,
-                Enumerable.Empty<Label>(),
-                0
-             );
-        }
-
-        [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void Cctor_NextReachableStatesNull_Fail()
-        {
-            new RemovingUnreachableStatesPostReport(
-                Enumerable.Empty<Label>(), 
-                null,
-                Enumerable.Empty<Label>(),
-                Enumerable.Empty<Label>(), 
-                0
+            Assert.Throws<ArgumentNullException>(() =>
+                new RemovingUnreachableStatesPostReport(
+                    Enumerable.Empty<Label>(),
+                    Enumerable.Empty<Label>(), 
+                    null,
+                    Enumerable.Empty<Label>(),
+                    0
+                )
             );
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
+        public void Cctor_NextReachableStatesNull_Fail()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+                new RemovingUnreachableStatesPostReport(
+                    Enumerable.Empty<Label>(), 
+                    null,
+                    Enumerable.Empty<Label>(),
+                    Enumerable.Empty<Label>(), 
+                    0
+                )
+            );
+        }
+
+        [Test]
         public void Cctor_NextApproachedStatesNull_Fail()
         {
-            new RemovingUnreachableStatesPostReport(
-                Enumerable.Empty<Label>(),
-                Enumerable.Empty<Label>(),
-                Enumerable.Empty<Label>(), 
-                null, 
-                0
+            Assert.Throws<ArgumentNullException>(() =>
+                new RemovingUnreachableStatesPostReport(
+                    Enumerable.Empty<Label>(),
+                    Enumerable.Empty<Label>(),
+                    Enumerable.Empty<Label>(),
+                    null,
+                    0
+                )
             );
         }
 

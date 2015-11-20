@@ -182,38 +182,41 @@ namespace FLaGLib.Test.Data.StateMachines
         };
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_MetaCurrentOptionalStatesNull_Fail()
         {
-            new MetaTransition(
-                Enumerable.Empty<Label>(), 
-                null, 
-                'a', 
-                Enumerable.Empty<Label>()
-            );          
-        }
-
-        [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void CctorTest_MetaCurrentRequiredStatesNull_Fail()
-        {
-            new MetaTransition(
-                null,
-                Enumerable.Empty<Label>(),
-                'a',
-                Enumerable.Empty<Label>()
+            Assert.Throws<ArgumentNullException>(() =>
+                new MetaTransition(
+                    Enumerable.Empty<Label>(),
+                    null,
+                    'a',
+                    Enumerable.Empty<Label>()
+                )
             );
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
+        public void CctorTest_MetaCurrentRequiredStatesNull_Fail()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+                new MetaTransition(
+                    null,
+                    Enumerable.Empty<Label>(),
+                    'a',
+                    Enumerable.Empty<Label>()
+                )
+            );
+        }
+
+        [Test]
         public void CctorTest_MetaNextStatesNull_Fail()
         {
-            new MetaTransition(
-                Enumerable.Empty<Label>(),
-                Enumerable.Empty<Label>(),
-                'a',
-                null
+            Assert.Throws<ArgumentNullException>(() =>
+                new MetaTransition(
+                    Enumerable.Empty<Label>(),
+                    Enumerable.Empty<Label>(),
+                    'a',
+                    null
+                )
             );
         }
 

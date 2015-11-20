@@ -10,10 +10,9 @@ namespace FLaGLib.Test.Extensions
     public class ISetExtensionsTest
     {
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void ConvertToReadOnlyListAndSortTest_ThisNull_Fail()
         {
-            ((ISet<int>)null).ConvertToReadOnlyListAndSort();
+            Assert.Throws<ArgumentNullException>(() => ((ISet<int>)null).ConvertToReadOnlyListAndSort());
         }
 
         [Test]

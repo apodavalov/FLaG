@@ -54,7 +54,6 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_RequiredStatesNull_Fail()
         {
             IEnumerable<Label> expectedOptionalStates =
@@ -72,11 +71,10 @@ namespace FLaGLib.Test.Data.StateMachines
                     )
                 );
 
-            new MetaFinalState(null, expectedOptionalStates);
+            Assert.Throws<ArgumentNullException>(() => new MetaFinalState(null, expectedOptionalStates));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_OptionalStatesNull_Fail()
         {
             IEnumerable<Label> expectedRequiredStates =
@@ -94,7 +92,7 @@ namespace FLaGLib.Test.Data.StateMachines
                     )
                 );
 
-            new MetaFinalState(expectedRequiredStates, null);
+            Assert.Throws<ArgumentNullException>(() => new MetaFinalState(expectedRequiredStates, null));
         }
     }
 }

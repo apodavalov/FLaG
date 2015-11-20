@@ -74,10 +74,9 @@ namespace FLaGLib.Test.Data.StateMachines
         };
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_SymbolsNull_Fail()
         {
-            new ClassOfEquivalence(2, null);
+            Assert.Throws<ArgumentNullException>(() => new ClassOfEquivalence(2, null));
         }
 
         [Test]

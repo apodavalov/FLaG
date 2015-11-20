@@ -128,13 +128,12 @@ namespace FLaGLib.Test.Data.RegExps
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_SubtreesCountLessTwo_Fail()
         {
             IEnumerable<Tree> subtrees = EnumerateHelper.Sequence<Tree>(
                         new Tree(new Symbol('a'), null)
                     );
-            TreeCollection treeCollection = new TreeCollection(subtrees, TreeOperator.Concat);
+            Assert.Throws<ArgumentException>(() => new TreeCollection(subtrees, TreeOperator.Concat));
         }
 
         [Test]

@@ -38,17 +38,15 @@ namespace FLaGLib.Test.Data.StateMachines
         };
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_CurrentStateNull_Fail()
         {
-            new Transition(null, 'c', new Label(new SingleLabel('S', subIndex: 1)));
+            Assert.Throws<ArgumentNullException>(() => new Transition(null, 'c', new Label(new SingleLabel('S', subIndex: 1))));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_NextStateNull_Fail()
         {
-            new Transition(new Label(new SingleLabel('S', subIndex: 1)), 'c', null);
+            Assert.Throws<ArgumentNullException>(() => new Transition(new Label(new SingleLabel('S', subIndex: 1)), 'c', null));
         }
 
         [Test]

@@ -28,37 +28,36 @@ namespace FLaGLib.Test.Data
         };
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_ComplexNull_Fail()
         {
-            new Label((IEnumerable<SingleLabel>)null);
+            Assert.Throws<ArgumentNullException>(() => new Label((IEnumerable<SingleLabel>)null));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_ComplexEmpty_Fail()
         {
-            new Label(Enumerable.Empty<SingleLabel>());
+            Assert.Throws<ArgumentException>(() => new Label(Enumerable.Empty<SingleLabel>()));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_AnySingleLabelNull_Fail()
         {
-            new Label(
-                EnumerateHelper.Sequence(
-                    new SingleLabel('S'),
-                    null,
-                    new SingleLabel('D')
-                )                
+            Assert.Throws<ArgumentException>(
+                () =>
+                    new Label(
+                        EnumerateHelper.Sequence(
+                            new SingleLabel('S'),
+                            null,
+                            new SingleLabel('D')
+                        )
+                    )
             );
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_SimpleNull_Fail()
         {
-            new Label((SingleLabel)null);
+            Assert.Throws<ArgumentNullException>(() => new Label((SingleLabel)null));
         }
 
         [Test]
@@ -130,10 +129,9 @@ namespace FLaGLib.Test.Data
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void NextTest_NonSimple_Fail()
         {
-            new Label(EnumerateHelper.Sequence(new SingleLabel('b', 0, 1, 2), new SingleLabel('c', 0, 1, 2))).Next();
+            Assert.Throws<InvalidOperationException>(() => new Label(EnumerateHelper.Sequence(new SingleLabel('b', 0, 1, 2), new SingleLabel('c', 0, 1, 2))).Next());
         }
 
         [Test]
@@ -146,10 +144,9 @@ namespace FLaGLib.Test.Data
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void ConvertToComplexTest_NonSimple_Fail()
         {
-            new Label(EnumerateHelper.Sequence(new SingleLabel('b'), new SingleLabel('c'))).ConvertToComplex();
+            Assert.Throws<InvalidOperationException>(() => new Label(EnumerateHelper.Sequence(new SingleLabel('b'), new SingleLabel('c'))).ConvertToComplex());
         }
 
         [Test]
@@ -162,10 +159,9 @@ namespace FLaGLib.Test.Data
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void ExtractSingleLabelTest_NonSimple_Fail()
         {
-            new Label(EnumerateHelper.Sequence(new SingleLabel('b'), new SingleLabel('c'))).ExtractSingleLabel();
+            Assert.Throws<InvalidOperationException>(() => new Label(EnumerateHelper.Sequence(new SingleLabel('b'), new SingleLabel('c'))).ExtractSingleLabel());
         }
     }
 }

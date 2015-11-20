@@ -55,10 +55,9 @@ namespace FLaGLib.Test.Data
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void NextTest_SubIndexHasNoValue_Fail()
         {
-            new SingleLabel('b', 0, 1).Next();
+            Assert.Throws<InvalidOperationException>(() => new SingleLabel('b', 0, 1).Next());
         }
     }
 }

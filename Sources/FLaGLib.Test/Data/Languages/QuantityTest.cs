@@ -61,10 +61,9 @@ namespace FLaGLib.Test.Data.Languages
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void CctorTest_SetVariableLessZero_Fail()
         {
-            Quantity quantity = new Quantity(-1);
+            Assert.Throws<ArgumentException>(() => new Quantity(-1));
         }
 
         [Test]
@@ -80,11 +79,10 @@ namespace FLaGLib.Test.Data.Languages
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void ToRegExp_SetNull_Fail()
         {
             Quantity quantity = new Quantity(1);
-            quantity.ToRegExp(null);
+            Assert.Throws<ArgumentNullException>(() => quantity.ToRegExp(null));
         }
 
         [Test]

@@ -54,10 +54,9 @@ namespace FLaGLib.Test.Data.RegExps
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void CctorTest_SetNull_Fail()
         {
-            Tree tree = new Tree(null, null);
+            Assert.Throws<ArgumentNullException>(() => new Tree(null, null));
         }
 
         [Test]
