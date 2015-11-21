@@ -1,4 +1,5 @@
 ﻿using FLaGLib.Collections;
+using FLaGLib.Data.Helpers;
 using FLaGLib.Data.StateMachines;
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
@@ -98,6 +99,22 @@ namespace FLaGLib.Data.Grammars
                 default:
                     throw new NotSupportedException(string.Format(GrammarIsNotSupportedMessage, grammarType));
             }
+        }
+
+        public RegExps.Expression MakeExpression(GrammarType grammarType, Action<Matrix> onBegin = null, Action<Matrix> onIterate = null)
+        {
+            RegExps.Expression[,] expressions = GetMatrix(grammarType);
+
+            Matrix matrix = new Matrix(expressions, NonTerminals, grammarType);
+
+            IDictionary<NonTerminalSymbol,int> nonTerminalIndexMap = NonTerminals.Select((s, i) => new KeyValuePair<NonTerminalSymbol, int>(s, i)).ToDictionary();
+
+            return matrix.Solve(nonTerminalIndexMap[Target], onBegin, onIterate);
+        }
+
+        private RegExps.Expression[,] GetMatrix(GrammarType grammarType)
+        {
+            throw new NotImplementedException();
         }
 
         public StateMachine MakeStateMachine(GrammarType grammarType)

@@ -1,5 +1,6 @@
 ﻿using FLaGLib.Collections;
 using FLaGLib.Data.Grammars;
+using FLaGLib.Data.Helpers;
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using System;
@@ -58,6 +59,10 @@ namespace FLaGLib.Data.StateMachines
             return true;
         }
 
+        public RegExps.Expression MakeExpression(GrammarType grammarType, Action<Matrix> onBegin = null, Action<Matrix> onIterate = null)
+        {
+            return MakeGrammar(grammarType).MakeExpression(grammarType, onBegin, onIterate);
+        }
 
         public Grammar MakeGrammar(GrammarType grammarType)
         {
