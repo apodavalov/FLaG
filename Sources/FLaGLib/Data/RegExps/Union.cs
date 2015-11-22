@@ -207,5 +207,10 @@ namespace FLaGLib.Data.RegExps
         {
             throw new NotSupportedException();
         }
+
+        public override Expression Optimize()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

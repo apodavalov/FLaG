@@ -182,5 +182,10 @@ namespace FLaGLib.Data.RegExps
                     target
                 );
         }
+
+        public override Expression Optimize()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

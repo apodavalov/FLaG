@@ -243,5 +243,10 @@ namespace FLaGLib.Data.RegExps
 
             return new Grammar(newRules, target);
         }
+
+        public override Expression Optimize()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -184,6 +184,8 @@ namespace FLaGLib.Data.RegExps
             return dependencyMap.ToLookup<int,int,ISet<int>>();
         }
 
+        public abstract Expression Optimize();
+
         private IReadOnlyList<Expression> GetSubexpressionsInCalculateOrder()
         {
             return WalkData.Where(wd => wd.Status == WalkStatus.Begin).OrderBy(wd => wd.Index).Select(wd => wd.Value).ToList().AsReadOnly();

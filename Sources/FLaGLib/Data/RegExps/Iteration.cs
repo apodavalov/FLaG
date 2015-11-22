@@ -278,6 +278,11 @@ namespace FLaGLib.Data.RegExps
                 ),
                 chain
             );
-        }        
+        }
+
+        public override Expression Optimize()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
