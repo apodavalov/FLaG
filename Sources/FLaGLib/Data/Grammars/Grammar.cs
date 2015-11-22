@@ -101,20 +101,127 @@ namespace FLaGLib.Data.Grammars
             }
         }
 
-        public RegExps.Expression MakeExpression(GrammarType grammarType, Action<Matrix> onBegin = null, Action<Matrix> onIterate = null)
+        private SymbolTuple GetSymbolTuple(GrammarType grammarType, Chain chain, NonTerminalSymbol ruleTarget, NonTerminalSymbol finalTarget = null)
         {
-            RegExps.Expression[,] expressions = GetMatrix(grammarType);
+            int state = 0;
+            Symbol otherSymbol = null;
+            NonTerminalSymbol nonTerminalSymbol = null;
+            TerminalSymbol terminalSymbol = null;
 
-            Matrix matrix = new Matrix(expressions, NonTerminals, grammarType);
+            foreach (Symbol symbol in Enumerate(chain, grammarType))
+            {
+                switch (state)
+                {
+                    case 0:
+                        otherSymbol = symbol;
+                        state = 1;
+                        break;
+                    case 1:
+                        nonTerminalSymbol = otherSymbol.As<NonTerminalSymbol>();
 
-            IDictionary<NonTerminalSymbol,int> nonTerminalIndexMap = NonTerminals.Select((s, i) => new KeyValuePair<NonTerminalSymbol, int>(s, i)).ToDictionary();
+                        if (nonTerminalSymbol == null)
+                        {
+                            throw new InvalidOperationException("Expected non terminal symbol.");
+                        }
 
-            return matrix.Solve(nonTerminalIndexMap[Target], onBegin, onIterate);
+                        terminalSymbol = symbol.As<TerminalSymbol>();
+
+                        if (terminalSymbol == null)
+                        {
+                            throw new InvalidOperationException("Expected terminal symbol.");
+                        }
+
+                        state = 2;
+                        break;
+                    default:
+                        throw new InvalidOperationException("Expected 2 or less symbols.");
+                }
+            }
+
+            switch (state)
+            {
+                case 0:
+                    if (ruleTarget != Target)
+                    {
+                        throw new InvalidOperationException("Expected that rule target equals to grammar target.");
+                    }
+
+                    return new SymbolTuple(ruleTarget, null, null);
+                case 1:
+                    nonTerminalSymbol = finalTarget != null ? finalTarget : otherSymbol.As<NonTerminalSymbol>();
+                    terminalSymbol = otherSymbol.As<TerminalSymbol>();
+
+                    if (terminalSymbol == null && nonTerminalSymbol == null)
+                    {
+                        throw new InvalidOperationException(string.Format("The symbol type is not supported symbol type: {0}.", otherSymbol));
+                    }
+
+                    if (finalTarget != null && terminalSymbol == null)
+                    {
+                        throw new InvalidOperationException("One symbol chain must contain terminal symbol.");
+                    }
+
+                    goto case 2;
+                case 2:
+                default:
+                    return new SymbolTuple(ruleTarget, terminalSymbol, nonTerminalSymbol);
+            }
         }
 
-        private RegExps.Expression[,] GetMatrix(GrammarType grammarType)
+        public RegExps.Expression MakeExpression(GrammarType grammarType, Action<Matrix> onBegin = null, Action<Matrix> onIterate = null)
         {
-            throw new NotImplementedException();
+            IDictionary<NonTerminalSymbol, int> nonTerminalIndexMap = NonTerminals.Select((s, i) => new KeyValuePair<NonTerminalSymbol, int>(s, i)).ToDictionary();
+
+            RegExps.Expression[,] expressions = new RegExps.Expression[nonTerminalIndexMap.Count, nonTerminalIndexMap.Count + 1];
+
+            foreach (Rule rule in Rules)
+            {
+                int rowNumber = nonTerminalIndexMap[rule.Target];
+
+                foreach (Chain chain in rule.Chains)
+                {
+                    SymbolTuple symbolTuple = GetSymbolTuple(grammarType, chain, rule.Target);
+
+                    RegExps.Expression expression;
+                    int columnNumber;
+
+                    if (symbolTuple.TerminalSymbol == null)
+                    {
+                        expression = RegExps.Empty.Instance;
+                    }
+                    else
+                    {
+                        expression = new RegExps.Symbol(symbolTuple.TerminalSymbol.Symbol);
+                    }
+
+                    if (symbolTuple.NonTerminalSymbol == null)
+                    {
+                        columnNumber = expressions.GetLength(1) - 1;
+                    }
+                    else
+                    {
+                        columnNumber = nonTerminalIndexMap[symbolTuple.NonTerminalSymbol];
+                    }
+
+                    if (expressions[rowNumber, columnNumber] == null)
+                    {
+                        expressions[rowNumber, columnNumber] = expression;
+                    }
+                    else
+                    {
+                        expressions[rowNumber, columnNumber] = new RegExps.BinaryUnion(expression, expressions[rowNumber, columnNumber]);
+                    }
+                }
+
+                for (int i = 0; i < expressions.GetLength(1); i++)
+                {
+                    expressions[rowNumber, i] = expressions[rowNumber, i]?.Optimize();
+                }
+            }
+
+            Matrix matrix = new Matrix(expressions, nonTerminalIndexMap.OrderBy(kv => kv.Value).Select(kv => kv.Key).ToList().AsReadOnly(), grammarType);
+            
+            return matrix.Solve(nonTerminalIndexMap[Target], onBegin, onIterate);
         }
 
         public StateMachine MakeStateMachine(GrammarType grammarType)
@@ -130,7 +237,6 @@ namespace FLaGLib.Data.Grammars
                     finalStates.Add(Target.Label);
                     break;
                 case GrammarType.Right:
-                    
                     finalStates.Add(additionalState.Label);
                     break;
                 default:
@@ -141,95 +247,43 @@ namespace FLaGLib.Data.Grammars
             {
                 foreach (Chain chain in rule.Chains)
                 {
-                    int state = 0;
-                    Symbol otherSymbol = null;
-                    NonTerminalSymbol nonTerminalSymbol = null;
-                    TerminalSymbol terminalSymbol = null;
+                    SymbolTuple symbolTuple = GetSymbolTuple(grammarType, chain, rule.Target, additionalState);
 
-                    foreach (Symbol symbol in Enumerate(chain, grammarType))
+                    if (symbolTuple.NonTerminalSymbol == null && symbolTuple.NonTerminalSymbol == null)
                     {
-                        switch (state)
+                        switch (grammarType)
                         {
-                            case 0:
-                                otherSymbol = symbol;
-                                state = 1;
+                            case GrammarType.Left:
+                                finalStates.Add(additionalState.Label);
                                 break;
-                            case 1:
-                                nonTerminalSymbol = otherSymbol.As<NonTerminalSymbol>();
-
-                                if (nonTerminalSymbol == null)
-                                {
-                                    throw new InvalidOperationException("Expected non terminal symbol.");
-                                }
-
-                                terminalSymbol = symbol.As<TerminalSymbol>();
-
-                                if (terminalSymbol == null)
-                                {
-                                    throw new InvalidOperationException("Expected terminal symbol.");
-                                }
-
-                                state = 2;
+                            case GrammarType.Right:
+                                finalStates.Add(Target.Label);
                                 break;
                             default:
-                                throw new InvalidOperationException("Expected 2 or less symbols.");
+                                throw new NotSupportedException(string.Format(GrammarIsNotSupportedMessage, grammarType));
                         }
                     }
-
-                    switch (state)
+                    else
                     {
-                        case 0:
-                            if (rule.Target != Target)
-                            {
-                                throw new InvalidOperationException("Expected that rule target equals to grammar target.");
-                            }
+                        Label currentState;
+                        Label nextState;
 
-                            switch (grammarType)
-                            {
-                                case GrammarType.Left:
-                                    finalStates.Add(additionalState.Label);
-                                    break;
-                                case GrammarType.Right:
-                                    finalStates.Add(Target.Label);
-                                    break;
-                                default:
-                                    throw new NotSupportedException(string.Format(GrammarIsNotSupportedMessage, grammarType));
-                            }
-                            
-                            break;
-                        case 1:
-                            terminalSymbol = otherSymbol.As<TerminalSymbol>();
+                        switch (grammarType)
+                        {
+                            case GrammarType.Left:
+                                currentState = symbolTuple.NonTerminalSymbol.Label;
+                                nextState = symbolTuple.Target.Label;
+                                break;
+                            case GrammarType.Right:
+                                currentState = symbolTuple.Target.Label;
+                                nextState = symbolTuple.NonTerminalSymbol.Label;
+                                break;
+                            default:
+                                throw new NotSupportedException(string.Format(GrammarIsNotSupportedMessage, grammarType));
+                        }
 
-                            if (terminalSymbol == null)
-                            {
-                                throw new InvalidOperationException("One symbol chain must contain terminal symbol.");
-                            }
-
-                            nonTerminalSymbol = additionalState;
-
-                            goto case 2;
-                        case 2:
-                        default:
-                            Label currentState;
-                            Label nextState;
-
-                            switch (grammarType)
-                            {
-                                case GrammarType.Left:
-                                    currentState = nonTerminalSymbol.Label;
-                                    nextState = rule.Target.Label;
-                                    break;
-                                case GrammarType.Right:
-                                    currentState = rule.Target.Label;
-                                    nextState = nonTerminalSymbol.Label;
-                                    break;
-                                default:
-                                    throw new NotSupportedException(string.Format(GrammarIsNotSupportedMessage, grammarType));
-                            }
-
-                            transitions.Add(new Transition(currentState, terminalSymbol.Symbol, nextState));
-                            break;
-                    }
+                        transitions.Add(new Transition(currentState, symbolTuple.TerminalSymbol.Symbol, nextState));
+                    }                  
                 }
             }
 

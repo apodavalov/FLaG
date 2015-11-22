@@ -55,6 +55,7 @@
     <Compile Include="Data\Grammars\NonTerminalSymbol.cs" />
     <Compile Include="Data\Grammars\Rule.cs" />
     <Compile Include="Data\Grammars\Symbol.cs" />
+    <Compile Include="Data\Grammars\SymbolTuple.cs" />
     <Compile Include="Data\Grammars\SymbolType.cs" />
     <Compile Include="Data\Grammars\TerminalSymbol.cs" />
     <Compile Include="Data\Label.cs" />
