@@ -1,5 +1,6 @@
 ﻿using FLaGLib.Collections;
 using FLaGLib.Data.Grammars;
+using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using System;
 using System.Collections.Generic;
@@ -107,7 +108,10 @@ namespace FLaGLib.Data.RegExps
                 return false;
             }
 
-            return Left.Equals(other.Left) && Right.Equals(other.Right);
+            IEnumerable<Expression> expression1 = Iterate();
+            IEnumerable<Expression> expression2 = other.Iterate();
+
+            return expression1.SequenceEqual(expression2);
         }
 
         public int CompareTo(BinaryConcat other)
@@ -117,14 +121,10 @@ namespace FLaGLib.Data.RegExps
                 return 1;
             }
 
-            int result = Left.CompareTo(other.Left);
+            IEnumerable<Expression> expression1 = Iterate();
+            IEnumerable<Expression> expression2 = other.Iterate();
 
-            if (result != 0)
-            {
-                return result;
-            }
-
-            return Right.CompareTo(other.Right);
+            return expression1.SequenceCompare(expression2);
         }
 
         public override bool Equals(object obj)
@@ -181,8 +181,7 @@ namespace FLaGLib.Data.RegExps
 
         internal override void ToString(StringBuilder builder)
         {
-            Left.ToString(Left.Priority > Priority, builder);
-            Right.ToString(Right.Priority >= Priority, builder);
+            ConcatHelper.ToString(builder, Iterate().ToList().AsReadOnly(), Priority);
         }
 
         public override Expression ToRegularSet()
@@ -203,6 +202,11 @@ namespace FLaGLib.Data.RegExps
         protected override IReadOnlyList<Expression> GetDirectDependencies()
         {
             return EnumerateHelper.Sequence(Left, Right).ToList().AsReadOnly();
+        }
+
+        internal IEnumerable<Expression> Iterate()
+        {
+            return ConcatHelper.Iterate(Left).Concat(ConcatHelper.Iterate(Right));
         }
 
         protected override Grammar GenerateGrammar(GrammarType grammarType)
@@ -282,7 +286,12 @@ namespace FLaGLib.Data.RegExps
 
         public override Expression Optimize()
         {
-            throw new NotImplementedException();
+            return new Concat(Iterate()).Optimize();
+        }
+
+        public override bool CanBeEmpty()
+        {
+            return Left.CanBeEmpty() && Right.CanBeEmpty();
         }
     }
 }

@@ -179,7 +179,12 @@ namespace FLaGLib.Data.RegExps
 
         public override Expression Optimize()
         {
-            throw new NotImplementedException();
+            return this;
+        }
+
+        public override bool CanBeEmpty()
+        {
+            return false;
         }
     }
 }

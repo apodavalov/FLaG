@@ -1,4 +1,5 @@
 ﻿using FLaGLib.Data.Grammars;
+using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using System;
 using System.Collections.Generic;
@@ -221,7 +222,7 @@ namespace FLaGLib.Data.RegExps
                         return Empty.Instance.RightGrammar.Reorganize(_StartIndex);
                     default:
                         throw new InvalidOperationException(UnknownGrammarMessage(grammarType));
-                }                
+                }
             }
 
             Expression expression = Expression;
@@ -250,7 +251,41 @@ namespace FLaGLib.Data.RegExps
 
         public override Expression Optimize()
         {
-            throw new NotImplementedException();
+            switch (IterationCount)
+            {
+                case 0:
+                    return Empty.Instance;
+                case 1:
+                    return Expression.Optimize();
+                default:
+                    Expression expression = Expression.Optimize();
+
+                    ConstIteration constIteration = expression.As<ConstIteration>();
+
+                    if (constIteration != null)
+                    {
+                        return new ConstIteration(constIteration.Expression, constIteration.IterationCount * IterationCount);
+                    }
+
+                    Iteration iteration = expression.As<Iteration>();
+
+                    if (iteration != null && !iteration.IsPositive)
+                    {
+                        return iteration;
+                    }
+
+                    return this;
+            }
+        }
+
+        public override bool CanBeEmpty()
+        {
+            if (IterationCount == 0)
+            {
+                return true;
+            }
+
+            return Expression.CanBeEmpty();
         }
     }
 }

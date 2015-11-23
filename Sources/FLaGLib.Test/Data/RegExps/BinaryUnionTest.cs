@@ -30,7 +30,7 @@ namespace FLaGLib.Test.Data.RegExps
 
             new Tuple<BinaryUnion, BinaryUnion, int>(
                 new BinaryUnion(new Symbol('a'), new Symbol('b')),
-                new BinaryUnion(new Symbol('a'), new Symbol('b')),
+                new BinaryUnion(new Symbol('b'), new Symbol('a')),
                 0
             ),
 

@@ -101,7 +101,12 @@ namespace FLaGLib.Data.RegExps
                 return false;
             }
 
-            return Expressions.SequenceEqual(other.Expressions);
+            ISet<Expression> visitedExpressions = new HashSet<Expression>();
+            ISet<Expression> expression1 = Iterate(visitedExpressions).ToSortedSet();
+            visitedExpressions.Clear();
+            ISet<Expression> expression2 = other.Iterate(visitedExpressions).ToSortedSet();
+
+            return expression1.SequenceEqual(expression2);
         }
 
         public int CompareTo(Union other)
@@ -111,7 +116,12 @@ namespace FLaGLib.Data.RegExps
                 return 1;
             }
 
-            return Expressions.SequenceCompare(other.Expressions);
+            ISet<Expression> visitedExpressions = new HashSet<Expression>();
+            ISet<Expression> expression1 = Iterate(visitedExpressions).ToSortedSet();
+            visitedExpressions.Clear();
+            ISet<Expression> expression2 = other.Iterate(visitedExpressions).ToSortedSet();
+
+            return expression1.SequenceCompare(expression2);
         }
 
         public override bool Equals(object obj)
@@ -181,21 +191,7 @@ namespace FLaGLib.Data.RegExps
 
         internal override void ToString(StringBuilder builder)
         {
-            bool first = true;
-
-            foreach (Expression expression in Expressions)
-            {
-                if (first)
-                {
-                    expression.ToString(expression.Priority > Priority, builder);
-                    first = false;
-                }
-                else
-                {
-                    builder.Append(" + ");
-                    expression.ToString(expression.Priority >= Priority, builder);
-                }
-            }
+            UnionHelper.ToString(builder, Expressions, Priority);
         }
 
         protected override IReadOnlyList<Expression> GetDirectDependencies()
@@ -211,6 +207,22 @@ namespace FLaGLib.Data.RegExps
         public override Expression Optimize()
         {
             throw new NotImplementedException();
+        }
+
+        public override bool CanBeEmpty()
+        {
+            return Expressions.Any(e => e.CanBeEmpty());
+        }
+
+        internal IEnumerable<Expression> Iterate(ISet<Expression> visitedExpressions)
+        {
+            foreach (Expression expression in Expressions)
+            {
+                foreach (Expression subExpression in UnionHelper.Iterate(visitedExpressions, expression))
+                {
+                    yield return subExpression;
+                }
+            }
         }
     }
 }

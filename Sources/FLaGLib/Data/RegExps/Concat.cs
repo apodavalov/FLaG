@@ -100,7 +100,10 @@ namespace FLaGLib.Data.RegExps
                 return false;
             }
 
-            return Expressions.SequenceEqual(other.Expressions);
+            IEnumerable<Expression> expression1 = Iterate();
+            IEnumerable<Expression> expression2 = other.Iterate();
+
+            return expression1.SequenceEqual(expression2);
         }
 
         public int CompareTo(Concat other)
@@ -110,7 +113,10 @@ namespace FLaGLib.Data.RegExps
                 return 1;
             }
 
-            return Expressions.SequenceCompare(other.Expressions);
+            IEnumerable<Expression> expression1 = Iterate();
+            IEnumerable<Expression> expression2 = other.Iterate();
+
+            return expression1.SequenceCompare(expression2);
         }
 
         public override bool Equals(object obj)
@@ -180,20 +186,7 @@ namespace FLaGLib.Data.RegExps
 
         internal override void ToString(StringBuilder builder)
         {
-            bool first = true;
-
-            foreach (Expression expression in Expressions)
-            {
-                if (first)
-                {
-                    expression.ToString(expression.Priority > Priority, builder);
-                    first = false;
-                }
-                else
-                {                                    
-                    expression.ToString(expression.Priority >= Priority, builder);
-                }
-            }
+            ConcatHelper.ToString(builder, Expressions, Priority);
         }
 
         protected override IReadOnlyList<Expression> GetDirectDependencies()
@@ -209,6 +202,22 @@ namespace FLaGLib.Data.RegExps
         public override Expression Optimize()
         {
             throw new NotImplementedException();
+        }
+
+        public override bool CanBeEmpty()
+        {
+            return Expressions.All(e => e.CanBeEmpty());
+        }
+
+        internal IEnumerable<Expression> Iterate()
+        {
+            foreach (Expression expression in Expressions)
+            {
+                foreach (Expression subExpression in ConcatHelper.Iterate(expression))
+                {
+                    yield return subExpression;
+                }
+            }
         }
     }
 }

@@ -282,7 +282,38 @@ namespace FLaGLib.Data.RegExps
 
         public override Expression Optimize()
         {
-            throw new NotImplementedException();
+            Expression expression = Expression.Optimize();
+
+            Iteration iteration = expression.As<Iteration>();
+
+            if (iteration != null)
+            {
+                return new Iteration(iteration.Expression, !iteration.Expression.CanBeEmpty() && IsPositive && iteration.IsPositive);
+            }
+
+            Empty empty = expression.As<Empty>();
+
+            if (empty != null)
+            {
+                return empty;
+            }
+
+            if (expression.CanBeEmpty() && IsPositive)
+            {
+                return new Iteration(expression, false);
+            }
+
+            return this;
+        }
+
+        public override bool CanBeEmpty()
+        {
+            if (!IsPositive)
+            {
+                return true;
+            }
+
+            return Expression.CanBeEmpty();
         }
     }
 }

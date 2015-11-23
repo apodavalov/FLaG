@@ -186,6 +186,8 @@ namespace FLaGLib.Data.RegExps
 
         public abstract Expression Optimize();
 
+        public abstract bool CanBeEmpty();
+
         private IReadOnlyList<Expression> GetSubexpressionsInCalculateOrder()
         {
             return WalkData.Where(wd => wd.Status == WalkStatus.Begin).OrderBy(wd => wd.Index).Select(wd => wd.Value).ToList().AsReadOnly();

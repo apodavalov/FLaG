@@ -107,7 +107,12 @@ namespace FLaGLib.Data.RegExps
                 return false;
             }
 
-            return Left.Equals(other.Left) && Right.Equals(other.Right);
+            ISet<Expression> visitedExpressions = new HashSet<Expression>();
+            ISet<Expression> expression1 = Iterate(visitedExpressions).ToSortedSet();
+            visitedExpressions.Clear();
+            ISet<Expression> expression2 = other.Iterate(visitedExpressions).ToSortedSet();
+
+            return expression1.SequenceEqual(expression2);
         }
 
         public int CompareTo(BinaryUnion other)
@@ -117,14 +122,12 @@ namespace FLaGLib.Data.RegExps
                 return 1;
             }
 
-            int result = Left.CompareTo(other.Left);
+            ISet<Expression> visitedExpressions = new HashSet<Expression>();
+            ISet<Expression> expression1 = Iterate(visitedExpressions).ToSortedSet();
+            visitedExpressions.Clear();
+            ISet<Expression> expression2 = other.Iterate(visitedExpressions).ToSortedSet();
 
-            if (result != 0)
-            {
-                return result;
-            }
-
-            return Right.CompareTo(other.Right);
+            return expression1.SequenceCompare(expression2);
         }
 
         public override bool Equals(object obj)
@@ -181,9 +184,9 @@ namespace FLaGLib.Data.RegExps
 
         internal override void ToString(StringBuilder builder)
         {
-            Left.ToString(Left.Priority > Priority, builder);
-            builder.Append(" + ");
-            Right.ToString(Right.Priority >= Priority, builder);
+            ISet<Expression> visitedExpressions = new HashSet<Expression>();
+
+            UnionHelper.ToString(builder, Iterate(visitedExpressions).ToSortedSet().AsReadOnly(), Priority);
         }
 
         public override Expression ToRegularSet()
@@ -244,9 +247,21 @@ namespace FLaGLib.Data.RegExps
             return new Grammar(newRules, target);
         }
 
+        internal IEnumerable<Expression> Iterate(ISet<Expression> visitedExpressions)
+        {
+            return UnionHelper.Iterate(visitedExpressions, Left).Concat(UnionHelper.Iterate(visitedExpressions, Right));
+        }
+
         public override Expression Optimize()
         {
-            throw new NotImplementedException();
+            ISet<Expression> visitedExpressions = new HashSet<Expression>();
+
+            return new Union(Iterate(visitedExpressions)).Optimize();
+        }
+
+        public override bool CanBeEmpty()
+        {
+            return Left.CanBeEmpty() || Right.CanBeEmpty();
         }
     }
 }
