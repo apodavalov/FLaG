@@ -201,7 +201,221 @@ namespace FLaGLib.Data.RegExps
 
         public override Expression Optimize()
         {
-            throw new NotImplementedException();
+            bool somethingChanged;
+
+            Expression previous = null;
+
+            IList<Expression> oldList = Iterate().Select(e => e.Optimize()).ToList();
+            IList<Expression> newList;
+
+            do
+            {
+                somethingChanged = false;
+                newList = new List<Expression>();
+
+                foreach (Expression expression in oldList)
+                {
+                    if (expression == Empty.Instance)
+                    {
+                        somethingChanged = true;
+                        continue;
+                    }
+
+                    if (previous == null)
+                    {
+                        previous = expression;
+                        continue;
+                    }
+
+                    Iteration iteration1 = previous.As<Iteration>();
+                    Iteration iteration2 = expression.As<Iteration>();
+
+                    if (iteration1 != null || iteration2 != null)
+                    {
+                        if (iteration1 != null && iteration2 != null && iteration1.Expression == iteration2.Expression)
+                        {
+                            if (iteration1.IsPositive && iteration2.IsPositive)
+                            {
+                                newList.Add(iteration1.Expression);
+                            }
+
+                            previous = new Iteration(iteration1.Expression, iteration1.IsPositive || iteration2.IsPositive);
+                            somethingChanged = true;
+                            continue;
+                        }
+
+                        Iteration iteration;
+                        Expression newExpression;
+
+                        if (iteration1 != null)
+                        {
+                            iteration = iteration1;
+                            newExpression = expression;
+                        }
+                        else
+                        {
+                            iteration = iteration2;
+                            newExpression = previous;
+                        }
+
+                        if (iteration.Expression == newExpression && !iteration.IsPositive)
+                        {
+                            previous = new Iteration(newExpression, true);
+                            somethingChanged = true;
+                            continue;
+                        }
+                    }
+
+                    ConstIteration constIteration1 = previous.As<ConstIteration>();
+                    ConstIteration constIteration2 = expression.As<ConstIteration>();
+
+                    if (constIteration1 != null || constIteration2 != null)
+                    {
+                        if (constIteration1 != null && constIteration2 != null && constIteration1.Expression == constIteration2.Expression)
+                        {
+                            previous = new ConstIteration(constIteration1.Expression, constIteration1.IterationCount + constIteration2.IterationCount);
+                            somethingChanged = true;
+                            continue;
+                        }
+
+                        ConstIteration constIteration;
+                        Expression newExpression;
+
+                        if (constIteration1 != null)
+                        {
+                            constIteration = constIteration1;
+                            newExpression = expression;
+                        }
+                        else
+                        {
+                            constIteration = constIteration2;
+                            newExpression = previous;
+                        }
+
+                        if (constIteration.Expression == newExpression)
+                        {
+                            previous = new ConstIteration(newExpression, constIteration.IterationCount + 1);
+                            somethingChanged = true;
+                            continue;
+                        }
+                    }
+
+                    if (constIteration1 != null && iteration2 != null && constIteration1.Expression == iteration2.Expression)
+                    {
+                        if (constIteration1.IterationCount > 2)
+                        {
+                            newList.Add(new ConstIteration(constIteration1.Expression, constIteration1.IterationCount - 1));
+                        }
+                        else
+                        {
+                            newList.Add(constIteration1.Expression);
+                        }
+
+                        previous = new Iteration(iteration2.Expression, true);
+                        somethingChanged = true;
+                        continue;
+                    }
+
+                    if (iteration1 != null && constIteration2 != null && iteration1.Expression == constIteration2.Expression)
+                    {
+                        newList.Add(new Iteration(iteration1.Expression, true));
+
+                        if (constIteration2.IterationCount > 2)
+                        {
+                            previous = new ConstIteration(constIteration2.Expression, constIteration2.IterationCount - 1);
+                        }
+                        else
+                        {
+                            previous = constIteration2.Expression;
+                        }
+
+                        somethingChanged = true;
+                        continue;
+                    }
+
+                    newList.Add(previous);
+                    previous = expression;
+                }
+
+                if (previous != null)
+                {
+                    newList.Add(previous);
+                }
+
+                oldList = newList;
+
+                newList = new List<Expression>();
+
+                previous = null;
+                Expression previousPrevious = null;
+
+                foreach (Expression expression in oldList)
+                {
+                    if (previousPrevious == null)
+                    {
+                        previousPrevious = previous;
+                        previous = expression;
+                        continue;
+                    }
+
+                    Iteration iteration = previous.As<Iteration>();
+
+                    if (iteration != null)
+                    {
+                        Concat concat = iteration.Expression.As<Concat>();
+
+                        if (concat != null && concat.Expressions.Count == 2 && concat.Expressions[0] == expression && concat.Expressions[1] == previousPrevious)
+                        {
+                            concat = new Concat(concat.Expressions.FastReverse());
+
+                            if (iteration.IsPositive)
+                            {
+                                previousPrevious = concat;
+                            }
+                            else
+                            {
+                                previousPrevious = null;
+                            }
+
+                            previous = new Iteration(concat, true);
+
+                            somethingChanged = true;
+                            continue;
+                        }
+                    }
+
+                    newList.Add(previousPrevious);
+
+                    previousPrevious = previous;
+                    previous = expression;
+                }
+
+                if (previousPrevious != null)
+                {
+                    newList.Add(previousPrevious);
+                }
+
+                if (previous != null)
+                {
+                    newList.Add(previous);
+                }
+
+                oldList = newList;
+
+            } while (somethingChanged);
+
+            if (newList.Count == 0)
+            {
+                return Empty.Instance;
+            }
+            else if (newList.Count == 1)
+            {
+                return newList[0];
+            }
+            else
+            {
+                return new Concat(newList);
+            }
         }
 
         public override bool CanBeEmpty()
