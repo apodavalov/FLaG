@@ -6,13 +6,24 @@ namespace FLaGLib.Data.RegExps
 {
     internal class ConcatHelper
     {
+        public static IEnumerable<Expression> Iterate(IEnumerable<Expression> expressions)
+        {
+            foreach (Expression expression in expressions)
+            {
+                foreach (Expression subExpression in Iterate(expression))
+                {
+                    yield return subExpression;
+                }
+            }
+        }
+
         public static IEnumerable<Expression> Iterate(Expression expressionToIterate)
         {
             BinaryConcat binaryConcat = expressionToIterate.As<BinaryConcat>();
 
             if (binaryConcat != null)
             {
-                foreach (Expression expression in binaryConcat.Iterate())
+                foreach (Expression expression in Iterate(binaryConcat.Left.AsSequence().Concat(binaryConcat.Right)))
                 {
                     yield return expression;
                 }
@@ -24,7 +35,7 @@ namespace FLaGLib.Data.RegExps
 
             if (concat != null)
             {
-                foreach (Expression expression in concat.Iterate())
+                foreach (Expression expression in Iterate(concat.Expressions))
                 {
                     yield return expression;
                 }

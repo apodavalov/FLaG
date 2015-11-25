@@ -108,8 +108,8 @@ namespace FLaGLib.Data.RegExps
                 return false;
             }
 
-            IEnumerable<Expression> expression1 = Iterate();
-            IEnumerable<Expression> expression2 = other.Iterate();
+            IEnumerable<Expression> expression1 = ConcatHelper.Iterate(Left.AsSequence().Concat(Right));
+            IEnumerable<Expression> expression2 = ConcatHelper.Iterate(other.Left.AsSequence().Concat(other.Right));
 
             return expression1.SequenceEqual(expression2);
         }
@@ -121,8 +121,8 @@ namespace FLaGLib.Data.RegExps
                 return 1;
             }
 
-            IEnumerable<Expression> expression1 = Iterate();
-            IEnumerable<Expression> expression2 = other.Iterate();
+            IEnumerable<Expression> expression1 = ConcatHelper.Iterate(Left.AsSequence().Concat(Right));
+            IEnumerable<Expression> expression2 = ConcatHelper.Iterate(other.Left.AsSequence().Concat(other.Right));
 
             return expression1.SequenceCompare(expression2);
         }
@@ -181,7 +181,7 @@ namespace FLaGLib.Data.RegExps
 
         internal override void ToString(StringBuilder builder)
         {
-            ConcatHelper.ToString(builder, Iterate().ToList().AsReadOnly(), Priority);
+            ConcatHelper.ToString(builder, ConcatHelper.Iterate(Left.AsSequence().Concat(Right)).ToList().AsReadOnly(), Priority);
         }
 
         public override Expression ToRegularSet()
@@ -202,11 +202,6 @@ namespace FLaGLib.Data.RegExps
         protected override IReadOnlyList<Expression> GetDirectDependencies()
         {
             return EnumerateHelper.Sequence(Left, Right).ToList().AsReadOnly();
-        }
-
-        internal IEnumerable<Expression> Iterate()
-        {
-            return ConcatHelper.Iterate(Left).Concat(ConcatHelper.Iterate(Right));
         }
 
         protected override Grammar GenerateGrammar(GrammarType grammarType)
@@ -286,7 +281,7 @@ namespace FLaGLib.Data.RegExps
 
         public override Expression Optimize()
         {
-            return new Concat(Iterate()).Optimize();
+            return new Concat(ConcatHelper.Iterate(Left.AsSequence().Concat(Right))).Optimize();
         }
 
         public override bool CanBeEmpty()

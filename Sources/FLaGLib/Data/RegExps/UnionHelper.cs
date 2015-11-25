@@ -7,13 +7,24 @@ namespace FLaGLib.Data.RegExps
 {
     internal static class UnionHelper
     {
+        public static IEnumerable<Expression> Iterate(ISet<Expression> visitedExpressions, IEnumerable<Expression> expressions)
+        {
+            foreach (Expression expression in expressions)
+            {
+                foreach (Expression subExpression in Iterate(visitedExpressions, expression))
+                {
+                    yield return subExpression;
+                }
+            }
+        }
+
         public static IEnumerable<Expression> Iterate(ISet<Expression> visitedExpressions, Expression expressionToIterate)
         {
             BinaryUnion binaryUnion = expressionToIterate.As<BinaryUnion>();
 
             if (binaryUnion != null)
             {
-                foreach (Expression expression in binaryUnion.Iterate(visitedExpressions))
+                foreach (Expression expression in Iterate(visitedExpressions, binaryUnion.Left.AsSequence().Concat(binaryUnion.Right)))
                 {
                     if (visitedExpressions.Add(expression))
                     {
@@ -28,7 +39,7 @@ namespace FLaGLib.Data.RegExps
 
             if (union != null)
             {
-                foreach (Expression expression in union.Iterate(visitedExpressions))
+                foreach (Expression expression in Iterate(visitedExpressions, union.Expressions))
                 {
                     if (visitedExpressions.Add(expression))
                     {

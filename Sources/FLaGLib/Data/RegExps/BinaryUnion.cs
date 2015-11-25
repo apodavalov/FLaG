@@ -108,9 +108,9 @@ namespace FLaGLib.Data.RegExps
             }
 
             ISet<Expression> visitedExpressions = new HashSet<Expression>();
-            ISet<Expression> expression1 = Iterate(visitedExpressions).ToSortedSet();
+            ISet<Expression> expression1 = UnionHelper.Iterate(visitedExpressions,Left.AsSequence().Concat(Right)).ToSortedSet();
             visitedExpressions.Clear();
-            ISet<Expression> expression2 = other.Iterate(visitedExpressions).ToSortedSet();
+            ISet<Expression> expression2 = UnionHelper.Iterate(visitedExpressions, other.Left.AsSequence().Concat(other.Right)).ToSortedSet();
 
             return expression1.SequenceEqual(expression2);
         }
@@ -123,9 +123,9 @@ namespace FLaGLib.Data.RegExps
             }
 
             ISet<Expression> visitedExpressions = new HashSet<Expression>();
-            ISet<Expression> expression1 = Iterate(visitedExpressions).ToSortedSet();
+            ISet<Expression> expression1 = UnionHelper.Iterate(visitedExpressions, Left.AsSequence().Concat(Right)).ToSortedSet();
             visitedExpressions.Clear();
-            ISet<Expression> expression2 = other.Iterate(visitedExpressions).ToSortedSet();
+            ISet<Expression> expression2 = UnionHelper.Iterate(visitedExpressions, other.Left.AsSequence().Concat(other.Right)).ToSortedSet();
 
             return expression1.SequenceCompare(expression2);
         }
@@ -186,7 +186,7 @@ namespace FLaGLib.Data.RegExps
         {
             ISet<Expression> visitedExpressions = new HashSet<Expression>();
 
-            UnionHelper.ToString(builder, Iterate(visitedExpressions).ToSortedSet().AsReadOnly(), Priority);
+            UnionHelper.ToString(builder, UnionHelper.Iterate(visitedExpressions,Left.AsSequence().Concat(Right)).ToSortedSet().AsReadOnly(), Priority);
         }
 
         public override Expression ToRegularSet()
@@ -247,16 +247,11 @@ namespace FLaGLib.Data.RegExps
             return new Grammar(newRules, target);
         }
 
-        internal IEnumerable<Expression> Iterate(ISet<Expression> visitedExpressions)
-        {
-            return UnionHelper.Iterate(visitedExpressions, Left).Concat(UnionHelper.Iterate(visitedExpressions, Right));
-        }
-
         public override Expression Optimize()
         {
             ISet<Expression> visitedExpressions = new HashSet<Expression>();
 
-            return new Union(Iterate(visitedExpressions)).Optimize();
+            return new Union(UnionHelper.Iterate(visitedExpressions,Left.AsSequence().Concat(Right))).Optimize();
         }
 
         public override bool CanBeEmpty()

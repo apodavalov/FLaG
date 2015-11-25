@@ -100,8 +100,8 @@ namespace FLaGLib.Data.RegExps
                 return false;
             }
 
-            IEnumerable<Expression> expression1 = Iterate();
-            IEnumerable<Expression> expression2 = other.Iterate();
+            IEnumerable<Expression> expression1 = ConcatHelper.Iterate(Expressions);
+            IEnumerable<Expression> expression2 = ConcatHelper.Iterate(other.Expressions);
 
             return expression1.SequenceEqual(expression2);
         }
@@ -113,8 +113,8 @@ namespace FLaGLib.Data.RegExps
                 return 1;
             }
 
-            IEnumerable<Expression> expression1 = Iterate();
-            IEnumerable<Expression> expression2 = other.Iterate();
+            IEnumerable<Expression> expression1 = ConcatHelper.Iterate(Expressions);
+            IEnumerable<Expression> expression2 = ConcatHelper.Iterate(other.Expressions);
 
             return expression1.SequenceCompare(expression2);
         }
@@ -205,7 +205,7 @@ namespace FLaGLib.Data.RegExps
 
             Expression previous = null;
 
-            IList<Expression> oldList = Iterate().Select(e => e.Optimize()).ToList();
+            IList<Expression> oldList = ConcatHelper.Iterate(Expressions.Select(e => e.Optimize())).ToList();
             IList<Expression> newList;
 
             do
@@ -421,17 +421,6 @@ namespace FLaGLib.Data.RegExps
         public override bool CanBeEmpty()
         {
             return Expressions.All(e => e.CanBeEmpty());
-        }
-
-        internal IEnumerable<Expression> Iterate()
-        {
-            foreach (Expression expression in Expressions)
-            {
-                foreach (Expression subExpression in ConcatHelper.Iterate(expression))
-                {
-                    yield return subExpression;
-                }
-            }
         }
     }
 }

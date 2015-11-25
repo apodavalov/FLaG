@@ -102,9 +102,9 @@ namespace FLaGLib.Data.RegExps
             }
 
             ISet<Expression> visitedExpressions = new HashSet<Expression>();
-            ISet<Expression> expression1 = Iterate(visitedExpressions).ToSortedSet();
+            ISet<Expression> expression1 = UnionHelper.Iterate(visitedExpressions, Expressions).ToSortedSet();
             visitedExpressions.Clear();
-            ISet<Expression> expression2 = other.Iterate(visitedExpressions).ToSortedSet();
+            ISet<Expression> expression2 = UnionHelper.Iterate(visitedExpressions, other.Expressions).ToSortedSet();
 
             return expression1.SequenceEqual(expression2);
         }
@@ -117,9 +117,9 @@ namespace FLaGLib.Data.RegExps
             }
 
             ISet<Expression> visitedExpressions = new HashSet<Expression>();
-            ISet<Expression> expression1 = Iterate(visitedExpressions).ToSortedSet();
+            ISet<Expression> expression1 = UnionHelper.Iterate(visitedExpressions, Expressions).ToSortedSet();
             visitedExpressions.Clear();
-            ISet<Expression> expression2 = other.Iterate(visitedExpressions).ToSortedSet();
+            ISet<Expression> expression2 = UnionHelper.Iterate(visitedExpressions, other.Expressions).ToSortedSet();
 
             return expression1.SequenceCompare(expression2);
         }
@@ -212,17 +212,6 @@ namespace FLaGLib.Data.RegExps
         public override bool CanBeEmpty()
         {
             return Expressions.Any(e => e.CanBeEmpty());
-        }
-
-        internal IEnumerable<Expression> Iterate(ISet<Expression> visitedExpressions)
-        {
-            foreach (Expression expression in Expressions)
-            {
-                foreach (Expression subExpression in UnionHelper.Iterate(visitedExpressions, expression))
-                {
-                    yield return subExpression;
-                }
-            }
         }
     }
 }
