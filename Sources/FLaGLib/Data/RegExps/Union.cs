@@ -206,12 +206,112 @@ namespace FLaGLib.Data.RegExps
 
         public override Expression Optimize()
         {
+            bool somethingChanged;
+
+            ISet<Expression> visitedExpressions = new HashSet<Expression>();
+
+            ISet<Expression> set = UnionHelper.Iterate(visitedExpressions, Expressions.Select(e => e.Optimize())).ToHashSet();
+
+            do
+            {
+                somethingChanged = false;
+
+                if (set.Any(e => e.CanBeEmpty()))
+                {
+                    set = set.Select(e => e.TryToLetItBeEmpty().Optimize()).ToHashSet();
+                }
+
+                if (set.Any(e => e != Empty.Instance && e.CanBeEmpty()))
+                {
+                    set = set.Where(e => e != Empty.Instance).ToHashSet();
+                }
+
+                IList<Expression> list = set.ToList();
+                
+                for (int i = 0; i < list.Count; i++)
+                {
+                    for (int j = 0; j < list.Count; j++)
+                    {
+                        if (i != j && IsASuperSetOfB(list[i],list[j]))
+                        {
+                            list.RemoveAt(j);
+                            j--;
+
+                            if (i > j)
+                            {
+                                i--;
+                            }
+
+                            somethingChanged = true;
+                        }
+                    }
+                }
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    for (int j = 0; j < list.Count; j++)
+                    {
+                        if (i != j)
+                        {
+                            Expression expression = ExtractFromBrackets(list[i], list[j]);
+
+                            if (expression != null)
+                            {
+                                list.RemoveAt(j);
+
+                                if (i > j)
+                                {
+                                    i--;
+                                }
+
+                                list.RemoveAt(i);
+
+                                list.Add(expression);
+
+                                j--;
+
+                                somethingChanged = true;
+                            }
+                        }
+                    }
+                }
+
+                set = list.ToHashSet();
+
+            } while (somethingChanged);
+
+            if (set.Count == 0)
+            {
+                return Empty.Instance;
+            }
+            else if (set.Count == 1)
+            {
+                return set.Single();
+            }
+            else
+            {
+                return new Union(set);
+            }
+        }
+
+        private static Expression ExtractFromBrackets(Expression expressionA, Expression expressionB)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static bool IsASuperSetOfB(Expression expressionA, Expression expressionB)
+        {
             throw new NotImplementedException();
         }
 
         public override bool CanBeEmpty()
         {
             return Expressions.Any(e => e.CanBeEmpty());
+        }
+
+        public override Expression TryToLetItBeEmpty()
+        {
+            return new Union(Expressions.Select(e => e.TryToLetItBeEmpty()));
         }
     }
 }

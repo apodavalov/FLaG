@@ -192,5 +192,10 @@ namespace FLaGLib.Data.RegExps
         {
             return true;
         }
+
+        public override Expression TryToLetItBeEmpty()
+        {
+            return this;
+        }
     }
 }

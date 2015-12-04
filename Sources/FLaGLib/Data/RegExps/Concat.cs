@@ -410,7 +410,7 @@ namespace FLaGLib.Data.RegExps
             }
             else if (newList.Count == 1)
             {
-                return newList[0];
+                return newList.Single();
             }
             else
             {
@@ -421,6 +421,11 @@ namespace FLaGLib.Data.RegExps
         public override bool CanBeEmpty()
         {
             return Expressions.All(e => e.CanBeEmpty());
+        }
+
+        public override Expression TryToLetItBeEmpty()
+        {
+            return new Concat(Expressions.Select(e => e.TryToLetItBeEmpty()));
         }
     }
 }

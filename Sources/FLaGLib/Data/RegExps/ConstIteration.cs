@@ -287,5 +287,10 @@ namespace FLaGLib.Data.RegExps
 
             return Expression.CanBeEmpty();
         }
+
+        public override Expression TryToLetItBeEmpty()
+        {
+            return new ConstIteration(Expression.TryToLetItBeEmpty(), IterationCount);
+        }
     }
 }

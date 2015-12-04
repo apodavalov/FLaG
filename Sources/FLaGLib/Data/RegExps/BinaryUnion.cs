@@ -258,5 +258,10 @@ namespace FLaGLib.Data.RegExps
         {
             return Left.CanBeEmpty() || Right.CanBeEmpty();
         }
+
+        public override Expression TryToLetItBeEmpty()
+        {
+            return new BinaryUnion(Left.TryToLetItBeEmpty(), Right.TryToLetItBeEmpty());
+        }
     }
 }

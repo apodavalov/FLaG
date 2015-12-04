@@ -188,6 +188,8 @@ namespace FLaGLib.Data.RegExps
 
         public abstract bool CanBeEmpty();
 
+        public abstract Expression TryToLetItBeEmpty();
+
         private IReadOnlyList<Expression> GetSubexpressionsInCalculateOrder()
         {
             return WalkData.Where(wd => wd.Status == WalkStatus.Begin).OrderBy(wd => wd.Index).Select(wd => wd.Value).ToList().AsReadOnly();
