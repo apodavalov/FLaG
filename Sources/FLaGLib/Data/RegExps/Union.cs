@@ -280,23 +280,83 @@ namespace FLaGLib.Data.RegExps
 
             } while (somethingChanged);
 
-            if (set.Count == 0)
-            {
-                return Empty.Instance;
-            }
-            else if (set.Count == 1)
-            {
-                return set.Single();
-            }
-            else
-            {
-                return new Union(set);
-            }
+            return UnionHelper.MakeExpression(set);
         }
 
         private static Expression ExtractFromBrackets(Expression expressionA, Expression expressionB)
         {
-            throw new NotImplementedException();
+            IReadOnlyList<Expression> concatA = expressionA.As<Concat>()?.Expressions;
+
+            if (concatA == null)
+            {
+                concatA = expressionA.AsSequence().ToList().AsReadOnly();
+            }
+
+            IReadOnlyList<Expression> concatB = expressionB.As<Concat>()?.Expressions;
+
+            if (concatB == null)
+            {
+                concatB = expressionB.AsSequence().ToList().AsReadOnly();
+            }
+
+            int left = 0;
+            int right = 0;
+
+            int count = Math.Min(concatA.Count, concatB.Count);
+
+            while (left < count && concatA[left].Equals(concatB[left]))
+            {
+                left++;
+            }
+
+            while (right < count - left && concatA[concatA.Count - 1 - right] == concatB[concatB.Count - 1 - right])
+            {
+                right++;
+            }
+
+            if (left == 0 && right == 0)
+            {
+                return null;
+            }
+
+            IList<Expression> newConcat = new List<Expression>();
+            IList<Expression> leftConcat = new List<Expression>();
+            IList<IList<Expression>> middleAlter = new List<IList<Expression>>();
+            IList<Expression> rightConcat = new List<Expression>();
+
+            for (int i = 0; i < left; i++)
+            {
+                leftConcat.Add(concatA[i]);
+            }
+
+            for (int i = 0; i < right; i++)
+            {
+                rightConcat.Insert(0, concatB[concatB.Count - 1 - i]);
+            }
+
+            IList<Expression> middleConcat = new List<Expression>();
+
+            for (int i = left; i < concatA.Count - right; i++)
+            {
+                middleConcat.Add(concatA[i]);
+            }
+
+            middleAlter.Add(middleConcat);
+
+            middleConcat = new List<Expression>();
+
+            for (int i = left; i < concatB.Count - right; i++)
+            {
+                middleConcat.Add(concatB[i]);
+            }
+
+            middleAlter.Add(middleConcat);
+
+            newConcat.AddRange(leftConcat);
+            newConcat.AddRange(middleAlter.Select(u => UnionHelper.MakeExpression(u)).Where(e => e != Empty.Instance));
+            newConcat.AddRange(rightConcat);
+
+            return ConcatHelper.MakeExpression(newConcat);
         }
 
         private static bool IsASuperSetOfB(Expression expressionA, Expression expressionB)
@@ -394,7 +454,7 @@ namespace FLaGLib.Data.RegExps
                     expressionsBCounter++;
                 }
 
-                if (listToRemove.Any() || listToAdd.Any())
+                if (listToRemove.Count > 0 || listToAdd.Count > 0)
                 {
                     listOfListsToRemove.Add(listToRemove);
                     listOfListsToAdd.Add(listToAdd);
@@ -419,7 +479,7 @@ namespace FLaGLib.Data.RegExps
                 expressionsBCounter++;
             }
 
-            if (listToRemove.Any() || listToAdd.Any())
+            if (listToRemove.Count > 0 || listToAdd.Count > 0)
             {
                 listOfListsToRemove.Add(listToRemove);
                 listOfListsToAdd.Add(listToAdd);

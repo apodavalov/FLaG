@@ -1,11 +1,33 @@
 ﻿using FLaGLib.Extensions;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace FLaGLib.Data.RegExps
 {
     internal class ConcatHelper
     {
+        public static Expression MakeExpression(ICollection<Expression> expressions)
+        {
+            if (expressions == null)
+            {
+                return null;
+            }
+
+            if (expressions.Count == 0)
+            {
+                return Empty.Instance;
+            }
+            else if (expressions.Count == 1)
+            {
+                return expressions.Single();
+            }
+            else
+            {
+                return new Concat(expressions);
+            }
+        }
+
         public static IEnumerable<Expression> Iterate(IEnumerable<Expression> expressions)
         {
             foreach (Expression expression in expressions)

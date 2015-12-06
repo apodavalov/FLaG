@@ -404,18 +404,7 @@ namespace FLaGLib.Data.RegExps
 
             } while (somethingChanged);
 
-            if (newList.Count == 0)
-            {
-                return Empty.Instance;
-            }
-            else if (newList.Count == 1)
-            {
-                return newList.Single();
-            }
-            else
-            {
-                return new Concat(newList);
-            }
+            return ConcatHelper.MakeExpression(newList);
         }
 
         public override bool CanBeEmpty()
