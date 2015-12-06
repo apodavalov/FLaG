@@ -304,7 +304,7 @@ namespace FLaGLib.Data.RegExps
 
             int count = Math.Min(concatA.Count, concatB.Count);
 
-            while (left < count && concatA[left].Equals(concatB[left]))
+            while (left < count && concatA[left] == concatB[left])
             {
                 left++;
             }
@@ -331,8 +331,10 @@ namespace FLaGLib.Data.RegExps
 
             for (int i = 0; i < right; i++)
             {
-                rightConcat.Insert(0, concatB[concatB.Count - 1 - i]);
+                rightConcat.Add(concatB[concatB.Count - 1 - i]);
             }
+
+            rightConcat = rightConcat.AsReadOnly().FastReverse().ToList();
 
             IList<Expression> middleConcat = new List<Expression>();
 
@@ -491,7 +493,7 @@ namespace FLaGLib.Data.RegExps
 
             for (int i = 0; i < count; i++)
             {
-                if (!IsConcatASuperSetOfConcatB(listOfListsToRemove[i], listOfListsToAdd[i]))
+                if (!IsASuperSetOfB(listOfListsToRemove[i], listOfListsToAdd[i]))
                 {
                     allExpressionsAAreSupersetsOfExpressionsB = false;
                     break;
@@ -501,7 +503,7 @@ namespace FLaGLib.Data.RegExps
             return allExpressionsAAreSupersetsOfExpressionsB;
         }
 
-        private static bool IsConcatASuperSetOfConcatB(IList<Expression> expressionsA, IList<Expression> expressionsB)
+        private static bool IsASuperSetOfB(IList<Expression> expressionsA, IList<Expression> expressionsB)
         {
             if (expressionsB.Count > expressionsA.Count)
             {
