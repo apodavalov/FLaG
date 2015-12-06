@@ -301,7 +301,207 @@ namespace FLaGLib.Data.RegExps
 
         private static bool IsASuperSetOfB(Expression expressionA, Expression expressionB)
         {
-            throw new NotImplementedException();
+            IReadOnlyList<Expression> expressionsA = expressionA.As<Concat>()?.Expressions;
+
+            if (expressionsA == null)
+            {
+                expressionsA = expressionA.AsSequence().ToList().AsReadOnly();
+            }
+
+            IReadOnlyList<Expression> expressionsB = expressionB.As<Concat>()?.Expressions;
+
+            if (expressionsB == null)
+            {
+                expressionsB = expressionB.AsSequence().ToList().AsReadOnly();
+            }
+
+            int[,] matrix = new int[expressionsA.Count + 1,expressionsB.Count + 1];
+
+            for (int i = 0; i < matrix.GetLength(0); i++)
+            {
+                matrix[i,0] = 0;
+            }
+
+            for (int i = 0; i < matrix.GetLength(1); i++)
+            {
+                matrix[0,i] = 0;
+            }
+
+            for (int i = 1; i < matrix.GetLength(0); i++)
+            {
+                for (int j = 1; j < matrix.GetLength(1); j++)
+                {
+                    if (expressionsA[i - 1] == expressionsB[j - 1])
+                    {
+                        matrix[i, j] = matrix[i - 1, j - 1] + 1;
+                    }
+                    else
+                    {
+                        matrix[i, j] = Math.Max(matrix[i, j - 1], matrix[i - 1, j]);
+                    }
+                }
+            }
+
+            LinkedList<Expression> commonExpressions = new LinkedList<Expression>();
+
+            int x = matrix.GetLength(0) - 1;
+            int y = matrix.GetLength(1) - 1;
+
+            while (matrix[x,y] != 0)
+            {
+                if (expressionsA[x - 1] == expressionsB[y - 1])
+                {
+                    commonExpressions.AddFirst(expressionsA[x - 1]);
+                    x--;
+                    y--;
+                }
+                else
+                {
+                    if (matrix[x - 1, y] == matrix[x, y])
+                    {
+                        x--;
+                    }
+                    else
+                    {
+                        y--;
+                    }
+                }
+            }
+
+            int expressionsACounter = 0;
+            int expressionsBCounter = 0;
+
+            IList<IList<Expression>> listOfListsToRemove = new List<IList<Expression>>();
+            IList<IList<Expression>> listOfListsToAdd = new List<IList<Expression>>();
+
+            IList<Expression> listToRemove;
+            IList<Expression> listToAdd;
+
+            foreach (Expression expression in commonExpressions)
+            {
+                listToRemove = new List<Expression>();
+                listToAdd = new List<Expression>();
+
+                while (expression != expressionsA[expressionsACounter])
+                {
+                    listToRemove.Add(expressionsA[expressionsACounter]);
+                    expressionsACounter++;
+                }
+
+                while (expression != expressionsB[expressionsBCounter])
+                {
+                    listToAdd.Add(expressionsB[expressionsBCounter]);
+                    expressionsBCounter++;
+                }
+
+                if (listToRemove.Any() || listToAdd.Any())
+                {
+                    listOfListsToRemove.Add(listToRemove);
+                    listOfListsToAdd.Add(listToAdd);
+                }
+
+                expressionsACounter++;
+                expressionsBCounter++;
+            }
+
+            listToRemove = new List<Expression>();
+            listToAdd = new List<Expression>();
+
+            while (expressionsACounter < expressionsA.Count)
+            {
+                listToRemove.Add(expressionsA[expressionsACounter]);
+                expressionsACounter++;
+            }
+
+            while (expressionsBCounter < expressionsB.Count)
+            {
+                listToAdd.Add(expressionsB[expressionsBCounter]);
+                expressionsBCounter++;
+            }
+
+            if (listToRemove.Any() || listToAdd.Any())
+            {
+                listOfListsToRemove.Add(listToRemove);
+                listOfListsToAdd.Add(listToAdd);
+            }
+
+            bool allExpressionsAAreSupersetsOfExpressionsB = true;
+
+            int count = listOfListsToRemove.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (!IsConcatASuperSetOfConcatB(listOfListsToRemove[i], listOfListsToAdd[i]))
+                {
+                    allExpressionsAAreSupersetsOfExpressionsB = false;
+                    break;
+                }
+            }
+
+            return allExpressionsAAreSupersetsOfExpressionsB;
+        }
+
+        private static bool IsConcatASuperSetOfConcatB(IList<Expression> expressionsA, IList<Expression> expressionsB)
+        {
+            if (expressionsB.Count > expressionsA.Count)
+            {
+                return false;
+            }
+
+            int minLength = expressionsB.Count;
+
+            for (int i = 0; i < minLength; i++)
+            {
+                bool res = false;
+
+                if (expressionsA[i] == expressionsB[i])
+                {
+                    res = true;
+                }
+                else
+                {
+                    Iteration iterationA = expressionsA[i].As<Iteration>();
+
+                    if (iterationA != null)
+                    {
+                        if (!iterationA.IsPositive)
+                        {
+                            Iteration iterationB = expressionsB[i].As<Iteration>();
+
+                            if (iterationB != null)
+                            {
+                                if (iterationA.Expression == iterationB.Expression)
+                                {
+                                    res = true;
+                                }
+                            }
+                            else if (iterationA.Expression == expressionsB[i])
+                            {
+                                res = true;
+                            }
+                        }
+                        else if (iterationA.Expression == expressionsB[i])
+                        {
+                            res = true;
+                        }
+                    }
+                }
+
+                if (!res)
+                {
+                    return false;
+                }
+            }
+
+            for (int i = minLength; i < expressionsA.Count; i++)
+            {
+                if (!expressionsA[i].CanBeEmpty())
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public override bool CanBeEmpty()
