@@ -321,7 +321,7 @@ namespace FLaGLib.Data.RegExps
 
             IList<Expression> newConcat = new List<Expression>();
             IList<Expression> leftConcat = new List<Expression>();
-            IList<IList<Expression>> middleAlter = new List<IList<Expression>>();
+            IList<IList<Expression>> middleUnion = new List<IList<Expression>>();
             IList<Expression> rightConcat = new List<Expression>();
 
             for (int i = 0; i < left; i++)
@@ -343,7 +343,7 @@ namespace FLaGLib.Data.RegExps
                 middleConcat.Add(concatA[i]);
             }
 
-            middleAlter.Add(middleConcat);
+            middleUnion.Add(middleConcat);
 
             middleConcat = new List<Expression>();
 
@@ -352,10 +352,16 @@ namespace FLaGLib.Data.RegExps
                 middleConcat.Add(concatB[i]);
             }
 
-            middleAlter.Add(middleConcat);
+            middleUnion.Add(middleConcat);
 
             newConcat.AddRange(leftConcat);
-            newConcat.AddRange(middleAlter.Select(u => UnionHelper.MakeExpression(u)).Where(e => e != Empty.Instance));
+            newConcat.Add(
+                UnionHelper.MakeExpression(
+                    middleUnion.Select(
+                        c => ConcatHelper.MakeExpression(c.Where(e => e != Empty.Instance).ToList())
+                    ).ToList()
+                )
+            );
             newConcat.AddRange(rightConcat);
 
             return ConcatHelper.MakeExpression(newConcat);
