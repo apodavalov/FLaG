@@ -141,7 +141,7 @@ namespace FLaGLib.Data.Grammars
             switch (state)
             {
                 case 0:
-                    if (ruleTarget != Target)
+                    if (ruleTarget != Target && finalTarget != null)
                     {
                         throw new InvalidOperationException("Expected that rule target equals to grammar target.");
                     }
