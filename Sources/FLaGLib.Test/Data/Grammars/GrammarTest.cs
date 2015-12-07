@@ -15,6 +15,198 @@ namespace FLaGLib.Test.Data.Grammars
     public class GrammarTest
     {
         [Test]
+        public void MakeExpression_Left_Ok()
+        {
+            NonTerminalSymbol s1 = new NonTerminalSymbol(new Label(new SingleLabel('S', 1)));
+            NonTerminalSymbol s2 = new NonTerminalSymbol(new Label(new SingleLabel('S', 2)));
+            NonTerminalSymbol s3 = new NonTerminalSymbol(new Label(new SingleLabel('S', 3)));
+            NonTerminalSymbol s4 = new NonTerminalSymbol(new Label(new SingleLabel('S', 4)));
+            NonTerminalSymbol s5 = new NonTerminalSymbol(new Label(new SingleLabel('S', 5)));
+            NonTerminalSymbol s6 = new NonTerminalSymbol(new Label(new SingleLabel('S', 6)));
+            NonTerminalSymbol s7 = new NonTerminalSymbol(new Label(new SingleLabel('S', 7)));
+
+            TerminalSymbol a = new TerminalSymbol('a');
+            TerminalSymbol b = new TerminalSymbol('b');
+            TerminalSymbol c = new TerminalSymbol('c');
+
+            Grammar grammar = new Grammar(
+               EnumerateHelper.Sequence(
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   s6,
+                                   b
+                               )
+                           ),
+                           Chain.Empty
+                       ), s1
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   s1,
+                                   b
+                               )
+                           ),
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   s4,
+                                   b
+                               )
+                           )
+                       ), s2
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   s2,
+                                   c
+                               )
+                           )
+                       ), s3
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   s5,
+                                   c
+                               )
+                           )
+                       ), s4
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   s3,
+                                   b
+                               )
+                           )
+                       ), s5
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   s1,
+                                   a
+                               )
+                           )
+                       ), s6
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   s4
+                               )
+                           )
+                       ), s7
+                   )
+               ), s7
+            );
+
+            FLaGLib.Data.RegExps.Expression expression = grammar.MakeExpression(GrammarType.Left);
+
+            Assert.Fail("Not Implemented");
+        }
+
+        [Test]
+        public void MakeExpression_Right_Ok()
+        {
+            NonTerminalSymbol s1 = new NonTerminalSymbol(new Label(new SingleLabel('S', 1)));
+            NonTerminalSymbol s2 = new NonTerminalSymbol(new Label(new SingleLabel('S', 2)));
+            NonTerminalSymbol s3 = new NonTerminalSymbol(new Label(new SingleLabel('S', 3)));
+            NonTerminalSymbol s4 = new NonTerminalSymbol(new Label(new SingleLabel('S', 4)));
+            NonTerminalSymbol s5 = new NonTerminalSymbol(new Label(new SingleLabel('S', 5)));
+            NonTerminalSymbol s6 = new NonTerminalSymbol(new Label(new SingleLabel('S', 6)));
+
+            TerminalSymbol a = new TerminalSymbol('a');
+            TerminalSymbol b = new TerminalSymbol('b');
+            TerminalSymbol c = new TerminalSymbol('c');
+
+            Grammar grammar = new Grammar(
+               EnumerateHelper.Sequence(
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   c,
+                                   s3
+                               )
+                           )
+                       ), s1
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   a,
+                                   s6
+                               )
+                           ),
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   b,
+                                   s1
+                               )
+                           )
+                       ), s2
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   b,
+                                   s4
+                               )
+                           )
+                       ), s3
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   c,
+                                   s5
+                               )
+                           )
+                       ), s4
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           Chain.Empty,
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   b,
+                                   s1
+                               )
+                           )
+                       ), s5
+                   ),
+                   new Rule(
+                       EnumerateHelper.Sequence(
+                           new Chain(
+                               EnumerateHelper.Sequence<Symbol>(
+                                   b,
+                                   s2
+                               )
+                           )
+                       ), s6
+                   )
+               ), s2
+            );
+
+            FLaGLib.Data.RegExps.Expression expression = grammar.MakeExpression(GrammarType.Right);
+
+            Assert.Fail("Not Implemented");
+        }
+
+        [Test]
         public void MakeStateMachine_Left_Ok()
         {
             NonTerminalSymbol s1 = new NonTerminalSymbol(new Label(new SingleLabel('S', 1)));
