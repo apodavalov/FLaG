@@ -203,7 +203,7 @@ namespace FLaGLib.Data.RegExps
         {
             bool somethingChanged;
 
-            Expression previous = null;
+            Expression previous;
 
             IList<Expression> oldList = ConcatHelper.Iterate(Expressions.Select(e => e.Optimize())).ToList();
             IList<Expression> newList;
@@ -212,6 +212,8 @@ namespace FLaGLib.Data.RegExps
             {
                 somethingChanged = false;
                 newList = new List<Expression>();
+
+                previous = null;
 
                 foreach (Expression expression in oldList)
                 {
