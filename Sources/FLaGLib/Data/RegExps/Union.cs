@@ -364,7 +364,7 @@ namespace FLaGLib.Data.RegExps
             );
             newConcat.AddRange(rightConcat);
 
-            return ConcatHelper.MakeExpression(newConcat);
+            return ConcatHelper.MakeExpression(newConcat).Optimize();
         }
 
         private static bool IsASuperSetOfB(Expression expressionA, Expression expressionB)
