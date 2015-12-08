@@ -346,67 +346,119 @@ namespace FLaGLib.Data.RegExps
 
                 oldList = newList;
 
-                newList = new List<Expression>();
-
-                previous = null;
-                Expression previousPrevious = null;
-
-                foreach (Expression expression in oldList)
-                {
-                    if (previousPrevious == null)
-                    {
-                        previousPrevious = previous;
-                        previous = expression;
-                        continue;
-                    }
-
-                    Iteration iteration = previous.As<Iteration>();
-
-                    if (iteration != null)
-                    {
-                        Concat concat = iteration.Expression.As<Concat>();
-
-                        if (concat != null && concat.Expressions.Count == 2 && concat.Expressions[0] == expression && concat.Expressions[1] == previousPrevious)
-                        {
-                            concat = new Concat(concat.Expressions.FastReverse());
-
-                            if (iteration.IsPositive)
-                            {
-                                previousPrevious = concat;
-                            }
-                            else
-                            {
-                                previousPrevious = null;
-                            }
-
-                            previous = new Iteration(concat, true);
-
-                            somethingChanged = true;
-                            continue;
-                        }
-                    }
-
-                    newList.Add(previousPrevious);
-
-                    previousPrevious = previous;
-                    previous = expression;
-                }
-
-                if (previousPrevious != null)
-                {
-                    newList.Add(previousPrevious);
-                }
-
-                if (previous != null)
-                {
-                    newList.Add(previous);
-                }
-
-                oldList = newList;
+                somethingChanged |= TryToCompress(oldList);
 
             } while (somethingChanged);
 
             return ConcatHelper.MakeExpression(newList);
+        }
+
+        private static bool TryToCompress(IList<Expression> list)
+        {
+            bool changed;
+            bool somethingChanged = false;
+
+            do
+            {
+                changed = false;
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    Iteration iteration = list[i].As<Iteration>();
+
+                    if (iteration == null || iteration.IsPositive)
+                    {
+                        continue;
+                    }
+
+                    Concat concat = iteration.Expression.As<Concat>();
+
+                    IList<Expression> list1;
+
+                    if (concat != null)
+                    {
+                        list1 = concat.Expressions.ToList();
+                    }
+                    else
+                    {
+                        list1 = iteration.Expression.AsSequence().ToList();
+                    }
+
+                    int j = 0;
+
+                    IList<Expression> list2 = null;
+
+                    for (j = 0; j <= list1.Count; j++)
+                    {
+                        if (j > i || list1.Count - j > list.Count - i - 1)
+                        {
+                            continue;
+                        }
+
+                        list2 = new List<Expression>();
+
+                        int k;
+
+                        for (k = 0; k < j; k++)
+                        {
+                            list2.Add(list[i - j + k]);
+                        }
+
+                        for (k = 0; k < list1.Count - j; k++)
+                        {
+                            list2.Add(list[i + 1 + k]);
+                        }
+
+                        for (k = 0; k < list1.Count; k++)
+                        {
+                            bool allEquals = true;
+
+                            for (int l = 0; l < list1.Count; l++)
+                            {
+                                if (list1[(l + k) % list1.Count] != list2[l])
+                                {
+                                    allEquals = false;
+                                    break;
+                                }
+                            }
+
+                            if (allEquals)
+                            {
+                                break;
+                            }
+                        }
+
+                        if (k < list1.Count)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (j <= list1.Count)
+                    {
+                        Expression newExpression = new Iteration(ConcatHelper.MakeExpression(list2), true);
+
+                        for (int l = list1.Count - j; l > 0; l--)
+                        {
+                            list.RemoveAt(i + l);
+                        }
+
+                        for (int l = 0; l <= j; l++)
+                        {
+                            list.RemoveAt(i - l);
+                        }
+
+                        i -= j + 1;
+
+                        list.Insert(i + 1, newExpression);
+
+                        changed = true;
+                        somethingChanged = true;
+                    }
+                }
+            } while (changed);
+
+            return somethingChanged;
         }
 
         public override bool CanBeEmpty()
