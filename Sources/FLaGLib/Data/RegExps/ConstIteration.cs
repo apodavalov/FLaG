@@ -210,43 +210,37 @@ namespace FLaGLib.Data.RegExps
             return EnumerateHelper.Sequence(Expression).ToList().AsReadOnly();
         }
 
-        protected override Grammar GenerateGrammar(GrammarType grammarType)
+        internal override Grammar GenerateGrammar(GrammarType grammarType, ref int index, params Grammar[] dependencies)
         {
+            if (dependencies.Length != 1)
+            {
+                throw new InvalidOperationException("Expected exactly 1 dependency.");
+            }
+
             if (IterationCount == 0)
             {
-                switch (grammarType)
-                {
-                    case GrammarType.Left:
-                        return Empty.Instance.LeftGrammar.Reorganize(_StartIndex);
-                    case GrammarType.Right:
-                        return Empty.Instance.RightGrammar.Reorganize(_StartIndex);
-                    default:
-                        throw new InvalidOperationException(UnknownGrammarMessage(grammarType));
-                }
+                return Empty.Instance.GenerateGrammar(grammarType, ref index);
             }
 
             Expression expression = Expression;
+            Grammar dependency1 = dependencies[0]; 
 
             for (int i = 1; i < IterationCount; i++)
             {
+                Grammar dependency2 = Mirror(dependencies[0], ref index);
                 expression = new BinaryConcat(expression, Expression);
+                dependency1 = expression.GenerateGrammar(grammarType, ref index, dependency1, dependency2);
             }
 
-            Grammar grammar;
+            return dependency1;
+        }
 
-            switch (grammarType)
-            {
-                case GrammarType.Left:
-                    grammar = expression.LeftGrammar.Reorganize(_StartIndex);
-                    break;
-                case GrammarType.Right:
-                    grammar = expression.RightGrammar.Reorganize(_StartIndex);
-                    break;
-                default:
-                    throw new InvalidOperationException(UnknownGrammarMessage(grammarType));
-            }
+        private Grammar Mirror(Grammar grammar, ref int index)
+        {
+            Grammar newGrammar = grammar.Reorganize(index);
+            index += newGrammar.NonTerminals.Count;
 
-            return grammar;
+            return newGrammar;
         }
 
         public override Expression Optimize()

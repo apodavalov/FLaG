@@ -206,29 +206,28 @@ namespace FLaGLib.Data.RegExps
             return EnumerateHelper.Sequence(Expression).ToList().AsReadOnly();
         }
 
-        protected override Grammar GenerateGrammar(GrammarType grammarType)
+        internal override Grammar GenerateGrammar(GrammarType grammarType, ref int index, params Grammar[] dependencies)
         {
+            if (dependencies.Length != 1)
+            {
+                throw new InvalidOperationException("Expected exactly 1 dependency.");
+            }
+
             Func<Chain, NonTerminalSymbol, IEnumerable<Chain>> chainEnumerator;
-            Grammar expGrammar;
+            Grammar expGrammar = dependencies[0];
 
             switch (grammarType)
             {
                 case GrammarType.Left:
                     chainEnumerator = LeftChainEnumerator;
-                    expGrammar = Expression.LeftGrammar;
                     break;
                 case GrammarType.Right:
                     chainEnumerator = RightChainEnumerator;
-                    expGrammar = Expression.RightGrammar;
                     break;
                 default:
                     throw new InvalidOperationException(UnknownGrammarMessage(grammarType));
             }
 
-            int index = _StartIndex;
-
-            expGrammar = expGrammar.Reorganize(index);
-            index += expGrammar.NonTerminals.Count;
 
             IReadOnlySet<Rule> terminalSymbolsOnlyRules;
             IReadOnlySet<Rule> otherRules;

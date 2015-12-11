@@ -129,7 +129,7 @@ namespace FLaGLib.Test.Data.RegExps
             BinaryUnion union1 = new BinaryUnion(iteration1, iteration2);
             BinaryUnion union2 = new BinaryUnion(union1, iteration3);
 
-            FLaGLib.Data.Grammars.Grammar grammar = union2.LeftGrammar;
+            FLaGLib.Data.Grammars.Grammar grammar = union2.MakeGrammar(FLaGLib.Data.Grammars.GrammarType.Left);
 
             Assert.Fail("Not Implemented");
         }
@@ -153,7 +153,7 @@ namespace FLaGLib.Test.Data.RegExps
             BinaryUnion union1 = new BinaryUnion(iteration1, iteration2);
             BinaryUnion union2 = new BinaryUnion(union1, iteration3);
 
-            FLaGLib.Data.Grammars.Grammar grammar = union2.RightGrammar;
+            FLaGLib.Data.Grammars.Grammar grammar = union2.MakeGrammar(FLaGLib.Data.Grammars.GrammarType.Right);
 
             Assert.Fail("Not Implemented");
         }

@@ -170,9 +170,14 @@ namespace FLaGLib.Data.RegExps
             return Enumerable.Empty<Expression>().ToList().AsReadOnly();
         }
 
-        protected override Grammar GenerateGrammar(GrammarType grammarType)
+        internal override Grammar GenerateGrammar(GrammarType grammarType, ref int index, params Grammar[] dependencies)
         {
-            NonTerminalSymbol target = new NonTerminalSymbol(new Label(new SingleLabel('S', _StartIndex)));
+            if (dependencies.Length != 0)
+            {
+                throw new InvalidOperationException("Expected exactly 0 dependencies.");
+            }
+
+            NonTerminalSymbol target = new NonTerminalSymbol(new Label(new SingleLabel('S', index++)));
 
             return
                 new Grammar(

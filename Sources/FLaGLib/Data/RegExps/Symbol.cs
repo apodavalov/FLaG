@@ -163,9 +163,9 @@ namespace FLaGLib.Data.RegExps
             return Enumerable.Empty<Expression>().ToList().AsReadOnly();
         }
 
-        protected override Grammar GenerateGrammar(GrammarType grammarType)
+        internal override Grammar GenerateGrammar(GrammarType grammarType, ref int index, params Grammar[] dependencies)
         {
-            NonTerminalSymbol target = new NonTerminalSymbol(new Label(new SingleLabel('S', _StartIndex)));
+            NonTerminalSymbol target = new NonTerminalSymbol(new Label(new SingleLabel('S', index++)));
             TerminalSymbol symbol = new TerminalSymbol(Character);
 
             return 

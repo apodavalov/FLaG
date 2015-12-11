@@ -10,7 +10,7 @@ namespace FLaGLib.Data.RegExps
 {
     public abstract class Expression : IEquatable<Expression>, IComparable<Expression>
     {
-        internal const int _StartIndex = 1;
+        private const int _StartIndex = 1;
         private const string _UnknownGrammarTemplate = "Unknown grammar type: {0}";
 
         internal Expression() 
@@ -20,8 +20,6 @@ namespace FLaGLib.Data.RegExps
             _SubexpressionsInCalculateOrder = new Lazy<IReadOnlyList<Expression>>(GetSubexpressionsInCalculateOrder);
             _DirectDependencies = new Lazy<IReadOnlyList<Expression>>(GetDirectDependencies);
             _DependencyMap = new Lazy<ILookup<int, int>>(GetDependencyMap);
-            _LeftGrammar = new Lazy<Grammar>(GetLeftGrammar);
-            _RightGrammar = new Lazy<Grammar>(GetRightGrammar);
         }
 
         public static bool operator ==(Expression objA, Expression objB)
@@ -100,24 +98,6 @@ namespace FLaGLib.Data.RegExps
         private Lazy<IReadOnlyList<Expression>> _SubexpressionsInCalculateOrder;
         private Lazy<ILookup<int, int>> _DependencyMap;
         private Lazy<IReadOnlyList<Expression>> _DirectDependencies;
-        private Lazy<Grammar> _LeftGrammar;
-        private Lazy<Grammar> _RightGrammar;
-
-        public Grammar LeftGrammar
-        {
-            get
-            {
-                return _LeftGrammar.Value;
-            }
-        }
-
-        public Grammar RightGrammar
-        {
-            get
-            {
-                return _RightGrammar.Value;
-            }
-        }
 
         public IReadOnlyList<Expression> DirectDependencies
         {
@@ -195,33 +175,31 @@ namespace FLaGLib.Data.RegExps
             return WalkData.Where(wd => wd.Status == WalkStatus.Begin).OrderBy(wd => wd.Index).Select(wd => wd.Value).ToList().AsReadOnly();
         }
 
-        private Grammar GetLeftGrammar()
-        {
-            return GenerateGrammar(GrammarType.Left);
-        }
+        internal abstract Grammar GenerateGrammar(GrammarType grammarType, ref int index, params Grammar[] dependencies);
 
-        private Grammar GetRightGrammar()
+        public Grammar MakeGrammar(GrammarType grammarType, Action<GrammarPostReport> onIterate = null)
         {
-            return GenerateGrammar(GrammarType.Right);
-        }
-
-        protected abstract Grammar GenerateGrammar(GrammarType grammarType);
-
-        private Grammar GetGrammar(GrammarType grammarType)
-        {
+            ILookup<int, int> dependencyMap = _DependencyMap.Value;
             IReadOnlyList<Expression> expressions = _SubexpressionsInCalculateOrder.Value;
+            GrammarExpressionTuple[] grammars = new GrammarExpressionTuple[expressions.Count];
 
             int index = _StartIndex;
-
-            Grammar grammar = null;
-
-            foreach (Expression expression in expressions)
+                
+            for (int i = 0; i < expressions.Count; i++)
             {
-                grammar = GenerateGrammar(grammarType).Reorganize(index);
-                index += grammar.NonTerminals.Count;
+                Expression expression = expressions[i];
+                IEnumerable<GrammarExpressionTuple> dependencies = dependencyMap[i].OrderBy(item => item).Select(item => grammars[item]);
+                Grammar grammar = expression.GenerateGrammar(grammarType, ref index, dependencies.Select(d => d.Grammar).ToArray());
+
+                grammars[i] = new GrammarExpressionTuple(expression, grammar, i + 1);
+
+                if (onIterate != null)
+                {
+                    onIterate(new GrammarPostReport(grammars[i], dependencies));
+                }
             }
 
-            return grammar;
+            return grammars[grammars.Length - 1].Grammar;
         }
 
         private IReadOnlyList<WalkData<Expression>> GetWalkData()

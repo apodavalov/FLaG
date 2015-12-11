@@ -73,6 +73,8 @@
     <Compile Include="Data\Languages\Symbol.cs" />
     <Compile Include="Data\Languages\Variable.cs" />
     <Compile Include="Data\RegExps\ConcatHelper.cs" />
+    <Compile Include="Data\RegExps\GrammarExpressionTuple.cs" />
+    <Compile Include="Data\RegExps\GrammarPostReport.cs" />
     <Compile Include="Data\RegExps\UnionHelper.cs" />
     <Compile Include="Data\RegExps\Concat.cs" />
     <Compile Include="Helpers\Matrix.cs" />

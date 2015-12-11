@@ -209,30 +209,15 @@ namespace FLaGLib.Data.RegExps
             return EnumerateHelper.Sequence(Left, Right).ToList().AsReadOnly();
         }
 
-        protected override Grammar GenerateGrammar(GrammarType grammarType)
+        internal override Grammar GenerateGrammar(GrammarType grammarType, ref int index, params Grammar[] dependencies)
         {
-            Grammar leftExpGrammar;
-            Grammar rightExpGrammar;
-
-            int index = _StartIndex;
-
-            switch (grammarType)
+            if (dependencies.Length != 2)
             {
-                case GrammarType.Left:
-                    leftExpGrammar = Left.LeftGrammar.Reorganize(index);
-                    index += leftExpGrammar.NonTerminals.Count;
-                    rightExpGrammar = Right.LeftGrammar.Reorganize(index);
-                    index += rightExpGrammar.NonTerminals.Count;
-                    break;
-                case GrammarType.Right:
-                    leftExpGrammar = Left.RightGrammar.Reorganize(index);
-                    index += leftExpGrammar.NonTerminals.Count;
-                    rightExpGrammar = Right.RightGrammar.Reorganize(index);
-                    index += rightExpGrammar.NonTerminals.Count;
-                    break;
-                default:
-                    throw new InvalidOperationException(UnknownGrammarMessage(grammarType));
+                throw new InvalidOperationException("Expected exactly 2 dependencies.");
             }
+
+            Grammar leftExpGrammar = dependencies[0];
+            Grammar rightExpGrammar = dependencies[1];
 
             NonTerminalSymbol target = new NonTerminalSymbol(new Label(new SingleLabel('S',index++)));
 

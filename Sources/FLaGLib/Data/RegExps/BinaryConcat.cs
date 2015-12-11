@@ -204,26 +204,28 @@ namespace FLaGLib.Data.RegExps
             return EnumerateHelper.Sequence(Left, Right).ToList().AsReadOnly();
         }
 
-        protected override Grammar GenerateGrammar(GrammarType grammarType)
+        internal override Grammar GenerateGrammar(GrammarType grammarType, ref int index, params Grammar[] dependencies)
         {
+            if (dependencies.Length != 2)
+            {
+                throw new InvalidOperationException("Expected exactly 2 dependencies.");
+            }
+
             switch (grammarType)
             {
                 case GrammarType.Left:
-                    return GenerateLeftGrammar();
+                    return GenerateLeftGrammar(ref index, dependencies);
                 case GrammarType.Right:
-                    return GenerateRightGrammar();
+                    return GenerateRightGrammar(ref index, dependencies);
                 default:
                     throw new InvalidOperationException(UnknownGrammarMessage(grammarType));
             }          
         }
 
-        private Grammar GenerateRightGrammar()
+        private Grammar GenerateRightGrammar(ref int index, params Grammar[] dependencies)
         {
-            int index = _StartIndex;
-
-            Grammar leftExpGrammar = Left.RightGrammar.Reorganize(index);
-            index += leftExpGrammar.NonTerminals.Count;
-            Grammar rightExpGrammar = Right.RightGrammar.Reorganize(index);
+            Grammar leftExpGrammar = dependencies[0];
+            Grammar rightExpGrammar = dependencies[1];
 
             IReadOnlySet<Rule> terminalSymbolsOnlyRules;
             IReadOnlySet<Rule> otherRules;
@@ -248,13 +250,10 @@ namespace FLaGLib.Data.RegExps
             return new Grammar(newRules, leftExpGrammar.Target);
         }
 
-        private Grammar GenerateLeftGrammar()
+        private Grammar GenerateLeftGrammar(ref int index, params Grammar[] dependencies)
         {
-            int index = _StartIndex;
-
-            Grammar leftExpGrammar = Left.LeftGrammar.Reorganize(index);
-            index += leftExpGrammar.NonTerminals.Count;
-            Grammar rightExpGrammar = Right.LeftGrammar.Reorganize(index);
+            Grammar leftExpGrammar = dependencies[0];
+            Grammar rightExpGrammar = dependencies[1];
 
             IReadOnlySet<Rule> terminalSymbolsOnlyRules;
             IReadOnlySet<Rule> otherRules;

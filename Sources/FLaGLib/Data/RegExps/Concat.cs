@@ -194,7 +194,7 @@ namespace FLaGLib.Data.RegExps
             return Expressions;
         }
 
-        protected override Grammar GenerateGrammar(GrammarType grammarType)
+        internal override Grammar GenerateGrammar(GrammarType grammarType, ref int index, params Grammar[] dependencies)
         {
             throw new NotSupportedException();
         }
