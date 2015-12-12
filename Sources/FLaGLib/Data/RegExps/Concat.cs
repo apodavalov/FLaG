@@ -409,26 +409,18 @@ namespace FLaGLib.Data.RegExps
                             list2.Add(list[i + 1 + k]);
                         }
 
-                        for (k = 0; k < list1.Count; k++)
+                        bool allEquals = true;
+
+                        for (int l = 0; l < list1.Count; l++)
                         {
-                            bool allEquals = true;
-
-                            for (int l = 0; l < list1.Count; l++)
+                            if (list1[l] != list2[(l + j) % list2.Count])
                             {
-                                if (list1[(l + k) % list1.Count] != list2[l])
-                                {
-                                    allEquals = false;
-                                    break;
-                                }
-                            }
-
-                            if (allEquals)
-                            {
+                                allEquals = false;
                                 break;
                             }
                         }
 
-                        if (k < list1.Count)
+                        if (allEquals)
                         {
                             break;
                         }
