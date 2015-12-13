@@ -204,7 +204,8 @@ namespace FLaGLib.Data.RegExps
             return EnumerateHelper.Sequence(Left, Right).ToList().AsReadOnly();
         }
 
-        internal override Grammar GenerateGrammar(GrammarType grammarType, ref int index, params Grammar[] dependencies)
+        internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
+            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies)
         {
             if (dependencies.Length != 2)
             {
@@ -214,18 +215,19 @@ namespace FLaGLib.Data.RegExps
             switch (grammarType)
             {
                 case GrammarType.Left:
-                    return GenerateLeftGrammar(ref index, dependencies);
+                    return GenerateLeftGrammar(grammarNumber, ref index, ref additionalGrammarNumber, onIterate, dependencies);
                 case GrammarType.Right:
-                    return GenerateRightGrammar(ref index, dependencies);
+                    return GenerateRightGrammar(grammarNumber, ref index, ref additionalGrammarNumber, onIterate, dependencies);
                 default:
                     throw new InvalidOperationException(UnknownGrammarMessage(grammarType));
             }          
         }
 
-        private Grammar GenerateRightGrammar(ref int index, params Grammar[] dependencies)
+        private GrammarExpressionTuple GenerateRightGrammar(int grammarNumber,
+            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies)
         {
-            Grammar leftExpGrammar = dependencies[0];
-            Grammar rightExpGrammar = dependencies[1];
+            Grammar leftExpGrammar = dependencies[0].Grammar;
+            Grammar rightExpGrammar = dependencies[1].Grammar;
 
             IReadOnlySet<Rule> terminalSymbolsOnlyRules;
             IReadOnlySet<Rule> otherRules;
@@ -247,13 +249,21 @@ namespace FLaGLib.Data.RegExps
                 newRules.Add(new Rule(newChains, rule.Target));
             }
 
-            return new Grammar(newRules, leftExpGrammar.Target);
+            GrammarExpressionTuple grammarExpressionTuple = new GrammarExpressionTuple(this, new Grammar(newRules, leftExpGrammar.Target), grammarNumber);
+
+            if (onIterate != null)
+            {
+                onIterate(new GrammarPostReport(grammarExpressionTuple, dependencies.Select(d => new GrammarExpressionWithOriginal(d))));
+            }
+
+            return grammarExpressionTuple;
         }
 
-        private Grammar GenerateLeftGrammar(ref int index, params Grammar[] dependencies)
+        private GrammarExpressionTuple GenerateLeftGrammar(int grammarNumber,
+            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies)
         {
-            Grammar leftExpGrammar = dependencies[0];
-            Grammar rightExpGrammar = dependencies[1];
+            Grammar leftExpGrammar = dependencies[0].Grammar;
+            Grammar rightExpGrammar = dependencies[1].Grammar;
 
             IReadOnlySet<Rule> terminalSymbolsOnlyRules;
             IReadOnlySet<Rule> otherRules;
@@ -275,7 +285,14 @@ namespace FLaGLib.Data.RegExps
                 newRules.Add(new Rule(newChains, rule.Target));
             }
 
-            return new Grammar(newRules, rightExpGrammar.Target);
+            GrammarExpressionTuple grammarExpressionTuple = new GrammarExpressionTuple(this, new Grammar(newRules, rightExpGrammar.Target), grammarNumber);
+
+            if (onIterate != null)
+            {
+                onIterate(new GrammarPostReport(grammarExpressionTuple, dependencies.Select(d => new GrammarExpressionWithOriginal(d))));
+            }
+
+            return grammarExpressionTuple;
         }
 
         public override Expression Optimize()

@@ -170,7 +170,8 @@ namespace FLaGLib.Data.RegExps
             return Enumerable.Empty<Expression>().ToList().AsReadOnly();
         }
 
-        internal override Grammar GenerateGrammar(GrammarType grammarType, ref int index, params Grammar[] dependencies)
+        internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
+            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies)
         {
             if (dependencies.Length != 0)
             {
@@ -179,13 +180,24 @@ namespace FLaGLib.Data.RegExps
 
             NonTerminalSymbol target = new NonTerminalSymbol(new Label(new SingleLabel('S', index++)));
 
-            return
-                new Grammar(
-                    EnumerateHelper.Sequence(
-                        new Rule(EnumerateHelper.Sequence(new Chain(Enumerable.Empty<Grammars.Symbol>())), target)
+            GrammarExpressionTuple grammarExpressionTuple =
+                new GrammarExpressionTuple(
+                    this,
+                    new Grammar(
+                        EnumerateHelper.Sequence(
+                            new Rule(EnumerateHelper.Sequence(new Chain(Enumerable.Empty<Grammars.Symbol>())), target)
+                        ),
+                        target
                     ),
-                    target
+                    grammarNumber
                 );
+
+            if (onIterate != null)
+            {
+                onIterate(new GrammarPostReport(grammarExpressionTuple, dependencies.Select(d => new GrammarExpressionWithOriginal(d))));
+            }
+
+            return grammarExpressionTuple;
         }
 
         public override Expression Optimize()

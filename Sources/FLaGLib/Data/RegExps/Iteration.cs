@@ -206,7 +206,8 @@ namespace FLaGLib.Data.RegExps
             return EnumerateHelper.Sequence(Expression).ToList().AsReadOnly();
         }
 
-        internal override Grammar GenerateGrammar(GrammarType grammarType, ref int index, params Grammar[] dependencies)
+        internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
+            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies)
         {
             if (dependencies.Length != 1)
             {
@@ -214,7 +215,7 @@ namespace FLaGLib.Data.RegExps
             }
 
             Func<Chain, NonTerminalSymbol, IEnumerable<Chain>> chainEnumerator;
-            Grammar expGrammar = dependencies[0];
+            Grammar expGrammar = dependencies[0].Grammar;
 
             switch (grammarType)
             {
@@ -256,14 +257,26 @@ namespace FLaGLib.Data.RegExps
 
             newRules.Add(new Rule(chains, symbol));
 
-            return new Grammar(newRules, symbol);
+            GrammarExpressionTuple grammarExpressionTuple =
+                new GrammarExpressionTuple(
+                    this,
+                    new Grammar(newRules, symbol),
+                    grammarNumber
+                );
+
+            if (onIterate != null)
+            {
+                new GrammarPostReport(grammarExpressionTuple,dependencies.Select(d => new GrammarExpressionWithOriginal(d)));
+            }
+
+            return grammarExpressionTuple;
         }
 
         private static IEnumerable<Chain> LeftChainEnumerator(Chain chain, NonTerminalSymbol target)
         {
             return EnumerateHelper.Sequence(
                 new Chain(
-                    EnumerateHelper.Sequence(target).Concat(chain)                    
+                    EnumerateHelper.Sequence(target).Concat(chain)
                 ),
                 chain
             );

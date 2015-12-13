@@ -199,7 +199,8 @@ namespace FLaGLib.Data.RegExps
             return Expressions.ToList().AsReadOnly();
         }
 
-        internal override Grammar GenerateGrammar(GrammarType grammarType, ref int index, params Grammar[] dependencies)
+        internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
+             ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies)
         {
             throw new NotSupportedException();
         }

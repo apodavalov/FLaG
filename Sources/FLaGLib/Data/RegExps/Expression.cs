@@ -175,7 +175,8 @@ namespace FLaGLib.Data.RegExps
             return WalkData.Where(wd => wd.Status == WalkStatus.Begin).OrderBy(wd => wd.Index).Select(wd => wd.Value).ToList().AsReadOnly();
         }
 
-        internal abstract Grammar GenerateGrammar(GrammarType grammarType, ref int index, params Grammar[] dependencies);
+        internal abstract GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber, 
+            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies);
 
         public Grammar MakeGrammar(GrammarType grammarType, Action<GrammarPostReport> onIterate = null)
         {
@@ -184,19 +185,13 @@ namespace FLaGLib.Data.RegExps
             GrammarExpressionTuple[] grammars = new GrammarExpressionTuple[expressions.Count];
 
             int index = _StartIndex;
+            int additionalGrammarNumber = _StartIndex + expressions.Count;
                 
             for (int i = 0; i < expressions.Count; i++)
             {
                 Expression expression = expressions[i];
                 IEnumerable<GrammarExpressionTuple> dependencies = dependencyMap[i].OrderBy(item => item).Select(item => grammars[item]);
-                Grammar grammar = expression.GenerateGrammar(grammarType, ref index, dependencies.Select(d => d.Grammar).ToArray());
-
-                grammars[i] = new GrammarExpressionTuple(expression, grammar, i + 1);
-
-                if (onIterate != null)
-                {
-                    onIterate(new GrammarPostReport(grammars[i], dependencies));
-                }
+                grammars[i] = expression.GenerateGrammar(grammarType, _StartIndex + i, ref index, ref additionalGrammarNumber, onIterate, dependencies.ToArray());
             }
 
             return grammars[grammars.Length - 1].Grammar;

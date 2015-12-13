@@ -210,7 +210,8 @@ namespace FLaGLib.Data.RegExps
             return EnumerateHelper.Sequence(Expression).ToList().AsReadOnly();
         }
 
-        internal override Grammar GenerateGrammar(GrammarType grammarType, ref int index, params Grammar[] dependencies)
+        internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
+            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies)
         {
             if (dependencies.Length != 1)
             {
@@ -219,28 +220,66 @@ namespace FLaGLib.Data.RegExps
 
             if (IterationCount == 0)
             {
-                return Empty.Instance.GenerateGrammar(grammarType, ref index);
+                return Empty.Instance.GenerateGrammar(grammarType, grammarNumber, ref index, ref additionalGrammarNumber, onIterate);
             }
 
-            Expression expression = Expression;
-            Grammar dependency1 = dependencies[0]; 
+            GrammarExpressionTuple original = dependencies[0];
+
+            if (IterationCount == 1)
+            {
+                GrammarExpressionTuple grammarExpressionTuple = new GrammarExpressionTuple(original.Expression, original.Grammar, grammarNumber);
+
+                if (onIterate != null)
+                {
+                    onIterate(new GrammarPostReport(grammarExpressionTuple, new GrammarExpressionWithOriginal(original).AsSequence()));
+                }
+
+                return grammarExpressionTuple;
+            }
+
+            GrammarExpressionTuple dependency1 = original; 
 
             for (int i = 1; i < IterationCount; i++)
             {
-                Grammar dependency2 = Mirror(dependencies[0], ref index);
-                expression = new BinaryConcat(expression, Expression);
-                dependency1 = expression.GenerateGrammar(grammarType, ref index, dependency1, dependency2);
+                GrammarExpressionTuple dependency2 = Mirror(dependencies[0], ref index, ref additionalGrammarNumber);
+
+                int number;
+
+                if (i == IterationCount - 1)
+                {
+                    number = grammarNumber;
+                }
+                else
+                {
+                    number = additionalGrammarNumber++;
+                }
+                
+                GrammarExpressionTuple expressionTuple = 
+                    new BinaryConcat(dependency1.Expression, dependency2.Expression).
+                        GenerateGrammar(grammarType, number, ref index, ref additionalGrammarNumber, null, dependency1, dependency2);
+
+                if (onIterate != null)
+                {
+                    onIterate(new GrammarPostReport(expressionTuple, EnumerateHelper.Sequence(new GrammarExpressionWithOriginal(dependency1), new GrammarExpressionWithOriginal(dependency2, original))));
+                }
+
+                dependency1 = expressionTuple;
             }
 
             return dependency1;
         }
 
-        private Grammar Mirror(Grammar grammar, ref int index)
+        private GrammarExpressionTuple Mirror(GrammarExpressionTuple grammar, ref int index, ref int additionalGrammarNumber)
         {
-            Grammar newGrammar = grammar.Reorganize(index);
+            Grammar newGrammar = grammar.Grammar.Reorganize(index);
             index += newGrammar.NonTerminals.Count;
 
-            return newGrammar;
+            return
+                new GrammarExpressionTuple(
+                    grammar.Expression,
+                    newGrammar,
+                    additionalGrammarNumber++
+                );
         }
 
         public override Expression Optimize()

@@ -7,7 +7,7 @@ namespace FLaGLib.Data.RegExps
 {
     public class GrammarPostReport
     {
-        public IReadOnlyList<GrammarExpressionTuple> Dependencies
+        public IReadOnlyList<GrammarExpressionWithOriginal> Dependencies
         {
             get;
             private set;
@@ -19,7 +19,7 @@ namespace FLaGLib.Data.RegExps
             private set;
         }
 
-        public GrammarPostReport(GrammarExpressionTuple @new, IEnumerable<GrammarExpressionTuple> dependencies)
+        public GrammarPostReport(GrammarExpressionTuple @new, IEnumerable<GrammarExpressionWithOriginal> dependencies)
         {
             if (@new == null)
             {
