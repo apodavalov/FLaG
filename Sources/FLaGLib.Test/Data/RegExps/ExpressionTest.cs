@@ -119,17 +119,23 @@ namespace FLaGLib.Test.Data.RegExps
 
             BinaryConcat concat1 = new BinaryConcat(symbolA, symbolB);
             Iteration iteration1 = new Iteration(concat1, false);
+            ConstIteration constIteration1 = new ConstIteration(iteration1, 0);
 
             BinaryConcat concat2 = new BinaryConcat(symbolA, symbolC);
             Iteration iteration2 = new Iteration(concat2, false);
+            ConstIteration constIteration2 = new ConstIteration(iteration2, 1);
 
             BinaryConcat concat3 = new BinaryConcat(symbolB, symbolC);
             Iteration iteration3 = new Iteration(concat3, false);
+            ConstIteration constIteration3 = new ConstIteration(iteration3, 3);
 
-            BinaryUnion union1 = new BinaryUnion(iteration1, iteration2);
-            BinaryUnion union2 = new BinaryUnion(union1, iteration3);
+            BinaryUnion union1 = new BinaryUnion(constIteration1, constIteration2);
+            BinaryUnion union2 = new BinaryUnion(union1, constIteration3);
 
-            FLaGLib.Data.Grammars.Grammar grammar = union2.MakeGrammar(FLaGLib.Data.Grammars.GrammarType.Left);
+            IList<GrammarPostReport> reports = new List<GrammarPostReport>();
+
+            FLaGLib.Data.Grammars.Grammar grammar = union2.MakeGrammar(FLaGLib.Data.Grammars.GrammarType.Left,
+                d => reports.Add(d));
 
             Assert.Fail("Not Implemented");
         }
@@ -143,17 +149,23 @@ namespace FLaGLib.Test.Data.RegExps
 
             BinaryConcat concat1 = new BinaryConcat(symbolA, symbolB);
             Iteration iteration1 = new Iteration(concat1, false);
+            ConstIteration constIteration1 = new ConstIteration(iteration1, 0);
 
             BinaryConcat concat2 = new BinaryConcat(symbolA, symbolC);
             Iteration iteration2 = new Iteration(concat2, false);
+            ConstIteration constIteration2 = new ConstIteration(iteration2, 1);
 
             BinaryConcat concat3 = new BinaryConcat(symbolB, symbolC);
             Iteration iteration3 = new Iteration(concat3, false);
+            ConstIteration constIteration3 = new ConstIteration(iteration3, 3);
 
-            BinaryUnion union1 = new BinaryUnion(iteration1, iteration2);
-            BinaryUnion union2 = new BinaryUnion(union1, iteration3);
+            BinaryUnion union1 = new BinaryUnion(constIteration1, constIteration2);
+            BinaryUnion union2 = new BinaryUnion(union1, constIteration3);
 
-            FLaGLib.Data.Grammars.Grammar grammar = union2.MakeGrammar(FLaGLib.Data.Grammars.GrammarType.Right);
+            IList<GrammarPostReport> reports = new List<GrammarPostReport>();
+
+            FLaGLib.Data.Grammars.Grammar grammar = union2.MakeGrammar(FLaGLib.Data.Grammars.GrammarType.Right,
+                d => reports.Add(d));
 
             Assert.Fail("Not Implemented");
         }
