@@ -176,13 +176,13 @@ namespace FLaGLib.Data.RegExps
         }
 
         internal abstract GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber, 
-            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies);
+            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies);
 
         public Grammar MakeGrammar(GrammarType grammarType, Action<GrammarPostReport> onIterate = null)
         {
             ILookup<int, int> dependencyMap = _DependencyMap.Value;
             IReadOnlyList<Expression> expressions = _SubexpressionsInCalculateOrder.Value;
-            GrammarExpressionTuple[] grammars = new GrammarExpressionTuple[expressions.Count];
+            GrammarExpressionWithOriginal[] grammars = new GrammarExpressionWithOriginal[expressions.Count];
 
             int index = _StartIndex;
             int additionalGrammarNumber = _StartIndex + expressions.Count;
@@ -190,11 +190,11 @@ namespace FLaGLib.Data.RegExps
             for (int i = 0; i < expressions.Count; i++)
             {
                 Expression expression = expressions[i];
-                IEnumerable<GrammarExpressionTuple> dependencies = dependencyMap[i].OrderBy(item => item).Select(item => grammars[item]);
-                grammars[i] = expression.GenerateGrammar(grammarType, _StartIndex + i, ref index, ref additionalGrammarNumber, onIterate, dependencies.ToArray());
+                IEnumerable<GrammarExpressionWithOriginal> dependencies = dependencyMap[i].OrderBy(item => item).Select(item => grammars[item]);
+                grammars[i] = new GrammarExpressionWithOriginal(expression.GenerateGrammar(grammarType, _StartIndex + i, ref index, ref additionalGrammarNumber, onIterate, dependencies.ToArray()));
             }
 
-            return grammars[grammars.Length - 1].Grammar;
+            return grammars[grammars.Length - 1].GrammarExpression.Grammar;
         }
 
         private IReadOnlyList<WalkData<Expression>> GetWalkData()

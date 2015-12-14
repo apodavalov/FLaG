@@ -211,7 +211,7 @@ namespace FLaGLib.Data.RegExps
         }
 
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
-            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies)
+            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {
             if (dependencies.Length != 1)
             {
@@ -223,7 +223,7 @@ namespace FLaGLib.Data.RegExps
                 return Empty.Instance.GenerateGrammar(grammarType, grammarNumber, ref index, ref additionalGrammarNumber, onIterate);
             }
 
-            GrammarExpressionTuple original = dependencies[0];
+            GrammarExpressionTuple original = dependencies[0].GrammarExpression;
 
             if (IterationCount == 1)
             {
@@ -241,7 +241,7 @@ namespace FLaGLib.Data.RegExps
 
             for (int i = 1; i < IterationCount; i++)
             {
-                GrammarExpressionTuple dependency2 = Mirror(dependencies[0], ref index, ref additionalGrammarNumber);
+                GrammarExpressionTuple dependency2 = Mirror(original, ref index, ref additionalGrammarNumber);
 
                 int number;
 
@@ -256,12 +256,7 @@ namespace FLaGLib.Data.RegExps
                 
                 GrammarExpressionTuple expressionTuple = 
                     new BinaryConcat(dependency1.Expression, dependency2.Expression).
-                        GenerateGrammar(grammarType, number, ref index, ref additionalGrammarNumber, null, dependency1, dependency2);
-
-                if (onIterate != null)
-                {
-                    onIterate(new GrammarPostReport(expressionTuple, EnumerateHelper.Sequence(new GrammarExpressionWithOriginal(dependency1), new GrammarExpressionWithOriginal(dependency2, original))));
-                }
+                        GenerateGrammar(grammarType, number, ref index, ref additionalGrammarNumber, onIterate, new GrammarExpressionWithOriginal(dependency1), new GrammarExpressionWithOriginal(dependency2, original));
 
                 dependency1 = expressionTuple;
             }

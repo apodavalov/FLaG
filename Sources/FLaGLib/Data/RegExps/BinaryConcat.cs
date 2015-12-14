@@ -205,7 +205,7 @@ namespace FLaGLib.Data.RegExps
         }
 
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
-            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies)
+            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {
             if (dependencies.Length != 2)
             {
@@ -224,10 +224,10 @@ namespace FLaGLib.Data.RegExps
         }
 
         private GrammarExpressionTuple GenerateRightGrammar(int grammarNumber,
-            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies)
+            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {
-            Grammar leftExpGrammar = dependencies[0].Grammar;
-            Grammar rightExpGrammar = dependencies[1].Grammar;
+            Grammar leftExpGrammar = dependencies[0].GrammarExpression.Grammar;
+            Grammar rightExpGrammar = dependencies[1].GrammarExpression.Grammar;
 
             IReadOnlySet<Rule> terminalSymbolsOnlyRules;
             IReadOnlySet<Rule> otherRules;
@@ -253,17 +253,17 @@ namespace FLaGLib.Data.RegExps
 
             if (onIterate != null)
             {
-                onIterate(new GrammarPostReport(grammarExpressionTuple, dependencies.Select(d => new GrammarExpressionWithOriginal(d))));
+                onIterate(new GrammarPostReport(grammarExpressionTuple, dependencies));
             }
 
             return grammarExpressionTuple;
         }
 
         private GrammarExpressionTuple GenerateLeftGrammar(int grammarNumber,
-            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies)
+            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {
-            Grammar leftExpGrammar = dependencies[0].Grammar;
-            Grammar rightExpGrammar = dependencies[1].Grammar;
+            Grammar leftExpGrammar = dependencies[0].GrammarExpression.Grammar;
+            Grammar rightExpGrammar = dependencies[1].GrammarExpression.Grammar;
 
             IReadOnlySet<Rule> terminalSymbolsOnlyRules;
             IReadOnlySet<Rule> otherRules;
@@ -289,7 +289,7 @@ namespace FLaGLib.Data.RegExps
 
             if (onIterate != null)
             {
-                onIterate(new GrammarPostReport(grammarExpressionTuple, dependencies.Select(d => new GrammarExpressionWithOriginal(d))));
+                onIterate(new GrammarPostReport(grammarExpressionTuple, dependencies));
             }
 
             return grammarExpressionTuple;

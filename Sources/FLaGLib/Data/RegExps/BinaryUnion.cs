@@ -210,15 +210,15 @@ namespace FLaGLib.Data.RegExps
         }
 
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
-            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies)
+            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {
             if (dependencies.Length != 2)
             {
                 throw new InvalidOperationException("Expected exactly 2 dependencies.");
             }
 
-            Grammar leftExpGrammar = dependencies[0].Grammar;
-            Grammar rightExpGrammar = dependencies[1].Grammar;
+            Grammar leftExpGrammar = dependencies[0].GrammarExpression.Grammar;
+            Grammar rightExpGrammar = dependencies[1].GrammarExpression.Grammar;
 
             NonTerminalSymbol target = new NonTerminalSymbol(new Label(new SingleLabel('S',index++)));
 
@@ -234,7 +234,7 @@ namespace FLaGLib.Data.RegExps
 
             if (onIterate != null)
             {
-                onIterate(new GrammarPostReport(grammarExpressionTuple, dependencies.Select(d => new GrammarExpressionWithOriginal(d))));
+                onIterate(new GrammarPostReport(grammarExpressionTuple, dependencies));
             }
 
             return grammarExpressionTuple;

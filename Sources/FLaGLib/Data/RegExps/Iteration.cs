@@ -207,7 +207,7 @@ namespace FLaGLib.Data.RegExps
         }
 
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
-            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies)
+            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {
             if (dependencies.Length != 1)
             {
@@ -215,7 +215,7 @@ namespace FLaGLib.Data.RegExps
             }
 
             Func<Chain, NonTerminalSymbol, IEnumerable<Chain>> chainEnumerator;
-            Grammar expGrammar = dependencies[0].Grammar;
+            Grammar expGrammar = dependencies[0].GrammarExpression.Grammar;
 
             switch (grammarType)
             {
@@ -266,7 +266,7 @@ namespace FLaGLib.Data.RegExps
 
             if (onIterate != null)
             {
-                onIterate(new GrammarPostReport(grammarExpressionTuple,dependencies.Select(d => new GrammarExpressionWithOriginal(d))));
+                onIterate(new GrammarPostReport(grammarExpressionTuple, dependencies));
             }
 
             return grammarExpressionTuple;

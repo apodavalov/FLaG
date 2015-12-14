@@ -164,7 +164,7 @@ namespace FLaGLib.Data.RegExps
         }
 
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
-            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionTuple[] dependencies)
+            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {
             NonTerminalSymbol target = new NonTerminalSymbol(new Label(new SingleLabel('S', index++)));
             TerminalSymbol symbol = new TerminalSymbol(Character);
@@ -183,7 +183,7 @@ namespace FLaGLib.Data.RegExps
 
             if (onIterate != null)
             {
-                onIterate(new GrammarPostReport(grammarExpressionTuple, dependencies.Select(d => new GrammarExpressionWithOriginal(d))));
+                onIterate(new GrammarPostReport(grammarExpressionTuple, dependencies));
             }
 
             return grammarExpressionTuple;
