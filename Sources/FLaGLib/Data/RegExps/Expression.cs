@@ -185,7 +185,7 @@ namespace FLaGLib.Data.RegExps
             GrammarExpressionWithOriginal[] grammars = new GrammarExpressionWithOriginal[expressions.Count];
 
             int index = _StartIndex;
-            int additionalGrammarNumber = _StartIndex + expressions.Count;
+            int additionalGrammarNumber = _StartIndex + expressions.Count + 1;
                 
             for (int i = 0; i < expressions.Count; i++)
             {
