@@ -227,7 +227,7 @@ namespace FLaGLib.Data.RegExps
 
             if (IterationCount == 1)
             {
-                GrammarExpressionTuple grammarExpressionTuple = new GrammarExpressionTuple(original.Expression, original.Grammar, grammarNumber);
+                GrammarExpressionTuple grammarExpressionTuple = new GrammarExpressionTuple(this, original.Grammar, grammarNumber);
 
                 if (onIterate != null)
                 {
