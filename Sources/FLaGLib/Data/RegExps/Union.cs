@@ -205,6 +205,11 @@ namespace FLaGLib.Data.RegExps
             throw new NotSupportedException();
         }
 
+        internal override StateMachineExpressionTuple GenerateStateMachine(int stateMachineNumber, ref int index, ref int additionalStateMachineNumber, Action<StateMachinePostReport> onIterate, params StateMachineExpressionWithOriginal[] dependencies)
+        {
+            throw new NotSupportedException();
+        }
+
         public override Expression Optimize()
         {
             bool somethingChanged;

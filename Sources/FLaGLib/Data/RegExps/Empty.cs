@@ -200,6 +200,11 @@ namespace FLaGLib.Data.RegExps
             return grammarExpressionTuple;
         }
 
+        internal override StateMachineExpressionTuple GenerateStateMachine(int stateMachineNumber, ref int index, ref int additionalStateMachineNumber, Action<StateMachinePostReport> onIterate, params StateMachineExpressionWithOriginal[] dependencies)
+        {
+            throw new NotImplementedException();
+        }
+
         public override Expression Optimize()
         {
             return this;

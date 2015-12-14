@@ -76,6 +76,9 @@
     <Compile Include="Data\RegExps\GrammarExpressionWithOriginal.cs" />
     <Compile Include="Data\RegExps\GrammarExpressionTuple.cs" />
     <Compile Include="Data\RegExps\GrammarPostReport.cs" />
+    <Compile Include="Data\RegExps\StateMachineExpressionTuple.cs" />
+    <Compile Include="Data\RegExps\StateMachineExpressionWithOriginal.cs" />
+    <Compile Include="Data\RegExps\StateMachinePostReport.cs" />
     <Compile Include="Data\RegExps\UnionHelper.cs" />
     <Compile Include="Data\RegExps\Concat.cs" />
     <Compile Include="Helpers\Matrix.cs" />

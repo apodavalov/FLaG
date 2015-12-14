@@ -111,7 +111,36 @@ namespace FLaGLib.Test.Data.RegExps
         };
 
         [Test]
-        public void LeftGrammarTest()
+        public void MakeStateMachineTest()
+        {
+            Symbol symbolA = new Symbol('a');
+            Symbol symbolB = new Symbol('b');
+            Symbol symbolC = new Symbol('c');
+
+            BinaryConcat concat1 = new BinaryConcat(symbolA, symbolB);
+            Iteration iteration1 = new Iteration(concat1, false);
+            ConstIteration constIteration1 = new ConstIteration(iteration1, 0);
+
+            BinaryConcat concat2 = new BinaryConcat(symbolA, symbolC);
+            Iteration iteration2 = new Iteration(concat2, false);
+            ConstIteration constIteration2 = new ConstIteration(iteration2, 1);
+
+            BinaryConcat concat3 = new BinaryConcat(symbolB, symbolC);
+            Iteration iteration3 = new Iteration(concat3, false);
+            ConstIteration constIteration3 = new ConstIteration(iteration3, 3);
+
+            BinaryUnion union1 = new BinaryUnion(constIteration1, constIteration2);
+            BinaryUnion union2 = new BinaryUnion(union1, constIteration3);
+
+            IList<StateMachinePostReport> reports = new List<StateMachinePostReport>();
+
+            FLaGLib.Data.StateMachines.StateMachine stateMchine = union2.MakeStateMachine(d => reports.Add(d));
+
+            Assert.Fail("Not Implemented");
+        }
+
+        [Test]
+        public void MakeGrammarTest_Left()
         {
             Symbol symbolA = new Symbol('a');
             Symbol symbolB = new Symbol('b');
@@ -141,7 +170,7 @@ namespace FLaGLib.Test.Data.RegExps
         }
 
         [Test]
-        public void RightGrammarTest()
+        public void MakeGrammarTest_Right()
         {
             Symbol symbolA = new Symbol('a');
             Symbol symbolB = new Symbol('b');

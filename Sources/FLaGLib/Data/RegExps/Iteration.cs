@@ -272,6 +272,11 @@ namespace FLaGLib.Data.RegExps
             return grammarExpressionTuple;
         }
 
+        internal override StateMachineExpressionTuple GenerateStateMachine(int stateMachineNumber, ref int index, ref int additionalStateMachineNumber, Action<StateMachinePostReport> onIterate, params StateMachineExpressionWithOriginal[] dependencies)
+        {
+            throw new NotImplementedException();
+        }
+
         private static IEnumerable<Chain> LeftChainEnumerator(Chain chain, NonTerminalSymbol target)
         {
             return EnumerateHelper.Sequence(

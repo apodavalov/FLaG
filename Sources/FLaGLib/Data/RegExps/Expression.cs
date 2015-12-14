@@ -1,4 +1,5 @@
 ﻿using FLaGLib.Data.Grammars;
+using FLaGLib.Data.StateMachines;
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using System;
@@ -195,6 +196,27 @@ namespace FLaGLib.Data.RegExps
             }
 
             return grammars[grammars.Length - 1].GrammarExpression.Grammar;
+        }
+
+        internal abstract StateMachineExpressionTuple GenerateStateMachine(int stateMachineNumber, ref int index, ref int additionalStateMachineNumber, Action<StateMachinePostReport> onIterate, params StateMachineExpressionWithOriginal[] dependencies);
+
+        public StateMachine MakeStateMachine(Action<StateMachinePostReport> onIterate = null)
+        {
+            ILookup<int, int> dependencyMap = _DependencyMap.Value;
+            IReadOnlyList<Expression> expressions = _SubexpressionsInCalculateOrder.Value;
+            StateMachineExpressionWithOriginal[] stateMachines = new StateMachineExpressionWithOriginal[expressions.Count];
+
+            int index = _StartIndex;
+            int additionalStateMachineNumber = _StartIndex + expressions.Count + 1;
+
+            for (int i = 0; i < expressions.Count; i++)
+            {
+                Expression expression = expressions[i];
+                IEnumerable<StateMachineExpressionWithOriginal> dependencies = dependencyMap[i].OrderBy(item => item).Select(item => stateMachines[item]);
+                stateMachines[i] = new StateMachineExpressionWithOriginal(expression.GenerateStateMachine(_StartIndex + i, ref index, ref additionalStateMachineNumber, onIterate, dependencies.ToArray()));
+            }
+
+            return stateMachines[stateMachines.Length - 1].StateMachineExpression.StateMachine;
         }
 
         private IReadOnlyList<WalkData<Expression>> GetWalkData()

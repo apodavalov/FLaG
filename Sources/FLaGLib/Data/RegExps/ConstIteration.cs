@@ -264,6 +264,11 @@ namespace FLaGLib.Data.RegExps
             return dependency1;
         }
 
+        internal override StateMachineExpressionTuple GenerateStateMachine(int stateMachineNumber, ref int index, ref int additionalStateMachineNumber, Action<StateMachinePostReport> onIterate, params StateMachineExpressionWithOriginal[] dependencies)
+        {
+            throw new NotImplementedException();
+        }
+
         private GrammarExpressionTuple Mirror(GrammarExpressionTuple grammar, ref int index, ref int additionalGrammarNumber)
         {
             Grammar newGrammar = grammar.Grammar.Reorganize(index);

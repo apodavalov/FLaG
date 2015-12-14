@@ -223,6 +223,11 @@ namespace FLaGLib.Data.RegExps
             }          
         }
 
+        internal override StateMachineExpressionTuple GenerateStateMachine(int stateMachineNumber, ref int index, ref int additionalStateMachineNumber, Action<StateMachinePostReport> onIterate, params StateMachineExpressionWithOriginal[] dependencies)
+        {
+            throw new NotImplementedException();
+        }
+
         private GrammarExpressionTuple GenerateRightGrammar(int grammarNumber,
             ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {
