@@ -1,4 +1,6 @@
 ﻿using FLaGLib.Data.Grammars;
+using FLaGLib.Data.StateMachines;
+using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using System;
 using System.Collections.Generic;
@@ -202,7 +204,26 @@ namespace FLaGLib.Data.RegExps
 
         internal override StateMachineExpressionTuple GenerateStateMachine(int stateMachineNumber, ref int index, ref int additionalStateMachineNumber, Action<StateMachinePostReport> onIterate, params StateMachineExpressionWithOriginal[] dependencies)
         {
-            throw new NotImplementedException();
+            if (dependencies.Length != 0)
+            {
+                throw new InvalidOperationException("Expected exactly 0 dependencies.");
+            }
+
+            Label state = new Label(new SingleLabel('S', index++));
+
+            StateMachineExpressionTuple stateMachineExpressionTuple =
+                new StateMachineExpressionTuple(
+                    this,
+                    new StateMachine(state, state.AsSequence(), Enumerable.Empty<Transition>()),
+                    stateMachineNumber
+                );
+
+            if (onIterate != null)
+            {
+                onIterate(new StateMachinePostReport(stateMachineExpressionTuple, dependencies));
+            }
+
+            return stateMachineExpressionTuple;
         }
 
         public override Expression Optimize()
