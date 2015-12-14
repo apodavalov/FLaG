@@ -266,7 +266,7 @@ namespace FLaGLib.Data.RegExps
 
             if (onIterate != null)
             {
-                new GrammarPostReport(grammarExpressionTuple,dependencies.Select(d => new GrammarExpressionWithOriginal(d)));
+                onIterate(new GrammarPostReport(grammarExpressionTuple,dependencies.Select(d => new GrammarExpressionWithOriginal(d))));
             }
 
             return grammarExpressionTuple;
