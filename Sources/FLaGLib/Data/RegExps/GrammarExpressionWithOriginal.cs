@@ -25,7 +25,6 @@ namespace FLaGLib.Data.RegExps
 
             GrammarExpression = grammarExpression;
             OriginalGrammarExpression = originalGrammarExpression;
-
         }
     }
 }
