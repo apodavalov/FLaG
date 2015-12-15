@@ -214,10 +214,7 @@ namespace FLaGLib.Data.RegExps
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
             ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {
-            if (dependencies.Length != 1)
-            {
-                throw new InvalidOperationException("Expected exactly 1 dependency.");
-            }
+            CheckDependencies(dependencies);
 
             if (IterationCount == 0)
             {
@@ -267,10 +264,7 @@ namespace FLaGLib.Data.RegExps
 
         internal override StateMachineExpressionTuple GenerateStateMachine(int stateMachineNumber, ref int index, ref int additionalStateMachineNumber, Action<StateMachinePostReport> onIterate, params StateMachineExpressionWithOriginal[] dependencies)
         {
-            if (dependencies.Length != 1)
-            {
-                throw new InvalidOperationException("Expected exactly 1 dependency.");
-            }
+            CheckDependencies(dependencies);
 
             if (IterationCount == 0)
             {
@@ -316,6 +310,11 @@ namespace FLaGLib.Data.RegExps
             }
 
             return dependency1;
+        }
+
+        private static void CheckDependencies<T>(T[] dependencies)
+        {
+            CheckDependencies(dependencies, 1);
         }
 
         private StateMachineExpressionTuple Mirror(StateMachineExpressionTuple stateMachine, ref int index, ref int additionalStateMachineNumber)

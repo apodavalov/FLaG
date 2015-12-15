@@ -210,10 +210,7 @@ namespace FLaGLib.Data.RegExps
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
             ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {
-            if (dependencies.Length != 1)
-            {
-                throw new InvalidOperationException("Expected exactly 1 dependency.");
-            }
+            CheckDependencies(dependencies);
 
             Func<Chain, NonTerminalSymbol, IEnumerable<Chain>> chainEnumerator;
             Grammar expGrammar = dependencies[0].GrammarExpression.Grammar;
@@ -275,10 +272,7 @@ namespace FLaGLib.Data.RegExps
 
         internal override StateMachineExpressionTuple GenerateStateMachine(int stateMachineNumber, ref int index, ref int additionalStateMachineNumber, Action<StateMachinePostReport> onIterate, params StateMachineExpressionWithOriginal[] dependencies)
         {
-            if (dependencies.Length != 1)
-            {
-                throw new InvalidOperationException("Expected exactly 1 dependency.");
-            }
+            CheckDependencies(dependencies);
 
             StateMachine original = dependencies[0].StateMachineExpression.StateMachine;
 
@@ -315,6 +309,11 @@ namespace FLaGLib.Data.RegExps
             }
 
             return stateMachineExpressionTuple;
+        }
+
+        private static void CheckDependencies<T>(T[] dependencies)
+        {
+            CheckDependencies(dependencies, 1);
         }
 
         private static IEnumerable<Chain> LeftChainEnumerator(Chain chain, NonTerminalSymbol target)

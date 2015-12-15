@@ -165,6 +165,14 @@ namespace FLaGLib.Data.RegExps
             return dependencyMap.ToLookup<int,int,ISet<int>>();
         }
 
+        internal static void CheckDependencies<T>(T[] dependencies, int expectedCount)
+        {
+            if (dependencies.Length != expectedCount)
+            {
+                throw new InvalidOperationException(string.Format("Expected exactly {0} dependencies.", expectedCount));
+            }
+        }
+
         public abstract Expression Optimize();
 
         public abstract bool CanBeEmpty();

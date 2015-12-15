@@ -212,10 +212,7 @@ namespace FLaGLib.Data.RegExps
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
             ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {
-            if (dependencies.Length != 2)
-            {
-                throw new InvalidOperationException("Expected exactly 2 dependencies.");
-            }
+            CheckDependencies(dependencies);
 
             Grammar leftExpGrammar = dependencies[0].GrammarExpression.Grammar;
             Grammar rightExpGrammar = dependencies[1].GrammarExpression.Grammar;
@@ -242,7 +239,14 @@ namespace FLaGLib.Data.RegExps
 
         internal override StateMachineExpressionTuple GenerateStateMachine(int stateMachineNumber, ref int index, ref int additionalStateMachineNumber, Action<StateMachinePostReport> onIterate, params StateMachineExpressionWithOriginal[] dependencies)
         {
+            CheckDependencies(dependencies);
+
             throw new NotImplementedException();
+        }
+
+        private static void CheckDependencies<T>(T[] dependencies)
+        {
+            CheckDependencies(dependencies, 2);
         }
 
         public override Expression Optimize()
