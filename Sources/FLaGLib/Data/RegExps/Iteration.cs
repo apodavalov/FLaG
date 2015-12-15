@@ -1,5 +1,6 @@
 ﻿using FLaGLib.Collections;
 using FLaGLib.Data.Grammars;
+using FLaGLib.Data.StateMachines;
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using System;
@@ -274,7 +275,46 @@ namespace FLaGLib.Data.RegExps
 
         internal override StateMachineExpressionTuple GenerateStateMachine(int stateMachineNumber, ref int index, ref int additionalStateMachineNumber, Action<StateMachinePostReport> onIterate, params StateMachineExpressionWithOriginal[] dependencies)
         {
-            throw new NotImplementedException();
+            if (dependencies.Length != 1)
+            {
+                throw new InvalidOperationException("Expected exactly 1 dependency.");
+            }
+
+            StateMachine original = dependencies[0].StateMachineExpression.StateMachine;
+
+            Label initialState = new Label(new SingleLabel('S', index++));
+
+            IList<Transition> transitions = original.Transitions.ToList();
+
+            IList<Label> finalStates = original.FinalStates.ToList();
+
+            if (!IsPositive)
+            {
+                finalStates.Add(initialState);
+            }
+
+            foreach (Transition transition in original.Transitions)
+            {
+                if (transition.CurrentState == original.InitialState)
+                {
+                    transitions.AddRange(original.FinalStates.Select(fs => new Transition(fs, transition.Symbol, transition.NextState)));
+                    transitions.Add(new Transition(initialState, transition.Symbol, transition.NextState));
+                }
+            }
+
+            StateMachineExpressionTuple stateMachineExpressionTuple =
+                new StateMachineExpressionTuple(
+                    this,
+                    new StateMachine(initialState, finalStates, transitions),
+                    stateMachineNumber
+                );
+
+            if (onIterate != null)
+            {
+                onIterate(new StateMachinePostReport(stateMachineExpressionTuple, dependencies));
+            }
+
+            return stateMachineExpressionTuple;
         }
 
         private static IEnumerable<Chain> LeftChainEnumerator(Chain chain, NonTerminalSymbol target)
