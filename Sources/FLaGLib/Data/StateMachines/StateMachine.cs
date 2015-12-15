@@ -229,6 +229,34 @@ namespace FLaGLib.Data.StateMachines
             return new StateMachine(InitialState, newFinalStates, newTransitions);            
         }
 
+        public StateMachine Reorganize(IDictionary<Label, Label> map)
+        {
+            if (map == null)
+            {
+                throw new ArgumentNullException(nameof(map));
+            }
+
+            Label initialState = map[InitialState];
+            IEnumerable<Label> finalStates = FinalStates.Select(fs => map[fs]);
+            IEnumerable<Transition> transitions = Transitions.Select(t => new Transition(map[t.CurrentState], t.Symbol, map[t.NextState]));
+
+            return new StateMachine(initialState, finalStates, transitions);
+        }
+
+        public StateMachine Reorganize(int firstIndex)
+        {
+            int index = firstIndex;
+
+            IDictionary<Label, Label> map = new Dictionary<Label, Label>();
+
+            foreach (Label symbol in States)
+            {
+                map.Add(symbol, new Label(new SingleLabel('S', index++)));
+            }
+
+            return Reorganize(map);
+        }
+
         public StateMachine Reorganize(char stateSign, Action<IReadOnlyDictionary<Label,Label>> onStateMap = null)
         {
             Dictionary<Label, Label> dictionary = new Dictionary<Label, Label>();

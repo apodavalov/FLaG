@@ -1,4 +1,5 @@
 ﻿using FLaGLib.Data.Grammars;
+using FLaGLib.Data.StateMachines;
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using System;
@@ -266,7 +267,68 @@ namespace FLaGLib.Data.RegExps
 
         internal override StateMachineExpressionTuple GenerateStateMachine(int stateMachineNumber, ref int index, ref int additionalStateMachineNumber, Action<StateMachinePostReport> onIterate, params StateMachineExpressionWithOriginal[] dependencies)
         {
-            throw new NotImplementedException();
+            if (dependencies.Length != 1)
+            {
+                throw new InvalidOperationException("Expected exactly 1 dependency.");
+            }
+
+            if (IterationCount == 0)
+            {
+                return Empty.Instance.GenerateStateMachine(stateMachineNumber, ref index, ref additionalStateMachineNumber, onIterate);
+            }
+
+            StateMachineExpressionTuple original = dependencies[0].StateMachineExpression;
+
+            if (IterationCount == 1)
+            {
+                StateMachineExpressionTuple stateMachineExpressionTuple = new StateMachineExpressionTuple(this, original.StateMachine, stateMachineNumber);
+
+                if (onIterate != null)
+                {
+                    onIterate(new StateMachinePostReport(stateMachineExpressionTuple, new StateMachineExpressionWithOriginal(original).AsSequence()));
+                }
+
+                return stateMachineExpressionTuple;
+            }
+
+            StateMachineExpressionTuple dependency1 = original;
+
+            for (int i = 1; i < IterationCount; i++)
+            {
+                StateMachineExpressionTuple dependency2 = Mirror(original, ref index, ref additionalStateMachineNumber);
+
+                int number;
+
+                if (i == IterationCount - 1)
+                {
+                    number = stateMachineNumber;
+                }
+                else
+                {
+                    number = additionalStateMachineNumber++;
+                }
+
+                StateMachineExpressionTuple expressionTuple =
+                    new BinaryConcat(dependency1.Expression, dependency2.Expression).
+                        GenerateStateMachine(number, ref index, ref additionalStateMachineNumber, onIterate, new StateMachineExpressionWithOriginal(dependency1), new StateMachineExpressionWithOriginal(dependency2, original));
+
+                dependency1 = expressionTuple;
+            }
+
+            return dependency1;
+        }
+
+        private StateMachineExpressionTuple Mirror(StateMachineExpressionTuple stateMachine, ref int index, ref int additionalStateMachineNumber)
+        {
+            StateMachine newStateMachine = stateMachine.StateMachine.Reorganize(index);
+            index += newStateMachine.States.Count;
+
+            return
+                new StateMachineExpressionTuple(
+                    stateMachine.Expression,
+                    newStateMachine,
+                    additionalStateMachineNumber++
+                );
         }
 
         private GrammarExpressionTuple Mirror(GrammarExpressionTuple grammar, ref int index, ref int additionalGrammarNumber)
