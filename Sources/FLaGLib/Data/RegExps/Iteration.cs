@@ -247,7 +247,7 @@ namespace FLaGLib.Data.RegExps
                 newRules.Add(new Rule(newChains, rule.Target));
             }
 
-            NonTerminalSymbol symbol = new NonTerminalSymbol(new Label(new SingleLabel('S', index++)));
+            NonTerminalSymbol symbol = new NonTerminalSymbol(new Label(new SingleLabel(Grammar._DefaultNonTerminalSymbol, index++)));
 
             IEnumerable<Chain> chains = EnumerateHelper.Sequence(new Chain(EnumerateHelper.Sequence(expGrammar.Target)));
 
@@ -282,7 +282,7 @@ namespace FLaGLib.Data.RegExps
 
             StateMachine original = dependencies[0].StateMachineExpression.StateMachine;
 
-            Label initialState = new Label(new SingleLabel('S', index++));
+            Label initialState = new Label(new SingleLabel(StateMachine._DefaultStateSymbol, index++));
 
             IList<Transition> transitions = original.Transitions.ToList();
 

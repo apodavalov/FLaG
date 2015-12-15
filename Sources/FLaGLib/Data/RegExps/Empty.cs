@@ -180,7 +180,7 @@ namespace FLaGLib.Data.RegExps
                 throw new InvalidOperationException("Expected exactly 0 dependencies.");
             }
 
-            NonTerminalSymbol target = new NonTerminalSymbol(new Label(new SingleLabel('S', index++)));
+            NonTerminalSymbol target = new NonTerminalSymbol(new Label(new SingleLabel(Grammar._DefaultNonTerminalSymbol, index++)));
 
             GrammarExpressionTuple grammarExpressionTuple =
                 new GrammarExpressionTuple(
@@ -209,7 +209,7 @@ namespace FLaGLib.Data.RegExps
                 throw new InvalidOperationException("Expected exactly 0 dependencies.");
             }
 
-            Label state = new Label(new SingleLabel('S', index++));
+            Label state = new Label(new SingleLabel(StateMachine._DefaultStateSymbol, index++));
 
             StateMachineExpressionTuple stateMachineExpressionTuple =
                 new StateMachineExpressionTuple(

@@ -220,7 +220,7 @@ namespace FLaGLib.Data.RegExps
             Grammar leftExpGrammar = dependencies[0].GrammarExpression.Grammar;
             Grammar rightExpGrammar = dependencies[1].GrammarExpression.Grammar;
 
-            NonTerminalSymbol target = new NonTerminalSymbol(new Label(new SingleLabel('S',index++)));
+            NonTerminalSymbol target = new NonTerminalSymbol(new Label(new SingleLabel(Grammar._DefaultNonTerminalSymbol,index++)));
 
             Rule rule = new Rule(
                 EnumerateHelper.Sequence(

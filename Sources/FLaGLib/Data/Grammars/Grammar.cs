@@ -11,6 +11,7 @@ namespace FLaGLib.Data.Grammars
 {
     public class Grammar : IComparable<Grammar>, IEquatable<Grammar>
     {
+        internal const char _DefaultNonTerminalSymbol = 'S';
         internal const string GrammarIsNotSupportedMessage = "Grammar type {0} is not supported.";
 
         public IReadOnlySet<Rule> Rules
@@ -638,7 +639,7 @@ namespace FLaGLib.Data.Grammars
                 new NonTerminalSymbol(
                     new Label(
                         new SingleLabel(
-                            'S',
+                            _DefaultNonTerminalSymbol,
                             nonTerminals
                                 .Where(s => s.Label.LabelType == LabelType.Simple)
                                 .Max(s => s.Label.ExtractSingleLabel().SignIndex ?? 0) + 1
@@ -961,7 +962,7 @@ namespace FLaGLib.Data.Grammars
 
             foreach (NonTerminalSymbol symbol in NonTerminals)
             {
-                map.Add(symbol,new NonTerminalSymbol(new Label(new SingleLabel('S',index++))));
+                map.Add(symbol,new NonTerminalSymbol(new Label(new SingleLabel(_DefaultNonTerminalSymbol,index++))));
             }
 
             return Reorganize(map);

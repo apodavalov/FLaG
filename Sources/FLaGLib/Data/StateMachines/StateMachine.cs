@@ -12,6 +12,8 @@ namespace FLaGLib.Data.StateMachines
 {
     public class StateMachine
     {
+        internal const char _DefaultStateSymbol = 'S';
+
         public Label InitialState
         {
             get;
