@@ -1,4 +1,5 @@
 ﻿using FLaGLib.Data.Grammars;
+using FLaGLib.Data.StateMachines;
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using System;
@@ -241,7 +242,43 @@ namespace FLaGLib.Data.RegExps
         {
             CheckDependencies(dependencies);
 
-            throw new NotImplementedException();
+            StateMachine stateMachine1 = dependencies[0].StateMachineExpression.StateMachine;
+            StateMachine stateMachine2 = dependencies[1].StateMachineExpression.StateMachine;
+
+            Label initialState = new Label(new SingleLabel(StateMachine._DefaultStateSymbol, index++));
+
+            ISet<Label> finalStates = new HashSet<Label>();
+
+            ISet<Transition> transitions = new HashSet<Transition>();
+
+            if (stateMachine1.FinalStates.Contains(stateMachine1.InitialState) ||
+                stateMachine2.FinalStates.Contains(stateMachine2.InitialState))
+            {
+                finalStates.Add(initialState);
+            }
+
+            finalStates.AddRange(stateMachine1.FinalStates);
+            finalStates.AddRange(stateMachine2.FinalStates);
+
+            transitions.AddRange(stateMachine1.Transitions);
+            transitions.AddRange(stateMachine2.Transitions);
+
+            transitions.AddRange(stateMachine1.Transitions.Where(t => t.CurrentState == stateMachine1.InitialState).Select(t => new Transition(initialState, t.Symbol, t.NextState)));
+            transitions.AddRange(stateMachine2.Transitions.Where(t => t.CurrentState == stateMachine2.InitialState).Select(t => new Transition(initialState, t.Symbol, t.NextState)));
+
+            StateMachineExpressionTuple stateMachineExpressionTuple =
+              new StateMachineExpressionTuple(
+                  this,
+                  new StateMachine(initialState, finalStates, transitions),
+                  stateMachineNumber
+              );
+
+            if (onIterate != null)
+            {
+                onIterate(new StateMachinePostReport(stateMachineExpressionTuple, dependencies));
+            }
+
+            return stateMachineExpressionTuple;
         }
 
         private static void CheckDependencies<T>(T[] dependencies)
