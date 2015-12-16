@@ -1316,16 +1316,6 @@ namespace FLaGLib.Test.Data.StateMachines
         }
 
         [Test]
-        public void CctorTest_FinalStatesSetIsNotSupersetOfStates_Fail()
-        {
-            IEnumerable<Transition> transitions = EnumerateHelper.Sequence(new Transition(new Label(new SingleLabel('c')), 'a', new Label(new SingleLabel('b'))));
-            IEnumerable<Label> finalStates = EnumerateHelper.Sequence(new Label(new SingleLabel('b')), new Label(new SingleLabel('d')));
-            Label initialState = new Label(new SingleLabel('c'));
-
-            Assert.Throws<ArgumentException>(() => new StateMachine(initialState, finalStates, transitions));
-        }
-
-        [Test]
         public void CctorTest_NoTransitions_Ok()
         {
             IEnumerable<Transition> transitions = Enumerable.Empty<Transition>();

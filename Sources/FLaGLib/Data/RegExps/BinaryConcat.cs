@@ -257,10 +257,12 @@ namespace FLaGLib.Data.RegExps
                 transitions.Add(transition);
             }
 
+            IEnumerable<Label> states = stateMachine1.States.Concat(stateMachine2.States);
+
             StateMachineExpressionTuple stateMachineExpressionTuple =
               new StateMachineExpressionTuple(
                   this,
-                  new StateMachine(initialState, finalStates, transitions),
+                  new StateMachine(initialState, finalStates, transitions, states),
                   stateMachineNumber
               );
 

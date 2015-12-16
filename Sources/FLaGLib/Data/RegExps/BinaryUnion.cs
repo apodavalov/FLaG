@@ -246,7 +246,7 @@ namespace FLaGLib.Data.RegExps
             StateMachine stateMachine2 = dependencies[1].StateMachineExpression.StateMachine;
 
             Label initialState = new Label(new SingleLabel(StateMachine._DefaultStateSymbol, index++));
-
+            
             ISet<Label> finalStates = new HashSet<Label>();
 
             ISet<Transition> transitions = new HashSet<Transition>();
@@ -266,10 +266,12 @@ namespace FLaGLib.Data.RegExps
             transitions.AddRange(stateMachine1.Transitions.Where(t => t.CurrentState == stateMachine1.InitialState).Select(t => new Transition(initialState, t.Symbol, t.NextState)));
             transitions.AddRange(stateMachine2.Transitions.Where(t => t.CurrentState == stateMachine2.InitialState).Select(t => new Transition(initialState, t.Symbol, t.NextState)));
 
+            IEnumerable<Label> states = stateMachine1.States.Concat(stateMachine2.States).Concat(initialState);
+
             StateMachineExpressionTuple stateMachineExpressionTuple =
               new StateMachineExpressionTuple(
                   this,
-                  new StateMachine(initialState, finalStates, transitions),
+                  new StateMachine(initialState, finalStates, transitions, states),
                   stateMachineNumber
               );
 

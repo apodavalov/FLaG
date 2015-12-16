@@ -134,7 +134,7 @@ namespace FLaGLib.Test.Data.RegExps
 
             IList<StateMachinePostReport> reports = new List<StateMachinePostReport>();
 
-            FLaGLib.Data.StateMachines.StateMachine stateMchine = union2.MakeStateMachine(d => reports.Add(d));
+            FLaGLib.Data.StateMachines.StateMachine stateMachine = union2.MakeStateMachine(d => reports.Add(d));
 
             Assert.Fail("Not Implemented");
         }

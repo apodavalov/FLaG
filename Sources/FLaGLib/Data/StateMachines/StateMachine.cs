@@ -756,7 +756,7 @@ namespace FLaGLib.Data.StateMachines
             return states;
         }
 
-        public StateMachine(Label initialState, IEnumerable<Label> finalStates, IEnumerable<Transition> transitions)
+        public StateMachine(Label initialState, IEnumerable<Label> finalStates, IEnumerable<Transition> transitions, IEnumerable<Label> allStates = null)
         {
             if (initialState == null)
             {
@@ -773,36 +773,50 @@ namespace FLaGLib.Data.StateMachines
                 throw new ArgumentNullException(nameof(transitions));
             }
 
-            if (transitions.Any(t => t == null))
-            {
-                throw new ArgumentException("One of the transitions is null.");
-            }            
-
             FinalStates = finalStates.ToSortedSet().AsReadOnly();
             Transitions = transitions.ToSortedSet().AsReadOnly();
 
+            if (Transitions.AnyNull())
+            {
+                throw new ArgumentException("One of the transitions is null.", nameof(transitions));
+            }
+
             if (!FinalStates.Any())
             {
-                throw new ArgumentException("Final states set is empty.");
+                throw new ArgumentException("Final states set is empty.", nameof(finalStates));
             }
 
             if (FinalStates.AnyNull())
             {
-                throw new ArgumentException("One of the final state is null.");                
+                throw new ArgumentException("One of the final state is null.", nameof(finalStates));                
             }
 
             ISet<Label> states = ExtractStates(Transitions);
 
             states.Add(initialState);
 
-            if (!states.IsSupersetOf(FinalStates))
+            if (allStates != null)
             {
-                throw new ArgumentException("Set of states isn't the superset of final states.");
+                ISet<Label> allStatesSet = allStates.ToSortedSet();
+
+                if (allStatesSet.AnyNull())
+                {
+                    throw new ArgumentException("One of the state is null.", nameof(allStates));
+                }
+
+                if (!allStatesSet.IsSupersetOf(states))
+                {
+                    throw new ArgumentException("States are not the superset of real states.", nameof(allStates));
+                }
+
+                States = allStatesSet.AsReadOnly();
+            }
+            else
+            {
+                States = states.AsReadOnly();
             }
 
             Alphabet = Transitions.Select(t => t.Symbol).ToSortedSet().AsReadOnly();
-
-            States = states.AsReadOnly();                      
 
             InitialState = initialState;
         }
