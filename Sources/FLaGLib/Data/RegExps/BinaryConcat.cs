@@ -1,5 +1,6 @@
 ﻿using FLaGLib.Collections;
 using FLaGLib.Data.Grammars;
+using FLaGLib.Data.StateMachines;
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using System;
@@ -229,7 +230,46 @@ namespace FLaGLib.Data.RegExps
         {
             CheckDependencies(dependencies);
 
-            throw new NotImplementedException();
+            StateMachine stateMachine1 = dependencies[0].StateMachineExpression.StateMachine;
+            StateMachine stateMachine2 = dependencies[1].StateMachineExpression.StateMachine;
+
+            Label initialState = stateMachine1.InitialState;
+
+            ISet<Label> finalStates = stateMachine2.FinalStates.ToHashSet();
+
+            if (stateMachine2.FinalStates.Contains(stateMachine2.InitialState))
+            {
+                finalStates.AddRange(stateMachine1.FinalStates);
+            }
+
+            ISet<Transition> transitions = stateMachine1.Transitions.ToHashSet();
+
+            foreach (Transition transition in stateMachine2.Transitions)
+            {
+                if (transition.CurrentState == stateMachine2.InitialState)
+                {
+                    foreach (Label state in stateMachine1.FinalStates)
+                    {
+                        transitions.Add(new Transition(state, transition.Symbol, transition.NextState));
+                    }
+                }
+
+                transitions.Add(transition);
+            }
+
+            StateMachineExpressionTuple stateMachineExpressionTuple =
+              new StateMachineExpressionTuple(
+                  this,
+                  new StateMachine(initialState, finalStates, transitions),
+                  stateMachineNumber
+              );
+
+            if (onIterate != null)
+            {
+                onIterate(new StateMachinePostReport(stateMachineExpressionTuple, dependencies));
+            }
+
+            return stateMachineExpressionTuple;            
         }
 
         private GrammarExpressionTuple GenerateRightGrammar(int grammarNumber,

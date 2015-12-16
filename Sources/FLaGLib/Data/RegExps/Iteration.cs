@@ -278,9 +278,9 @@ namespace FLaGLib.Data.RegExps
 
             Label initialState = new Label(new SingleLabel(StateMachine._DefaultStateSymbol, index++));
 
-            IList<Transition> transitions = original.Transitions.ToList();
+            ISet<Transition> transitions = original.Transitions.ToHashSet();
 
-            IList<Label> finalStates = original.FinalStates.ToList();
+            ISet<Label> finalStates = original.FinalStates.ToHashSet();
 
             if (!IsPositive)
             {
