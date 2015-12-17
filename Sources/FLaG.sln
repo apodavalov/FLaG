@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FLaG", "FLaG\FLaG.csproj", "{F0834BE6-06EB-49AD-9E86-7C523F8E9F27}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{437FD94B-5E3C-4EEF-AD83-E16546277DA3}"
@@ -13,6 +15,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FLaGLib", "FLaGLib\FLaGLib.csproj", "{7E7EF604-E8DB-4C77-9078-64FDBE430E4A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FLaGLib.Test", "FLaGLib.Test\FLaGLib.Test.csproj", "{A38B3605-4351-427A-BEF9-E11BBA4C40A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FLaG.IO", "FLaG.IO\FLaG.IO.csproj", "{AF2BC80D-56AE-4202-BD00-B26AC3153582}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,6 +58,18 @@ Global
 		{A38B3605-4351-427A-BEF9-E11BBA4C40A7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{A38B3605-4351-427A-BEF9-E11BBA4C40A7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{A38B3605-4351-427A-BEF9-E11BBA4C40A7}.Release|x86.ActiveCfg = Release|Any CPU
+		{AF2BC80D-56AE-4202-BD00-B26AC3153582}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF2BC80D-56AE-4202-BD00-B26AC3153582}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF2BC80D-56AE-4202-BD00-B26AC3153582}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{AF2BC80D-56AE-4202-BD00-B26AC3153582}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{AF2BC80D-56AE-4202-BD00-B26AC3153582}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AF2BC80D-56AE-4202-BD00-B26AC3153582}.Debug|x86.Build.0 = Debug|Any CPU
+		{AF2BC80D-56AE-4202-BD00-B26AC3153582}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF2BC80D-56AE-4202-BD00-B26AC3153582}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF2BC80D-56AE-4202-BD00-B26AC3153582}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{AF2BC80D-56AE-4202-BD00-B26AC3153582}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{AF2BC80D-56AE-4202-BD00-B26AC3153582}.Release|x86.ActiveCfg = Release|Any CPU
+		{AF2BC80D-56AE-4202-BD00-B26AC3153582}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
