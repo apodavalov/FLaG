@@ -1,8 +1,6 @@
-﻿using FLaG.Data;
-using FLaG.Output;
+﻿using FLaG.IO.Input;
+using FLaG.IO.Output;
 using System;
-using System.IO;
-using System.Text;
 
 namespace FLaG
 {
@@ -16,21 +14,9 @@ namespace FLaG
 				Console.WriteLine("\tFLaG.exe <input> <output>");
 				return;
 			}
-			
-            Lang lang = new Lang(args[0]);
-			
-			FileInfo fileInfo = new FileInfo(args[1]);
-			
-			string outputFileNamePrefix = 
-				fileInfo.FullName.Substring(0,fileInfo.FullName.Length - fileInfo.Extension.Length) + ".";
-			
-			outputFileNamePrefix = outputFileNamePrefix.Replace('.','-');
-			
-			using (Writer writer = new Writer(args[1],false,new UTF8Encoding(false),lang))
-			{
-				writer.OutputFileNamePrefix = outputFileNamePrefix;
-				writer.Out();
-			}
+
+            TaskDescription taskDescription = TaskDescription.Load(args[0]);
+            taskDescription.Solve(args[1]);
         }
     }
 }

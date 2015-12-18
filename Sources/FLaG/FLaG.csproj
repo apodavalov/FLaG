@@ -109,5 +109,14 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\FLaG.IO\FLaG.IO.csproj">
+      <Project>{af2bc80d-56ae-4202-bd00-b26ac3153582}</Project>
+      <Name>FLaG.IO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FLaGLib\FLaGLib.csproj">
+      <Project>{7e7ef604-e8db-4c77-9078-64fdbe430e4a}</Project>
+      <Name>FLaGLib</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

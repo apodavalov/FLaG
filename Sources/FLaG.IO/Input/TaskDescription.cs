@@ -230,7 +230,7 @@ namespace FLaG.IO.Input
             return new AuthorDescription(firstName, secondName, lastName, group);
         }
 
-        public TaskDescription LoadFromStream(Stream stream)
+        public static TaskDescription LoadFromStream(Stream stream)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -252,7 +252,7 @@ namespace FLaG.IO.Input
             }
         }
 
-        public TaskDescription Load(string fileName)
+        public static TaskDescription Load(string fileName)
         {
             using (FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
