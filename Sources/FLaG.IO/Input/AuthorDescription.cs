@@ -4,6 +4,32 @@ namespace FLaG.IO.Input
 {
     public class AuthorDescription
     {
+        public string FirstNameInitial
+        {
+            get
+            {
+                return GetInitial(FirstName);
+            }
+        }
+
+        public string SecondNameInitial
+        {
+            get
+            {
+                return GetInitial(SecondName);
+            }
+        }
+
+        private static string GetInitial(string value)
+        {
+            if (value.Length > 0)
+            {
+                return value[0].ToString();
+            }
+
+            return string.Empty;
+        }
+
         public string FirstName
         {
             get;
