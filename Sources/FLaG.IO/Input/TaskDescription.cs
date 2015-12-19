@@ -1,5 +1,4 @@
-﻿using FLaGLib.Collections;
-using FLaGLib.Data.Languages;
+﻿using FLaGLib.Data.Languages;
 using FLaGLib.Extensions;
 using System;
 using System.Collections.Generic;
@@ -45,12 +44,6 @@ namespace FLaG.IO.Input
 
         private const string _SchemaPath = "FLaG.IO.Input.lang.xsd";
 
-        public IReadOnlySet<Variable> Variables
-        {
-            get;
-            private set;
-        }
-
         public Entity Language
         {
             get;
@@ -69,7 +62,7 @@ namespace FLaG.IO.Input
             private set;
         }
 
-        public TaskDescription(Entity language, AuthorDescription author, IEnumerable<Variable> variables, string variant)
+        public TaskDescription(Entity language, AuthorDescription author, string variant)
         {
             if (language == null)
             {
@@ -81,21 +74,9 @@ namespace FLaG.IO.Input
                 throw new ArgumentNullException(nameof(author));
             }
 
-            if (variables == null)
-            {
-                throw new ArgumentNullException(nameof(variables));
-            }
-
             if (variant == null)
             {
                 throw new ArgumentNullException(nameof(variant));
-            }
-
-            Variables = variables.ToSortedSet().AsReadOnly();
-
-            if (Variables.AnyNull())
-            {
-                throw new ArgumentException("At least one variable is null.", nameof(variables));
             }
 
             Language = language;
@@ -176,7 +157,7 @@ namespace FLaG.IO.Input
 
             reader.ReadEndElement();
 
-            return new TaskDescription(language, author, variables, variant);
+            return new TaskDescription(language, author, variant);
         }
 
         private static string LoadVariant(XmlReader reader)

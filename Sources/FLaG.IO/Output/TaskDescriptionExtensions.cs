@@ -1,4 +1,8 @@
 ﻿using FLaG.IO.Input;
+using FLaGLib.Data.Grammars;
+using FLaGLib.Data.Languages;
+using FLaGLib.Data.RegExps;
+using FLaGLib.Data.StateMachines;
 using System;
 using System.IO;
 using System.Text;
@@ -17,11 +21,72 @@ namespace FLaG.IO.Output
             using (StreamWriter streamWriter = new StreamWriter(baseTexFullFileName, false, new UTF8Encoding(false)))
             {
                 WriteProlog(streamWriter, taskDescription.Author, taskDescription.Variant);
-
-
+                
+                if (!CheckLanguageType(streamWriter, taskDescription.Language))
+                {
+                    WriteBody(streamWriter, taskDescription.Language, baseFullFileName);
+                }
 
                 WriteEpilog(streamWriter);
             }
+        }
+
+        private static void WriteBody(StreamWriter streamWriter, Entity language, string baseFullFileName)
+        {
+            Counter diagramCounter = new Counter();
+
+            Expression expression = ConvertToExpression(streamWriter, language);
+            Tuple<StateMachine, int> leftGrammarStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName, GrammarType.Left);
+            Tuple<StateMachine, int> rightGrammarStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName, GrammarType.Right);
+            Tuple<StateMachine, int> expressionStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName);
+
+            leftGrammarStateMachine = OptimizeStateMachine(streamWriter, diagramCounter, leftGrammarStateMachine, baseFullFileName);
+            rightGrammarStateMachine = OptimizeStateMachine(streamWriter, diagramCounter, rightGrammarStateMachine, baseFullFileName);
+            expressionStateMachine = OptimizeStateMachine(streamWriter, diagramCounter, expressionStateMachine, baseFullFileName);
+
+            Expression leftGrammarExpression = ConvertToExpression(streamWriter, leftGrammarStateMachine, expression, GrammarType.Left);
+            Expression rightGrammarExpression = ConvertToExpression(streamWriter, rightGrammarStateMachine, expression, GrammarType.Right);
+            Expression leftStateMachineExpression = ConvertToExpression(streamWriter, expressionStateMachine, expression, GrammarType.Left);
+            Expression rightStateMachineExpression = ConvertToExpression(streamWriter, expressionStateMachine, expression, GrammarType.Right);
+
+            ConvertToEntity(streamWriter, expression, language);
+        }
+
+        private static void ConvertToEntity(StreamWriter streamWriter, Expression expression, Entity language)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static Expression ConvertToExpression(StreamWriter streamWriter, Tuple<StateMachine, int> stateMachine, Expression result, GrammarType grammarType)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static Tuple<StateMachine, int> OptimizeStateMachine(StreamWriter streamWriter, Counter diagramCounter, Tuple<StateMachine, int> leftGrammarStateMachine, string baseFullFileName)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter streamWriter, Counter diagramCounter,
+            Expression expression, string baseFullFileName)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter streamWriter, Counter diagramCounter,
+            Expression expression, string baseFullFileName, GrammarType grammarType)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static Expression ConvertToExpression(StreamWriter streamWriter, Entity language)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static bool CheckLanguageType(StreamWriter streamWriter, Entity language)
+        {
+            throw new NotImplementedException();
         }
 
         private static void WriteProlog(StreamWriter writer, AuthorDescription author, string variant)

@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Input\AuthorDescription.cs" />
     <Compile Include="Input\TaskDescription.cs" />
+    <Compile Include="Output\Counter.cs" />
     <Compile Include="Output\StateMachineExtensions.cs" />
     <Compile Include="Output\StreamWriterExtensions.cs" />
     <Compile Include="Output\TaskDescriptionExtensions.cs" />
