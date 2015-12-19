@@ -56,6 +56,11 @@ namespace FLaGLib.Extensions
             return result;
         }
 
+        public static IDictionary<TKey, TValue> ToSortedDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> obj)
+        {
+            return obj.ToSortedDictionary(x => x.Key, x => x.Value);
+        }
+
         public static IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> obj)
         {
             return obj.ToDictionary(x => x.Key, x => x.Value);
