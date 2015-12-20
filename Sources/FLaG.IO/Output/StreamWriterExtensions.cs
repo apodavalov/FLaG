@@ -53,7 +53,7 @@ namespace FLaG.IO.Output
 
         private static void WriteDegree(StreamWriter writer, Languages.Degree degree)
         {
-            bool needBrackets = degree.Entity.Priority > degree.Priority;
+            bool needBrackets = degree.Entity.Priority >= degree.Priority;
 
             if (needBrackets)
             {
@@ -75,12 +75,12 @@ namespace FLaG.IO.Output
 
         private static void WriteUnion(StreamWriter writer, Languages.Union union)
         {
-            WriteEntities(writer, union.EntityCollection, string.Empty, union.Priority);
+            WriteEntities(writer, union.EntityCollection, ",", union.Priority);
         }
 
         private static void WriteConcat(StreamWriter writer, Languages.Concat union)
         {
-            WriteEntities(writer, union.EntityCollection, ",", union.Priority);
+            WriteEntities(writer, union.EntityCollection, string.Empty, union.Priority);
         }
 
         private static void WriteEntities(StreamWriter writer, IEnumerable<Languages.Entity> entities, string separator, int priority)
