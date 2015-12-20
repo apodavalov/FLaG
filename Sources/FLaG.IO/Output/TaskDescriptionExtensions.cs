@@ -22,11 +22,8 @@ namespace FLaG.IO.Output
             {
                 WriteProlog(streamWriter, taskDescription.Author, taskDescription.Variant);
                 
-                if (!CheckLanguageType(streamWriter, taskDescription.Language))
-                {
-                    WriteBody(streamWriter, taskDescription.Language, baseFullFileName);
-                }
-
+                WriteBody(streamWriter, taskDescription.Language, baseFullFileName);
+                
                 WriteEpilog(streamWriter);
             }
         }
@@ -35,7 +32,12 @@ namespace FLaG.IO.Output
         {
             Counter diagramCounter = new Counter();
 
-            Expression expression = ConvertToExpression(streamWriter, language);
+            WriteTask(streamWriter, language);
+
+            Expression expression = CheckLanguageType(streamWriter, language);
+
+            WriteConvertToExpression(streamWriter, language, expression);
+
             Tuple<StateMachine, int> leftGrammarStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName, GrammarType.Left);
             Tuple<StateMachine, int> rightGrammarStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName, GrammarType.Right);
             Tuple<StateMachine, int> expressionStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName);
@@ -50,6 +52,11 @@ namespace FLaG.IO.Output
             Expression rightStateMachineExpression = ConvertToExpression(streamWriter, expressionStateMachine, expression, GrammarType.Right);
 
             ConvertToEntity(streamWriter, expression, language);
+        }
+
+        private static void WriteTask(StreamWriter streamWriter, Entity language)
+        {
+            throw new NotImplementedException();
         }
 
         private static void ConvertToEntity(StreamWriter streamWriter, Expression expression, Entity language)
@@ -79,12 +86,12 @@ namespace FLaG.IO.Output
             throw new NotImplementedException();
         }
 
-        private static Expression ConvertToExpression(StreamWriter streamWriter, Entity language)
+        private static void WriteConvertToExpression(StreamWriter streamWriter, Entity language, Expression expression)
         {
             throw new NotImplementedException();
         }
 
-        private static bool CheckLanguageType(StreamWriter streamWriter, Entity language)
+        private static Expression CheckLanguageType(StreamWriter streamWriter, Entity language)
         {
             throw new NotImplementedException();
         }
