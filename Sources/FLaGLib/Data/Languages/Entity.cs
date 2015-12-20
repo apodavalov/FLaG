@@ -86,8 +86,6 @@ namespace FLaGLib.Data.Languages
             return new SortedSet<Variable>(entities.SelectMany(entity => entity.Variables)).AsReadOnly();
         }
 
-        public abstract Tree Split();
-
         public abstract Expression ToRegExp();
     }
 }

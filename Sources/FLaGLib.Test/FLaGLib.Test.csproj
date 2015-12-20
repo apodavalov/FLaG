@@ -59,8 +59,6 @@
     <Compile Include="Data\Languages\ExponentTest.cs" />
     <Compile Include="Data\Languages\QuantityTest.cs" />
     <Compile Include="Data\Languages\SymbolTest.cs" />
-    <Compile Include="Data\Languages\TreeCollectionTest.cs" />
-    <Compile Include="Data\Languages\TreeTest.cs" />
     <Compile Include="Data\Languages\UnionTest.cs" />
     <Compile Include="Data\Languages\VariableTest.cs" />
     <Compile Include="Data\RegExps\BinaryConcatTest.cs" />

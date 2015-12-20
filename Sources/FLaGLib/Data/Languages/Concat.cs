@@ -156,18 +156,6 @@ namespace FLaGLib.Data.Languages
             get { return _Variables.Value; }
         }
 
-        public override Tree Split()
-        {
-            if (Variables.Count <= 1)
-            {
-                return new Tree(this);
-            }
-
-            return new Tree(this, new TreeCollection(
-                EntityCollection.Select(e => e.Split()).ToList(), 
-                TreeOperator.Concat));
-        }
-
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
