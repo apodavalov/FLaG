@@ -73,6 +73,8 @@
     <Compile Include="Data\RegExps\GrammarExpressionWithOriginal.cs" />
     <Compile Include="Data\RegExps\GrammarExpressionTuple.cs" />
     <Compile Include="Data\RegExps\GrammarPostReport.cs" />
+    <Compile Include="Data\RegExps\LanguageExpressionTuple.cs" />
+    <Compile Include="Data\RegExps\LanguagePostReport.cs" />
     <Compile Include="Data\RegExps\StateMachineExpressionTuple.cs" />
     <Compile Include="Data\RegExps\StateMachineExpressionWithOriginal.cs" />
     <Compile Include="Data\RegExps\StateMachinePostReport.cs" />

@@ -187,6 +187,32 @@ namespace FLaGLib.Data.RegExps
         internal abstract GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber, 
             ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies);
 
+        private LanguageExpressionTuple CheckRegular(int languageNumber, Action<LanguagePostReport> onIterate, params LanguageExpressionTuple[] dependencies)
+        {
+            LanguageExpressionTuple languageExpression = new LanguageExpressionTuple(this, languageNumber);
+
+            if (onIterate != null)
+            {
+                onIterate(new LanguagePostReport(languageExpression, dependencies));
+            }
+
+            return languageExpression;
+        }
+
+        public void CheckRegular(Action<LanguagePostReport> onIterate = null)
+        {
+            ILookup<int, int> dependencyMap = _DependencyMap.Value;
+            IReadOnlyList<Expression> expressions = _SubexpressionsInCalculateOrder.Value;
+            LanguageExpressionTuple[] languages = new LanguageExpressionTuple[expressions.Count];
+
+            for (int i = 0; i < expressions.Count; i++)
+            {
+                Expression expression = expressions[i];
+                IEnumerable<LanguageExpressionTuple> dependencies = dependencyMap[i].OrderBy(item => item).Select(item => languages[item]);
+                languages[i] = expression.CheckRegular(_StartIndex + i, onIterate, dependencies.ToArray());
+            }
+        }
+
         public Grammar MakeGrammar(GrammarType grammarType, Action<GrammarPostReport> onIterate = null)
         {
             ILookup<int, int> dependencyMap = _DependencyMap.Value;
