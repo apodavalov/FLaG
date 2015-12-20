@@ -36,24 +36,24 @@ namespace FLaG.IO.Output
 
             WriteTask(streamWriter, language);
 
-            Expression expression = CheckLanguageType(streamWriter, language);
+            //Expression expression = CheckLanguageType(streamWriter, language);
 
-            WriteConvertToExpression(streamWriter, language, expression);
+            //WriteConvertToExpression(streamWriter, language, expression);
 
-            Tuple<StateMachine, int> leftGrammarStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName, GrammarType.Left);
-            Tuple<StateMachine, int> rightGrammarStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName, GrammarType.Right);
-            Tuple<StateMachine, int> expressionStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName);
+            //Tuple<StateMachine, int> leftGrammarStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName, GrammarType.Left);
+            //Tuple<StateMachine, int> rightGrammarStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName, GrammarType.Right);
+            //Tuple<StateMachine, int> expressionStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName);
 
-            leftGrammarStateMachine = OptimizeStateMachine(streamWriter, diagramCounter, leftGrammarStateMachine, baseFullFileName);
-            rightGrammarStateMachine = OptimizeStateMachine(streamWriter, diagramCounter, rightGrammarStateMachine, baseFullFileName);
-            expressionStateMachine = OptimizeStateMachine(streamWriter, diagramCounter, expressionStateMachine, baseFullFileName);
+            //leftGrammarStateMachine = OptimizeStateMachine(streamWriter, diagramCounter, leftGrammarStateMachine, baseFullFileName);
+            //rightGrammarStateMachine = OptimizeStateMachine(streamWriter, diagramCounter, rightGrammarStateMachine, baseFullFileName);
+            //expressionStateMachine = OptimizeStateMachine(streamWriter, diagramCounter, expressionStateMachine, baseFullFileName);
 
-            Expression leftGrammarExpression = ConvertToExpression(streamWriter, leftGrammarStateMachine, expression, GrammarType.Left);
-            Expression rightGrammarExpression = ConvertToExpression(streamWriter, rightGrammarStateMachine, expression, GrammarType.Right);
-            Expression leftStateMachineExpression = ConvertToExpression(streamWriter, expressionStateMachine, expression, GrammarType.Left);
-            Expression rightStateMachineExpression = ConvertToExpression(streamWriter, expressionStateMachine, expression, GrammarType.Right);
+            //Expression leftGrammarExpression = ConvertToExpression(streamWriter, leftGrammarStateMachine, expression, GrammarType.Left);
+            //Expression rightGrammarExpression = ConvertToExpression(streamWriter, rightGrammarStateMachine, expression, GrammarType.Right);
+            //Expression leftStateMachineExpression = ConvertToExpression(streamWriter, expressionStateMachine, expression, GrammarType.Left);
+            //Expression rightStateMachineExpression = ConvertToExpression(streamWriter, expressionStateMachine, expression, GrammarType.Right);
 
-            ConvertToEntity(streamWriter, expression, language);
+            //ConvertToEntity(streamWriter, expression, language);
         }
 
         private static void WriteTask(StreamWriter streamWriter, Entity language)
