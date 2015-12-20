@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<lang xmlns="urn:inputlang">
+<task xmlns="urn:inputlang">
     <variables>
 		<variable name="k" sign=">=" num="0" />
 		<variable name="m" sign=">" num="0" />
     </variables>
-	<content>
+	<language>
 		<concat>
 			<degree>
 				<base>
 					<degree>
 						<base>
-							<alter>
+							<union>
 							    <symbol>a</symbol>
 							    <symbol>b</symbol>
-							</alter>
+							</union>
 						</base>
 						<exp>
 							<vref>k</vref>
@@ -28,10 +28,10 @@
 				<base>
 					<degree>
 						<base>
-							<alter>
+							<union>
 							    <symbol>b</symbol>
 							    <symbol>c</symbol>
-							</alter>
+							</union>
 						</base>
 						<exp>
 							<vref>m</vref>
@@ -43,9 +43,9 @@
 				</exp>
 			</degree>
 		</concat>
-	</content>
+	</language>
 	<info>
 	    <author firstname="" secondname="" lastname="" group="" />
 	    <variant>2.2</variant>
 	</info>
-</lang>
+</task>
