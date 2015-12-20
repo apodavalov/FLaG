@@ -70,8 +70,6 @@
     <Compile Include="Data\Languages\DegreeTest.cs" />
     <Compile Include="Data\RegExps\IterationTest.cs" />
     <Compile Include="Data\RegExps\SymbolTest.cs" />
-    <Compile Include="Data\RegExps\TreeCollectionTest.cs" />
-    <Compile Include="Data\RegExps\TreeTest.cs" />
     <Compile Include="Data\SingleLabelTest.cs" />
     <Compile Include="Data\StateMachines\ClassOfEquivalenceSetTest.cs" />
     <Compile Include="Data\StateMachines\ClassOfEquivalenceTest.cs" />
