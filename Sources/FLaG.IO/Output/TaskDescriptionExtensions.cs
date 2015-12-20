@@ -11,6 +11,8 @@ namespace FLaG.IO.Output
 {
     public static class TaskDescriptionExtensions
     {
+        private const string _OriginalLanguageLabel = "originalLanguage";
+
         public static void Solve(this TaskDescription taskDescription, string baseTexFileName)
         {
             FileInfo baseFileInfo = new FileInfo(baseTexFileName);
@@ -56,7 +58,18 @@ namespace FLaG.IO.Output
 
         private static void WriteTask(StreamWriter streamWriter, Entity language)
         {
-            throw new NotImplementedException();
+            streamWriter.WriteLine(@"\section{Задание}");
+            streamWriter.WriteLine(@"Задан язык:");
+            streamWriter.Write(@"\begin{equation}");
+            streamWriter.Write(@"\label{eq:");
+            streamWriter.WriteLatex(_OriginalLanguageLabel);
+            streamWriter.WriteLine(@"}");
+            streamWriter.WriteLine(@"\begin{split}");
+            streamWriter.Write(@"L &= ");
+            streamWriter.WriteLanguage(language);
+            streamWriter.WriteLine();
+            streamWriter.WriteLine(@"\end{split}");
+            streamWriter.Write(@"\end{equation}");
         }
 
         private static void ConvertToEntity(StreamWriter streamWriter, Expression expression, Entity language)
