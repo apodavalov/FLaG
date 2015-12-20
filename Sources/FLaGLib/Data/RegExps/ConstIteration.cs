@@ -175,6 +175,14 @@ namespace FLaGLib.Data.RegExps
             }
         }
 
+        public override ExpressionType ExpressionType
+        {
+            get
+            {
+                return ExpressionType.ConstIteration;
+            }
+        }
+
         internal override void ToString(StringBuilder builder)
         {
             Expression.ToString(Expression.Priority > Priority,builder);

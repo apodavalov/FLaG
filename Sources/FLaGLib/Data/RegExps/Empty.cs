@@ -152,6 +152,14 @@ namespace FLaGLib.Data.RegExps
             }
         }
 
+        public override ExpressionType ExpressionType
+        {
+            get
+            {
+                return ExpressionType.Empty;
+            }
+        }
+
         internal override void ToString(StringBuilder builder)
         {
             builder.Append('ε');

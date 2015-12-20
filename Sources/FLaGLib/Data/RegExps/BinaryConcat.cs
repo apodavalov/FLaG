@@ -180,6 +180,14 @@ namespace FLaGLib.Data.RegExps
             }
         }
 
+        public override ExpressionType ExpressionType
+        {
+            get
+            {
+                return ExpressionType.BinaryConcat;
+            }
+        }
+
         internal override void ToString(StringBuilder builder)
         {
             ConcatHelper.ToString(builder, ConcatHelper.Iterate(Left.AsSequence().Concat(Right)).ToList().AsReadOnly(), Priority);

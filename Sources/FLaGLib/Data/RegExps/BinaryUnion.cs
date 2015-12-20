@@ -183,6 +183,14 @@ namespace FLaGLib.Data.RegExps
             }
         }
 
+        public override ExpressionType ExpressionType
+        {
+            get
+            {
+                return ExpressionType.BinaryUnion;
+            }
+        }
+
         internal override void ToString(StringBuilder builder)
         {
             ISet<Expression> visitedExpressions = new HashSet<Expression>();

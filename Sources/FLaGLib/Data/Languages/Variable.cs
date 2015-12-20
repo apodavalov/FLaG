@@ -26,6 +26,14 @@ namespace FLaGLib.Data.Languages
             private set;
         }
 
+        public override ExponentType ExponentType
+        {
+            get
+            {
+                return ExponentType.Variable;
+            }
+        }
+
         public Variable(char name, Sign sign, int number)
         {
             if (name < 'a' || name > 'z')

@@ -137,6 +137,22 @@ namespace FLaGLib.Data.Languages
             get { return _Variables.Value; }
         }
 
+        public override int Priority
+        {
+            get
+            {
+                return 0;
+            }
+        }
+
+        public override EntityType EntityType
+        {
+            get
+            {
+                return EntityType.Symbol;
+            }
+        }
+
         public override string ToString()
         {
             return Character.ToString();

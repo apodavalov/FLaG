@@ -145,6 +145,14 @@ namespace FLaGLib.Data.RegExps
             }
         }
 
+        public override ExpressionType ExpressionType
+        {
+            get
+            {
+                return ExpressionType.Symbol;
+            }
+        }
+
         internal override void ToString(StringBuilder builder)
         {
             builder.Append(Character);

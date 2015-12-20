@@ -12,6 +12,14 @@ namespace FLaGLib.Data.Languages
             private set;
         }
 
+        public override ExponentType ExponentType
+        {
+            get
+            {
+                return ExponentType.Quantity;
+            }
+        }
+
         public Quantity(int count)
         {
             if (count < 0)

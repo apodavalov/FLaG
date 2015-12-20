@@ -155,6 +155,22 @@ namespace FLaGLib.Data.Languages
             get { return _Variables.Value; }
         }
 
+        public override int Priority
+        {
+            get
+            {
+                return 3;
+            }
+        }
+
+        public override EntityType EntityType
+        {
+            get
+            {
+                return EntityType.Union;
+            }
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();

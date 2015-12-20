@@ -76,5 +76,7 @@ namespace FLaGLib.Data.Languages
         public abstract int CompareTo(Exponent other);
 
         public abstract Expression ToRegExp(Entity entity);
+
+        public abstract ExponentType ExponentType { get; }
     }
 }

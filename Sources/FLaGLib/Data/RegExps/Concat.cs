@@ -154,6 +154,14 @@ namespace FLaGLib.Data.RegExps
             }
         }
 
+        public override ExpressionType ExpressionType
+        {
+            get
+            {
+                return ExpressionType.Concat;
+            }
+        }
+
         public override Expression ToRegularSet()
         {
             if (IsRegularSet)

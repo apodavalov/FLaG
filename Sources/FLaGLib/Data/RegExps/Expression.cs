@@ -95,6 +95,8 @@ namespace FLaGLib.Data.RegExps
 
         public abstract int Priority { get; }
 
+        public abstract ExpressionType ExpressionType { get; }
+
         private Lazy<IReadOnlyList<WalkData<Expression>>> _WalkData;
         private Lazy<IReadOnlyList<Expression>> _SubexpressionsInCalculateOrder;
         private Lazy<ILookup<int, int>> _DependencyMap;

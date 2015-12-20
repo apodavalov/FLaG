@@ -81,6 +81,10 @@ namespace FLaGLib.Data.Languages
 
         public abstract IReadOnlySet<Variable> Variables { get; }
 
+        public abstract int Priority { get; }
+
+        public abstract EntityType EntityType { get; }
+
         protected IReadOnlySet<Variable> CollectVariables(IEnumerable<Entity> entities)
         {
             return new SortedSet<Variable>(entities.SelectMany(entity => entity.Variables)).AsReadOnly();
