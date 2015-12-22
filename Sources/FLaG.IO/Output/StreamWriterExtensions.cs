@@ -5,13 +5,180 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Languages = FLaGLib.Data.Languages;
+using RegExps = FLaGLib.Data.RegExps;
 
 namespace FLaG.IO.Output
 {
     public static class StreamWriterExtensions
     {
+        public static void WriteExpression(this StreamWriter writer, RegExps.Expression expression)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression));
+            }
+
+            switch (expression.ExpressionType)
+            {
+                case RegExps.ExpressionType.Concat:
+                    WriteConcat(writer, (RegExps.Concat)expression);
+                    break;
+                case RegExps.ExpressionType.BinaryConcat:
+                    WriteBinaryConcat(writer, (RegExps.BinaryConcat)expression);
+                    break;
+                case RegExps.ExpressionType.Union:
+                    WriteUnion(writer, (RegExps.Union)expression);
+                    break;
+                case RegExps.ExpressionType.BinaryUnion:
+                    WriteBinaryUnion(writer, (RegExps.BinaryUnion)expression);
+                    break;
+                case RegExps.ExpressionType.Symbol:
+                    WriteSymbol(writer, (RegExps.Symbol)expression);
+                    break;
+                case RegExps.ExpressionType.Iteration:
+                    WriteIteration(writer, (RegExps.Iteration)expression);
+                    break;
+                case RegExps.ExpressionType.ConstIteration:
+                    WriteConstIteration(writer, (RegExps.ConstIteration)expression);
+                    break;
+                case RegExps.ExpressionType.Empty:
+                    WriteEmpty(writer, (RegExps.Empty)expression);
+                    break;
+                default:
+                    throw new InvalidOperationException(string.Format("The expression type {0} is not supported.", expression.ExpressionType));
+            }
+        }
+
+        public static void WriteSymbol(StreamWriter writer, RegExps.Symbol symbol)
+        {
+            writer.WriteLatex(symbol.Character.ToString());
+        }
+
+        public static void WriteConstIteration(StreamWriter writer, RegExps.ConstIteration constIteration)
+        {
+            bool needBrackets = constIteration.Expression.Priority >= constIteration.Priority;
+
+            if (needBrackets)
+            {
+                writer.Write("(");
+            }
+
+            WriteExpression(writer, constIteration.Expression);
+
+            if (needBrackets)
+            {
+                writer.Write(")");
+            }
+
+            writer.Write("^");
+            writer.Write("{");
+            writer.WriteLatex(constIteration.IterationCount.ToString());
+            writer.Write("}");
+        }
+
+        public static void WriteIteration(StreamWriter writer, RegExps.Iteration iteration)
+        {
+            bool needBrackets = iteration.Expression.Priority >= iteration.Priority;
+
+            if (needBrackets)
+            {
+                writer.Write("(");
+            }
+
+            WriteExpression(writer, iteration.Expression);
+
+            if (needBrackets)
+            {
+                writer.Write(")");
+            }
+
+            writer.Write("^");
+            writer.Write("{");
+
+            if (iteration.IsPositive)
+            {
+                writer.Write("+");
+            }
+            else
+            {
+                writer.Write("*");
+            }
+
+            writer.Write("}");
+        }
+
+        public static void WriteEmpty(StreamWriter writer, RegExps.Empty empty)
+        {
+            writer.Write(@"{\varepsilon}");
+        }
+
+        public static void WriteBinaryUnion(StreamWriter writer, RegExps.BinaryUnion binaryUnion)
+        {
+            ISet<RegExps.Expression> visitedExpression = new HashSet<RegExps.Expression>();
+            WriteExpressions(writer, RegExps.UnionHelper.Iterate(visitedExpression, binaryUnion), " + ", binaryUnion.Priority);
+        }
+
+        public static void WriteUnion(StreamWriter writer, RegExps.Union union)
+        {
+            ISet<RegExps.Expression> visitedExpression = new HashSet<RegExps.Expression>();
+            WriteExpressions(writer, RegExps.UnionHelper.Iterate(visitedExpression, union), " + ", union.Priority);
+        }
+
+        public static void WriteBinaryConcat(StreamWriter writer, RegExps.BinaryConcat binaryConcat)
+        {
+            WriteExpressions(writer, RegExps.ConcatHelper.Iterate(binaryConcat), string.Empty, binaryConcat.Priority);
+        }
+
+        public static void WriteConcat(StreamWriter writer, RegExps.Concat concat)
+        {
+            WriteExpressions(writer, RegExps.ConcatHelper.Iterate(concat), string.Empty, concat.Priority);
+        }
+
+        private static void WriteExpressions(StreamWriter writer, IEnumerable<RegExps.Expression> expressions, string separator, int priority)
+        {
+            bool first = true;
+
+            foreach (RegExps.Expression expression in expressions)
+            {
+                bool needBrackets;
+
+                if (first)
+                {
+                    needBrackets = expression.Priority > priority;
+                    first = false;
+                }
+                else
+                {
+                    needBrackets = expression.Priority >= priority;
+                    writer.Write(separator);
+                }
+
+                if (needBrackets)
+                {
+                    writer.Write("(");
+                }
+
+                WriteExpression(writer, expression);
+
+                if (needBrackets)
+                {
+                    writer.Write(")");
+                }
+            }
+        }
+
         public static void WriteLanguage(this StreamWriter writer, Languages.Entity entity)
         {
+            if (writer == null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));

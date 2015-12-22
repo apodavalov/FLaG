@@ -12,6 +12,7 @@ namespace FLaG.IO.Output
     public static class TaskDescriptionExtensions
     {
         private const string _OriginalLanguageLabel = "originalLanguage";
+        private const string _OriginalExpression = "originalExpression";
 
         public static void Solve(this TaskDescription taskDescription, string baseTexFileName)
         {
@@ -30,13 +31,13 @@ namespace FLaG.IO.Output
             }
         }
 
-        private static void WriteBody(StreamWriter streamWriter, Entity language, string baseFullFileName)
+        private static void WriteBody(StreamWriter writer, Entity language, string baseFullFileName)
         {
             Counter diagramCounter = new Counter();
 
-            WriteTask(streamWriter, language);
+            WriteTask(writer, language);
 
-            //Expression expression = CheckLanguageType(streamWriter, language);
+            Expression expression = WriteCheckLanguageType(writer, language);
 
             //WriteConvertToExpression(streamWriter, language, expression);
 
@@ -56,57 +57,184 @@ namespace FLaG.IO.Output
             //ConvertToEntity(streamWriter, expression, language);
         }
 
-        private static void WriteTask(StreamWriter streamWriter, Entity language)
+        private static void WriteTask(StreamWriter writer, Entity language)
         {
-            streamWriter.WriteLine(@"\section{Задание}");
-            streamWriter.WriteLine(@"Задан язык:");
-            streamWriter.Write(@"\begin{equation}");
-            streamWriter.Write(@"\label{eq:");
-            streamWriter.WriteLatex(_OriginalLanguageLabel);
-            streamWriter.WriteLine(@"}");
-            streamWriter.WriteLine(@"\begin{split}");
-            streamWriter.Write(@"L &= ");
-            streamWriter.WriteLanguage(language);
-            streamWriter.WriteLine();
-            streamWriter.WriteLine(@"\end{split}");
-            streamWriter.Write(@"\end{equation}");
+            writer.WriteLine(@"\section{Задание}");
+            writer.WriteLine(@"Задан язык:");
+            writer.Write(@"\begin{equation}");
+            writer.Write(@"\label{eq:");
+            writer.WriteLatex(_OriginalLanguageLabel);
+            writer.WriteLine(@"}");
+            writer.WriteLine(@"\begin{split}");
+            writer.Write(@"L &= ");
+            writer.WriteLanguage(language);
+            writer.WriteLine();
+            writer.WriteLine(@"\end{split}");
+            writer.Write(@"\end{equation}");
         }
 
-        private static void ConvertToEntity(StreamWriter streamWriter, Expression expression, Entity language)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static Expression ConvertToExpression(StreamWriter streamWriter, Tuple<StateMachine, int> stateMachine, Expression result, GrammarType grammarType)
+        private static void ConvertToEntity(StreamWriter writer, Expression expression, Entity language)
         {
             throw new NotImplementedException();
         }
 
-        private static Tuple<StateMachine, int> OptimizeStateMachine(StreamWriter streamWriter, Counter diagramCounter, Tuple<StateMachine, int> leftGrammarStateMachine, string baseFullFileName)
+        private static Expression ConvertToExpression(StreamWriter writer, Tuple<StateMachine, int> stateMachine, Expression result, GrammarType grammarType)
         {
             throw new NotImplementedException();
         }
 
-        private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter streamWriter, Counter diagramCounter,
+        private static Tuple<StateMachine, int> OptimizeStateMachine(StreamWriter writer, Counter diagramCounter, Tuple<StateMachine, int> leftGrammarStateMachine, string baseFullFileName)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter writer, Counter diagramCounter,
             Expression expression, string baseFullFileName)
         {
             throw new NotImplementedException();
         }
 
-        private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter streamWriter, Counter diagramCounter,
+        private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter writer, Counter diagramCounter,
             Expression expression, string baseFullFileName, GrammarType grammarType)
         {
             throw new NotImplementedException();
         }
 
-        private static void WriteConvertToExpression(StreamWriter streamWriter, Entity language, Expression expression)
+        private static void WriteConvertToExpression(StreamWriter writer, Entity language, Expression expression)
         {
             throw new NotImplementedException();
         }
 
-        private static Expression CheckLanguageType(StreamWriter streamWriter, Entity language)
+        private static Expression WriteCheckLanguageType(StreamWriter writer, Entity language)
         {
-            throw new NotImplementedException();
+            Expression expression = language.ToRegExp();
+
+            writer.WriteLine(@"\section{Этап 1}");
+            writer.WriteLine(@"Докажем, что язык является регулярным, используя свойство замкнутости.");
+            writer.WriteLine(@"Для этого представим язык в виде регулярного множества.");
+            writer.Write(@"\begin{equation}");
+            writer.Write(@"\label{eq:");
+            writer.WriteLatex(_OriginalExpression);
+            writer.WriteLine(@"}");
+            writer.WriteLine(@"\begin{split}");
+            writer.WriteExpression(expression);
+            writer.WriteLine();
+            writer.WriteLine(@"\end{split}");
+            writer.WriteLine(@"\end{equation}");
+
+            writer.Write(@"\begin{enumerate}");
+
+            int lastIteration = -1;
+
+            expression.CheckRegular(l => lastIteration = OnLanguagePostReport(writer, l));
+
+            writer.WriteLine(@"\end{enumerate}");
+
+            writer.WriteLine();
+            writer.Write(@"Так как языки ");
+            writer.Write(@"\begin{math}");
+            WriteSign(writer, 'L', lastIteration);
+            writer.Write(@"\end{math}");
+            writer.Write(@" и ");
+            writer.Write(@"\begin{math}L\end{math}");
+            writer.Write(@" описываются одним и тем же регулярным множеством, а язык ");
+            writer.Write(@"\begin{math}");
+            WriteSign(writer, 'L', lastIteration);
+            writer.Write(@"\end{math}");
+            writer.WriteLine(@" является регулярным, то и язык \begin{math}L\end{math} также является регулярным.");
+
+            writer.WriteLine();
+
+            return expression;
+        }
+
+        private static void WriteExpressionTypeInAblative(StreamWriter writer, ExpressionType expressionType)
+        {
+            switch (expressionType)
+            {
+                case ExpressionType.BinaryConcat:
+                case ExpressionType.Concat:
+                    writer.WriteLatex("конкатенацией");
+                    break;
+                case ExpressionType.BinaryUnion:
+                case ExpressionType.Union:
+                    writer.WriteLatex("объединением");
+                    break;
+                case ExpressionType.Iteration:
+                    writer.WriteLatex("итерацией");
+                    break;
+                case ExpressionType.ConstIteration:
+                    writer.WriteLatex("конкатенацией");
+                    break;
+                case ExpressionType.Symbol:
+                    writer.WriteLatex("символом");
+                    break;
+                case ExpressionType.Empty:
+                    writer.WriteLatex("пустой цепочкой");
+                    break;
+                default:
+                    throw new InvalidOperationException(string.Format("Expression type {0} is not supported.",expressionType));
+            }
+        }
+
+        private static void WriteSign(StreamWriter writer, char sign, int number)
+        {
+            writer.Write("{");
+            writer.WriteLatex(sign.ToString());
+            writer.Write("_{");
+            writer.WriteLatex(number.ToString());
+            writer.Write("}");
+            writer.Write("}");
+        }
+
+        private static int OnLanguagePostReport(StreamWriter writer, LanguagePostReport languagePostReport)
+        {            
+            writer.Write(@"\item Регулярное множество вида ");
+            writer.Write(@"\begin{math}");
+            writer.WriteExpression(languagePostReport.New.Expression);
+            writer.Write(@"\end{math}");
+            writer.Write(@", которое является ");
+            WriteExpressionTypeInAblative(writer, languagePostReport.New.Expression.ExpressionType);
+
+            if (languagePostReport.Dependencies.Count > 0)
+            {
+                bool plural = languagePostReport.Dependencies.Count > 1; 
+
+                if (plural)
+                {
+                    writer.WriteLatex(" языков ");
+                }
+                else
+                {
+                    writer.WriteLatex(" языка ");
+                }
+
+                bool first = true;
+
+                foreach (LanguageExpressionTuple tuple in languagePostReport.Dependencies)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        writer.Write(", ");
+                    }
+
+                    writer.Write(@"\begin{math}");
+                    WriteSign(writer, 'L', tuple.LanguageNumber);
+                    writer.Write(@"\end{math}");
+                }
+            }
+
+            writer.WriteLatex(" соответствует языку ");
+            writer.Write(@"\begin{math}");
+            WriteSign(writer, 'L', languagePostReport.New.LanguageNumber);
+            writer.Write(@"\end{math}");
+            writer.WriteLine(".");
+
+            return languagePostReport.New.LanguageNumber;
         }
 
         private static void WriteProlog(StreamWriter writer, AuthorDescription author, string variant)

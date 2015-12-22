@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FLaGLib.Data.RegExps
 {
-    internal class ConcatHelper
+    public class ConcatHelper
     {
         public static Expression MakeExpression(ICollection<Expression> expressions)
         {

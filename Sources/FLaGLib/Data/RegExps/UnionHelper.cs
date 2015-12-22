@@ -6,7 +6,7 @@ using System.Text;
 
 namespace FLaGLib.Data.RegExps
 {
-    internal static class UnionHelper
+    public static class UnionHelper
     {
         public static Expression MakeExpression(ICollection<Expression> expressions)
         {
