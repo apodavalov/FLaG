@@ -11,7 +11,7 @@ namespace FLaG.IO.Output
 {
     public static class StreamWriterExtensions
     {
-        public static void WriteExpression(this StreamWriter writer, RegExps.Expression expression)
+        public static void WriteExpression(this StreamWriter writer, RegExps.Expression expression, bool writeDots = false)
         {
             if (writer == null)
             {
@@ -26,25 +26,25 @@ namespace FLaG.IO.Output
             switch (expression.ExpressionType)
             {
                 case RegExps.ExpressionType.Concat:
-                    WriteConcat(writer, (RegExps.Concat)expression);
+                    WriteConcat(writer, (RegExps.Concat)expression, writeDots);
                     break;
                 case RegExps.ExpressionType.BinaryConcat:
-                    WriteBinaryConcat(writer, (RegExps.BinaryConcat)expression);
+                    WriteBinaryConcat(writer, (RegExps.BinaryConcat)expression, writeDots);
                     break;
                 case RegExps.ExpressionType.Union:
-                    WriteUnion(writer, (RegExps.Union)expression);
+                    WriteUnion(writer, (RegExps.Union)expression, writeDots);
                     break;
                 case RegExps.ExpressionType.BinaryUnion:
-                    WriteBinaryUnion(writer, (RegExps.BinaryUnion)expression);
+                    WriteBinaryUnion(writer, (RegExps.BinaryUnion)expression, writeDots);
                     break;
                 case RegExps.ExpressionType.Symbol:
                     WriteSymbol(writer, (RegExps.Symbol)expression);
                     break;
                 case RegExps.ExpressionType.Iteration:
-                    WriteIteration(writer, (RegExps.Iteration)expression);
+                    WriteIteration(writer, (RegExps.Iteration)expression, writeDots);
                     break;
                 case RegExps.ExpressionType.ConstIteration:
-                    WriteConstIteration(writer, (RegExps.ConstIteration)expression);
+                    WriteConstIteration(writer, (RegExps.ConstIteration)expression, writeDots);
                     break;
                 case RegExps.ExpressionType.Empty:
                     WriteEmpty(writer, (RegExps.Empty)expression);
@@ -59,7 +59,7 @@ namespace FLaG.IO.Output
             writer.WriteLatex(symbol.Character.ToString());
         }
 
-        public static void WriteConstIteration(StreamWriter writer, RegExps.ConstIteration constIteration)
+        public static void WriteConstIteration(StreamWriter writer, RegExps.ConstIteration constIteration, bool writeDots)
         {
             bool needBrackets = constIteration.Expression.Priority >= constIteration.Priority;
 
@@ -68,7 +68,7 @@ namespace FLaG.IO.Output
                 writer.Write("(");
             }
 
-            WriteExpression(writer, constIteration.Expression);
+            WriteExpression(writer, constIteration.Expression, writeDots);
 
             if (needBrackets)
             {
@@ -81,7 +81,7 @@ namespace FLaG.IO.Output
             writer.Write("}");
         }
 
-        public static void WriteIteration(StreamWriter writer, RegExps.Iteration iteration)
+        public static void WriteIteration(StreamWriter writer, RegExps.Iteration iteration, bool writeDots)
         {
             bool needBrackets = iteration.Expression.Priority >= iteration.Priority;
 
@@ -90,7 +90,7 @@ namespace FLaG.IO.Output
                 writer.Write("(");
             }
 
-            WriteExpression(writer, iteration.Expression);
+            WriteExpression(writer, iteration.Expression, writeDots);
 
             if (needBrackets)
             {
@@ -117,29 +117,29 @@ namespace FLaG.IO.Output
             writer.Write(@"{\varepsilon}");
         }
 
-        public static void WriteBinaryUnion(StreamWriter writer, RegExps.BinaryUnion binaryUnion)
+        public static void WriteBinaryUnion(StreamWriter writer, RegExps.BinaryUnion binaryUnion, bool writeDots)
         {
             ISet<RegExps.Expression> visitedExpression = new HashSet<RegExps.Expression>();
-            WriteExpressions(writer, RegExps.UnionHelper.Iterate(visitedExpression, binaryUnion), " + ", binaryUnion.Priority);
+            WriteExpressions(writer, RegExps.UnionHelper.Iterate(visitedExpression, binaryUnion), " + ", binaryUnion.Priority, writeDots);
         }
 
-        public static void WriteUnion(StreamWriter writer, RegExps.Union union)
+        public static void WriteUnion(StreamWriter writer, RegExps.Union union, bool writeDots)
         {
             ISet<RegExps.Expression> visitedExpression = new HashSet<RegExps.Expression>();
-            WriteExpressions(writer, RegExps.UnionHelper.Iterate(visitedExpression, union), " + ", union.Priority);
+            WriteExpressions(writer, RegExps.UnionHelper.Iterate(visitedExpression, union), " + ", union.Priority, writeDots);
         }
 
-        public static void WriteBinaryConcat(StreamWriter writer, RegExps.BinaryConcat binaryConcat)
+        public static void WriteBinaryConcat(StreamWriter writer, RegExps.BinaryConcat binaryConcat, bool writeDots)
         {
-            WriteExpressions(writer, RegExps.ConcatHelper.Iterate(binaryConcat), string.Empty, binaryConcat.Priority);
+            WriteExpressions(writer, RegExps.ConcatHelper.Iterate(binaryConcat), string.Empty, binaryConcat.Priority, writeDots);
         }
 
-        public static void WriteConcat(StreamWriter writer, RegExps.Concat concat)
+        public static void WriteConcat(StreamWriter writer, RegExps.Concat concat, bool writeDots)
         {
-            WriteExpressions(writer, RegExps.ConcatHelper.Iterate(concat), string.Empty, concat.Priority);
+            WriteExpressions(writer, RegExps.ConcatHelper.Iterate(concat), writeDots ? @" \cdot ": string.Empty, concat.Priority, writeDots);
         }
 
-        private static void WriteExpressions(StreamWriter writer, IEnumerable<RegExps.Expression> expressions, string separator, int priority)
+        private static void WriteExpressions(StreamWriter writer, IEnumerable<RegExps.Expression> expressions, string separator, int priority, bool writeDots)
         {
             bool first = true;
 
@@ -163,7 +163,7 @@ namespace FLaG.IO.Output
                     writer.Write("(");
                 }
 
-                WriteExpression(writer, expression);
+                WriteExpression(writer, expression, writeDots);
 
                 if (needBrackets)
                 {
