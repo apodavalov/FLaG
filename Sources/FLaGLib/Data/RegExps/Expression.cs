@@ -16,7 +16,6 @@ namespace FLaGLib.Data.RegExps
 
         internal Expression() 
         {
-            _IsRegularSet = new Lazy<bool>(GetIsRegularSet);
             _WalkData = new Lazy<IReadOnlyList<WalkData<Expression>>>(GetWalkData);
             _DependencyMap = new Lazy<IReadOnlyList<DependencyCollection>>(GetDependencyMap);
         }
@@ -306,19 +305,6 @@ namespace FLaGLib.Data.RegExps
             return depthData.Select(data => new WalkData<Expression>(data.Value.Status, data.Index, data.Value.Value)).ToList().AsReadOnly();
         }
 
-        public abstract Expression ToRegularSet();
-
-        private Lazy<bool> _IsRegularSet;
-        public bool IsRegularSet
-        {
-            get
-            {
-                return _IsRegularSet.Value;
-            }
-        } 
-
-        protected abstract bool GetIsRegularSet();
-        
         internal abstract IEnumerable<DepthData<Expression>> WalkInternal();
 
         internal abstract void ToString(StringBuilder builder);

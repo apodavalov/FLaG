@@ -193,21 +193,6 @@ namespace FLaGLib.Data.RegExps
             ConcatHelper.ToString(builder, ConcatHelper.Iterate(Left.AsSequence().Concat(Right)).ToList().AsReadOnly(), Priority);
         }
 
-        public override Expression ToRegularSet()
-        {
-            if (IsRegularSet)
-            {
-                return this;
-            }
-
-            return new BinaryConcat(Left.ToRegularSet(), Right.ToRegularSet());
-       }
-
-        protected override bool GetIsRegularSet()
-        {
-            return Left.IsRegularSet && Right.IsRegularSet;
-        }
-
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
             ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {

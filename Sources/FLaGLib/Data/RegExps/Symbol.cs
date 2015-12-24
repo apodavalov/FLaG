@@ -157,16 +157,6 @@ namespace FLaGLib.Data.RegExps
             builder.Append(Character);
         }
 
-        public override Expression ToRegularSet()
-        {
-            return this;
-        }
-
-        protected override bool GetIsRegularSet()
-        {
-            return true;
-        }
-
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
             ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {

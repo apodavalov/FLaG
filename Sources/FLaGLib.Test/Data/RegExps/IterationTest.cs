@@ -88,16 +88,6 @@ namespace FLaGLib.Test.Data.RegExps
         }
 
         [Test]
-        public void ToRegularSetTest()
-        {
-            Iteration expectedIteration = new Iteration(new Symbol('a'), true);
-            Assert.AreEqual(expectedIteration.ToRegularSet(), expectedIteration);
-            expectedIteration = new Iteration(new ConstIteration(new Symbol('a'), 0), false);
-            Iteration actualIteration = new Iteration(new ConstIteration(new Symbol('a'), 0).ToRegularSet(), false);
-            Assert.AreEqual(expectedIteration.ToRegularSet(), actualIteration);
-        }
-
-        [Test]
         public void PriorityTest()
         {
             Iteration iteration = new Iteration(new Symbol('a'), true);

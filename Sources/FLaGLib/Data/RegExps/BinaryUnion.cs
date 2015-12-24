@@ -198,21 +198,6 @@ namespace FLaGLib.Data.RegExps
             UnionHelper.ToString(builder, UnionHelper.Iterate(visitedExpressions,Left.AsSequence().Concat(Right)).ToSortedSet().AsReadOnly(), Priority);
         }
 
-        public override Expression ToRegularSet()
-        {
-            if (IsRegularSet)
-            {
-                return this;
-            }
-
-            return new BinaryUnion(Left.ToRegularSet(), Right.ToRegularSet());
-        }
-
-        protected override bool GetIsRegularSet()
-        {
-            return Left.IsRegularSet && Right.IsRegularSet;
-        }
-
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
             ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {

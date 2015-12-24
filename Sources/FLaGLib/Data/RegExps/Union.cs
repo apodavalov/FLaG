@@ -167,21 +167,6 @@ namespace FLaGLib.Data.RegExps
             }
         }
 
-        public override Expression ToRegularSet()
-        {
-            if (IsRegularSet)
-            {
-                return this;
-            }
-
-            return new Union(Expressions.Select(e => e.ToRegularSet()));
-        }
-
-        protected override bool GetIsRegularSet()
-        {
-            return Expressions.All(e => e.IsRegularSet);
-        }
-
         internal override IEnumerable<DepthData<Expression>> WalkInternal()
         {
             yield return new DepthData<Expression>(this, WalkStatus.Begin);

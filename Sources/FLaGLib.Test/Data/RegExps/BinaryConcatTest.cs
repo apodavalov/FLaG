@@ -100,20 +100,6 @@ namespace FLaGLib.Test.Data.RegExps
         {
             BinaryConcat binaryConcat = new BinaryConcat(new Symbol('a'), new Symbol('b'));
             Assert.AreEqual("ab", binaryConcat.ToString());
-        }
-
-        [Test]
-        public void ToRegularSetTest()
-        {
-            BinaryConcat expectedBinaryConcat = new BinaryConcat(new Symbol('a'), new Symbol('b'));
-            
-            Assert.AreEqual(expectedBinaryConcat.ToRegularSet(), expectedBinaryConcat);
-
-            expectedBinaryConcat = new BinaryConcat(new ConstIteration(new Symbol('a'), 0), new ConstIteration(new Symbol('b'), 1));
-
-            BinaryConcat binaryConcat = new BinaryConcat(new ConstIteration(new Symbol('a'), 0).ToRegularSet(), new ConstIteration(new Symbol('b'), 1).ToRegularSet());
-
-            Assert.AreEqual(expectedBinaryConcat.ToRegularSet(), binaryConcat);
-        }
+        }       
     }
 }

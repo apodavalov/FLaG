@@ -195,21 +195,6 @@ namespace FLaGLib.Data.RegExps
             }
         }
 
-        public override Expression ToRegularSet()
-        {
-            if (IsRegularSet)
-            {
-                return this;
-            }
-
-            return new Iteration(Expression.ToRegularSet(), IsPositive);
-        }
-
-        protected override bool GetIsRegularSet()
-        {
-            return Expression.IsRegularSet;
-        }
-
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
             ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {

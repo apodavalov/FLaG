@@ -190,29 +190,6 @@ namespace FLaGLib.Data.RegExps
             builder.Append(')');
         }
 
-        public override Expression ToRegularSet()
-        {
-            if (IterationCount == 0)
-            {
-                return Empty.Instance.ToRegularSet();
-            }
-
-            Expression expression = Expression.ToRegularSet();
-            Expression result = Expression.ToRegularSet();
-
-            for (int i = 1; i < IterationCount; i++)
-            {
-                result = new BinaryConcat(result, expression);
-            }
-
-            return result;
-        }
-
-        protected override bool GetIsRegularSet()
-        {
-            return false;
-        }
-
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
             ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {

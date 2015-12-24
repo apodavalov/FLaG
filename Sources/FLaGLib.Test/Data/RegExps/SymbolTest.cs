@@ -84,12 +84,5 @@ namespace FLaGLib.Test.Data.RegExps
             Symbol symbol = new Symbol('a');
             Assert.AreEqual(symbol.Priority, 0);
         }
-
-        [Test]
-        public void ToRegularSetTest()
-        {
-            Symbol symbol = new Symbol('a');
-            Assert.AreEqual(symbol.ToRegularSet(), symbol);
-        }
     }
 }
