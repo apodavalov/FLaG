@@ -2,7 +2,7 @@
 
 namespace FLaGLib.Helpers
 {
-    public class WalkData<T> : IEquatable<WalkData<T>>, IComparable<WalkData<T>> where T : IEquatable<T>, IComparable<T>
+    class WalkData<T> : IEquatable<WalkData<T>>, IComparable<WalkData<T>> where T : IEquatable<T>, IComparable<T>
     {
         public WalkStatus Status
         {

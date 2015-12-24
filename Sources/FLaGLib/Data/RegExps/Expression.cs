@@ -18,9 +18,7 @@ namespace FLaGLib.Data.RegExps
         {
             _IsRegularSet = new Lazy<bool>(GetIsRegularSet);
             _WalkData = new Lazy<IReadOnlyList<WalkData<Expression>>>(GetWalkData);
-            _SubexpressionsInCalculateOrder = new Lazy<IReadOnlyList<Expression>>(GetSubexpressionsInCalculateOrder);
-            _DirectDependencies = new Lazy<IReadOnlyList<Expression>>(GetDirectDependencies);
-            _DependencyMap = new Lazy<ILookup<int, int>>(GetDependencyMap);
+            _DependencyMap = new Lazy<IReadOnlyList<DependencyCollection>>(GetDependencyMap);
         }
 
         public static bool operator ==(Expression objA, Expression objB)
@@ -98,23 +96,13 @@ namespace FLaGLib.Data.RegExps
         public abstract ExpressionType ExpressionType { get; }
 
         private Lazy<IReadOnlyList<WalkData<Expression>>> _WalkData;
-        private Lazy<IReadOnlyList<Expression>> _SubexpressionsInCalculateOrder;
-        private Lazy<ILookup<int, int>> _DependencyMap;
-        private Lazy<IReadOnlyList<Expression>> _DirectDependencies;
+        private Lazy<IReadOnlyList<DependencyCollection>> _DependencyMap;
 
-        public IReadOnlyList<Expression> DirectDependencies
+        public IReadOnlyList<DependencyCollection> DependencyMap
         {
             get
             {
-                return _DirectDependencies.Value;
-            }
-        }
-
-        public IReadOnlyList<WalkData<Expression>> WalkData
-        {
-            get
-            {
-                return _WalkData.Value;
+                return _DependencyMap.Value;
             }
         }
 
@@ -122,15 +110,13 @@ namespace FLaGLib.Data.RegExps
         {
             return string.Format(_UnknownGrammarTemplate, grammarType);
         }
-
-        protected abstract IReadOnlyList<Expression> GetDirectDependencies();
         
-        private ILookup<int, int> GetDependencyMap()
+        private ILookup<int,int> GetDependencyIndexMap()
         {
             Stack<int> stack = new Stack<int>();
             IDictionary<int, ISet<int>> dependencyMap = new Dictionary<int, ISet<int>>();
 
-            foreach (WalkData<Expression> data in WalkData)
+            foreach (WalkData<Expression> data in _WalkData.Value)
             {
                 switch (data.Status)
                 {
@@ -164,7 +150,7 @@ namespace FLaGLib.Data.RegExps
                 }
             }
 
-            return dependencyMap.ToLookup<int,int,ISet<int>>();
+            return dependencyMap.ToLookup<int, int, ISet<int>>();
         }
 
         internal static void CheckDependencies<T>(T[] dependencies, int expectedCount)
@@ -183,7 +169,15 @@ namespace FLaGLib.Data.RegExps
 
         private IReadOnlyList<Expression> GetSubexpressionsInCalculateOrder()
         {
-            return WalkData.Where(wd => wd.Status == WalkStatus.Begin).OrderBy(wd => wd.Index).Select(wd => wd.Value).ToList().AsReadOnly();
+            return _WalkData.Value.Where(wd => wd.Status == WalkStatus.Begin).OrderBy(wd => wd.Index).Select(wd => wd.Value).ToList().AsReadOnly();
+        }
+
+        private IReadOnlyList<DependencyCollection> GetDependencyMap()
+        {
+            ILookup<int, int> map = GetDependencyIndexMap();
+            IReadOnlyList<Expression> subexpressions = GetSubexpressionsInCalculateOrder();
+
+            return subexpressions.Select((e, i) => new DependencyCollection(e, map[i].ToSortedSet())).ToList().AsReadOnly();
         }
 
         internal abstract GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber, 
@@ -203,13 +197,12 @@ namespace FLaGLib.Data.RegExps
 
         public void CheckRegular(Action<LanguagePostReport> onIterate = null)
         {
-            ILookup<int, int> dependencyMap = _DependencyMap.Value;
-            IReadOnlyList<Expression> expressions = _SubexpressionsInCalculateOrder.Value;
-            LanguageExpressionTuple[] languages = new LanguageExpressionTuple[expressions.Count];
+            IReadOnlyList<DependencyCollection> dependencyMap = DependencyMap;
+            LanguageExpressionTuple[] languages = new LanguageExpressionTuple[dependencyMap.Count];
 
-            for (int i = 0; i < expressions.Count; i++)
+            for (int i = 0; i < dependencyMap.Count; i++)
             {
-                Expression expression = expressions[i];
+                Expression expression = dependencyMap[i].Expression;
                 IEnumerable<LanguageExpressionTuple> dependencies = dependencyMap[i].OrderBy(item => item).Select(item => languages[item]);
                 languages[i] = expression.CheckRegular(_StartIndex + i, onIterate, dependencies.ToArray());
             }
@@ -217,16 +210,15 @@ namespace FLaGLib.Data.RegExps
 
         public Grammar MakeGrammar(GrammarType grammarType, Action<GrammarPostReport> onIterate = null)
         {
-            ILookup<int, int> dependencyMap = _DependencyMap.Value;
-            IReadOnlyList<Expression> expressions = _SubexpressionsInCalculateOrder.Value;
-            GrammarExpressionWithOriginal[] grammars = new GrammarExpressionWithOriginal[expressions.Count];
+            IReadOnlyList<DependencyCollection> dependencyMap = DependencyMap;
+            GrammarExpressionWithOriginal[] grammars = new GrammarExpressionWithOriginal[dependencyMap.Count];
 
             int index = _StartIndex;
-            int additionalGrammarNumber = _StartIndex + expressions.Count + 1;
+            int additionalGrammarNumber = _StartIndex + dependencyMap.Count + 1;
                 
-            for (int i = 0; i < expressions.Count; i++)
+            for (int i = 0; i < dependencyMap.Count; i++)
             {
-                Expression expression = expressions[i];
+                Expression expression = dependencyMap[i].Expression;
                 IEnumerable<GrammarExpressionWithOriginal> dependencies = dependencyMap[i].OrderBy(item => item).Select(item => grammars[item]);
                 grammars[i] = new GrammarExpressionWithOriginal(expression.GenerateGrammar(grammarType, _StartIndex + i, ref index, ref additionalGrammarNumber, onIterate, dependencies.ToArray()));
             }
@@ -238,16 +230,15 @@ namespace FLaGLib.Data.RegExps
 
         public StateMachine MakeStateMachine(Action<StateMachinePostReport> onIterate = null)
         {
-            ILookup<int, int> dependencyMap = _DependencyMap.Value;
-            IReadOnlyList<Expression> expressions = _SubexpressionsInCalculateOrder.Value;
-            StateMachineExpressionWithOriginal[] stateMachines = new StateMachineExpressionWithOriginal[expressions.Count];
+            IReadOnlyList<DependencyCollection> dependencyMap = DependencyMap;
+            StateMachineExpressionWithOriginal[] stateMachines = new StateMachineExpressionWithOriginal[dependencyMap.Count];
 
             int index = _StartIndex;
-            int additionalStateMachineNumber = _StartIndex + expressions.Count + 1;
+            int additionalStateMachineNumber = _StartIndex + dependencyMap.Count + 1;
 
-            for (int i = 0; i < expressions.Count; i++)
+            for (int i = 0; i < dependencyMap.Count; i++)
             {
-                Expression expression = expressions[i];
+                Expression expression = dependencyMap[i].Expression;
                 IEnumerable<StateMachineExpressionWithOriginal> dependencies = dependencyMap[i].OrderBy(item => item).Select(item => stateMachines[item]);
                 stateMachines[i] = new StateMachineExpressionWithOriginal(expression.GenerateStateMachine(_StartIndex + i, ref index, ref additionalStateMachineNumber, onIterate, dependencies.ToArray()));
             }

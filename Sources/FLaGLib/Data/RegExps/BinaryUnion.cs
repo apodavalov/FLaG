@@ -213,11 +213,6 @@ namespace FLaGLib.Data.RegExps
             return Left.IsRegularSet && Right.IsRegularSet;
         }
 
-        protected override IReadOnlyList<Expression> GetDirectDependencies()
-        {
-            return EnumerateHelper.Sequence(Left, Right).ToList().AsReadOnly();
-        }
-
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
             ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {

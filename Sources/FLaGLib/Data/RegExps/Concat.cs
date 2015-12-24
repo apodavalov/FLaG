@@ -197,11 +197,6 @@ namespace FLaGLib.Data.RegExps
             ConcatHelper.ToString(builder, Expressions, Priority);
         }
 
-        protected override IReadOnlyList<Expression> GetDirectDependencies()
-        {
-            return Expressions;
-        }
-
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
              ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
         {

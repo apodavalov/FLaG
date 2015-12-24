@@ -72,6 +72,7 @@
     <Compile Include="Data\Languages\Symbol.cs" />
     <Compile Include="Data\Languages\Variable.cs" />
     <Compile Include="Data\RegExps\ConcatHelper.cs" />
+    <Compile Include="Data\RegExps\DependencyCollection.cs" />
     <Compile Include="Data\RegExps\ExpressionType.cs" />
     <Compile Include="Data\RegExps\GrammarExpressionWithOriginal.cs" />
     <Compile Include="Data\RegExps\GrammarExpressionTuple.cs" />

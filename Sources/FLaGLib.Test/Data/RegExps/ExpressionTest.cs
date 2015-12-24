@@ -1,10 +1,8 @@
 ﻿using FLaGLib.Data.RegExps;
-using FLaGLib.Helpers;
 using FLaGLib.Test.TestHelpers;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace FLaGLib.Test.Data.RegExps
 {
@@ -197,60 +195,6 @@ namespace FLaGLib.Test.Data.RegExps
                 d => reports.Add(d));
 
             Assert.Fail("Not Implemented");
-        }
-
-        [Test]
-        public void WalkDataTest()
-        {
-            Symbol symbolA = new Symbol('a');
-            Symbol symbolB = new Symbol('b');
-            Symbol symbolC = new Symbol('c');
-
-            BinaryConcat concat1 = new BinaryConcat(symbolA, symbolB);
-            Iteration iteration1 = new Iteration(concat1, false);
-
-            BinaryConcat concat2 = new BinaryConcat(symbolA, symbolC);
-            Iteration iteration2 = new Iteration(concat2, false);
-            
-            BinaryConcat concat3 = new BinaryConcat(symbolB, symbolC);
-            Iteration iteration3 = new Iteration(concat3, false);
-
-            BinaryUnion union1 = new BinaryUnion(iteration1, iteration2);
-            BinaryUnion union2 = new BinaryUnion(union1, iteration3);
-
-            IReadOnlyList<WalkData<Expression>> actual = union2.WalkData;
-            IReadOnlyList<WalkData<Expression>> expected = EnumerateHelper.Sequence<WalkData<Expression>>(
-                new WalkData<Expression>(WalkStatus.Begin, 14, union2),
-                new WalkData<Expression>(WalkStatus.Begin, 13, union1),
-                new WalkData<Expression>(WalkStatus.Begin, 10, iteration1),
-                new WalkData<Expression>(WalkStatus.Begin, 7, concat1),
-                new WalkData<Expression>(WalkStatus.Begin, 1, symbolA),
-                new WalkData<Expression>(WalkStatus.End, 1, symbolA),
-                new WalkData<Expression>(WalkStatus.Begin, 2, symbolB),
-                new WalkData<Expression>(WalkStatus.End, 2, symbolB),
-                new WalkData<Expression>(WalkStatus.End, 7, concat1),
-                new WalkData<Expression>(WalkStatus.End, 10, iteration1),
-                new WalkData<Expression>(WalkStatus.Begin, 11, iteration2),
-                new WalkData<Expression>(WalkStatus.Begin, 8, concat2),
-                new WalkData<Expression>(WalkStatus.Begin, 3, symbolA),
-                new WalkData<Expression>(WalkStatus.End, 3, symbolA),
-                new WalkData<Expression>(WalkStatus.Begin, 4, symbolC),
-                new WalkData<Expression>(WalkStatus.End, 4, symbolC),
-                new WalkData<Expression>(WalkStatus.End, 8, concat2),
-                new WalkData<Expression>(WalkStatus.End, 11, iteration2),
-                new WalkData<Expression>(WalkStatus.End, 13, union1),
-                new WalkData<Expression>(WalkStatus.Begin, 12, iteration3),
-                new WalkData<Expression>(WalkStatus.Begin, 9, concat3),
-                new WalkData<Expression>(WalkStatus.Begin, 5, symbolB),
-                new WalkData<Expression>(WalkStatus.End, 5, symbolB),
-                new WalkData<Expression>(WalkStatus.Begin, 6, symbolC),
-                new WalkData<Expression>(WalkStatus.End, 6, symbolC),
-                new WalkData<Expression>(WalkStatus.End, 9, concat3),
-                new WalkData<Expression>(WalkStatus.End, 12, iteration3),
-                new WalkData<Expression>(WalkStatus.End, 14, union2)
-                ).ToList().AsReadOnly();
-
-            CollectionAssert.AreEqual(expected, actual);
         }
 
         [Test]

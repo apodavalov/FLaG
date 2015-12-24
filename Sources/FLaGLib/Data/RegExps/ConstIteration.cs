@@ -4,7 +4,6 @@ using FLaGLib.Extensions;
 using FLaGLib.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace FLaGLib.Data.RegExps
@@ -212,11 +211,6 @@ namespace FLaGLib.Data.RegExps
         protected override bool GetIsRegularSet()
         {
             return false;
-        }
-
-        protected override IReadOnlyList<Expression> GetDirectDependencies()
-        {
-            return EnumerateHelper.Sequence(Expression).ToList().AsReadOnly();
         }
 
         internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,

@@ -1,6 +1,6 @@
 ﻿namespace FLaGLib.Helpers
 {
-    public enum WalkStatus
+    enum WalkStatus
     {
         Begin,
         End
