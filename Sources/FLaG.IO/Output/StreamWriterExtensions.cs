@@ -11,6 +11,184 @@ namespace FLaG.IO.Output
 {
     public static class StreamWriterExtensions
     {
+        public static void WriteExpressionEx(this StreamWriter writer, RegExps.Expression expression)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression));
+            }
+
+            IReadOnlyList<RegExps.DependencyCollection> dependencyMap = expression.DependencyMap;
+
+            WriteExpressionEx(writer, dependencyMap, dependencyMap.Count - 1);
+        }
+
+        private static void WriteExpressionEx(StreamWriter writer, IReadOnlyList<RegExps.DependencyCollection> dependencyMap, int index)
+        {
+            writer.Write(@"\underbrace{");
+
+            RegExps.Expression expression = dependencyMap[index].Expression;
+
+            switch (expression.ExpressionType)
+            {
+                case RegExps.ExpressionType.Concat:
+                    WriteConcatEx(writer, (RegExps.Concat)expression, dependencyMap, index);
+                    break;
+                case RegExps.ExpressionType.BinaryConcat:
+                    WriteBinaryConcatEx(writer, (RegExps.BinaryConcat)expression, dependencyMap, index);
+                    break;
+                case RegExps.ExpressionType.Union:
+                    WriteUnionEx(writer, (RegExps.Union)expression, dependencyMap, index);
+                    break;
+                case RegExps.ExpressionType.BinaryUnion:
+                    WriteBinaryUnionEx(writer, (RegExps.BinaryUnion)expression, dependencyMap, index);
+                    break;
+                case RegExps.ExpressionType.Symbol:
+                    WriteSymbolEx(writer, (RegExps.Symbol)expression, dependencyMap, index);
+                    break;
+                case RegExps.ExpressionType.Iteration:
+                    WriteIterationEx(writer, (RegExps.Iteration)expression, dependencyMap, index);
+                    break;
+                case RegExps.ExpressionType.ConstIteration:
+                    WriteConstIterationEx(writer, (RegExps.ConstIteration)expression, dependencyMap, index);
+                    break;
+                case RegExps.ExpressionType.Empty:
+                    WriteEmptyEx(writer, (RegExps.Empty)expression, dependencyMap, index);
+                    break;
+                default:
+                    throw new InvalidOperationException(string.Format("The expression type {0} is not supported.", expression.ExpressionType));
+            }
+
+            writer.Write(@"}_\text{");
+            writer.WriteLatex((index + 1).ToString());
+            writer.Write(@"}");
+        }
+
+        private static void WriteEmptyEx(StreamWriter writer, RegExps.Empty empty, IReadOnlyList<RegExps.DependencyCollection> dependencyMap, int index)
+        {
+            writer.Write(@"{\varepsilon}");
+        }
+
+        private static void WriteConstIterationEx(StreamWriter writer, RegExps.ConstIteration constIteration, IReadOnlyList<RegExps.DependencyCollection> dependencyMap, int index)
+        {
+            bool needBrackets = constIteration.Expression.Priority >= constIteration.Priority;
+
+            if (needBrackets)
+            {
+                writer.Write(@"\left(");
+            }
+
+            WriteExpressionEx(writer, dependencyMap, dependencyMap[index].Single());
+
+            if (needBrackets)
+            {
+                writer.Write(@"\right)");
+            }
+
+            writer.Write("^");
+            writer.Write("{");
+            writer.WriteLatex(constIteration.IterationCount.ToString());
+            writer.Write("}");
+        }
+
+        private static void WriteIterationEx(StreamWriter writer, RegExps.Iteration iteration, IReadOnlyList<RegExps.DependencyCollection> dependencyMap, int index)
+        {
+            bool needBrackets = iteration.Expression.Priority >= iteration.Priority;
+
+            if (needBrackets)
+            {
+                writer.Write(@"\left(");
+            }
+
+            WriteExpressionEx(writer, dependencyMap, dependencyMap[index].Single());
+
+            if (needBrackets)
+            {
+                writer.Write(@"\right)");
+            }
+
+            writer.Write("^");
+            writer.Write("{");
+
+            if (iteration.IsPositive)
+            {
+                writer.Write("+");
+            }
+            else
+            {
+                writer.Write("*");
+            }
+
+            writer.Write("}");
+        }
+
+        private static void WriteSymbolEx(StreamWriter writer, RegExps.Symbol symbol, IReadOnlyList<RegExps.DependencyCollection> dependencyMap, int index)
+        {
+            writer.WriteLatex(symbol.Character.ToString());
+        }
+
+        private static void WriteBinaryUnionEx(StreamWriter writer, RegExps.BinaryUnion binaryUnion, IReadOnlyList<RegExps.DependencyCollection> dependencyMap, int index)
+        {
+            WriteExpressionsEx(writer, dependencyMap, index, " + ");
+        }
+
+        private static void WriteBinaryConcatEx(StreamWriter writer, RegExps.BinaryConcat binaryConcat, IReadOnlyList<RegExps.DependencyCollection> dependencyMap, int index)
+        {
+            WriteExpressionsEx(writer, dependencyMap, index, @" \cdot ");
+        }
+
+        private static void WriteExpressionsEx(StreamWriter writer, IReadOnlyList<RegExps.DependencyCollection> dependencyMap, int index, string separator)
+        {
+            RegExps.DependencyCollection dependencies = dependencyMap[index];
+
+            bool first = true;
+
+            foreach (int i in dependencies)
+            {
+                RegExps.DependencyCollection currentDependencies = dependencyMap[i];
+
+                bool needBrackets;
+
+                if (first)
+                {
+                    needBrackets = currentDependencies.Expression.Priority > dependencies.Expression.Priority;
+                    first = false;
+                }
+                else
+                {
+                    needBrackets = currentDependencies.Expression.Priority >= dependencies.Expression.Priority;
+                    writer.Write(separator);
+                }
+
+                if (needBrackets)
+                {
+                    writer.Write(@"\left(");
+                }
+
+                WriteExpressionEx(writer, dependencyMap, i);
+
+                if (needBrackets)
+                {
+                    writer.Write(@"\right)");
+                }
+            }
+        }
+
+        private static void WriteUnionEx(StreamWriter writer, RegExps.Union union, IReadOnlyList<RegExps.DependencyCollection> dependencyMap, int index)
+        {
+            throw new NotSupportedException();
+        }
+
+        private static void WriteConcatEx(StreamWriter writer, RegExps.Concat concat, IReadOnlyList<RegExps.DependencyCollection> dependencyMap, int index)
+        {
+            throw new NotSupportedException();
+        }
+
         public static void WriteExpression(this StreamWriter writer, RegExps.Expression expression, bool writeDots = false)
         {
             if (writer == null)

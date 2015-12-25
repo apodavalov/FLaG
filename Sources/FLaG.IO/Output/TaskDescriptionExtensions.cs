@@ -117,7 +117,7 @@ namespace FLaG.IO.Output
             writer.WriteLatex(_OriginalExpression);
             writer.WriteLine(@"}");
             writer.WriteLine(@"\begin{split}");
-            writer.WriteExpression(expression);
+            writer.WriteExpressionEx(expression);
             writer.WriteLine();
             writer.WriteLine(@"\end{split}");
             writer.WriteLine(@"\end{equation}");
@@ -191,7 +191,7 @@ namespace FLaG.IO.Output
         {            
             writer.Write(@"\item Регулярное множество вида ");
             writer.Write(@"\begin{math}");
-            writer.WriteExpression(languagePostReport.New.Expression);
+            writer.WriteExpression(languagePostReport.New.Expression, true);
             writer.Write(@"\end{math}");
             writer.Write(@", которое является ");
             WriteExpressionTypeInAblative(writer, languagePostReport.New.Expression.ExpressionType);
