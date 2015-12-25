@@ -243,14 +243,14 @@ namespace FLaG.IO.Output
 
             if (needBrackets)
             {
-                writer.Write("(");
+                writer.Write(@"\left(");
             }
 
             WriteExpression(writer, constIteration.Expression, writeDots);
 
             if (needBrackets)
             {
-                writer.Write(")");
+                writer.Write(@"\right)");
             }
 
             writer.Write("^");
@@ -265,14 +265,14 @@ namespace FLaG.IO.Output
 
             if (needBrackets)
             {
-                writer.Write("(");
+                writer.Write(@"\left(");
             }
 
             WriteExpression(writer, iteration.Expression, writeDots);
 
             if (needBrackets)
             {
-                writer.Write(")");
+                writer.Write(@"\right)");
             }
 
             writer.Write("^");
@@ -309,12 +309,12 @@ namespace FLaG.IO.Output
 
         public static void WriteBinaryConcat(StreamWriter writer, RegExps.BinaryConcat binaryConcat, bool writeDots)
         {
-            WriteExpressions(writer, RegExps.ConcatHelper.Iterate(binaryConcat), string.Empty, binaryConcat.Priority, writeDots);
+            WriteExpressions(writer, RegExps.ConcatHelper.Iterate(binaryConcat), writeDots ? @" \cdot " : string.Empty, binaryConcat.Priority, writeDots);
         }
 
         public static void WriteConcat(StreamWriter writer, RegExps.Concat concat, bool writeDots)
         {
-            WriteExpressions(writer, RegExps.ConcatHelper.Iterate(concat), writeDots ? @" \cdot ": string.Empty, concat.Priority, writeDots);
+            WriteExpressions(writer, RegExps.ConcatHelper.Iterate(concat), writeDots ? @" \cdot " : string.Empty, concat.Priority, writeDots);
         }
 
         private static void WriteExpressions(StreamWriter writer, IEnumerable<RegExps.Expression> expressions, string separator, int priority, bool writeDots)
@@ -338,14 +338,14 @@ namespace FLaG.IO.Output
 
                 if (needBrackets)
                 {
-                    writer.Write("(");
+                    writer.Write(@"\left(");
                 }
 
                 WriteExpression(writer, expression, writeDots);
 
                 if (needBrackets)
                 {
-                    writer.Write(")");
+                    writer.Write(@"\right)");
                 }
             }
         }
@@ -402,14 +402,14 @@ namespace FLaG.IO.Output
 
             if (needBrackets)
             {
-                writer.Write("(");
+                writer.Write(@"\left(");
             }
 
             WriteEntity(writer, degree.Entity);
 
             if (needBrackets)
             {
-                writer.Write(")");
+                writer.Write(@"\right)");
             }
 
             writer.Write("^");
@@ -449,14 +449,14 @@ namespace FLaG.IO.Output
 
                 if (needBrackets)
                 {
-                    writer.Write("(");
+                    writer.Write(@"\left(");
                 }
 
                 WriteEntity(writer, entity);
 
                 if (needBrackets)
                 {
-                    writer.Write(")");
+                    writer.Write(@"\right)");
                 }
             }
         }
