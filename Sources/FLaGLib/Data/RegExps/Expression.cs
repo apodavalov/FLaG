@@ -113,7 +113,7 @@ namespace FLaGLib.Data.RegExps
         private ILookup<int,int> GetDependencyIndexMap()
         {
             Stack<int> stack = new Stack<int>();
-            IDictionary<int, ISet<int>> dependencyMap = new Dictionary<int, ISet<int>>();
+            IDictionary<int, IList<int>> dependencyMap = new Dictionary<int, IList<int>>();
 
             foreach (WalkData<Expression> data in _WalkData.Value)
             {
@@ -126,7 +126,7 @@ namespace FLaGLib.Data.RegExps
                         {
                             int index = stack.Peek();
 
-                            ISet<int> set;
+                            IList<int> set;
 
                             if (dependencyMap.ContainsKey(index))
                             {
@@ -134,7 +134,7 @@ namespace FLaGLib.Data.RegExps
                             }
                             else
                             {
-                                dependencyMap[index] = set = new HashSet<int>();
+                                dependencyMap[index] = set = new List<int>();
                             }
 
                             set.Add(dependencyIndex);
@@ -149,7 +149,7 @@ namespace FLaGLib.Data.RegExps
                 }
             }
 
-            return dependencyMap.ToLookup<int, int, ISet<int>>();
+            return dependencyMap.ToLookup<int, int, IList<int>>();
         }
 
         internal static void CheckDependencies<T>(T[] dependencies, int expectedCount)
@@ -176,7 +176,7 @@ namespace FLaGLib.Data.RegExps
             ILookup<int, int> map = GetDependencyIndexMap();
             IReadOnlyList<Expression> subexpressions = GetSubexpressionsInCalculateOrder();
 
-            return subexpressions.Select((e, i) => new DependencyCollection(e, map[i].ToSortedSet())).ToList().AsReadOnly();
+            return subexpressions.Select((e, i) => new DependencyCollection(e, map[i].ToList())).ToList().AsReadOnly();
         }
 
         internal abstract GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber, 

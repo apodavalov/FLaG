@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace FLaGLib.Data.RegExps
 {
-    public class DependencyCollection : ReadOnlySet<int>
+    public class DependencyCollection : ReadOnlyList<int>
     {
         public Expression Expression
         {
@@ -12,7 +12,7 @@ namespace FLaGLib.Data.RegExps
             private set;
         }
 
-        internal DependencyCollection(Expression expression, ISet<int> dependencyIndices) : base(dependencyIndices)
+        internal DependencyCollection(Expression expression, IList<int> dependencyIndices) : base(dependencyIndices)
         {
             if (expression == null)
             {
