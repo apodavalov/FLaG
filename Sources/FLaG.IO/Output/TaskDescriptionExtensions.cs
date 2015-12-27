@@ -12,7 +12,8 @@ namespace FLaG.IO.Output
     public static class TaskDescriptionExtensions
     {
         private const string _OriginalLanguageLabel = "originalLanguage";
-        private const string _OriginalExpression = "originalExpression";
+        private const string _OriginalRegularSetLabel = "originalRegularSet";
+        private const string _OriginalRegularExpressionLabel = "originalRegularExpression";
 
         public static void Solve(this TaskDescription taskDescription, string baseTexFileName)
         {
@@ -39,7 +40,7 @@ namespace FLaG.IO.Output
 
             Expression expression = WriteCheckLanguageType(writer, language);
 
-            //WriteConvertToExpression(streamWriter, language, expression);
+            WriteConvertToExpression(writer, expression);
 
             //Tuple<StateMachine, int> leftGrammarStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName, GrammarType.Left);
             //Tuple<StateMachine, int> rightGrammarStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName, GrammarType.Right);
@@ -62,9 +63,8 @@ namespace FLaG.IO.Output
             writer.WriteLine(@"\section{Задание}");
             writer.WriteLine(@"Задан язык:");
             writer.Write(@"\begin{equation}");
-            writer.Write(@"\label{eq:");
-            writer.WriteLatex(_OriginalLanguageLabel);
-            writer.WriteLine(@"}");
+            WriteEquationLabel(writer, _OriginalLanguageLabel);
+            writer.WriteLine();
             writer.WriteLine(@"\begin{split}");
             writer.Write(@"L &= ");
             writer.WriteLanguage(language);
@@ -100,9 +100,39 @@ namespace FLaG.IO.Output
             throw new NotImplementedException();
         }
 
-        private static void WriteConvertToExpression(StreamWriter writer, Entity language, Expression expression)
+        private static void WriteConvertToExpression(StreamWriter writer, Expression expression)
         {
-            throw new NotImplementedException();
+            writer.WriteLine(@"\section{Этап 2}");
+            writer.WriteLine(@"\subsection{Этап 2.1}");
+            writer.Write(@"Выражение ");
+            WriteEquationRef(writer,_OriginalRegularSetLabel);
+            writer.WriteLine(" уже представляет регулярное множество.");
+            writer.WriteLine(@"\subsection{Этап 2.2}");
+            writer.Write(@"Регулярное выражение для множества ");
+            WriteEquationRef(writer, _OriginalRegularSetLabel);
+            writer.WriteLine(@" примет вид");
+            writer.Write(@"\begin{equation}");
+            WriteEquationLabel(writer, _OriginalRegularExpressionLabel);
+            writer.WriteLine();
+            writer.WriteLine(@"\begin{split}");
+            writer.WriteExpression(expression, true);
+            writer.WriteLine();
+            writer.WriteLine(@"\end{split}");
+            writer.WriteLine(@"\end{equation}.");
+        }
+
+        private static void WriteEquationLabel(StreamWriter writer, string uniqueId)
+        {
+            writer.Write(@"\label{eq:");
+            writer.WriteLatex(uniqueId);
+            writer.Write(@"}");
+        }
+
+        private static void WriteEquationRef(StreamWriter writer, string uniqueId)
+        {
+            writer.Write(@"(\ref{eq:");
+            writer.WriteLatex(uniqueId);
+            writer.Write(@"})");
         }
 
         private static Expression WriteCheckLanguageType(StreamWriter writer, Entity language)
@@ -113,9 +143,8 @@ namespace FLaG.IO.Output
             writer.WriteLine(@"Докажем, что язык является регулярным, используя свойство замкнутости.");
             writer.WriteLine(@"Для этого представим язык в виде регулярного множества.");
             writer.Write(@"\begin{equation}");
-            writer.Write(@"\label{eq:");
-            writer.WriteLatex(_OriginalExpression);
-            writer.WriteLine(@"}");
+            WriteEquationLabel(writer, _OriginalRegularSetLabel);
+            writer.WriteLine();
             writer.WriteLine(@"\begin{split}");
             writer.WriteExpressionEx(expression,true);
             writer.WriteLine();
