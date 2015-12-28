@@ -1,10 +1,14 @@
 ﻿using FLaG.IO.Input;
+using FLaGLib.Collections;
+using FLaGLib.Data;
 using FLaGLib.Data.Grammars;
 using FLaGLib.Data.Languages;
 using FLaGLib.Data.RegExps;
 using FLaGLib.Data.StateMachines;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace FLaG.IO.Output
@@ -14,6 +18,8 @@ namespace FLaG.IO.Output
         private const string _OriginalLanguageLabel = "originalLanguage";
         private const string _OriginalRegularSetLabel = "originalRegularSet";
         private const string _OriginalRegularExpressionLabel = "originalRegularExpression";
+        private const string _RussianCaseIsNotSupportedMessage = "Russian case type {0} is not supported.";
+        private const string _OriginalRegularExpressionExpandedLabel = "originalRegularExpressionExpanded";
 
         public static void Solve(this TaskDescription taskDescription, string baseTexFileName)
         {
@@ -42,20 +48,20 @@ namespace FLaG.IO.Output
 
             WriteConvertToExpression(writer, expression);
 
-            //Tuple<StateMachine, int> leftGrammarStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName, GrammarType.Left);
-            //Tuple<StateMachine, int> rightGrammarStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName, GrammarType.Right);
-            //Tuple<StateMachine, int> expressionStateMachine = ConvertToStateMachine(streamWriter, diagramCounter, expression, baseFullFileName);
+            Tuple<StateMachine, int> leftGrammarStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, GrammarType.Left);
+            Tuple<StateMachine, int> rightGrammarStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, GrammarType.Right);
+            //Tuple<StateMachine, int> expressionStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName);
 
-            //leftGrammarStateMachine = OptimizeStateMachine(streamWriter, diagramCounter, leftGrammarStateMachine, baseFullFileName);
-            //rightGrammarStateMachine = OptimizeStateMachine(streamWriter, diagramCounter, rightGrammarStateMachine, baseFullFileName);
-            //expressionStateMachine = OptimizeStateMachine(streamWriter, diagramCounter, expressionStateMachine, baseFullFileName);
+            //leftGrammarStateMachine = OptimizeStateMachine(writer, diagramCounter, leftGrammarStateMachine, baseFullFileName);
+            //rightGrammarStateMachine = OptimizeStateMachine(writer, diagramCounter, rightGrammarStateMachine, baseFullFileName);
+            //expressionStateMachine = OptimizeStateMachine(writer, diagramCounter, expressionStateMachine, baseFullFileName);
 
-            //Expression leftGrammarExpression = ConvertToExpression(streamWriter, leftGrammarStateMachine, expression, GrammarType.Left);
-            //Expression rightGrammarExpression = ConvertToExpression(streamWriter, rightGrammarStateMachine, expression, GrammarType.Right);
-            //Expression leftStateMachineExpression = ConvertToExpression(streamWriter, expressionStateMachine, expression, GrammarType.Left);
-            //Expression rightStateMachineExpression = ConvertToExpression(streamWriter, expressionStateMachine, expression, GrammarType.Right);
+            //Expression leftGrammarExpression = ConvertToExpression(writer, leftGrammarStateMachine, expression, GrammarType.Left);
+            //Expression rightGrammarExpression = ConvertToExpression(writer, rightGrammarStateMachine, expression, GrammarType.Right);
+            //Expression leftStateMachineExpression = ConvertToExpression(writer, expressionStateMachine, expression, GrammarType.Left);
+            //Expression rightStateMachineExpression = ConvertToExpression(writer, expressionStateMachine, expression, GrammarType.Right);
 
-            //ConvertToEntity(streamWriter, expression, language);
+            //ConvertToEntity(writer, expression, language);
         }
 
         private static void WriteTask(StreamWriter writer, Entity language)
@@ -67,7 +73,7 @@ namespace FLaG.IO.Output
             writer.WriteLine();
             writer.WriteLine(@"\begin{split}");
             writer.Write(@"L &= ");
-            writer.WriteLanguage(language);
+            WriteLanguage(writer, language);
             writer.WriteLine();
             writer.WriteLine(@"\end{split}");
             writer.Write(@"\end{equation}");
@@ -97,7 +103,399 @@ namespace FLaG.IO.Output
         private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter writer, Counter diagramCounter,
             Expression expression, string baseFullFileName, GrammarType grammarType)
         {
-            throw new NotImplementedException();
+            WriteSection(writer, grammarType, "Этап 2.3");
+
+            Tuple<Grammar,int> grammar = ConvertToGrammar(writer, expression, grammarType);
+
+            return null;
+        }
+
+        private static Tuple<Grammar,int> ConvertToGrammar(StreamWriter writer, Expression expression, GrammarType grammarType)
+        {
+            WriteSection(writer, grammarType, "Этап 2.3.1",1);
+            writer.Write("Построим ");
+            writer.WriteLatex(GetGrammarTypeRussianName(grammarType, RussianCaseType.Accusative));
+            writer.Write(" грамматику для выражения ");
+            WriteEquationRef(writer, _OriginalRegularExpressionLabel);
+            writer.Write(". Воспользуемся рекурсивным определением регулярного выражения для построения последовательности ");
+            writer.WriteLatex(GetGrammarTypeRussianName(grammarType, RussianCaseType.Genitive, false));
+            writer.Write(" грамматик для каждого элементарного выражения, входящих в состав выражения ");
+            WriteEquationRef(writer, _OriginalRegularExpressionLabel);
+            writer.Write(". Собственно последняя грамматика и будет являться искомой. Определим совокупность выражений, ");
+            writer.Write("входящих в состав ");
+            WriteEquationRef(writer, _OriginalRegularExpressionLabel);
+            writer.WriteLine();
+            writer.WriteLine();
+            writer.Write(@"\begin{equation}");
+            WriteEquationLabel(writer, _OriginalRegularExpressionExpandedLabel, grammarType);
+            writer.WriteLine();
+            writer.WriteLine(@"\begin{split}");
+            WriteExpressionEx(writer, expression);
+            writer.WriteLine();
+            writer.WriteLine(@"\end{split}");
+            writer.WriteLine(@"\end{equation}");
+            writer.WriteLine();
+            writer.Write(@"Построим ");
+            writer.WriteLatex(GetGrammarTypeRussianName(grammarType, RussianCaseType.Accusative,false));
+            writer.Write(" грамматики для указанных выражений. Каждую грамматику будем нумеровать по номеру выражения, ");
+            writer.WriteLine("для которого строится данная грамматика.");
+            writer.WriteLine();
+
+            writer.WriteLine(@"\begin{enumerate}");
+
+            int grammarNumber = -1;
+
+            Grammar grammar = expression.MakeGrammar(grammarType, g => grammarNumber = OnGrammarPostReport(writer, g));
+
+            writer.WriteLine(@"\end{enumerate}");
+
+            return new Tuple<Grammar, int>(grammar, grammarNumber);
+        }
+
+        private static int OnGrammarPostReport(StreamWriter writer, GrammarPostReport grammarPostReport)
+        {
+            writer.Write(@"\item ");
+            writer.Write("Для выражения вида ");
+            writer.Write(@"\begin{math}");
+            WriteExpression(writer, grammarPostReport.New.Expression, true);
+            writer.Write(@"\end{math}, являющегося ");
+            writer.WriteLatex(GetExpressionTypeRussianName(grammarPostReport.New.Expression.ExpressionType, RussianCaseType.Ablative));
+
+            if (grammarPostReport.Dependencies.Count > 0)
+            {
+                if (grammarPostReport.Dependencies.Count < 2)
+                {
+                    writer.Write(" выражения с построенной грамматикой ");
+                }
+                else
+                {
+                    writer.Write(" выражений с построенными грамматиками ");
+                }
+
+                bool first = true;
+
+                foreach (GrammarExpressionWithOriginal dependency in grammarPostReport.Dependencies)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        writer.Write(", ");
+                    }
+
+                    writer.Write(@"\begin{math}");
+                    WriteGrammarSign(writer, dependency.GrammarExpression.Number);
+                    writer.Write(@"\end{math}");
+
+                    if (dependency.OriginalGrammarExpression != null)
+                    {
+                        writer.Write(" (построена из грамматики ");
+                        writer.Write(@"\begin{math}");
+                        WriteGrammarSign(writer, dependency.OriginalGrammarExpression.Number);
+                        writer.Write(@"\end{math}");
+                        writer.Write(@" путем соответствующей замены индексов)");
+                    }
+                }
+
+            }
+
+            writer.Write(", построим грамматику ");
+            writer.Write(@"\begin{math}");
+            WriteGrammarTuple(writer, grammarPostReport.New.Number);
+            writer.Write(@"\end{math}, где ");
+
+            writer.Write(@"\begin{math}");
+            WriteNonTerminalSetSign(writer, grammarPostReport.New.Number);
+            writer.Write(" = ");
+            WriteNonTerminalSet(writer, grammarPostReport.New.Grammar.NonTerminals);
+            writer.Write(@"\end{math} --- множество нетерминальных символов грамматики, ");
+
+            writer.Write(@"\begin{math}");
+            WriteTerminalSetSign(writer, grammarPostReport.New.Number);
+            writer.Write(" = ");
+            WriteTerminalSet(writer, grammarPostReport.New.Grammar.Alphabet);
+            writer.Write(@"\end{math} --- множество терминальных символов (алфавит) грамматики, ");
+
+            writer.Write(@"\begin{math}");
+            WriteRuleSetSign(writer, grammarPostReport.New.Number);
+            writer.Write(" = ");
+            WriteRuleSet(writer, grammarPostReport.New.Grammar.Rules);
+            writer.Write(@"\end{math} --- множество правил вывода для данной грамматики, ");
+
+            writer.Write(@"\begin{math}");
+            WriteTargetNonTerminalSign(writer, grammarPostReport.New.Number);
+            writer.Write(" = ");
+            WriteNonTerminal(writer, grammarPostReport.New.Grammar.Target);
+            writer.Write(@"\end{math} --- целевой символ грамматики ");
+
+            writer.Write(@"\begin{math}");
+            WriteGrammarSign(writer, grammarPostReport.New.Number);
+            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine();
+
+            return grammarPostReport.New.Number;
+        }
+
+        private static void WriteNonTerminal(StreamWriter writer, NonTerminalSymbol nonTerminal)
+        {
+            WriteLabel(writer, nonTerminal.Label);
+        }
+
+        private static void WriteRuleSet(StreamWriter writer, IEnumerable<Rule> rules)
+        { 
+            bool first = true;
+
+            if (rules.Any())
+            {
+                writer.Write(@"\{");
+
+                foreach (Rule rule in rules)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        writer.Write(", ");
+                    }
+
+                    WriteRule(writer, rule);
+                }
+
+                writer.Write(@"\}");
+            }
+            else
+            {
+                writer.Write(@"{\varnothing}");
+            }
+        }
+
+        private static void WriteRule(StreamWriter writer, Rule rule)
+        {
+            WriteNonTerminal(writer, rule.Target);
+
+            writer.Write(@" \rightarrow ");
+
+            WriteChainSet(writer, rule.Chains);
+        }
+
+        private static void WriteChainSet(StreamWriter writer, IEnumerable<Chain> chains)
+        {
+            bool first = true;
+
+            foreach (Chain chain in chains)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    writer.Write(@" \mid ");
+                }
+
+                WriteChain(writer, chain);
+            }
+        }
+
+        private static void WriteChain(StreamWriter writer, Chain chain)
+        {
+            if (chain.Any())
+            {
+                foreach (FLaGLib.Data.Grammars.Symbol symbol in chain)
+                {
+                    WriteSymbol(writer, symbol);
+                }
+            }
+            else
+            {
+                writer.Write(@"{\varepsilon}");
+            }
+        }
+
+        private static void WriteSymbol(StreamWriter writer, FLaGLib.Data.Grammars.Symbol symbol)
+        {
+            switch (symbol.SymbolType)
+            {
+                case SymbolType.NonTerminal:
+                    WriteNonTerminal(writer, (NonTerminalSymbol)symbol);
+                    break;
+                case SymbolType.Terminal:
+                    WriteTerminal(writer, (TerminalSymbol)symbol);
+                    break;
+                default:
+                    throw new InvalidOperationException(string.Format("Symbol type {0} is not supported.", symbol.SymbolType));
+            }
+        }
+
+        private static void WriteTerminal(StreamWriter writer, TerminalSymbol symbol)
+        {
+            writer.WriteLatex(symbol.Symbol.ToString());
+        }
+
+        private static void WriteNonTerminalSet(StreamWriter writer, IEnumerable<NonTerminalSymbol> nonTerminals)
+        {
+            bool first = true;
+
+            if (nonTerminals.Any())
+            {
+                writer.Write(@"\{");
+
+                foreach (NonTerminalSymbol nonTerminal in nonTerminals)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        writer.Write(", ");
+                    }
+
+                    WriteNonTerminal(writer, nonTerminal);
+                }
+
+                writer.Write(@"\}");
+            }
+            else
+            {
+                writer.Write(@"{\varnothing}");
+            }
+        }
+
+        private static void WriteTerminalSet(StreamWriter writer, IEnumerable<TerminalSymbol> terminals)
+        {
+            bool first = true;
+
+            if (terminals.Any())
+            {
+                writer.Write(@"\{");
+
+                foreach (TerminalSymbol terminal in terminals)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        writer.Write(", ");
+                    }
+
+                    WriteTerminal(writer, terminal);
+                }
+
+                writer.Write(@"\}");
+            }
+            else
+            {
+                writer.Write(@"{\varnothing}");
+            }
+        }
+
+        private static void WriteLabel(StreamWriter writer, Label label)
+        {
+            foreach (SingleLabel singleLabel in label.Sublabels)
+            {
+                WriteSingleLabel(writer, singleLabel);
+            }
+        }
+
+        private static void WriteSingleLabel(StreamWriter writer, SingleLabel singleLabel)
+        {
+            WriteSymbol(writer, singleLabel.Sign.ToString(), singleLabel.SignIndex);
+        }
+
+        private static void WriteGrammarSign(StreamWriter writer, int? number)
+        {
+            WriteSymbol(writer, "G", number);
+        }
+
+        private static void WriteNonTerminalSetSign(StreamWriter writer, int? number)
+        {
+            WriteSymbol(writer, "N", number);
+        }
+
+        private static void WriteRuleSetSign(StreamWriter writer, int? number)
+        {
+            WriteSymbol(writer, "P", number);
+        }
+
+        private static void WriteTerminalSetSign(StreamWriter writer, int? number)
+        {
+            WriteSymbol(writer, @"\Sigma", number);
+        }
+
+        private static void WriteTargetNonTerminalSign(StreamWriter writer, int? number)
+        {
+            WriteSymbol(writer, "S", number);
+        }
+
+        private static void WriteGrammarTuple(StreamWriter writer, int? number)
+        {
+            WriteGrammarSign(writer, number);
+            writer.Write(@"=\left(");
+            WriteNonTerminalSetSign(writer, number);
+            writer.Write(", ");
+            WriteTerminalSetSign(writer, number);
+            writer.Write(", ");
+            WriteRuleSetSign(writer, number);
+            writer.Write(", ");
+            WriteTargetNonTerminalSign(writer, number);
+            writer.Write(@"\right)");
+        }
+
+        private static void WriteSymbol(StreamWriter writer, string symbol, int? value)
+        {
+            writer.Write("{");
+            writer.Write("{");
+            writer.Write(symbol);
+            writer.Write("}");
+
+            if (value != null)
+            {
+                writer.Write("_{");
+                writer.WriteLatex(value.Value.ToString());
+                writer.Write("}");
+            }
+
+            writer.Write("}");
+        }
+
+
+        private static void WriteSection(StreamWriter writer, string title, string subtitle = null, int subcount = 0)
+        {
+            writer.Write(@"\");
+
+            for (int i = 0; i < subcount; i++)
+            {
+                writer.Write("sub");
+            }
+
+            writer.Write("section{");
+            writer.WriteLatex(title);
+
+            if (!string.IsNullOrEmpty(subtitle))
+            {
+                writer.Write(" (");
+                writer.Write(subtitle);
+                writer.Write(")");
+            }
+
+            writer.WriteLine("}");
+        }
+
+        private static void WriteSection(StreamWriter writer, GrammarType grammarType, string title, int subcount = 0)
+        {
+            WriteSection(writer, title, GetGrammarTypeRussianName(grammarType), subcount);
+        }
+
+        private static void WriteRegexSection(StreamWriter writer, string title, int subcount = 0)
+        {
+            WriteSection(writer, title, "регулярное выражение", subcount);
         }
 
         private static void WriteConvertToExpression(StreamWriter writer, Expression expression)
@@ -115,10 +513,24 @@ namespace FLaG.IO.Output
             WriteEquationLabel(writer, _OriginalRegularExpressionLabel);
             writer.WriteLine();
             writer.WriteLine(@"\begin{split}");
-            writer.WriteExpression(expression, true);
+            WriteExpression(writer, expression, true);
             writer.WriteLine();
             writer.WriteLine(@"\end{split}");
             writer.WriteLine(@"\end{equation}.");
+        }
+
+        private static void WriteEquationLabel(StreamWriter writer, string uniqueId, GrammarType grammarType)
+        {
+            writer.Write(@"\label{eq:");
+            writer.WriteLatex(string.Concat(uniqueId,grammarType.ToString()));
+            writer.Write(@"}");
+        }
+
+        private static void WriteEquationRef(StreamWriter writer, string uniqueId, GrammarType grammarType)
+        {
+            writer.Write(@"(\ref{eq:");
+            writer.WriteLatex(string.Concat(uniqueId,grammarType.ToString()));
+            writer.Write(@"})");
         }
 
         private static void WriteEquationLabel(StreamWriter writer, string uniqueId)
@@ -146,12 +558,12 @@ namespace FLaG.IO.Output
             WriteEquationLabel(writer, _OriginalRegularSetLabel);
             writer.WriteLine();
             writer.WriteLine(@"\begin{split}");
-            writer.WriteExpressionEx(expression,true);
+            WriteExpressionEx(writer, expression, true);
             writer.WriteLine();
             writer.WriteLine(@"\end{split}");
             writer.WriteLine(@"\end{equation}");
 
-            writer.Write(@"\begin{enumerate}");
+            writer.WriteLine(@"\begin{enumerate}");
 
             int lastIteration = -1;
 
@@ -177,32 +589,208 @@ namespace FLaG.IO.Output
             return expression;
         }
 
-        private static void WriteExpressionTypeInAblative(StreamWriter writer, ExpressionType expressionType)
+        private static string GetGrammarTypeRussianName(GrammarType grammarType, RussianCaseType caseType = RussianCaseType.Nominative, bool singular = true)
+        {
+            switch (grammarType)
+            {
+                case GrammarType.Left:
+                    return GetLeftGrammarTypeRussianName(caseType, singular);
+                case GrammarType.Right:
+                    return GetRightGrammarTypeRussianName(caseType, singular);
+                default:
+                    throw new InvalidOperationException(string.Format("Grammar type {0} is not supported.", grammarType));
+
+            }
+        }
+
+        private static string GetRightGrammarTypeRussianName(RussianCaseType caseType, bool singular)
+        {
+            switch (caseType)
+            {
+                case RussianCaseType.Nominative:
+                    return singular ? "праволинейная" : "праволинейные";
+                case RussianCaseType.Genitive:
+                    return singular ? "праволинейной" : "праволинейных";
+                case RussianCaseType.Dative:
+                    return singular ? "праволинейной" : "праволинейным";
+                case RussianCaseType.Accusative:
+                    return singular ? "праволинейную" : "праволинейные";
+                case RussianCaseType.Ablative:
+                    return singular ? "праволинейной" : "праволинейными";
+                case RussianCaseType.Prepositional:
+                    return singular ? "праволинейной" : "праволинейных";
+                default:
+                    throw new InvalidOperationException(string.Format(_RussianCaseIsNotSupportedMessage, caseType));
+            }
+        }
+
+        private static string GetLeftGrammarTypeRussianName(RussianCaseType caseType, bool singular)
+        {
+            switch (caseType)
+            {
+                case RussianCaseType.Nominative:
+                    return singular ? "леволинейная" : "леволинейные";
+                case RussianCaseType.Genitive:
+                    return singular ? "леволинейной" : "леволинейных";
+                case RussianCaseType.Dative:
+                    return singular ? "леволинейной" : "леволинейным";
+                case RussianCaseType.Accusative:
+                    return singular ? "леволинейную" : "леволинейные";
+                case RussianCaseType.Ablative:
+                    return singular ? "леволинейной" : "леволинейными";
+                case RussianCaseType.Prepositional:
+                    return singular ? "леволинейной" : "леволинейных";
+                default:
+                    throw new InvalidOperationException(string.Format(_RussianCaseIsNotSupportedMessage, caseType));
+            }
+        }
+
+        private static string GetConcatRussianName(RussianCaseType russianCaseType, bool singular = true)
+        {
+            switch (russianCaseType)
+            {
+                case RussianCaseType.Nominative:
+                    return singular ? "конкатенация" : "конкатенации";
+                case RussianCaseType.Genitive:
+                    return singular ? "конкатенации" : "конкатенаций";
+                case RussianCaseType.Dative:
+                    return singular ? "конкатенации" : "конкатенациям";
+                case RussianCaseType.Accusative:
+                    return singular ? "конкатенацию" : "конкатенации";
+                case RussianCaseType.Ablative:
+                    return singular ? "конкатенацией" : "конкатенациями";
+                case RussianCaseType.Prepositional:
+                    return singular ? "конкатенации" : "конкатенациях";
+                default:
+                    throw new InvalidOperationException(string.Format(_RussianCaseIsNotSupportedMessage, russianCaseType));
+            }
+        }
+
+        private static string GetUnionRussianName(RussianCaseType russianCaseType, bool singular = true)
+        {
+            switch (russianCaseType)
+            {
+                case RussianCaseType.Nominative:
+                    return singular ? "объединение" : "объединения";
+                case RussianCaseType.Genitive:
+                    return singular ? "объединения" : "объединений";
+                case RussianCaseType.Dative:
+                    return singular ? "объединению" : "объединениям";
+                case RussianCaseType.Accusative:
+                    return singular ? "объединение" : "объединения";
+                case RussianCaseType.Ablative:
+                    return singular ? "объединением" : "объединениями";
+                case RussianCaseType.Prepositional:
+                    return singular ? "объединении" : "объединениях";
+                default:
+                    throw new InvalidOperationException(string.Format(_RussianCaseIsNotSupportedMessage, russianCaseType));
+            }
+        }
+
+        private static string GetIterationRussianName(RussianCaseType russianCaseType, bool singular = true)
+        {
+            switch (russianCaseType)
+            {
+                case RussianCaseType.Nominative:
+                    return singular ? "итерация" : "итерации";
+                case RussianCaseType.Genitive:
+                    return singular ? "итерации" : "итераций";
+                case RussianCaseType.Dative:
+                    return singular ? "итерации" : "итерациям";
+                case RussianCaseType.Accusative:
+                    return singular ? "итерацию" : "итерации";
+                case RussianCaseType.Ablative:
+                    return singular ? "итерацией" : "итерацией";
+                case RussianCaseType.Prepositional:
+                    return singular ? "итерации" : "итерациях";
+                default:
+                    throw new InvalidOperationException(string.Format(_RussianCaseIsNotSupportedMessage, russianCaseType));
+            }
+        }
+
+        private static string GetConstIterationRussianName(RussianCaseType russianCaseType, bool singular = true)
+        {
+            switch (russianCaseType)
+            {
+                case RussianCaseType.Nominative:
+                    return singular ? "повторение" : "повторения";
+                case RussianCaseType.Genitive:
+                    return singular ? "повторения" : "повторений";
+                case RussianCaseType.Dative:
+                    return singular ? "повторению" : "повторениям";
+                case RussianCaseType.Accusative:
+                    return singular ? "повторение" : "повторения";
+                case RussianCaseType.Ablative:
+                    return singular ? "повторением" : "повторениями";
+                case RussianCaseType.Prepositional:
+                    return singular ? "повторении" : "повторениях";
+                default:
+                    throw new InvalidOperationException(string.Format(_RussianCaseIsNotSupportedMessage, russianCaseType));
+            }
+        }
+
+        private static string GetSymbolRussianName(RussianCaseType russianCaseType, bool singular = true)
+        {
+            switch (russianCaseType)
+            {
+                case RussianCaseType.Nominative:
+                    return singular ? "символ" : "символы";
+                case RussianCaseType.Genitive:
+                    return singular ? "символа" : "символов";
+                case RussianCaseType.Dative:
+                    return singular ? "символу" : "символам";
+                case RussianCaseType.Accusative:
+                    return singular ? "символ" : "символы";
+                case RussianCaseType.Ablative:
+                    return singular ? "символом" : "символами";
+                case RussianCaseType.Prepositional:
+                    return singular ? "символе" : "символах";
+                default:
+                    throw new InvalidOperationException(string.Format(_RussianCaseIsNotSupportedMessage, russianCaseType));
+            }
+        }
+
+        private static string GetEmptyRussianName(RussianCaseType russianCaseType, bool singular = true)
+        {
+            switch (russianCaseType)
+            {
+                case RussianCaseType.Nominative:
+                    return singular ? "пустая цепочка" : "пустые цепочки";
+                case RussianCaseType.Genitive:
+                    return singular ? "пустой цепочки" : "пустых цепочек";
+                case RussianCaseType.Dative:
+                    return singular ? "пустой цепочке" : "пустым цепочкам";
+                case RussianCaseType.Accusative:
+                    return singular ? "пустую цепочку" : "пустые цепочки";
+                case RussianCaseType.Ablative:
+                    return singular ? "пустой цепочкой" : "пустыми цепочками";
+                case RussianCaseType.Prepositional:
+                    return singular ? "пустой цепочке" : "пустых цепочках";
+                default:
+                    throw new InvalidOperationException(string.Format(_RussianCaseIsNotSupportedMessage, russianCaseType));
+            }
+        }
+
+        private static string GetExpressionTypeRussianName(ExpressionType expressionType, RussianCaseType russianCaseType, bool singular = true)
         {
             switch (expressionType)
             {
                 case ExpressionType.BinaryConcat:
                 case ExpressionType.Concat:
-                    writer.WriteLatex("конкатенацией");
-                    break;
+                    return GetConcatRussianName(russianCaseType, singular);
                 case ExpressionType.BinaryUnion:
                 case ExpressionType.Union:
-                    writer.WriteLatex("объединением");
-                    break;
+                    return GetUnionRussianName(russianCaseType, singular);
                 case ExpressionType.Iteration:
-                    writer.WriteLatex("итерацией");
-                    break;
+                    return GetIterationRussianName(russianCaseType, singular);
                 case ExpressionType.ConstIteration:
-                    writer.WriteLatex("конкатенацией");
-                    break;
+                    return GetConstIterationRussianName(russianCaseType, singular);
                 case ExpressionType.Symbol:
-                    writer.WriteLatex("символом");
-                    break;
+                    return GetSymbolRussianName(russianCaseType, singular);
                 case ExpressionType.Empty:
-                    writer.WriteLatex("пустой цепочкой");
-                    break;
+                    return GetEmptyRussianName(russianCaseType, singular);
                 default:
-                    throw new InvalidOperationException(string.Format("Expression type {0} is not supported.",expressionType));
+                    throw new InvalidOperationException(string.Format("Expression type {0} is not supported.", expressionType));
             }
         }
 
@@ -220,10 +808,10 @@ namespace FLaG.IO.Output
         {            
             writer.Write(@"\item Регулярное множество вида ");
             writer.Write(@"\begin{math}");
-            writer.WriteExpression(languagePostReport.New.Expression, true, true);
+            WriteExpression(writer, languagePostReport.New.Expression, true, true);
             writer.Write(@"\end{math}");
             writer.Write(@", которое является ");
-            WriteExpressionTypeInAblative(writer, languagePostReport.New.Expression.ExpressionType);
+            writer.WriteLatex(GetExpressionTypeRussianName(languagePostReport.New.Expression.ExpressionType, RussianCaseType.Ablative));
 
             if (languagePostReport.Dependencies.Count > 0)
             {
@@ -265,6 +853,519 @@ namespace FLaG.IO.Output
 
             return languagePostReport.New.LanguageNumber;
         }
+
+        private static void WriteExpressionEx(StreamWriter writer, FLaGLib.Data.RegExps.Expression expression, bool asRegularSet = false)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression));
+            }
+
+            IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap = expression.DependencyMap;
+
+            WriteExpressionEx(writer, dependencyMap, dependencyMap.Count - 1, asRegularSet);
+        }
+
+        private static void WriteExpressionEx(StreamWriter writer, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index, bool asRegularSet)
+        {
+            writer.Write(@"{");
+            writer.Write(@"\underbrace{");
+
+            FLaGLib.Data.RegExps.Expression expression = dependencyMap[index].Expression;
+
+            switch (expression.ExpressionType)
+            {
+                case FLaGLib.Data.RegExps.ExpressionType.Concat:
+                    WriteConcatEx(writer, (FLaGLib.Data.RegExps.Concat)expression, dependencyMap, index, asRegularSet);
+                    break;
+                case FLaGLib.Data.RegExps.ExpressionType.BinaryConcat:
+                    WriteBinaryConcatEx(writer, (FLaGLib.Data.RegExps.BinaryConcat)expression, dependencyMap, index, asRegularSet);
+                    break;
+                case FLaGLib.Data.RegExps.ExpressionType.Union:
+                    WriteUnionEx(writer, (FLaGLib.Data.RegExps.Union)expression, dependencyMap, index, asRegularSet);
+                    break;
+                case FLaGLib.Data.RegExps.ExpressionType.BinaryUnion:
+                    WriteBinaryUnionEx(writer, (FLaGLib.Data.RegExps.BinaryUnion)expression, dependencyMap, index, asRegularSet);
+                    break;
+                case FLaGLib.Data.RegExps.ExpressionType.Symbol:
+                    WriteSymbolEx(writer, (FLaGLib.Data.RegExps.Symbol)expression, dependencyMap, index);
+                    break;
+                case FLaGLib.Data.RegExps.ExpressionType.Iteration:
+                    WriteIterationEx(writer, (FLaGLib.Data.RegExps.Iteration)expression, dependencyMap, index, asRegularSet);
+                    break;
+                case FLaGLib.Data.RegExps.ExpressionType.ConstIteration:
+                    WriteConstIterationEx(writer, (FLaGLib.Data.RegExps.ConstIteration)expression, dependencyMap, index, asRegularSet);
+                    break;
+                case FLaGLib.Data.RegExps.ExpressionType.Empty:
+                    WriteEmptyEx(writer, (FLaGLib.Data.RegExps.Empty)expression, dependencyMap, index);
+                    break;
+                default:
+                    throw new InvalidOperationException(string.Format("The expression type {0} is not supported.", expression.ExpressionType));
+            }
+
+            writer.Write(@"}_\text{");
+            writer.WriteLatex((index + 1).ToString());
+            writer.Write(@"}");
+            writer.Write(@"}");
+        }
+
+        private static void WriteEmptyEx(StreamWriter writer, FLaGLib.Data.RegExps.Empty empty, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index)
+        {
+            writer.Write(@"{\varepsilon}");
+        }
+
+        private static void WriteConstIterationEx(StreamWriter writer, FLaGLib.Data.RegExps.ConstIteration constIteration, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index, bool asRegularSet)
+        {
+            bool needBrackets = constIteration.Expression.Priority >= constIteration.Priority;
+
+            if (needBrackets)
+            {
+                writer.Write(@"\left(");
+            }
+
+            WriteExpressionEx(writer, dependencyMap, dependencyMap[index].Single(), asRegularSet);
+
+            if (needBrackets)
+            {
+                writer.Write(@"\right)");
+            }
+
+            writer.Write("^");
+            writer.Write("{");
+            writer.WriteLatex(constIteration.IterationCount.ToString());
+            writer.Write("}");
+        }
+
+        private static void WriteIterationEx(StreamWriter writer, FLaGLib.Data.RegExps.Iteration iteration, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index, bool asRegularSet)
+        {
+            bool needBrackets = iteration.Expression.Priority >= iteration.Priority;
+
+            if (needBrackets)
+            {
+                writer.Write(@"\left(");
+            }
+
+            WriteExpressionEx(writer, dependencyMap, dependencyMap[index].Single(), asRegularSet);
+
+            if (needBrackets)
+            {
+                writer.Write(@"\right)");
+            }
+
+            writer.Write("^");
+            writer.Write("{");
+
+            if (iteration.IsPositive)
+            {
+                writer.Write("+");
+            }
+            else
+            {
+                writer.Write("*");
+            }
+
+            writer.Write("}");
+        }
+
+        private static void WriteSymbolEx(StreamWriter writer, FLaGLib.Data.RegExps.Symbol symbol, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index)
+        {
+            writer.WriteLatex(symbol.Character.ToString());
+        }
+
+        private static void WriteBinaryUnionEx(StreamWriter writer, FLaGLib.Data.RegExps.BinaryUnion binaryUnion, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index, bool asRegularSet)
+        {
+            WriteExpressionsEx(writer, dependencyMap, index, asRegularSet ? @" \cup " : " + ", asRegularSet);
+        }
+
+        private static void WriteBinaryConcatEx(StreamWriter writer, FLaGLib.Data.RegExps.BinaryConcat binaryConcat, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index, bool asRegularSet)
+        {
+            WriteExpressionsEx(writer, dependencyMap, index, @" \cdot ", asRegularSet);
+        }
+
+        private static void WriteExpressionsEx(StreamWriter writer, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index, string separator, bool asRegularSet)
+        {
+            FLaGLib.Data.RegExps.DependencyCollection dependencies = dependencyMap[index];
+
+            bool first = true;
+
+            foreach (int i in dependencies)
+            {
+                FLaGLib.Data.RegExps.DependencyCollection currentDependencies = dependencyMap[i];
+
+                bool needBrackets;
+
+                if (first)
+                {
+                    needBrackets = currentDependencies.Expression.Priority > dependencies.Expression.Priority;
+                    first = false;
+                }
+                else
+                {
+                    needBrackets = currentDependencies.Expression.Priority >= dependencies.Expression.Priority;
+                    writer.Write(separator);
+                }
+
+                if (needBrackets)
+                {
+                    writer.Write(@"\left(");
+                }
+
+                WriteExpressionEx(writer, dependencyMap, i, asRegularSet);
+
+                if (needBrackets)
+                {
+                    writer.Write(@"\right)");
+                }
+            }
+        }
+
+        private static void WriteUnionEx(StreamWriter writer, FLaGLib.Data.RegExps.Union union, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index, bool asRegularSet)
+        {
+            throw new NotSupportedException();
+        }
+
+        private static void WriteConcatEx(StreamWriter writer, FLaGLib.Data.RegExps.Concat concat, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index, bool asRegularSet)
+        {
+            throw new NotSupportedException();
+        }
+
+        private static void WriteExpression(StreamWriter writer, FLaGLib.Data.RegExps.Expression expression, bool writeDots = false, bool asRegularSet = false)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression));
+            }
+
+            switch (expression.ExpressionType)
+            {
+                case FLaGLib.Data.RegExps.ExpressionType.Concat:
+                    WriteConcat(writer, (FLaGLib.Data.RegExps.Concat)expression, writeDots, asRegularSet);
+                    break;
+                case FLaGLib.Data.RegExps.ExpressionType.BinaryConcat:
+                    WriteBinaryConcat(writer, (FLaGLib.Data.RegExps.BinaryConcat)expression, writeDots, asRegularSet);
+                    break;
+                case FLaGLib.Data.RegExps.ExpressionType.Union:
+                    WriteUnion(writer, (FLaGLib.Data.RegExps.Union)expression, writeDots, asRegularSet);
+                    break;
+                case FLaGLib.Data.RegExps.ExpressionType.BinaryUnion:
+                    WriteBinaryUnion(writer, (FLaGLib.Data.RegExps.BinaryUnion)expression, writeDots, asRegularSet);
+                    break;
+                case FLaGLib.Data.RegExps.ExpressionType.Symbol:
+                    WriteSymbol(writer, (FLaGLib.Data.RegExps.Symbol)expression);
+                    break;
+                case FLaGLib.Data.RegExps.ExpressionType.Iteration:
+                    WriteIteration(writer, (FLaGLib.Data.RegExps.Iteration)expression, writeDots, asRegularSet);
+                    break;
+                case FLaGLib.Data.RegExps.ExpressionType.ConstIteration:
+                    WriteConstIteration(writer, (FLaGLib.Data.RegExps.ConstIteration)expression, writeDots, asRegularSet);
+                    break;
+                case FLaGLib.Data.RegExps.ExpressionType.Empty:
+                    WriteEmpty(writer, (FLaGLib.Data.RegExps.Empty)expression);
+                    break;
+                default:
+                    throw new InvalidOperationException(string.Format("The expression type {0} is not supported.", expression.ExpressionType));
+            }
+        }
+
+        private static void WriteSymbol(StreamWriter writer, FLaGLib.Data.RegExps.Symbol symbol)
+        {
+            writer.WriteLatex(symbol.Character.ToString());
+        }
+
+        private static void WriteConstIteration(StreamWriter writer, FLaGLib.Data.RegExps.ConstIteration constIteration, bool writeDots, bool asRegularSet)
+        {
+            bool needBrackets = constIteration.Expression.Priority >= constIteration.Priority;
+
+            if (needBrackets)
+            {
+                writer.Write(@"\left(");
+            }
+
+            WriteExpression(writer, constIteration.Expression, writeDots, asRegularSet);
+
+            if (needBrackets)
+            {
+                writer.Write(@"\right)");
+            }
+
+            writer.Write("^");
+            writer.Write("{");
+            writer.WriteLatex(constIteration.IterationCount.ToString());
+            writer.Write("}");
+        }
+
+        private static void WriteIteration(StreamWriter writer, FLaGLib.Data.RegExps.Iteration iteration, bool writeDots, bool asRegularSet)
+        {
+            bool needBrackets = iteration.Expression.Priority >= iteration.Priority;
+
+            if (needBrackets)
+            {
+                writer.Write(@"\left(");
+            }
+
+            WriteExpression(writer, iteration.Expression, writeDots, asRegularSet);
+
+            if (needBrackets)
+            {
+                writer.Write(@"\right)");
+            }
+
+            writer.Write("^");
+            writer.Write("{");
+
+            if (iteration.IsPositive)
+            {
+                writer.Write("+");
+            }
+            else
+            {
+                writer.Write("*");
+            }
+
+            writer.Write("}");
+        }
+
+        private static void WriteEmpty(StreamWriter writer, FLaGLib.Data.RegExps.Empty empty)
+        {
+            writer.Write(@"{\varepsilon}");
+        }
+
+        private static void WriteBinaryUnion(StreamWriter writer, FLaGLib.Data.RegExps.BinaryUnion binaryUnion, bool writeDots, bool asRegularSet)
+        {
+            ISet<FLaGLib.Data.RegExps.Expression> visitedExpression = new HashSet<FLaGLib.Data.RegExps.Expression>();
+            WriteExpressions(writer, FLaGLib.Data.RegExps.UnionHelper.Iterate(visitedExpression, binaryUnion), asRegularSet ? @" \cup " : " + ", binaryUnion.Priority, writeDots, asRegularSet);
+        }
+
+        private static void WriteUnion(StreamWriter writer, FLaGLib.Data.RegExps.Union union, bool writeDots, bool asRegularSet)
+        {
+            ISet<FLaGLib.Data.RegExps.Expression> visitedExpression = new HashSet<FLaGLib.Data.RegExps.Expression>();
+            WriteExpressions(writer, FLaGLib.Data.RegExps.UnionHelper.Iterate(visitedExpression, union), asRegularSet ? @" \cup " : " + ", union.Priority, writeDots, asRegularSet);
+        }
+
+        private static void WriteBinaryConcat(StreamWriter writer, FLaGLib.Data.RegExps.BinaryConcat binaryConcat, bool writeDots, bool asRegularSet)
+        {
+            WriteExpressions(writer, FLaGLib.Data.RegExps.ConcatHelper.Iterate(binaryConcat), writeDots ? @" \cdot " : string.Empty, binaryConcat.Priority, writeDots, asRegularSet);
+        }
+
+        private static void WriteConcat(StreamWriter writer, FLaGLib.Data.RegExps.Concat concat, bool writeDots, bool asRegularSet)
+        {
+            WriteExpressions(writer, FLaGLib.Data.RegExps.ConcatHelper.Iterate(concat), writeDots ? @" \cdot " : string.Empty, concat.Priority, writeDots, asRegularSet);
+        }
+
+        private static void WriteExpressions(StreamWriter writer, IEnumerable<FLaGLib.Data.RegExps.Expression> expressions, string separator, int priority, bool writeDots, bool asRegularSet)
+        {
+            bool first = true;
+
+            foreach (FLaGLib.Data.RegExps.Expression expression in expressions)
+            {
+                bool needBrackets;
+
+                if (first)
+                {
+                    needBrackets = expression.Priority > priority;
+                    first = false;
+                }
+                else
+                {
+                    needBrackets = expression.Priority >= priority;
+                    writer.Write(separator);
+                }
+
+                if (needBrackets)
+                {
+                    writer.Write(@"\left(");
+                }
+
+                WriteExpression(writer, expression, writeDots, asRegularSet);
+
+                if (needBrackets)
+                {
+                    writer.Write(@"\right)");
+                }
+            }
+        }
+
+        private static void WriteLanguage(StreamWriter writer, FLaGLib.Data.Languages.Entity entity)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            if (entity == null)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            writer.Write(@"\left\{");
+
+            WriteEntity(writer, entity);
+            WriteVariables(writer, entity.Variables);
+
+            writer.Write(@"\right\}");
+        }
+
+        private static void WriteEntity(StreamWriter writer, FLaGLib.Data.Languages.Entity entity)
+        {
+            switch (entity.EntityType)
+            {
+                case FLaGLib.Data.Languages.EntityType.Concat:
+                    WriteConcat(writer, (FLaGLib.Data.Languages.Concat)entity);
+                    break;
+                case FLaGLib.Data.Languages.EntityType.Union:
+                    WriteUnion(writer, (FLaGLib.Data.Languages.Union)entity);
+                    break;
+                case FLaGLib.Data.Languages.EntityType.Symbol:
+                    WriteSymbol(writer, (FLaGLib.Data.Languages.Symbol)entity);
+                    break;
+                case FLaGLib.Data.Languages.EntityType.Degree:
+                    WriteDegree(writer, (FLaGLib.Data.Languages.Degree)entity);
+                    break;
+                default:
+                    throw new InvalidOperationException(string.Format("The entity type {0} is not supported.", entity.EntityType));
+            }
+        }
+
+        private static void WriteSymbol(StreamWriter writer, FLaGLib.Data.Languages.Symbol symbol)
+        {
+            writer.WriteLatex(symbol.Character.ToString());
+        }
+
+        private static void WriteDegree(StreamWriter writer, FLaGLib.Data.Languages.Degree degree)
+        {
+            bool needBrackets = degree.Entity.Priority >= degree.Priority;
+
+            if (needBrackets)
+            {
+                writer.Write(@"\left(");
+            }
+
+            WriteEntity(writer, degree.Entity);
+
+            if (needBrackets)
+            {
+                writer.Write(@"\right)");
+            }
+
+            writer.Write("^");
+            writer.Write("{");
+            WriteExponent(writer, degree.Exponent);
+            writer.Write("}");
+        }
+
+        private static void WriteUnion(StreamWriter writer, FLaGLib.Data.Languages.Union union)
+        {
+            WriteEntities(writer, union.EntityCollection, ",", union.Priority);
+        }
+
+        private static void WriteConcat(StreamWriter writer, FLaGLib.Data.Languages.Concat union)
+        {
+            WriteEntities(writer, union.EntityCollection, string.Empty, union.Priority);
+        }
+
+        private static void WriteEntities(StreamWriter writer, IEnumerable<FLaGLib.Data.Languages.Entity> entities, string separator, int priority)
+        {
+            bool first = true;
+
+            foreach (FLaGLib.Data.Languages.Entity entity in entities)
+            {
+                bool needBrackets;
+
+                if (first)
+                {
+                    needBrackets = entity.Priority > priority;
+                    first = false;
+                }
+                else
+                {
+                    needBrackets = entity.Priority >= priority;
+                    writer.Write(separator);
+                }
+
+                if (needBrackets)
+                {
+                    writer.Write(@"\left(");
+                }
+
+                WriteEntity(writer, entity);
+
+                if (needBrackets)
+                {
+                    writer.Write(@"\right)");
+                }
+            }
+        }
+
+        private static void WriteExponent(StreamWriter writer, FLaGLib.Data.Languages.Exponent exponent)
+        {
+            switch (exponent.ExponentType)
+            {
+                case FLaGLib.Data.Languages.ExponentType.Quantity:
+                    WriteQuantity(writer, (FLaGLib.Data.Languages.Quantity)exponent);
+                    break;
+                case FLaGLib.Data.Languages.ExponentType.Variable:
+                    WriteVariable(writer, (FLaGLib.Data.Languages.Variable)exponent);
+                    break;
+                default:
+                    throw new InvalidOperationException(string.Format("The exponent type {0} is not supported.", exponent.ExponentType));
+            }
+        }
+
+        private static void WriteVariable(StreamWriter writer, FLaGLib.Data.Languages.Variable variable)
+        {
+            writer.WriteLatex(variable.Name.ToString());
+        }
+
+        private static void WriteQuantity(StreamWriter writer, FLaGLib.Data.Languages.Quantity quantity)
+        {
+            writer.WriteLatex(quantity.Count.ToString());
+        }
+
+        private static void WriteVariables(StreamWriter writer, IReadOnlySet<FLaGLib.Data.Languages.Variable> variables)
+        {
+            if (!variables.Any())
+            {
+                return;
+            }
+
+            writer.Write(@" \mid \forall ");
+
+            foreach (FLaGLib.Data.Languages.Variable variable in variables)
+            {
+                writer.WriteLatex(variable.Name.ToString());
+                switch (variable.Sign)
+                {
+                    case FLaGLib.Data.Languages.Sign.MoreThan:
+                        writer.Write(@" > ");
+                        break;
+                    case FLaGLib.Data.Languages.Sign.MoreThanOrEqual:
+                        writer.Write(@" \geq ");
+                        break;
+                    default:
+                        throw new InvalidOperationException(string.Format("Sign {0} is not supported.", variable.Sign));
+                }
+
+                writer.WriteLatex(variable.Number.ToString());
+                writer.Write(@", ");
+            }
+
+            writer.Write(@"\text{где } ");
+
+            writer.WriteLatex(string.Join(", ", variables.Select(v => v.Name.ToString())));
+
+            writer.Write(@" \text{ --- целые}");
+        }
+
 
         private static void WriteProlog(StreamWriter writer, AuthorDescription author, string variant)
         {
