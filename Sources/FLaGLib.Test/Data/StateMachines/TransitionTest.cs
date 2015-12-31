@@ -12,23 +12,23 @@ namespace FLaGLib.Test.Data.StateMachines
         private Tuple<Transition, Transition, int>[] _Expectations = new Tuple<Transition, Transition, int>[]
         {
             new Tuple<Transition, Transition, int>(
-                new Transition(new Label(new SingleLabel('S', subIndex: 1)), 'd', new Label(new SingleLabel('S', subIndex: 2))),
-                new Transition(new Label(new SingleLabel('S', subIndex: 1)), 'd', new Label(new SingleLabel('S', subIndex: 2))),
+                new Transition(new Label(new SingleLabel('S', 1)), 'd', new Label(new SingleLabel('S', 2))),
+                new Transition(new Label(new SingleLabel('S', 1)), 'd', new Label(new SingleLabel('S', 2))),
                 0),
             new Tuple<Transition, Transition, int>(
-                new Transition(new Label(new SingleLabel('S', subIndex: 1)), 'd', new Label(new SingleLabel('S', subIndex: 2))),
-                new Transition(new Label(new SingleLabel('S', subIndex: 1)), 'e', new Label(new SingleLabel('S', subIndex: 2))),
+                new Transition(new Label(new SingleLabel('S', 1)), 'd', new Label(new SingleLabel('S', 2))),
+                new Transition(new Label(new SingleLabel('S', 1)), 'e', new Label(new SingleLabel('S', 2))),
                 -1),
             new Tuple<Transition, Transition, int>(
-                new Transition(new Label(new SingleLabel('S', subIndex: 1)), 'd', new Label(new SingleLabel('S', subIndex: 2))),
-                new Transition(new Label(new SingleLabel('S', subIndex: 1)), 'c', new Label(new SingleLabel('P', subIndex: 2))),
+                new Transition(new Label(new SingleLabel('S', 1)), 'd', new Label(new SingleLabel('S', 2))),
+                new Transition(new Label(new SingleLabel('S', 1)), 'c', new Label(new SingleLabel('P', 2))),
                 1),
            new Tuple<Transition, Transition, int>(
-                new Transition(new Label(new SingleLabel('S', subIndex: 1)), 'd', new Label(new SingleLabel('S', subIndex: 2))),
-                new Transition(new Label(new SingleLabel('P', subIndex: 1)), 'e', new Label(new SingleLabel('O', subIndex: 2))),
+                new Transition(new Label(new SingleLabel('S', 1)), 'd', new Label(new SingleLabel('S', 2))),
+                new Transition(new Label(new SingleLabel('P', 1)), 'e', new Label(new SingleLabel('O', 2))),
                 3),
            new Tuple<Transition, Transition, int>(
-                new Transition(new Label(new SingleLabel('S', subIndex: 1)), 'd', new Label(new SingleLabel('S', subIndex: 2))),
+                new Transition(new Label(new SingleLabel('S', 1)), 'd', new Label(new SingleLabel('S', 2))),
                 null,
                 1),
            new Tuple<Transition, Transition, int>(
@@ -40,13 +40,13 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void CctorTest_CurrentStateNull_Fail()
         {
-            Assert.Throws<ArgumentNullException>(() => new Transition(null, 'c', new Label(new SingleLabel('S', subIndex: 1))));
+            Assert.Throws<ArgumentNullException>(() => new Transition(null, 'c', new Label(new SingleLabel('S', 1))));
         }
 
         [Test]
         public void CctorTest_NextStateNull_Fail()
         {
-            Assert.Throws<ArgumentNullException>(() => new Transition(new Label(new SingleLabel('S', subIndex: 1)), 'c', null));
+            Assert.Throws<ArgumentNullException>(() => new Transition(new Label(new SingleLabel('S', 1)), 'c', null));
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void ToStringTest()
         {
-            Assert.AreEqual("δ({S_null_null_null},c) -> {P_null_null_null}",
+            Assert.AreEqual("δ({S_null},c) -> {P_null}",
                 new Transition(new Label(new SingleLabel('S')), 'c', new Label(new SingleLabel('P'))).ToString());
         }
     }

@@ -107,31 +107,16 @@ namespace FLaGLib.Test.Data
         {
             Label label = new Label(EnumerateHelper.Sequence( new SingleLabel('b'), new SingleLabel('c')));
 
-            Assert.AreEqual("[{b_null_null_null}{c_null_null_null}]",label.ToString());
+            Assert.AreEqual("[{b_null}{c_null}]",label.ToString());
         }
 
         [Test]
         public void ToStringTest_Simple()
         {
             string actual = new Label(new SingleLabel('b')).ToString();
-            string expected = "{b_null_null_null}";
+            string expected = "{b_null}";
 
             Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void NextTest_Ok()
-        {
-            Label expectedLabel = new Label(new SingleLabel('b', subIndex: 4));
-            Label actualLabel = new Label(new SingleLabel('b', subIndex: 3)).Next();
-
-            Assert.AreEqual(expectedLabel, actualLabel);
-        }
-
-        [Test]
-        public void NextTest_NonSimple_Fail()
-        {
-            Assert.Throws<InvalidOperationException>(() => new Label(EnumerateHelper.Sequence(new SingleLabel('b', 0, 1, 2), new SingleLabel('c', 0, 1, 2))).Next());
         }
 
         [Test]

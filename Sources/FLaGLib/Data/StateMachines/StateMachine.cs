@@ -267,7 +267,7 @@ namespace FLaGLib.Data.StateMachines
 
             foreach (Label state in States)
             {
-                dictionary.Add(state, new Label(new SingleLabel(stateSign, subIndex: i++)));
+                dictionary.Add(state, new Label(new SingleLabel(stateSign, i++)));
             }
 
             Label newInitialState = dictionary[InitialState];

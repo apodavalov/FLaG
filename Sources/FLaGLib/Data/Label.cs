@@ -189,18 +189,6 @@ namespace FLaGLib.Data
             return builder.ToString();
         }
 
-        public Label Next()
-        {
-            if (LabelType != LabelType.Simple)
-            {
-                throw new InvalidOperationException("Cannot produce next label for non simple label type.");
-            }
-
-            SingleLabel label = Sublabels.Single();
-
-            return new Label(label.Next());
-        }
-
         public Label ConvertToComplex()
         {
             if (LabelType != LabelType.Simple)

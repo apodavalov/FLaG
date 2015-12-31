@@ -297,7 +297,7 @@ namespace FLaGLib.Test.Data.StateMachines
                     )
                 );
 
-            Assert.AreEqual("δ([{e_null_null_null} {r_null_null_null} q_1 ... q_2], a) -> [ {e_null_null_null} {r_null_null_null}], q_1 ... q_2 : {e_null_null_null} {r_null_null_null}", metaTransition.ToString());
+            Assert.AreEqual("δ([{e_null} {r_null} q_1 ... q_2], a) -> [ {e_null} {r_null}], q_1 ... q_2 : {e_null} {r_null}", metaTransition.ToString());
         }
     }
 }

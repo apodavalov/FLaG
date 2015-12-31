@@ -81,14 +81,14 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void ReorganizeTest()
         {
-            Label s11State = new Label(new SingleLabel('S', subIndex: 11));
-            Label s8State = new Label(new SingleLabel('S', subIndex: 8));
-            Label s7State = new Label(new SingleLabel('S', subIndex: 7));
-            Label s2State = new Label(new SingleLabel('S', subIndex: 2));
-            Label s16State = new Label(new SingleLabel('S', subIndex: 16));
-            Label s15State = new Label(new SingleLabel('S', subIndex: 15));
-            Label s13State = new Label(new SingleLabel('S', subIndex: 13));
-            Label hState = new Label(new SingleLabel('H', subIndex: 11));
+            Label s11State = new Label(new SingleLabel('S', 11));
+            Label s8State = new Label(new SingleLabel('S', 8));
+            Label s7State = new Label(new SingleLabel('S', 7));
+            Label s2State = new Label(new SingleLabel('S', 2));
+            Label s16State = new Label(new SingleLabel('S', 16));
+            Label s15State = new Label(new SingleLabel('S', 15));
+            Label s13State = new Label(new SingleLabel('S', 13));
+            Label hState = new Label(new SingleLabel('H', 11));
 
             IEnumerable<Label> states = EnumerateHelper.Sequence( 
                 hState,
@@ -131,14 +131,14 @@ namespace FLaGLib.Test.Data.StateMachines
 
             StateMachine stateMachine = new StateMachine(initialState, finalStates, transitions);
 
-            Label s1NewState = new Label(new SingleLabel('S', subIndex: 1));
-            Label s2NewState = new Label(new SingleLabel('S', subIndex: 2));
-            Label s3NewState = new Label(new SingleLabel('S', subIndex: 3));
-            Label s4NewState = new Label(new SingleLabel('S', subIndex: 4));
-            Label s5NewState = new Label(new SingleLabel('S', subIndex: 5));
-            Label s6NewState = new Label(new SingleLabel('S', subIndex: 6));
-            Label s7NewState = new Label(new SingleLabel('S', subIndex: 7));
-            Label s8NewState = new Label(new SingleLabel('S', subIndex: 8));
+            Label s1NewState = new Label(new SingleLabel('S', 1));
+            Label s2NewState = new Label(new SingleLabel('S', 2));
+            Label s3NewState = new Label(new SingleLabel('S', 3));
+            Label s4NewState = new Label(new SingleLabel('S', 4));
+            Label s5NewState = new Label(new SingleLabel('S', 5));
+            Label s6NewState = new Label(new SingleLabel('S', 6));
+            Label s7NewState = new Label(new SingleLabel('S', 7));
+            Label s8NewState = new Label(new SingleLabel('S', 8));
 
             IReadOnlyDictionary<Label, Label> expectedDictionary = EnumerateHelper.Sequence(
                 new KeyValuePair<Label, Label>(hState, s1NewState),
@@ -211,22 +211,22 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void RemoveUnreachableStatesTest()
         {
-            Label s1State = new Label(new SingleLabel('S', subIndex: 1));
-            Label s2State = new Label(new SingleLabel('S', subIndex: 2));
-            Label s3State = new Label(new SingleLabel('S', subIndex: 3));
-            Label s4State = new Label(new SingleLabel('S', subIndex: 4));
-            Label s5State = new Label(new SingleLabel('S', subIndex: 5));
-            Label s6State = new Label(new SingleLabel('S', subIndex: 6));
-            Label s7State = new Label(new SingleLabel('S', subIndex: 7));
-            Label s8State = new Label(new SingleLabel('S', subIndex: 8));
-            Label s9State = new Label(new SingleLabel('S', subIndex: 9));
-            Label s10State = new Label(new SingleLabel('S', subIndex: 10));
-            Label s11State = new Label(new SingleLabel('S', subIndex: 11));
-            Label s12State = new Label(new SingleLabel('S', subIndex: 12));
-            Label s13State = new Label(new SingleLabel('S', subIndex: 13));
-            Label s14State = new Label(new SingleLabel('S', subIndex: 14));
-            Label s15State = new Label(new SingleLabel('S', subIndex: 15));
-            Label s16State = new Label(new SingleLabel('S', subIndex: 16));
+            Label s1State = new Label(new SingleLabel('S', 1));
+            Label s2State = new Label(new SingleLabel('S', 2));
+            Label s3State = new Label(new SingleLabel('S', 3));
+            Label s4State = new Label(new SingleLabel('S', 4));
+            Label s5State = new Label(new SingleLabel('S', 5));
+            Label s6State = new Label(new SingleLabel('S', 6));
+            Label s7State = new Label(new SingleLabel('S', 7));
+            Label s8State = new Label(new SingleLabel('S', 8));
+            Label s9State = new Label(new SingleLabel('S', 9));
+            Label s10State = new Label(new SingleLabel('S', 10));
+            Label s11State = new Label(new SingleLabel('S', 11));
+            Label s12State = new Label(new SingleLabel('S', 12));
+            Label s13State = new Label(new SingleLabel('S', 13));
+            Label s14State = new Label(new SingleLabel('S', 14));
+            Label s15State = new Label(new SingleLabel('S', 15));
+            Label s16State = new Label(new SingleLabel('S', 16));
 
             IEnumerable<Transition> transitions = EnumerateHelper.Sequence(
                 new Transition(s1State, 'a',s2State),
@@ -347,11 +347,11 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void GetMetaTransitionsTest_AnyNonSimpleLabel_Fail()
         {
-            Label s11State = new Label(new SingleLabel('S', subIndex: 11));
+            Label s11State = new Label(new SingleLabel('S', 11));
             Label s8s16State = new Label(
                 EnumerateHelper.Sequence(
-                    new SingleLabel('S', subIndex: 8),
-                    new SingleLabel('S', subIndex: 16)
+                    new SingleLabel('S', 8),
+                    new SingleLabel('S', 16)
                 )                
             );
 
@@ -382,9 +382,9 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void GetMetaStateTest_Ok()
         {
-            Label s1State = new Label(new SingleLabel('S', subIndex: 1));
-            Label s2State = new Label(new SingleLabel('S', subIndex: 2));
-            Label s3State = new Label(new SingleLabel('S', subIndex: 3));
+            Label s1State = new Label(new SingleLabel('S', 1));
+            Label s2State = new Label(new SingleLabel('S', 2));
+            Label s3State = new Label(new SingleLabel('S', 3));
 
             Label initialState = s1State;
 
@@ -418,11 +418,11 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void GetMetaStateTest_AnyNonSimpleLabel_Fail()
         {
-            Label s11State = new Label(new SingleLabel('S', subIndex: 11));
+            Label s11State = new Label(new SingleLabel('S', 11));
             Label s8s16State = new Label(
                 EnumerateHelper.Sequence(
-                    new SingleLabel('S', subIndex: 8),
-                    new SingleLabel('S', subIndex: 16)
+                    new SingleLabel('S', 8),
+                    new SingleLabel('S', 16)
                 )                
             );
 
@@ -453,11 +453,11 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void GetMetaFinalStateTest_AnyNonSimpleLabel_Fail()
         {
-            Label s11State = new Label(new SingleLabel('S', subIndex: 11));
+            Label s11State = new Label(new SingleLabel('S', 11));
             Label s8s16State = new Label(
                 EnumerateHelper.Sequence(
-                    new SingleLabel('S', subIndex: 8),
-                    new SingleLabel('S', subIndex: 16)
+                    new SingleLabel('S', 8),
+                    new SingleLabel('S', 16)
                 )                
             );
 
@@ -488,9 +488,9 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void GetMetaFinalStateTest_Ok()
         {
-            Label s1State = new Label(new SingleLabel('S', subIndex: 1));
-            Label s2State = new Label(new SingleLabel('S', subIndex: 2));
-            Label s3State = new Label(new SingleLabel('S', subIndex: 3));
+            Label s1State = new Label(new SingleLabel('S', 1));
+            Label s2State = new Label(new SingleLabel('S', 2));
+            Label s3State = new Label(new SingleLabel('S', 3));
 
             Label initialState = s1State;
 
@@ -533,13 +533,13 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void GetMetaTransitionsTest_Ok()
         {
-            Label s11State = new Label(new SingleLabel('S',subIndex: 11));
-            Label s8State = new Label(new SingleLabel('S', subIndex: 8));
-            Label s7State = new Label(new SingleLabel('S', subIndex: 7));
-            Label s2State = new Label(new SingleLabel('S', subIndex: 2));
-            Label s16State = new Label(new SingleLabel('S', subIndex: 16));
-            Label s15State = new Label(new SingleLabel('S', subIndex: 15));
-            Label s13State = new Label(new SingleLabel('S', subIndex: 13));
+            Label s11State = new Label(new SingleLabel('S',11));
+            Label s8State = new Label(new SingleLabel('S', 8));
+            Label s7State = new Label(new SingleLabel('S', 7));
+            Label s2State = new Label(new SingleLabel('S', 2));
+            Label s16State = new Label(new SingleLabel('S', 16));
+            Label s15State = new Label(new SingleLabel('S', 15));
+            Label s13State = new Label(new SingleLabel('S', 13));
             Label hState = new Label(new SingleLabel('H'));
 
             IEnumerable<Label> states = EnumerateHelper.Sequence( 
@@ -817,9 +817,9 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void ConvertToDeterministicIfNotTest_Deterministic()
         {
-            Label s11State = new Label(new SingleLabel('S', subIndex: 11));
-            Label s8State = new Label(new SingleLabel('S', subIndex: 8));
-            Label s7State = new Label(new SingleLabel('S', subIndex: 7));
+            Label s11State = new Label(new SingleLabel('S', 11));
+            Label s8State = new Label(new SingleLabel('S', 8));
+            Label s7State = new Label(new SingleLabel('S', 7));
 
             Label[] states = new Label[] 
             {
@@ -852,14 +852,14 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void ConvertToDeterministicIfNotTest_NonDeterministic()
         {
-            Label s11State = new Label(new SingleLabel('S',subIndex: 11));
-            Label s8State = new Label(new SingleLabel('S', subIndex: 8));
-            Label s7State = new Label(new SingleLabel('S', subIndex: 7));
-            Label s2State = new Label(new SingleLabel('S', subIndex: 2));
-            Label s16State = new Label(new SingleLabel('S', subIndex: 16));
-            Label s15State = new Label(new SingleLabel('S', subIndex: 15));
-            Label s13State = new Label(new SingleLabel('S', subIndex: 13));
-            Label hState = new Label(new SingleLabel('H', subIndex: 11));
+            Label s11State = new Label(new SingleLabel('S',11));
+            Label s8State = new Label(new SingleLabel('S', 8));
+            Label s7State = new Label(new SingleLabel('S', 7));
+            Label s2State = new Label(new SingleLabel('S', 2));
+            Label s16State = new Label(new SingleLabel('S', 16));
+            Label s15State = new Label(new SingleLabel('S', 15));
+            Label s13State = new Label(new SingleLabel('S', 13));
+            Label hState = new Label(new SingleLabel('H', 11));
 
             Label[] states = new Label[] 
             {
@@ -992,9 +992,9 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void MinimizeTest_AlreadyMinimized()
         {
-            Label s11State = new Label(new SingleLabel('S', subIndex: 11));
-            Label s8State = new Label(new SingleLabel('S', subIndex: 8));
-            Label s7State = new Label(new SingleLabel('S', subIndex: 7));
+            Label s11State = new Label(new SingleLabel('S', 11));
+            Label s8State = new Label(new SingleLabel('S', 8));
+            Label s7State = new Label(new SingleLabel('S', 7));
 
             Label[] states = new Label[] 
             {
@@ -1027,12 +1027,12 @@ namespace FLaGLib.Test.Data.StateMachines
         [Test]
         public void MinimizeTest_NotMinimized()
         {
-            Label s1State = new Label(new SingleLabel('S', subIndex: 1));
-            Label s2State = new Label(new SingleLabel('S', subIndex: 2));
-            Label s3State = new Label(new SingleLabel('S', subIndex: 3));
-            Label s4State = new Label(new SingleLabel('S', subIndex: 4));
-            Label s5State = new Label(new SingleLabel('S', subIndex: 5));
-            Label s6State = new Label(new SingleLabel('S', subIndex: 6));
+            Label s1State = new Label(new SingleLabel('S', 1));
+            Label s2State = new Label(new SingleLabel('S', 2));
+            Label s3State = new Label(new SingleLabel('S', 3));
+            Label s4State = new Label(new SingleLabel('S', 4));
+            Label s5State = new Label(new SingleLabel('S', 5));
+            Label s6State = new Label(new SingleLabel('S', 6));
 
             IEnumerable<Label> states = EnumerateHelper.Sequence( 
                 s1State,

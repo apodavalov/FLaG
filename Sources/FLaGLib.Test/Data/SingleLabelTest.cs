@@ -13,16 +13,8 @@ namespace FLaGLib.Test.Data
             new Tuple<SingleLabel, SingleLabel, int>(null, null, 0),
             new Tuple<SingleLabel, SingleLabel, int>(null, new SingleLabel('b'), -1),
             new Tuple<SingleLabel, SingleLabel, int>(null, new SingleLabel('b',5), -1),
-            new Tuple<SingleLabel, SingleLabel, int>(null, new SingleLabel('b',5,6), -1),
-            new Tuple<SingleLabel, SingleLabel, int>(null, new SingleLabel('b',5,6,7), -1),
             new Tuple<SingleLabel, SingleLabel, int>(new SingleLabel('b'), new SingleLabel('b'), 0),
-            new Tuple<SingleLabel, SingleLabel, int>(new SingleLabel('b',5), new SingleLabel('b',5), 0),
-            new Tuple<SingleLabel, SingleLabel, int>(new SingleLabel('b',5,6), new SingleLabel('b',5,6), 0),
-            new Tuple<SingleLabel, SingleLabel, int>(new SingleLabel('b',5,6,7), new SingleLabel('b',5,6,7), 0),
-            new Tuple<SingleLabel, SingleLabel, int>(new SingleLabel('b',4,3,2), new SingleLabel('c',4,3,2), -1),
-            new Tuple<SingleLabel, SingleLabel, int>(new SingleLabel('b',5,3,2), new SingleLabel('b',6,3,2), -1),
-            new Tuple<SingleLabel, SingleLabel, int>(new SingleLabel('b',5,6,7), new SingleLabel('b',5,6,2), 1),
-            new Tuple<SingleLabel, SingleLabel, int>(new SingleLabel('b',5,7,6), new SingleLabel('b',5,2,6), 1)
+            new Tuple<SingleLabel, SingleLabel, int>(new SingleLabel('b',5), new SingleLabel('b',5), 0)
         };
 
         [Test]
@@ -40,24 +32,8 @@ namespace FLaGLib.Test.Data
         [Test]
         public void ToStringTest()
         {
-            Assert.AreEqual("b_null_null_null", new SingleLabel('b').ToString());
-            Assert.AreEqual("b_5_null_null", new SingleLabel('b',5).ToString());
-            Assert.AreEqual("b_5_6_null", new SingleLabel('b', 5, 6).ToString());
-            Assert.AreEqual("b_5_6_7", new SingleLabel('b', 5, 6, 7).ToString());
-        }
-
-        [Test]
-        public void NextTest_Ok()
-        {
-            SingleLabel expectedLabel = new SingleLabel('b', 0, 1, 1);
-            SingleLabel actualLabel = new SingleLabel('b', 0, 1,0).Next();
-            Assert.AreEqual(expectedLabel, actualLabel);
-        }
-
-        [Test]
-        public void NextTest_SubIndexHasNoValue_Fail()
-        {
-            Assert.Throws<InvalidOperationException>(() => new SingleLabel('b', 0, 1).Next());
+            Assert.AreEqual("b_null", new SingleLabel('b').ToString());
+            Assert.AreEqual("b_5", new SingleLabel('b',5).ToString());
         }
     }
 }

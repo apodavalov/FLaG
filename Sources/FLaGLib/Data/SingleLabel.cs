@@ -18,24 +18,10 @@ namespace FLaGLib.Data
             private set;
         }
 
-        public int? SubIndex
-        {
-            get;
-            private set;
-        }
-
-        public int? SupIndex
-        {
-            get;
-            private set;
-        }
-
-        public SingleLabel(char sign, int? signIndex = null, int? supIndex = null, int? subIndex = null)
+        public SingleLabel(char sign, int? signIndex = null)
         {
             Sign = sign;
             SignIndex = signIndex;
-            SupIndex = supIndex;
-            SubIndex = subIndex;
         }
 
         public static bool operator ==(SingleLabel objA, SingleLabel objB)
@@ -112,9 +98,7 @@ namespace FLaGLib.Data
         public override int GetHashCode()
         {
             return Sign.GetHashCode() ^ 
-                SignIndex.GetHashCodeNullable() ^ 
-                SubIndex.GetHashCodeNullable() ^ 
-                SupIndex.GetHashCodeNullable();
+                SignIndex.GetHashCodeNullable();
         }
 
         public bool Equals(SingleLabel other)
@@ -125,9 +109,7 @@ namespace FLaGLib.Data
             }
 
             return object.Equals(Sign, other.Sign) &&
-                object.Equals(SignIndex, other.SignIndex) &&
-                object.Equals(SubIndex, other.SubIndex) &&
-                object.Equals(SupIndex, other.SupIndex);
+                object.Equals(SignIndex, other.SignIndex);
         }
 
         public int CompareTo(SingleLabel other)
@@ -144,38 +126,13 @@ namespace FLaGLib.Data
                 return result;
             }
 
-            result = SignIndex.CompareTo(other.SignIndex);
-
-            if (result != 0)
-            {
-                return result;
-            }
-
-            result = SupIndex.CompareTo(other.SupIndex);
-
-            if (result != 0)
-            {
-                return result;
-            }
-
-            return SubIndex.CompareTo(other.SubIndex);
+            return SignIndex.CompareTo(other.SignIndex);
         }
 
         public override string ToString()
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2}_{3}", Sign, 
-                (object)SignIndex ?? "null", 
-                (object)SupIndex ?? "null", 
-                (object)SubIndex ?? "null");
-        }
-
-        public SingleLabel Next()
-        {
-            if (!SubIndex.HasValue)
-            {
-                throw new InvalidOperationException("Property SubIndex has no value.");
-            }
-            return new SingleLabel(Sign, SignIndex, SupIndex, SubIndex + 1);
+            return string.Format(CultureInfo.InvariantCulture, "{0}_{1}", Sign, 
+                (object)SignIndex ?? "null");
         }
     }
 }
