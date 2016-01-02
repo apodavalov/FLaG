@@ -107,6 +107,33 @@ namespace FLaG.IO.Output
 
             Tuple<Grammar,int> grammar = ConvertToGrammar(writer, expression, grammarType);
 
+            grammar = OptimizeGrammar(writer, grammar, grammarType);
+
+            return null;
+        }
+
+        private static Tuple<Grammar, int> OptimizeGrammar(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType)
+        {
+            WriteSection(writer, grammarType, "Этап 2.3.2", 1);
+
+            writer.Write("На этом шаге производим преобразование (приведение) грамматики. ");
+            writer.Write("Цель этого преобразования заключается в удалении недостижимых ");
+            writer.Write("символов грамматики, т.е. символов, которые не встречаются ни в одной ");
+            writer.Write("сентенциальной форме грамматики, бесплодных символов, для которых в ");
+            writer.Write("грамматике нет правил вывода, пустых правил (правил вида ");
+            writer.Write(@"\begin{math}");
+            writer.Write(@"A \rightarrow \varepsilon");
+            writer.Write(@"\end{math}");
+            writer.Write("), ");
+            writer.Write("которые дают лишний переход конечного автомата, что приводит к замедлению ");
+            writer.Write("алгоритма разбора цепочки, цепных правил (правил вида ");
+            writer.Write(@"\begin{math}");
+            writer.Write(@"A \rightarrow B");
+            writer.Write(@"\end{math}");
+            writer.Write("), т.е. правил, ");
+            writer.WriteLine("которые могут привести к зацикливанию алгоритма.");
+            writer.WriteLine();
+
             return null;
         }
 
@@ -148,6 +175,20 @@ namespace FLaG.IO.Output
             Grammar grammar = expression.MakeGrammar(grammarType, g => grammarNumber = OnGrammarPostReport(writer, g));
 
             writer.WriteLine(@"\end{enumerate}");
+            writer.WriteLine();
+
+            writer.Write("Далее будем обозначать полученную грамматику ");
+            writer.Write(@"\begin{math}");
+            WriteGrammarSign(writer, grammarNumber);
+            writer.Write(@"\end{math}");
+            writer.Write(@" следующим образом: ");
+
+            grammarNumber = 1;
+
+            writer.Write(@"\begin{math}");
+            WriteGrammarSign(writer, grammarNumber);
+            writer.WriteLine(@"\end{math}. Другие грамматики, полученные на данном этапе использоваться не будут, ссылок на них далее по тексту тоже не будет.");
+            writer.WriteLine();
 
             return new Tuple<Grammar, int>(grammar, grammarNumber);
         }
