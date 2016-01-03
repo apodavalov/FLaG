@@ -245,7 +245,40 @@ namespace FLaG.IO.Output
 
         private static Tuple<Grammar, int> RemoveEmptyRules(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType)
         {
-            return grammar;
+            WriteSection(writer, grammarType, "Этап 2.3.2.4", 2);
+
+            writer.Write("Удалим пустые правила грамматики ");
+            writer.Write(@"\begin{math}");
+            WriteGrammarSign(writer, grammar.Item2);
+            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine();
+
+            Grammar newGrammar;
+
+            writer.WriteLine(@"\begin{enumerate}");
+            bool removed = grammar.Item1.RemoveEmptyRules(out newGrammar, bpr => OnBeginPostReport(writer, bpr), ipr => OnIteratePostReport(writer, ipr));
+            writer.WriteLine(@"\end{enumerate}");
+            writer.WriteLine();
+
+            int newGrammarNumber = grammar.Item2;
+
+            if (removed)
+            {
+                newGrammarNumber++;
+
+                writer.Write(@"В результате выполнения алгоритма произошло удаление пустых правил. ");
+                writer.Write(@"Получаем грамматику ");
+                WriteGrammarEx(writer, newGrammar, newGrammarNumber);
+                writer.WriteLine(@".");
+            }
+            else
+            {
+                writer.WriteLine(@"В результате выполнения алгоритма удаление пустых правил не произошло.");
+            }
+
+            writer.WriteLine();
+
+            return new Tuple<Grammar, int>(newGrammar, newGrammarNumber);
         }
 
         private static bool CheckLangIsEmpty(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType)
