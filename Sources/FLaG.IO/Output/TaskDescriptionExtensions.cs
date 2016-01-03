@@ -169,7 +169,40 @@ namespace FLaG.IO.Output
 
         private static Tuple<Grammar, int> RemoveUnreachableSymbols(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType, int substep)
         {
-            return grammar;
+            WriteSection(writer, grammarType, string.Format("Этап 2.3.2.{0}", substep), 2);
+
+            writer.Write("Удалим недостижимые символы грамматики ");
+            writer.Write(@"\begin{math}");
+            WriteGrammarSign(writer, grammar.Item2);
+            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine();
+
+            Grammar newGrammar;
+
+            writer.WriteLine(@"\begin{enumerate}");
+            bool removed = grammar.Item1.RemoveUnreachableSymbols(out newGrammar, bpr => OnBeginPostReport(writer, bpr), ipr => OnIteratePostReport(writer, ipr));
+            writer.WriteLine(@"\end{enumerate}");
+            writer.WriteLine();
+
+            int newGrammarNumber = grammar.Item2;
+
+            if (removed)
+            {
+                newGrammarNumber++;
+
+                writer.Write(@"В результате выполнения алгоритма произошло удаление недостижимых символов. ");
+                writer.Write(@"Получаем грамматику ");
+                WriteGrammarEx(writer, newGrammar, newGrammarNumber);
+                writer.WriteLine(@".");
+            }
+            else
+            {
+                writer.WriteLine(@"В результате выполнения алгоритма удаление недостижимых символов не произошло.");
+            }
+
+            writer.WriteLine();
+
+            return new Tuple<Grammar, int>(newGrammar, newGrammarNumber);
         }
 
         private static Tuple<Grammar, int> RemoveUselessSymbols(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType, int substep)
@@ -261,17 +294,17 @@ namespace FLaG.IO.Output
             return isEmpty;
         }
 
-        private static void OnBeginPostReport(StreamWriter writer, BeginPostReport<NonTerminalSymbol> beginPostReport)
+        private static void OnBeginPostReport<T>(StreamWriter writer, BeginPostReport<T> beginPostReport) where T : FLaGLib.Data.Grammars.Symbol
         {
             writer.Write(@"\item ");
             writer.Write(@"\begin{math}");
             WriteWorkSetSign(writer, beginPostReport.Iteration);
             writer.Write(@" = ");
-            WriteNonTerminalSet(writer, beginPostReport.SymbolSet);
+            WriteSymbolSet(writer, beginPostReport.SymbolSet);
             writer.WriteLine(@"\end{math}.");
         }
 
-        private static int OnIteratePostReport(StreamWriter writer, IterationPostReport<NonTerminalSymbol> iteratePostReport)
+        private static int OnIteratePostReport<T>(StreamWriter writer, IterationPostReport<T> iteratePostReport) where T : FLaGLib.Data.Grammars.Symbol
         {
             writer.Write(@"\item ");
             writer.Write(@"\begin{math}");
@@ -279,13 +312,13 @@ namespace FLaG.IO.Output
             writer.Write(@" = ");
             WriteWorkSetSign(writer, iteratePostReport.Iteration - 1);
             writer.Write(@" \cup ");
-            WriteNonTerminalSet(writer, iteratePostReport.NewSymbolSet);
+            WriteSymbolSet(writer, iteratePostReport.NewSymbolSet);
             writer.Write(@" = ");
-            WriteNonTerminalSet(writer, iteratePostReport.PreviousSymbolSet);
+            WriteSymbolSet(writer, iteratePostReport.PreviousSymbolSet);
             writer.Write(@" \cup ");
-            WriteNonTerminalSet(writer, iteratePostReport.NewSymbolSet);
+            WriteSymbolSet(writer, iteratePostReport.NewSymbolSet);
             writer.Write(@" = ");
-            WriteNonTerminalSet(writer, iteratePostReport.NextSymbolSet);
+            WriteSymbolSet(writer, iteratePostReport.NextSymbolSet);
             writer.WriteLine(@"\end{math}.");
 
             return iteratePostReport.Iteration;
@@ -413,13 +446,13 @@ namespace FLaG.IO.Output
             writer.Write(@"\begin{math}");
             WriteNonTerminalSetSign(writer, number);
             writer.Write(" = ");
-            WriteNonTerminalSet(writer, grammar.NonTerminals);
+            WriteSymbolSet(writer, grammar.NonTerminals);
             writer.Write(@"\end{math} --- множество нетерминальных символов грамматики, ");
 
             writer.Write(@"\begin{math}");
             WriteTerminalSetSign(writer, number);
             writer.Write(" = ");
-            WriteTerminalSet(writer, grammar.Alphabet);
+            WriteSymbolSet(writer, grammar.Alphabet);
             writer.Write(@"\end{math} --- множество терминальных символов (алфавит) грамматики, ");
 
             writer.Write(@"\begin{math}");
@@ -537,15 +570,15 @@ namespace FLaG.IO.Output
             writer.WriteLatex(symbol.Symbol.ToString());
         }
 
-        private static void WriteNonTerminalSet(StreamWriter writer, IEnumerable<NonTerminalSymbol> nonTerminals)
+        private static void WriteSymbolSet<T>(StreamWriter writer, IEnumerable<T> symbolSet) where T : FLaGLib.Data.Grammars.Symbol
         {
             bool first = true;
 
-            if (nonTerminals.Any())
+            if (symbolSet.Any())
             {
                 writer.Write(@"\{");
 
-                foreach (NonTerminalSymbol nonTerminal in nonTerminals)
+                foreach (FLaGLib.Data.Grammars.Symbol symbol in symbolSet)
                 {
                     if (first)
                     {
@@ -556,7 +589,7 @@ namespace FLaG.IO.Output
                         writer.Write(", ");
                     }
 
-                    WriteNonTerminal(writer, nonTerminal);
+                    WriteSymbol(writer, symbol);
                 }
 
                 writer.Write(@"\}");
@@ -566,37 +599,7 @@ namespace FLaG.IO.Output
                 writer.Write(@"{\varnothing}");
             }
         }
-
-        private static void WriteTerminalSet(StreamWriter writer, IEnumerable<TerminalSymbol> terminals)
-        {
-            bool first = true;
-
-            if (terminals.Any())
-            {
-                writer.Write(@"\{");
-
-                foreach (TerminalSymbol terminal in terminals)
-                {
-                    if (first)
-                    {
-                        first = false;
-                    }
-                    else
-                    {
-                        writer.Write(", ");
-                    }
-
-                    WriteTerminal(writer, terminal);
-                }
-
-                writer.Write(@"\}");
-            }
-            else
-            {
-                writer.Write(@"{\varnothing}");
-            }
-        }
-
+        
         private static void WriteLabel(StreamWriter writer, Label label)
         {
             foreach (SingleLabel singleLabel in label.Sublabels)
