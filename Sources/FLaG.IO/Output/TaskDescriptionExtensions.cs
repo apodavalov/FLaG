@@ -174,7 +174,40 @@ namespace FLaG.IO.Output
 
         private static Tuple<Grammar, int> RemoveUselessSymbols(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType, int substep)
         {
-            return grammar;
+            WriteSection(writer, grammarType, string.Format("Этап 2.3.2.{0}", substep), 2);
+
+            writer.Write("Удалим бесполезные символы грамматики ");
+            writer.Write(@"\begin{math}");
+            WriteGrammarSign(writer, grammar.Item2);
+            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine();
+
+            Grammar newGrammar;
+
+            writer.WriteLine(@"\begin{enumerate}");
+            bool removed = grammar.Item1.RemoveUselessSymbols(out newGrammar, bpr => OnBeginPostReport(writer, bpr), ipr => OnIteratePostReport(writer, ipr));
+            writer.WriteLine(@"\end{enumerate}");
+            writer.WriteLine();
+
+            int newGrammarNumber = grammar.Item2;
+
+            if (removed)
+            {
+                newGrammarNumber++;
+
+                writer.Write(@"В результате выполнения алгоритма произошло удаление бесполезных символов. ");
+                writer.Write(@"Получаем грамматику ");
+                WriteGrammarEx(writer, newGrammar, newGrammarNumber);
+                writer.WriteLine(@".");
+            }
+            else
+            {
+                writer.WriteLine(@"В результате выполнения алгоритма удаление бесполезных символов не произошло.");                
+            }
+
+            writer.WriteLine();
+
+            return new Tuple<Grammar,int>(newGrammar, newGrammarNumber);
         }
 
         private static Tuple<Grammar, int> RemoveEmptyRules(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType)
@@ -364,40 +397,46 @@ namespace FLaG.IO.Output
             }
 
             writer.Write(", построим грамматику ");
+            WriteGrammarEx(writer, grammarPostReport.New.Grammar, grammarPostReport.New.Number);
+
+            writer.WriteLine(".");
+
+            return grammarPostReport.New.Number;
+        }
+
+        private static void WriteGrammarEx(StreamWriter writer, Grammar grammar, int number)
+        {
             writer.Write(@"\begin{math}");
-            WriteGrammarTuple(writer, grammarPostReport.New.Number);
+            WriteGrammarTuple(writer, number);
             writer.Write(@"\end{math}, где ");
 
             writer.Write(@"\begin{math}");
-            WriteNonTerminalSetSign(writer, grammarPostReport.New.Number);
+            WriteNonTerminalSetSign(writer, number);
             writer.Write(" = ");
-            WriteNonTerminalSet(writer, grammarPostReport.New.Grammar.NonTerminals);
+            WriteNonTerminalSet(writer, grammar.NonTerminals);
             writer.Write(@"\end{math} --- множество нетерминальных символов грамматики, ");
 
             writer.Write(@"\begin{math}");
-            WriteTerminalSetSign(writer, grammarPostReport.New.Number);
+            WriteTerminalSetSign(writer, number);
             writer.Write(" = ");
-            WriteTerminalSet(writer, grammarPostReport.New.Grammar.Alphabet);
+            WriteTerminalSet(writer, grammar.Alphabet);
             writer.Write(@"\end{math} --- множество терминальных символов (алфавит) грамматики, ");
 
             writer.Write(@"\begin{math}");
-            WriteRuleSetSign(writer, grammarPostReport.New.Number);
+            WriteRuleSetSign(writer, number);
             writer.Write(" = ");
-            WriteRuleSet(writer, grammarPostReport.New.Grammar.Rules);
+            WriteRuleSet(writer, grammar.Rules);
             writer.Write(@"\end{math} --- множество правил вывода для данной грамматики, ");
 
             writer.Write(@"\begin{math}");
-            WriteTargetNonTerminalSign(writer, grammarPostReport.New.Number);
+            WriteTargetNonTerminalSign(writer, number);
             writer.Write(" = ");
-            WriteNonTerminal(writer, grammarPostReport.New.Grammar.Target);
+            WriteNonTerminal(writer, grammar.Target);
             writer.Write(@"\end{math} --- целевой символ грамматики ");
 
             writer.Write(@"\begin{math}");
-            WriteGrammarSign(writer, grammarPostReport.New.Number);
-            writer.WriteLine(@"\end{math}.");
-            writer.WriteLine();
-
-            return grammarPostReport.New.Number;
+            WriteGrammarSign(writer, number);
+            writer.Write(@"\end{math}");
         }
 
         private static void WriteNonTerminal(StreamWriter writer, NonTerminalSymbol nonTerminal)
