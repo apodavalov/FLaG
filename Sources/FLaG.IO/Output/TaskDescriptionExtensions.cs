@@ -134,7 +134,128 @@ namespace FLaG.IO.Output
             writer.WriteLine("которые могут привести к зацикливанию алгоритма.");
             writer.WriteLine();
 
-            return null;
+            CheckLangIsEmpty(writer, grammar, grammarType);
+
+            bool changed = false;
+
+            Tuple<Grammar, int> newGrammar = grammar;
+
+            newGrammar = RemoveUselessSymbols(writer, grammar, grammarType, 2);
+            grammar = newGrammar;
+            newGrammar = RemoveUnreachableSymbols(writer, grammar, grammarType, 3);
+            grammar = newGrammar;
+            newGrammar = RemoveEmptyRules(writer, grammar, grammarType);
+            changed |= grammar.Item2 != newGrammar.Item2;
+            grammar = newGrammar;
+            newGrammar = RemoveChainRules(writer, grammar, grammarType);
+            changed |= grammar.Item2 != newGrammar.Item2;
+            grammar = newGrammar;
+
+            if (changed)
+            {
+                newGrammar = RemoveUselessSymbols(writer, grammar, grammarType, 6);
+                grammar = newGrammar;
+                newGrammar = RemoveUnreachableSymbols(writer, grammar, grammarType, 7);
+                grammar = newGrammar;
+            }
+
+            return grammar;
+        }
+
+        private static Tuple<Grammar, int> RemoveChainRules(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType)
+        {
+            return grammar;
+        }
+
+        private static Tuple<Grammar, int> RemoveUnreachableSymbols(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType, int substep)
+        {
+            return grammar;
+        }
+
+        private static Tuple<Grammar, int> RemoveUselessSymbols(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType, int substep)
+        {
+            return grammar;
+        }
+
+        private static Tuple<Grammar, int> RemoveEmptyRules(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType)
+        {
+            return grammar;
+        }
+
+        private static bool CheckLangIsEmpty(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType)
+        {
+            WriteSection(writer, grammarType, "Этап 2.3.2.1", 2);
+            writer.Write("Проверим на пустоту грамматику ");
+            writer.Write(@"\begin{math}");
+            WriteGrammarSign(writer, grammar.Item2);
+            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine();
+            int lastIteration = -1;
+            writer.WriteLine(@"\begin{enumerate}");
+            bool isEmpty = grammar.Item1.IsLangEmpty(bpr => OnBeginPostReport(writer, bpr), ipr => lastIteration = OnIteratePostReport(writer, ipr));
+            writer.WriteLine(@"\end{enumerate}");
+            writer.WriteLine();
+
+            writer.Write("Так как ");
+            writer.Write(@"\begin{math}");
+
+            WriteNonTerminal(writer, grammar.Item1.Target);
+
+            if (isEmpty)
+            {
+                writer.Write(@" \notin ");
+            }
+            else
+            {
+                writer.Write(@" \in ");
+            }
+
+            WriteWorkSetSign(writer, lastIteration);
+
+            writer.Write(@"\end{math}, ");
+
+            if (isEmpty)
+            {
+                writer.Write(@"язык пуст.");
+            }
+            else
+            {
+                writer.Write(@"язык не пуст.");
+            }
+
+            writer.WriteLine();
+
+            return isEmpty;
+        }
+
+        private static void OnBeginPostReport(StreamWriter writer, BeginPostReport<NonTerminalSymbol> beginPostReport)
+        {
+            writer.Write(@"\item ");
+            writer.Write(@"\begin{math}");
+            WriteWorkSetSign(writer, beginPostReport.Iteration);
+            writer.Write(@" = ");
+            WriteNonTerminalSet(writer, beginPostReport.SymbolSet);
+            writer.WriteLine(@"\end{math}.");
+        }
+
+        private static int OnIteratePostReport(StreamWriter writer, IterationPostReport<NonTerminalSymbol> iteratePostReport)
+        {
+            writer.Write(@"\item ");
+            writer.Write(@"\begin{math}");
+            WriteWorkSetSign(writer, iteratePostReport.Iteration);
+            writer.Write(@" = ");
+            WriteWorkSetSign(writer, iteratePostReport.Iteration - 1);
+            writer.Write(@" \cup ");
+            WriteNonTerminalSet(writer, iteratePostReport.NewSymbolSet);
+            writer.Write(@" = ");
+            WriteNonTerminalSet(writer, iteratePostReport.PreviousSymbolSet);
+            writer.Write(@" \cup ");
+            WriteNonTerminalSet(writer, iteratePostReport.NewSymbolSet);
+            writer.Write(@" = ");
+            WriteNonTerminalSet(writer, iteratePostReport.NextSymbolSet);
+            writer.WriteLine(@"\end{math}.");
+
+            return iteratePostReport.Iteration;
         }
 
         private static Tuple<Grammar,int> ConvertToGrammar(StreamWriter writer, Expression expression, GrammarType grammarType)
@@ -448,6 +569,11 @@ namespace FLaG.IO.Output
         private static void WriteSingleLabel(StreamWriter writer, SingleLabel singleLabel)
         {
             WriteSymbol(writer, singleLabel.Sign.ToString(), singleLabel.SignIndex);
+        }
+
+        private static void WriteWorkSetSign(StreamWriter writer, int? number)
+        {
+            WriteSymbol(writer, "C", number);
         }
 
         private static void WriteGrammarSign(StreamWriter writer, int? number)
