@@ -445,16 +445,17 @@ namespace FLaGLib.Data.Grammars
                 foreach (KeyValuePair<NonTerminalSymbol, ISet<NonTerminalSymbol>> symbolSet in previousSymbolSetMap)
                 {
                     ISet<NonTerminalSymbol> newSymbolSet = newSymbolSetMap[symbolSet.Key];
+                    ISet<NonTerminalSymbol> nonTerminalSet = nextSymbolSetMap[symbolSet.Key];
 
                     if (newSymbolSet.Count == 0)
                     {
-                        unchangeableSymbolSetMap[symbolSet.Key] = new ChainRulesTuple(nextSymbolSetMap[symbolSet.Key], i);
+                        unchangeableSymbolSetMap[symbolSet.Key] = new ChainRulesTuple(nonTerminalSet, nonTerminalSet.Where(m => m != symbolSet.Key), i);
                         notBeConsideredOnTheNextStepSymbolSetMap[symbolSet.Key] = symbolSet.Value;
                         nextSymbolSetMap.Remove(symbolSet.Key);
                     }
                     else
                     {
-                        ISet<NonTerminalSymbol> nextSymbolSet = nextSymbolSetMap[symbolSet.Key];
+                        ISet<NonTerminalSymbol> nextSymbolSet = nonTerminalSet;
                         nextSymbolSet.UnionWith(newSymbolSet);
                         beConsideredOnTheNextStepSymbolSetMap[symbolSet.Key] = nextSymbolSet;
                     }
@@ -472,14 +473,6 @@ namespace FLaGLib.Data.Grammars
 
                 newSymbolSetMap = beConsideredOnTheNextStepSymbolSetMap;
             } while (newSymbolSetMap.Count > 0);
-
-            IDictionary<NonTerminalSymbol, ChainRulesTuple> unchangeableSymbolSetMapWithoutKey = unchangeableSymbolSetMap
-                .Select(kv => 
-                    new KeyValuePair<NonTerminalSymbol, ChainRulesTuple>(
-                        kv.Key, 
-                        new ChainRulesTuple(kv.Value.NonTerminals.Where(s => s != kv.Key), kv.Value.Iteration)
-                    )
-                ).ToDictionary();
 
             ISet<Rule> newRules = new HashSet<Rule>();
 
@@ -503,18 +496,18 @@ namespace FLaGLib.Data.Grammars
 
             if (onEnd != null)
             {
-                onEnd(new ChainRulesEndPostReport(unchangeableSymbolSetMap, unchangeableSymbolSetMapWithoutKey));
+                onEnd(new ChainRulesEndPostReport(unchangeableSymbolSetMap));
             }
 
-            ISet<Rule> additionalRules = new HashSet<Rule>();            
+            ISet<Rule> additionalRules = new HashSet<Rule>();
             
             foreach (Rule rule in newRules)
             {
-                foreach (KeyValuePair<NonTerminalSymbol, ChainRulesTuple> symbolSet in unchangeableSymbolSetMapWithoutKey)
+                foreach (KeyValuePair<NonTerminalSymbol, ChainRulesTuple> symbolSet in unchangeableSymbolSetMap)
                 {
-                    if (symbolSet.Value.NonTerminals.Contains(rule.Target))
+                    if (symbolSet.Value.FinalNonTerminals.Contains(rule.Target))
                     {
-                        additionalRules.Add(new Rule(rule.Chains, symbolSet.Key));                            
+                        additionalRules.Add(new Rule(rule.Chains, symbolSet.Key));
                     }
                 }
             }

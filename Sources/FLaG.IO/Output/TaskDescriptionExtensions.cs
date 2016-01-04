@@ -5,6 +5,7 @@ using FLaGLib.Data.Grammars;
 using FLaGLib.Data.Languages;
 using FLaGLib.Data.RegExps;
 using FLaGLib.Data.StateMachines;
+using FLaGLib.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -164,7 +165,205 @@ namespace FLaG.IO.Output
 
         private static Tuple<Grammar, int> RemoveChainRules(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType)
         {
-            return grammar;
+            WriteSection(writer, grammarType, "Этап 2.3.2.5", 2);
+
+            writer.Write("Удалим цепные правила грамматики ");
+            writer.Write(@"\begin{math}");
+            WriteGrammarSign(writer, grammar.Item2);
+            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine();
+
+            Grammar newGrammar;
+
+            bool removed = grammar.Item1.RemoveChainRules(out newGrammar,
+                bpr => OnChainBeginPostReport(writer, bpr),
+                ipr => OnChainIteratePostReport(writer, ipr),
+                epr => OnChainEndPostReport(writer, epr));
+
+            int newGrammarNumber = grammar.Item2;
+
+            if (removed)
+            {
+                newGrammarNumber++;
+
+                writer.Write(@"В результате выполнения алгоритма произошло удаление цепных правил. ");
+                writer.Write(@"Получаем грамматику ");
+                WriteGrammarEx(writer, newGrammar, newGrammarNumber);
+                writer.WriteLine(@".");
+            }
+            else
+            {
+                writer.WriteLine(@"В результате выполнения алгоритма удаление цепных правил не произошло.");
+            }
+
+            writer.WriteLine();
+
+            return new Tuple<Grammar, int>(newGrammar, newGrammarNumber);
+        }
+
+        private static void OnChainBeginPostReport(StreamWriter writer, ChainRulesBeginPostReport postReport)
+        {
+            writer.WriteLine(@"\begin{enumerate}");
+            writer.Write(@"\item ");
+            WriteNonTerminalSymbolMap(writer, postReport.Iteration, postReport.SymbolMap);
+            writer.WriteLine(@".");
+        }
+
+        private static void WriteNonTerminalSymbolMap(StreamWriter writer, int iteration,
+            IReadOnlyDictionary<NonTerminalSymbol,
+            IReadOnlySet<NonTerminalSymbol>> previousMap, 
+            IReadOnlyDictionary<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> consideredNextMap,
+            IReadOnlyDictionary<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> notConsideredNextMap,
+            IReadOnlyDictionary<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> newMap)
+        {
+            bool first = true;
+
+            foreach (KeyValuePair<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> value in previousMap)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    writer.Write(", ");
+                }
+
+                writer.Write(@"\begin{math}");
+                WriteWorkSetSign(writer, value.Key, iteration);
+                writer.Write(@" = ");
+                WriteWorkSetSign(writer, value.Key, iteration - 1);
+                writer.Write(@" \cup ");
+                WriteSymbolSet(writer, newMap[value.Key]);
+                writer.Write(@" = ");
+                WriteSymbolSet(writer, previousMap[value.Key]);
+                writer.Write(@" \cup ");
+                WriteSymbolSet(writer, newMap[value.Key]);
+                writer.Write(@" = ");
+
+                if (consideredNextMap.ContainsKey(value.Key))
+                {
+                    WriteSymbolSet(writer, consideredNextMap[value.Key]);
+                }
+                else
+                {
+                    WriteSymbolSet(writer, notConsideredNextMap[value.Key]);
+                }
+
+                writer.Write(@"\end{math}");
+            }
+        }
+
+        private static void WriteNonTerminalSymbolMap(StreamWriter writer, int iteration, IReadOnlyDictionary<NonTerminalSymbol,IReadOnlySet<NonTerminalSymbol>> symbolMap)
+        {
+            bool first = true;
+
+            foreach (KeyValuePair<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> value in symbolMap)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    writer.Write(", ");
+                }
+
+                writer.Write(@"\begin{math}");
+                WriteWorkSetSign(writer, value.Key, iteration);
+                writer.Write(@" = ");
+                WriteSymbolSet(writer, value.Value);
+                writer.Write(@"\end{math}");
+            }
+        }
+
+        private static void WriteWorkSetSign(StreamWriter writer, NonTerminalSymbol nonTerminal, int? number = null)
+        {
+            writer.Write(@"{");
+            WriteSymbol(writer, "N", number);
+            writer.Write(@"^");
+            WriteNonTerminal(writer,nonTerminal);
+            writer.Write(@"}");
+        }
+
+        private static void OnChainIteratePostReport(StreamWriter writer, ChainRulesIterationPostReport postReport)
+        {
+            writer.Write(@"\item ");
+            WriteNonTerminalSymbolMap(writer, postReport.Iteration, 
+                postReport.PreviousMap, postReport.ConsideredNextMap,
+                postReport.NotConsideredNextMap,
+                postReport.NewMap);
+            writer.WriteLine(@".");
+            writer.Write(@"Построение множеств ");
+            writer.Write(@"\begin{math}");
+            writer.Write(@"{N_i}^X");
+            writer.Write(@"\end{math}");
+            writer.Write(@" для нетерминалов ");
+            writer.Write(@"\begin{math}");
+            WriteSymbolSet(writer, postReport.NotConsideredNextMap.Select(m => m.Key));
+            writer.Write(@"\end{math}");
+            writer.Write(@" заканчиваем, так как они не изменились на данном шаге.");
+
+            if (!postReport.IsLastIteration)
+            {
+                writer.Write(@" Продолжаем построение ");
+                writer.Write(@"\begin{math}");
+                writer.Write(@"{N_i}^X");
+                writer.Write(@"\end{math}");
+                writer.Write(@" для нетерминалов ");
+                writer.Write(@"\begin{math}");
+                WriteSymbolSet(writer, postReport.ConsideredNextMap.Select(m => m.Key));
+                writer.WriteLine(@"\end{math}.");
+            }
+            else
+            {
+                writer.Write(@" Построение множеств ");
+                writer.Write(@"\begin{math}");
+                writer.Write(@"{N_i}^X");
+                writer.Write(@"\end{math}");
+                writer.Write(@" для всех нетерминалов грамматики закончено, приступаем к формированию грамматики ");
+                writer.WriteLine(@"без цепных правил.");
+            }
+
+            writer.WriteLine();
+        }
+
+        private static void OnChainEndPostReport(StreamWriter writer, ChainRulesEndPostReport postReport)
+        {
+            writer.WriteLine(@"\end{enumerate}");
+            writer.WriteLine();
+            writer.Write("Исключаем из построенных множеств нетерминалы, для которых эти множества построены: ");
+
+            bool first = true;
+            
+            foreach (KeyValuePair<NonTerminalSymbol, ChainRulesTuple> value in postReport.SymbolMap)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    writer.Write(", ");
+                }
+
+                writer.Write(@"\begin{math}");
+                WriteWorkSetSign(writer, value.Key);
+                writer.Write(" = ");
+                WriteWorkSetSign(writer, value.Key, value.Value.Iteration);
+                writer.Write(@" \setminus ");
+                WriteSymbolSet(writer, value.Key.AsSequence());
+                writer.Write(" = ");
+                WriteSymbolSet(writer, value.Value.NonTerminals);
+                writer.Write(@" \setminus ");
+                WriteSymbolSet(writer, value.Key.AsSequence());
+                writer.Write(" = ");
+                WriteSymbolSet(writer, value.Value.FinalNonTerminals);
+                writer.Write(@"\end{math}");
+            }
+
+            writer.WriteLine(".");
+            writer.WriteLine();
         }
 
         private static Tuple<Grammar, int> RemoveUnreachableSymbols(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType, int substep)

@@ -12,27 +12,14 @@ namespace FLaGLib.Data.Grammars
             private set;
         }
 
-        public IReadOnlyDictionary<NonTerminalSymbol, ChainRulesTuple> SymbolMapFinal
-        {
-            get;
-            private set;
-        }
-
-        public ChainRulesEndPostReport(IDictionary<NonTerminalSymbol, ChainRulesTuple> symbolMap,
-            IDictionary<NonTerminalSymbol, ChainRulesTuple> symbolMapFinal)
+        public ChainRulesEndPostReport(IDictionary<NonTerminalSymbol, ChainRulesTuple> symbolMap)
         {
             if (symbolMap == null)
             {
                 throw new ArgumentNullException(nameof(symbolMap));
             }
 
-            if (symbolMapFinal == null)
-            {
-                throw new ArgumentNullException(nameof(symbolMapFinal));
-            }
-
             SymbolMap = symbolMap.ToSortedDictionary().AsReadOnly();
-            SymbolMapFinal = symbolMapFinal.ToSortedDictionary().AsReadOnly();
         }
     }
 }

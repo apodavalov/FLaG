@@ -1432,19 +1432,11 @@ namespace FLaGLib.Test.Data.Grammars
             ChainRulesEndPostReport expectedEnd = new ChainRulesEndPostReport(
                 new Dictionary<NonTerminalSymbol, ChainRulesTuple>
                 {
-                    { s1, new ChainRulesTuple(EnumerateHelper.Sequence(s1,s2,s3,s4,s5).ToHashSet(), 5) },
-                    { s2, new ChainRulesTuple(EnumerateHelper.Sequence(s2,s3,s4,s5).ToHashSet(), 4) },
-                    { s3, new ChainRulesTuple(EnumerateHelper.Sequence(s3,s4,s5).ToHashSet(), 3) },
-                    { s4, new ChainRulesTuple(EnumerateHelper.Sequence(s4,s5).ToHashSet(), 2) },
-                    { s5, new ChainRulesTuple(EnumerateHelper.Sequence(s5).ToHashSet(), 1) }
-                },
-                new Dictionary<NonTerminalSymbol, ChainRulesTuple>
-                {
-                    { s1, new ChainRulesTuple(EnumerateHelper.Sequence(s2,s3,s4,s5).ToHashSet(), 5) },
-                    { s2, new ChainRulesTuple(EnumerateHelper.Sequence(s3,s4,s5).ToHashSet(), 4) },
-                    { s3, new ChainRulesTuple(EnumerateHelper.Sequence(s4,s5).ToHashSet(), 3) },
-                    { s4, new ChainRulesTuple(EnumerateHelper.Sequence(s5).ToHashSet(), 2) },
-                    { s5, new ChainRulesTuple(EnumerateHelper.Sequence<NonTerminalSymbol>().ToHashSet(), 1) }
+                    { s1, new ChainRulesTuple(EnumerateHelper.Sequence(s1,s2,s3,s4,s5), EnumerateHelper.Sequence(s2,s3,s4,s5), 5) },
+                    { s2, new ChainRulesTuple(EnumerateHelper.Sequence(s2,s3,s4,s5), EnumerateHelper.Sequence(s3,s4,s5), 4) },
+                    { s3, new ChainRulesTuple(EnumerateHelper.Sequence(s3,s4,s5), EnumerateHelper.Sequence(s4,s5), 3) },
+                    { s4, new ChainRulesTuple(EnumerateHelper.Sequence(s4,s5), EnumerateHelper.Sequence(s5), 2) },
+                    { s5, new ChainRulesTuple(EnumerateHelper.Sequence(s5).ToHashSet(), EnumerateHelper.Sequence<NonTerminalSymbol>(), 1) }
                 }
             );
 
@@ -1480,7 +1472,6 @@ namespace FLaGLib.Test.Data.Grammars
         private void OnTuple(ChainRulesEndPostReport expectedEnd, ChainRulesEndPostReport actualEnd)
         {
             AssertSymbolMap(expectedEnd.SymbolMap, actualEnd.SymbolMap);
-            AssertSymbolMap(expectedEnd.SymbolMapFinal, actualEnd.SymbolMapFinal);
         }
 
         private void AssertSymbolMap(IReadOnlyDictionary<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> expected, IReadOnlyDictionary<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> actual)
@@ -1503,6 +1494,7 @@ namespace FLaGLib.Test.Data.Grammars
                 ChainRulesTuple expectedChainRulesTuple = expected[symbol];
 
                 CollectionAssert.AreEquivalent(expectedChainRulesTuple.NonTerminals, actualChainRulesTuple.NonTerminals);
+                CollectionAssert.AreEquivalent(expectedChainRulesTuple.FinalNonTerminals, actualChainRulesTuple.FinalNonTerminals);
                 Assert.AreEqual(expectedChainRulesTuple.Iteration, actualChainRulesTuple.Iteration);
             }
         }
