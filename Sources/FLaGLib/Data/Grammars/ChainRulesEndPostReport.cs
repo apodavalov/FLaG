@@ -6,13 +6,13 @@ namespace FLaGLib.Data.Grammars
 {
     public class ChainRulesEndPostReport
     {
-        public IReadOnlyDictionary<NonTerminalSymbol, ChainRulesTuple> SymbolMap
+        public IReadOnlyDictionary<NonTerminalSymbol, ChainRulesEndTuple> SymbolMap
         {
             get;
             private set;
         }
 
-        public ChainRulesEndPostReport(IDictionary<NonTerminalSymbol, ChainRulesTuple> symbolMap)
+        public ChainRulesEndPostReport(IDictionary<NonTerminalSymbol, ChainRulesEndTuple> symbolMap)
         {
             if (symbolMap == null)
             {

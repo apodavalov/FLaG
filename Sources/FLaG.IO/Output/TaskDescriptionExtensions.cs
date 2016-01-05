@@ -210,15 +210,11 @@ namespace FLaG.IO.Output
         }
 
         private static void WriteNonTerminalSymbolMap(StreamWriter writer, int iteration,
-            IReadOnlyDictionary<NonTerminalSymbol,
-            IReadOnlySet<NonTerminalSymbol>> previousMap, 
-            IReadOnlyDictionary<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> consideredNextMap,
-            IReadOnlyDictionary<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> notConsideredNextMap,
-            IReadOnlyDictionary<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> newMap)
+            IReadOnlyDictionary<NonTerminalSymbol, ChainRulesIterationTuple> symbolMap)
         {
             bool first = true;
 
-            foreach (KeyValuePair<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> value in previousMap)
+            foreach (KeyValuePair<NonTerminalSymbol, ChainRulesIterationTuple> value in symbolMap)
             {
                 if (first)
                 {
@@ -234,22 +230,13 @@ namespace FLaG.IO.Output
                 writer.Write(@" = ");
                 WriteWorkSetSign(writer, value.Key, iteration - 1);
                 writer.Write(@" \cup ");
-                WriteSymbolSet(writer, newMap[value.Key]);
+                WriteSymbolSet(writer, value.Value.New);
                 writer.Write(@" = ");
-                WriteSymbolSet(writer, previousMap[value.Key]);
+                WriteSymbolSet(writer, value.Value.Previous);
                 writer.Write(@" \cup ");
-                WriteSymbolSet(writer, newMap[value.Key]);
+                WriteSymbolSet(writer, value.Value.New);
                 writer.Write(@" = ");
-
-                if (consideredNextMap.ContainsKey(value.Key))
-                {
-                    WriteSymbolSet(writer, consideredNextMap[value.Key]);
-                }
-                else
-                {
-                    WriteSymbolSet(writer, notConsideredNextMap[value.Key]);
-                }
-
+                WriteSymbolSet(writer, value.Value.Next);
                 writer.Write(@"\end{math}");
             }
         }
@@ -289,10 +276,7 @@ namespace FLaG.IO.Output
         private static void OnChainIteratePostReport(StreamWriter writer, ChainRulesIterationPostReport postReport)
         {
             writer.Write(@"\item ");
-            WriteNonTerminalSymbolMap(writer, postReport.Iteration, 
-                postReport.PreviousMap, postReport.ConsideredNextMap,
-                postReport.NotConsideredNextMap,
-                postReport.NewMap);
+            WriteNonTerminalSymbolMap(writer, postReport.Iteration, postReport.SymbolMap);
             writer.WriteLine(@".");
             writer.Write(@"Построение множеств ");
             writer.Write(@"\begin{math}");
@@ -300,7 +284,7 @@ namespace FLaG.IO.Output
             writer.Write(@"\end{math}");
             writer.Write(@" для нетерминалов ");
             writer.Write(@"\begin{math}");
-            WriteSymbolSet(writer, postReport.NotConsideredNextMap.Select(m => m.Key));
+            WriteSymbolSet(writer, postReport.SymbolMap.Where(kv => kv.Value.IsLastIteration).Select(kv => kv.Key));
             writer.Write(@"\end{math}");
             writer.Write(@" заканчиваем, так как они не изменились на данном шаге.");
 
@@ -312,7 +296,7 @@ namespace FLaG.IO.Output
                 writer.Write(@"\end{math}");
                 writer.Write(@" для нетерминалов ");
                 writer.Write(@"\begin{math}");
-                WriteSymbolSet(writer, postReport.ConsideredNextMap.Select(m => m.Key));
+                WriteSymbolSet(writer, postReport.SymbolMap.Where(kv => !kv.Value.IsLastIteration).Select(kv => kv.Key));
                 writer.WriteLine(@"\end{math}.");
             }
             else
@@ -336,7 +320,7 @@ namespace FLaG.IO.Output
 
             bool first = true;
             
-            foreach (KeyValuePair<NonTerminalSymbol, ChainRulesTuple> value in postReport.SymbolMap)
+            foreach (KeyValuePair<NonTerminalSymbol, ChainRulesEndTuple> value in postReport.SymbolMap)
             {
                 if (first)
                 {

@@ -44,10 +44,11 @@
     <Compile Include="Collections\ReadOnlySet.cs" />
     <Compile Include="Data\Grammars\Chain.cs" />
     <Compile Include="Data\Grammars\ChainRulesEndPostReport.cs" />
-    <Compile Include="Data\Grammars\ChainRulesTuple.cs" />
+    <Compile Include="Data\Grammars\ChainRulesEndTuple.cs" />
     <Compile Include="Data\Grammars\BeginPostReport.cs" />
     <Compile Include="Data\Grammars\ChainRulesBeginPostReport.cs" />
     <Compile Include="Data\Grammars\ChainRulesIterationPostReport.cs" />
+    <Compile Include="Data\Grammars\ChainRulesIterationTuple.cs" />
     <Compile Include="Data\Grammars\IterationPostReport.cs" />
     <Compile Include="Data\Grammars\Grammar.cs" />
     <Compile Include="Data\Grammars\GrammarType.cs" />

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace FLaGLib.Data.Grammars
 {
-    public class ChainRulesTuple
+    public class ChainRulesEndTuple
     {
         public IReadOnlySet<NonTerminalSymbol> NonTerminals
         {
@@ -25,7 +25,7 @@ namespace FLaGLib.Data.Grammars
             private set;
         }
 
-        public ChainRulesTuple(IEnumerable<NonTerminalSymbol> nonTerminalSymbols, IEnumerable<NonTerminalSymbol> finalNonTerminalSymbols, int iteration)
+        public ChainRulesEndTuple(IEnumerable<NonTerminalSymbol> nonTerminalSymbols, IEnumerable<NonTerminalSymbol> finalNonTerminalSymbols, int iteration)
         {
             if (nonTerminalSymbols == null)
             {

@@ -398,8 +398,8 @@ namespace FLaGLib.Data.Grammars
                 NonTerminals.ToDictionary(s => s, 
                     s => new HashSet<NonTerminalSymbol>(s.AsSequence()).Of<ISet<NonTerminalSymbol>>());
 
-            IDictionary<NonTerminalSymbol, ChainRulesTuple> unchangeableSymbolSetMap = 
-                new Dictionary<NonTerminalSymbol, ChainRulesTuple>();
+            IDictionary<NonTerminalSymbol, ChainRulesEndTuple> unchangeableSymbolSetMap = 
+                new Dictionary<NonTerminalSymbol, ChainRulesEndTuple>();
 
             IDictionary<NonTerminalSymbol, Rule> targetRuleMap = Rules.ToDictionary(r => r.Target);
 
@@ -439,9 +439,8 @@ namespace FLaGLib.Data.Grammars
                 }
 
                 IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> previousSymbolSetMap = nextSymbolSetMap.ToDictionary(kv => kv.Key, kv => kv.Value.ToHashSet().Of<ISet<NonTerminalSymbol>>());
-                IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> notBeConsideredOnTheNextStepSymbolSetMap = new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>();
-                IDictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>> beConsideredOnTheNextStepSymbolSetMap = new Dictionary<NonTerminalSymbol, ISet<NonTerminalSymbol>>();
-
+                IDictionary<NonTerminalSymbol, ChainRulesIterationTuple> symbolMap = new Dictionary<NonTerminalSymbol, ChainRulesIterationTuple>();
+                                
                 foreach (KeyValuePair<NonTerminalSymbol, ISet<NonTerminalSymbol>> symbolSet in previousSymbolSetMap)
                 {
                     ISet<NonTerminalSymbol> newSymbolSet = newSymbolSetMap[symbolSet.Key];
@@ -449,29 +448,27 @@ namespace FLaGLib.Data.Grammars
 
                     if (newSymbolSet.Count == 0)
                     {
-                        unchangeableSymbolSetMap[symbolSet.Key] = new ChainRulesTuple(nonTerminalSet, nonTerminalSet.Where(m => m != symbolSet.Key), i);
-                        notBeConsideredOnTheNextStepSymbolSetMap[symbolSet.Key] = symbolSet.Value;
+                        unchangeableSymbolSetMap[symbolSet.Key] = new ChainRulesEndTuple(nonTerminalSet, nonTerminalSet.Where(m => m != symbolSet.Key), i);
+
+                        symbolMap.Add(symbolSet.Key, new ChainRulesIterationTuple(true, symbolSet.Value, newSymbolSet, nonTerminalSet));
                         nextSymbolSetMap.Remove(symbolSet.Key);
                     }
                     else
                     {
                         ISet<NonTerminalSymbol> nextSymbolSet = nonTerminalSet;
                         nextSymbolSet.UnionWith(newSymbolSet);
-                        beConsideredOnTheNextStepSymbolSetMap[symbolSet.Key] = nextSymbolSet;
+                        symbolMap.Add(symbolSet.Key, new ChainRulesIterationTuple(false, symbolSet.Value, newSymbolSet, nextSymbolSet));
                     }
                 }
 
                 if (onIterate != null)
                 {
                     onIterate(new ChainRulesIterationPostReport(i,
-                        previousSymbolSetMap, 
-                        newSymbolSetMap,
-                        beConsideredOnTheNextStepSymbolSetMap, 
-                        notBeConsideredOnTheNextStepSymbolSetMap,
-                        beConsideredOnTheNextStepSymbolSetMap.Count == 0));
+                        symbolMap,
+                        symbolMap.All(kv => kv.Value.IsLastIteration)));
                 }
 
-                newSymbolSetMap = beConsideredOnTheNextStepSymbolSetMap;
+                newSymbolSetMap = symbolMap.Where(kv => !kv.Value.IsLastIteration).ToDictionary(kv => kv.Key, kv => kv.Value.Next.ToHashSet().Of<ISet<NonTerminalSymbol>>());
             } while (newSymbolSetMap.Count > 0);
 
             ISet<Rule> newRules = new HashSet<Rule>();
@@ -503,7 +500,7 @@ namespace FLaGLib.Data.Grammars
             
             foreach (Rule rule in newRules)
             {
-                foreach (KeyValuePair<NonTerminalSymbol, ChainRulesTuple> symbolSet in unchangeableSymbolSetMap)
+                foreach (KeyValuePair<NonTerminalSymbol, ChainRulesEndTuple> symbolSet in unchangeableSymbolSetMap)
                 {
                     if (symbolSet.Value.FinalNonTerminals.Contains(rule.Target))
                     {
