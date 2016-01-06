@@ -19,7 +19,19 @@ namespace FLaGLib.Data.Grammars
             private set;
         }
 
+        public IReadOnlySet<Rule> PreviousRules
+        {
+            get;
+            private set;
+        }
+
         public IReadOnlySet<Rule> NewRules
+        {
+            get;
+            private set;
+        }
+
+        public IReadOnlySet<Rule> NextRules
         {
             get;
             private set;
@@ -31,7 +43,7 @@ namespace FLaGLib.Data.Grammars
             private set;
         }
 
-        public MakeStateMachineGrammarPostReport(NonTerminalSymbol target, Chain chain, ISet<Rule> newRules, bool converted)
+        public MakeStateMachineGrammarPostReport(NonTerminalSymbol target, Chain chain, IEnumerable<Rule> previousRules, IEnumerable<Rule> newRules, IEnumerable<Rule> nextRules, bool converted)
         {
             if (target == null)
             {
@@ -43,14 +55,26 @@ namespace FLaGLib.Data.Grammars
                 throw new ArgumentNullException(nameof(chain));
             }
 
+            if (previousRules == null)
+            {
+                throw new ArgumentNullException(nameof(previousRules));
+            }
+
             if (newRules == null)
             {
                 throw new ArgumentNullException(nameof(newRules));
             }
 
+            if (nextRules == null)
+            {
+                throw new ArgumentNullException(nameof(nextRules));
+            }
+
             Target = target;
             Chain = chain;
-            NewRules = newRules.AsReadOnly();
+            PreviousRules = previousRules.ToSortedSet().AsReadOnly();
+            NextRules = nextRules.ToSortedSet().AsReadOnly();
+            NewRules = newRules.ToSortedSet().AsReadOnly();
             Converted = converted;
         }
     }

@@ -658,13 +658,19 @@ namespace FLaGLib.Test.Data.Grammars
                 ), s1
             );
 
+            IReadOnlySet<Rule> expectedBeginPostReport = Enumerable.Empty<Rule>().ToHashSet().AsReadOnly();
+
             IReadOnlyList<MakeStateMachineGrammarPostReport> expectedIterationPostReports = EnumerateHelper.Sequence(
                 new MakeStateMachineGrammarPostReport(
                     s1,
                     Chain.Empty,
+                    EnumerateHelper.Sequence<Rule>(),
                     EnumerateHelper.Sequence(
                         new Rule(Chain.Empty.AsSequence(), s1)
-                    ).ToHashSet(),
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(Chain.Empty.AsSequence(), s1)
+                    ),
                     false
                 ),
                 new MakeStateMachineGrammarPostReport(
@@ -676,9 +682,12 @@ namespace FLaGLib.Test.Data.Grammars
                         )
                     ),
                     EnumerateHelper.Sequence(
+                        new Rule(Chain.Empty.AsSequence(), s1)
+                    ),
+                    EnumerateHelper.Sequence(
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         s2,
                                         a
                                     )
@@ -687,14 +696,35 @@ namespace FLaGLib.Test.Data.Grammars
                         ),
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         s4,
                                         b
                                     )
                                 )
                             ), s1
                         )
-                    ).ToHashSet(),
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s2,
+                                        a
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s4,
+                                        b
+                                    )
+                                )
+                            ), s1
+                        )
+                    ),
                     true
                 ),
                 new MakeStateMachineGrammarPostReport(
@@ -706,13 +736,59 @@ namespace FLaGLib.Test.Data.Grammars
                     EnumerateHelper.Sequence(
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s2,
+                                        a
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s4,
+                                        b
+                                    )
+                                )
+                            ), s1
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         s3
                                     )
                                 )
                             ), s1
                         )
-                    ).ToHashSet(),
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s2,
+                                        a
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s4,
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                )
+                            ), s1
+                        )
+                    ),
                     false
                 ),
                 new MakeStateMachineGrammarPostReport(
@@ -725,14 +801,73 @@ namespace FLaGLib.Test.Data.Grammars
                     EnumerateHelper.Sequence(
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s2,
+                                        a
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s4,
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                )
+                            ), s1
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         s3,
                                         a
                                     )
                                 )
                             ), s2
                         )
-                    ).ToHashSet(),
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s2,
+                                        a
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s4,
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3,
+                                        a
+                                    )
+                                )
+                            ), s2
+                        )
+                    ),
                     false
                 ),
                 new MakeStateMachineGrammarPostReport(
@@ -745,7 +880,41 @@ namespace FLaGLib.Test.Data.Grammars
                     EnumerateHelper.Sequence(
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s2,
+                                        a
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s4,
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3,
+                                        a
+                                    )
+                                )
+                            ), s2
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         a
                                     )
                                 )
@@ -753,14 +922,65 @@ namespace FLaGLib.Test.Data.Grammars
                         ),
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         s5,
                                         b
                                     )
                                 )
                             ), s3
                         )
-                    ).ToHashSet(),
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s2,
+                                        a
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s4,
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3,
+                                        a
+                                    )
+                                )
+                            ), s2
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a
+                                    )
+                                )
+                            ), s5
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s5,
+                                        b
+                                    )
+                                )
+                            ), s3
+                        )
+                    ),
                     true
                 ),
                 new MakeStateMachineGrammarPostReport(
@@ -772,13 +992,119 @@ namespace FLaGLib.Test.Data.Grammars
                     EnumerateHelper.Sequence(
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s2,
+                                        a
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s4,
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3,
+                                        a
+                                    )
+                                )
+                            ), s2
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a
+                                    )
+                                )
+                            ), s5
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s5,
                                         b
                                     )
                                 )
                             ), s3
                         )
-                    ).ToHashSet(),
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b
+                                    )
+                                )
+                            ), s3
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s2,
+                                        a
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s4,
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3,
+                                        a
+                                    )
+                                )
+                            ), s2
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a
+                                    )
+                                )
+                            ), s5
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s5,
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b
+                                    )
+                                )
+                            ), s3
+                        )
+                    ),
                     false
                 ),                
                 new MakeStateMachineGrammarPostReport(
@@ -792,7 +1118,62 @@ namespace FLaGLib.Test.Data.Grammars
                     EnumerateHelper.Sequence(
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s2,
+                                        a
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s4,
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3,
+                                        a
+                                    )
+                                )
+                            ), s2
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a
+                                    )
+                                )
+                            ), s5
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s5,
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b
+                                    )
+                                )
+                            ), s3
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         b
                                     )
                                 )
@@ -800,7 +1181,7 @@ namespace FLaGLib.Test.Data.Grammars
                         ),
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         s6,
                                         c
                                     )
@@ -809,24 +1190,101 @@ namespace FLaGLib.Test.Data.Grammars
                         ),
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         s7,
                                         d
                                     )
                                 )
                             ), s3
                         )
-                    ).ToHashSet(),
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s2,
+                                        a
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s4,
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3,
+                                        a
+                                    )
+                                )
+                            ), s2
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a
+                                    )
+                                )
+                            ), s5
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s5,
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s7,
+                                        d
+                                    )
+                                )
+                            ), s3
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b
+                                    )
+                                )
+                            ), s6
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s6,
+                                        c
+                                    )
+                                )
+                            ), s7
+                        )
+                    ),
                     true
                 )
             ).ToList().AsReadOnly();
 
-            PostReportTestHelper<MakeStateMachineGrammarPostReport> helper =
-                new PostReportTestHelper<MakeStateMachineGrammarPostReport>(expectedIterationPostReports, OnTuple);
+            PostReportTestHelper<IReadOnlySet<Rule>,MakeStateMachineGrammarPostReport> helper =
+                new PostReportTestHelper<IReadOnlySet<Rule>,MakeStateMachineGrammarPostReport>(expectedBeginPostReport, expectedIterationPostReports, OnTuple, OnTuple);
 
             helper.StartTest();
 
-            Grammar actualGrammar = grammar.MakeStateMachineGrammar(GrammarType.Left, helper.OnIterationPostReport);
+            Grammar actualGrammar = grammar.MakeStateMachineGrammar(GrammarType.Left, helper.OnBeginPostReport, helper.OnIterationPostReport);
 
             helper.FinishTest();
 
@@ -993,13 +1451,19 @@ namespace FLaGLib.Test.Data.Grammars
                 ), s1
             );
 
+            IReadOnlySet<Rule> expectedBeginPostReport = Enumerable.Empty<Rule>().ToHashSet().AsReadOnly();
+
             IReadOnlyList<MakeStateMachineGrammarPostReport> expectedIterationPostReports = EnumerateHelper.Sequence(
                 new MakeStateMachineGrammarPostReport(
                     s1,
                     Chain.Empty,
+                    EnumerateHelper.Sequence<Rule>(),
                     EnumerateHelper.Sequence(
                         new Rule(Chain.Empty.AsSequence(), s1)
-                    ).ToHashSet(),
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(Chain.Empty.AsSequence(), s1)
+                    ),
                     false
                 ),
                 new MakeStateMachineGrammarPostReport(
@@ -1009,15 +1473,29 @@ namespace FLaGLib.Test.Data.Grammars
                         )
                     ),
                     EnumerateHelper.Sequence(
+                        new Rule(Chain.Empty.AsSequence(), s1)
+                    ),
+                    EnumerateHelper.Sequence(
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         s3
                                     )
                                 )
                             ), s1
                         )
-                    ).ToHashSet(),
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                )
+                            ), s1
+                        )
+                    ),
                     false
                 ),
                 new MakeStateMachineGrammarPostReport(
@@ -1031,7 +1509,18 @@ namespace FLaGLib.Test.Data.Grammars
                     EnumerateHelper.Sequence(
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                )
+                            ), s1
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         a,
                                         s2
                                     )
@@ -1040,17 +1529,41 @@ namespace FLaGLib.Test.Data.Grammars
                         ),
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         b,
                                         s4
                                     )
                                 )
                             ), s1
                         )
-                    ).ToHashSet(),
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b,
+                                        s4
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s2
+                                    )
+                                )
+                            ), s4
+                        )
+                    ),
                     true
-                ),
-                
+                ),                
                 new MakeStateMachineGrammarPostReport(
                     s2,
                     new Chain(EnumerateHelper.Sequence<Symbol>(
@@ -1061,14 +1574,73 @@ namespace FLaGLib.Test.Data.Grammars
                     EnumerateHelper.Sequence(
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b,
+                                        s4
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s2
+                                    )
+                                )
+                            ), s4
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         a,
                                         s3
                                     )
                                 )
                             ), s2
                         )
-                    ).ToHashSet(),
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b,
+                                        s4
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s2
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s3
+                                    )
+                                )
+                            ), s2
+                        )
+                    ),
                     false
                 ),
                 new MakeStateMachineGrammarPostReport(
@@ -1080,13 +1652,89 @@ namespace FLaGLib.Test.Data.Grammars
                     EnumerateHelper.Sequence(
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b,
+                                        s4
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s2
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s3
+                                    )
+                                )
+                            ), s2
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         b
                                     )
                                 )
                             ), s3
                         )
-                    ).ToHashSet(),
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b,
+                                        s4
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s2
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s3
+                                    )
+                                )
+                            ), s2
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b
+                                    )
+                                )
+                            ), s3
+                        )
+                    ),
                     false
                 ),
                 new MakeStateMachineGrammarPostReport(
@@ -1099,7 +1747,49 @@ namespace FLaGLib.Test.Data.Grammars
                     EnumerateHelper.Sequence(
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b,
+                                        s4
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s2
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s3
+                                    )
+                                )
+                            ), s2
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b
+                                    )
+                                )
+                            ), s3
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         a
                                     )
                                 )
@@ -1107,14 +1797,69 @@ namespace FLaGLib.Test.Data.Grammars
                         ),
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         b,
                                         s5
                                     )
                                 )
                             ), s3
                         )
-                    ).ToHashSet(),
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b,
+                                        s4
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s2
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s3
+                                    )
+                                )
+                            ), s2
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b,
+                                        s5
+                                    )
+                                )
+                            ), s3
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a
+                                    )
+                                )
+                            ), s5
+                        )
+                    ),
                     true
                 ),
                 new MakeStateMachineGrammarPostReport(
@@ -1128,7 +1873,62 @@ namespace FLaGLib.Test.Data.Grammars
                     EnumerateHelper.Sequence(
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b,
+                                        s4
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s2
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s3
+                                    )
+                                )
+                            ), s2
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b,
+                                        s5
+                                    )
+                                )
+                            ), s3
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a
+                                    )
+                                )
+                            ), s5
+                        )
+                    ),
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         b
                                     )
                                 )
@@ -1136,7 +1936,7 @@ namespace FLaGLib.Test.Data.Grammars
                         ),
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         c,
                                         s6
                                     )
@@ -1145,28 +1945,112 @@ namespace FLaGLib.Test.Data.Grammars
                         ),
                         new Rule(
                             EnumerateHelper.Sequence(
-                                  new Chain(EnumerateHelper.Sequence<Symbol>(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
                                         d,
                                         s7
                                     )
                                 )
                             ), s3
                         )
-                    ).ToHashSet(),
+                    ),
+
+
+                    EnumerateHelper.Sequence(
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                Chain.Empty,
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        s3
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b,
+                                        s4
+                                    )
+                                )
+                            ), s1
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s2
+                                    )
+                                )
+                            ), s4
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a,
+                                        s3
+                                    )
+                                )
+                            ), s2
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b,
+                                        s5
+                                    )
+                                ),
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        d,
+                                        s7
+                                    )
+                                )
+                            ), s3
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        a
+                                    )
+                                )
+                            ), s5
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        b
+                                    )
+                                )
+                            ), s6
+                        ),
+                        new Rule(
+                            EnumerateHelper.Sequence(
+                                new Chain(EnumerateHelper.Sequence<Symbol>(
+                                        c,
+                                        s6
+                                    )
+                                )
+                            ), s7
+                        )
+                    ),
                     true
                 )
             ).ToList().AsReadOnly();
 
-            PostReportTestHelper<MakeStateMachineGrammarPostReport> helper =
-                new PostReportTestHelper<MakeStateMachineGrammarPostReport>(expectedIterationPostReports, OnTuple);
+            PostReportTestHelper<IReadOnlySet<Rule>,MakeStateMachineGrammarPostReport> helper =
+                new PostReportTestHelper<IReadOnlySet<Rule>,MakeStateMachineGrammarPostReport>(expectedBeginPostReport,expectedIterationPostReports, OnTuple, OnTuple);
 
             helper.StartTest();
 
-            Grammar actualGrammar = grammar.MakeStateMachineGrammar(GrammarType.Right, helper.OnIterationPostReport);
+            Grammar actualGrammar = grammar.MakeStateMachineGrammar(GrammarType.Right, helper.OnBeginPostReport, helper.OnIterationPostReport);
 
             helper.FinishTest();
 
             Assert.AreEqual(expectedGrammar, actualGrammar);
+        }
+
+        private void OnTuple(IReadOnlySet<Rule> expectedBegin, IReadOnlySet<Rule> actualBegin)
+        {
+            CollectionAssert.AreEquivalent(expectedBegin, actualBegin);
         }
 
         private void OnTuple(MakeStateMachineGrammarPostReport expected, MakeStateMachineGrammarPostReport actual)

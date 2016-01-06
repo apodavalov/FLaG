@@ -305,9 +305,16 @@ namespace FLaGLib.Data.Grammars
             return stateMachine;
         }
 
-        public Grammar MakeStateMachineGrammar(GrammarType grammarType, Action<MakeStateMachineGrammarPostReport> onIterate = null)
+        public Grammar MakeStateMachineGrammar(GrammarType grammarType, 
+            Action<IReadOnlySet<Rule>> onBegin = null,
+            Action<MakeStateMachineGrammarPostReport> onIterate = null)
         {
             ISet<Rule> newRules = new HashSet<Rule>();
+
+            if (onBegin != null)
+            {
+                onBegin(newRules.AsReadOnly());
+            }
 
             ISet<NonTerminalSymbol> newNonTerminals = new HashSet<NonTerminalSymbol>(NonTerminals);
 
@@ -376,13 +383,15 @@ namespace FLaGLib.Data.Grammars
 
                     newChainRules.Add(new Rule(newChain.AsSequence(), rule.Target));
                     newChainRules = Normalize(newChainRules);
-                    
-                    if (onIterate != null)
-                    {
-                        onIterate(new MakeStateMachineGrammarPostReport(rule.Target, chain, newChainRules, newChainRules.Count > 1));
-                    }
+
+                    ISet<Rule> previousRules = newRules.ToHashSet();
 
                     newRules.AddRange(newChainRules);
+
+                    if (onIterate != null)
+                    {
+                        onIterate(new MakeStateMachineGrammarPostReport(rule.Target, chain, previousRules, newChainRules, newRules, newChainRules.Count > 1));
+                    }
                 }
             }
 

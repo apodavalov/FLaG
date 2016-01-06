@@ -160,7 +160,78 @@ namespace FLaG.IO.Output
                 grammar = newGrammar;
             }
 
+            newGrammar = MakeStateMachineGrammar(writer, grammar, grammarType);
+            grammar = newGrammar;
+
             return grammar;
+        }
+
+        private static Tuple<Grammar, int> MakeStateMachineGrammar(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType)
+        {
+            int number = grammar.Item2+1;
+            
+            WriteSection(writer, grammarType, "Этап 2.3.3", 1);
+
+            writer.WriteLine("На этом шаге для приведенный грамматики строим конечный автомат.");
+            writer.WriteLine();
+
+            WriteSection(writer, grammarType, "Этап 2.3.3.1", 2);
+
+            writer.Write("Приведем грамматику ");
+            writer.Write(@"\begin{math}");
+            WriteGrammarSign(writer, grammar.Item2);
+            writer.Write(@"\end{math}");
+            writer.WriteLine(" к автоматному виду.");
+
+            Grammar newGrammar = grammar.Item1.MakeStateMachineGrammar(grammarType, bpr => OnBeginPostReport(writer,bpr,number), ipr => OnIteratePostReport(writer, ipr, number));
+
+            writer.WriteLine();
+
+            writer.Write("Итак, окончательно грамматика ");
+            WriteGrammarEx(writer, newGrammar, number);
+            writer.WriteLine(".");
+            writer.WriteLine();
+
+            return new Tuple<Grammar, int>(newGrammar, number);
+        }
+
+        private static void OnBeginPostReport(StreamWriter writer, IReadOnlySet<Rule> postReport, int number)
+        {
+            writer.WriteLine();
+            writer.Write(@"\begin{math}");
+            WriteRuleSetSign(writer, number);
+            writer.Write(@" = ");
+            WriteRuleSet(writer, postReport);
+            writer.WriteLine(@"\end{math}.");
+        }
+
+        private static void OnIteratePostReport(StreamWriter writer, MakeStateMachineGrammarPostReport postReport, int number)
+        {
+            writer.WriteLine();
+            writer.Write("Обработаем правило ");
+            writer.Write(@"\begin{math}");
+            WriteRule(writer, postReport.Target, postReport.Chain);
+            writer.Write(@"\end{math}.");
+            writer.Write(@" Данное правило переносится ");
+            writer.Write(postReport.Converted ? @"с изменениями" : @"без изменений");
+            writer.Write(@" в ");
+            writer.Write(@"\begin{math}");
+            WriteRuleSetSign(writer, number);
+            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine();
+            writer.Write(@"\begin{math}");
+            WriteRuleSetSign(writer, number);
+            writer.Write(@" = ");
+            WriteRuleSetSign(writer, number);
+            writer.Write(@" \cup ");
+            WriteRuleSet(writer, postReport.NewRules);
+            writer.Write(@" = ");
+            WriteRuleSet(writer, postReport.PreviousRules);
+            writer.Write(@" \cup ");
+            WriteRuleSet(writer, postReport.NewRules);
+            writer.Write(@" = ");
+            WriteRuleSet(writer, postReport.NextRules);
+            writer.WriteLine(@"\end{math}.");
         }
 
         private static Tuple<Grammar, int> RemoveChainRules(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType)
@@ -721,6 +792,15 @@ namespace FLaG.IO.Output
             {
                 writer.Write(@"{\varnothing}");
             }
+        }
+
+        private static void WriteRule(StreamWriter writer, NonTerminalSymbol target, Chain chain)
+        {
+            WriteNonTerminal(writer, target);
+
+            writer.Write(@" \rightarrow ");
+
+            WriteChain(writer, chain);
         }
 
         private static void WriteRule(StreamWriter writer, Rule rule)
