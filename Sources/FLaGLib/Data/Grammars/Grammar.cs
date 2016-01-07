@@ -607,7 +607,7 @@ namespace FLaGLib.Data.Grammars
 
             NonTerminalSymbol newTarget = Target;
 
-            if (targetRuleMap.ContainsKey(Target) && targetRuleMap[Target].Chains.Contains(Chain.Empty))
+            if (newSymbolSet.Contains(Target))
             {
                 Chain targetChain = new Chain(EnumerateHelper.Sequence(Target));
 

@@ -2576,6 +2576,7 @@ namespace FLaGLib.Test.Data.Grammars
             NonTerminalSymbol s11 = new NonTerminalSymbol(new Label(new SingleLabel('S', 11)));
             NonTerminalSymbol s12 = new NonTerminalSymbol(new Label(new SingleLabel('S', 12)));
             NonTerminalSymbol s14 = new NonTerminalSymbol(new Label(new SingleLabel('S', 14)));
+            NonTerminalSymbol s15 = new NonTerminalSymbol(new Label(new SingleLabel('S', 15)));
 
             TerminalSymbol a = new TerminalSymbol('a');
             TerminalSymbol b = new TerminalSymbol('b');
@@ -2849,8 +2850,18 @@ namespace FLaGLib.Test.Data.Grammars
                                 )
                             )
                         ), s14
+                    ),
+                    new Rule(
+                        EnumerateHelper.Sequence(
+                            Chain.Empty,
+                            new Chain(
+                                EnumerateHelper.Sequence<Symbol>(
+                                    s14
+                                )
+                            )
+                        ), s15
                     )
-                ), s14
+                ), s15
             );
             
             Grammar actualGrammar;
