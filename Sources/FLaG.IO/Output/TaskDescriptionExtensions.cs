@@ -49,9 +49,9 @@ namespace FLaG.IO.Output
 
             WriteConvertToExpression(writer, expression);
 
-            Tuple<StateMachine, int> leftGrammarStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, GrammarType.Left);
-            Tuple<StateMachine, int> rightGrammarStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, GrammarType.Right);
-            //Tuple<StateMachine, int> expressionStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName);
+            Tuple<StateMachine, int> leftGrammarStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, GrammarType.Left, 1);
+            Tuple<StateMachine, int> rightGrammarStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, GrammarType.Right, 2);
+            //Tuple<StateMachine, int> expressionStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, 3);
 
             //leftGrammarStateMachine = OptimizeStateMachine(writer, diagramCounter, leftGrammarStateMachine, baseFullFileName);
             //rightGrammarStateMachine = OptimizeStateMachine(writer, diagramCounter, rightGrammarStateMachine, baseFullFileName);
@@ -96,13 +96,13 @@ namespace FLaG.IO.Output
         }
 
         private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter writer, Counter diagramCounter,
-            Expression expression, string baseFullFileName)
+            Expression expression, string baseFullFileName, int number)
         {
             throw new NotImplementedException();
         }
 
         private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter writer, Counter diagramCounter,
-            Expression expression, string baseFullFileName, GrammarType grammarType)
+            Expression expression, string baseFullFileName, GrammarType grammarType, int number)
         {
             WriteSection(writer, grammarType, "Этап 2.3");
 
@@ -110,7 +110,220 @@ namespace FLaG.IO.Output
 
             grammar = OptimizeGrammar(writer, grammar, grammarType);
 
-            return null;
+            StateMachine stateMachine = grammar.Item1.MakeStateMachine(grammarType);
+
+            WriteSection(writer, grammarType, "Этап 2.3.3.2", 2);
+
+            writer.Write("Выполним построение конечного автомата ");
+            writer.Write(@"\begin{math}");
+            WriteStateMachineSign(writer, number);
+            writer.Write(@"\end{math}");
+            writer.Write(@" для автоматной грамматики ");
+            writer.Write(@"\begin{math}");
+            WriteGrammarSign(writer, grammar.Item2);
+            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine();
+            writer.Write(@"Строим конечный автомат ");
+
+            WriteStateMachineEx(writer, stateMachine, number);
+
+            writer.WriteLine(".");
+            writer.WriteLine();
+
+            return new Tuple<StateMachine, int>(stateMachine, number);
+        }
+
+        private static void WriteStateMachineEx(StreamWriter writer, StateMachine stateMachine, int number)
+        {
+            writer.Write(@"\begin{math}");
+            WriteStateMachineTuple(writer, number);
+            writer.Write(@"\end{math}, где ");
+
+            writer.Write(@"\begin{math}");
+            WriteStateSetSign(writer, number);
+            writer.Write(" = ");
+            WriteStateSet(writer, stateMachine.States);
+            writer.Write(@"\end{math} --- конечное множество состояний автомата, ");
+
+            writer.Write(@"\begin{math}");
+            WriteAlphabetSign(writer, number);
+            writer.Write(" = ");
+            WriteAlphabet(writer, stateMachine.Alphabet);
+            writer.Write(@"\end{math} --- входной алфавит автомата (конечное множество допустимых входных символов), ");
+
+            writer.Write(@"\begin{math}");
+            WriteTransitionSetSign(writer, number);
+            writer.Write(" = ");
+            WriteTransitionSet(writer, stateMachine.Transitions);
+            writer.Write(@"\end{math} --- множество функций переходов, ");
+
+            writer.Write(@"\begin{math}");
+            WriteInitialStateSign(writer, number);
+            writer.Write(" = ");
+            WriteState(writer, stateMachine.InitialState);
+            writer.Write(@"\end{math} --- начальное состояние автомата, ");
+
+            writer.Write(@"\begin{math}");
+            WriteFinalStateSetSign(writer, number);
+            writer.Write(" = ");
+            WriteStateSet(writer, stateMachine.FinalStates);
+            writer.Write(@"\end{math} --- конечное множество заключительных состояний");
+        }
+
+        private static void WriteFinalStateSetSign(StreamWriter writer, int number)
+        {
+            WriteSymbol(writer, "F", number);
+        }
+
+        private static void WriteState(StreamWriter writer, Label state)
+        {
+            WriteLabel(writer, state);
+        }
+
+        private static void WriteInitialStateSign(StreamWriter writer, int number)
+        {
+            WriteSymbol(writer, "q", number);
+        }
+
+        private static void WriteTransitionSet(StreamWriter writer, IEnumerable<Transition> transitions)
+        {
+            bool first = true;
+
+            if (transitions.Any())
+            {
+                writer.Write(@"\{");
+
+                foreach (Transition transition in transitions)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        writer.Write(", ");
+                    }
+
+                    WriteTransition(writer, transition);
+                }
+
+                writer.Write(@"\}");
+            }
+            else
+            {
+                writer.Write(@"{\varnothing}");
+            }
+        }
+
+        private static void WriteTransition(StreamWriter writer, Transition transition)
+        {
+            writer.Write(@"\delta(");
+            WriteState(writer, transition.CurrentState);
+            writer.Write(@", ");
+            WriteSymbol(writer, transition.Symbol);
+            writer.Write(@") = ");
+            WriteState(writer, transition.NextState);
+        }
+
+        private static void WriteTransitionSetSign(StreamWriter writer, int number)
+        {
+            WriteSymbol(writer, @"\delta", number);
+        }
+
+        private static void WriteSymbol(StreamWriter writer, char symbol)
+        {
+            writer.WriteLatex(symbol.ToString());
+        }  
+
+        private static void WriteAlphabet(StreamWriter writer, IEnumerable<char> alphabet)
+        {
+            bool first = true;
+
+            if (alphabet.Any())
+            {
+                writer.Write(@"\{");
+
+                foreach (char symbol in alphabet)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        writer.Write(", ");
+                    }
+
+                    WriteSymbol(writer, symbol);
+                }
+
+                writer.Write(@"\}");
+            }
+            else
+            {
+                writer.Write(@"{\varnothing}");
+            }
+        }
+
+        private static void WriteAlphabetSign(StreamWriter writer, int number)
+        {
+            WriteSymbol(writer, @"\Sigma", number);
+        }
+
+        private static void WriteStateSet(StreamWriter writer, IEnumerable<Label> states)
+        {
+            bool first = true;
+
+            if (states.Any())
+            {
+                writer.Write(@"\{");
+
+                foreach (Label state in states)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        writer.Write(", ");
+                    }
+
+                    WriteState(writer, state);
+                }
+
+                writer.Write(@"\}");
+            }
+            else
+            {
+                writer.Write(@"{\varnothing}");
+            }
+        }
+
+        private static void WriteStateSetSign(StreamWriter writer, int number)
+        {
+            WriteSymbol(writer, "Q", number);
+        }
+
+        private static void WriteStateMachineTuple(StreamWriter writer, int number)
+        {
+            WriteStateMachineSign(writer, number);
+            writer.Write(@"=\left(");
+            WriteStateSetSign(writer, number);
+            writer.Write(", ");
+            WriteAlphabetSign(writer, number);
+            writer.Write(", ");
+            WriteTransitionSetSign(writer, number);
+            writer.Write(", ");
+            WriteInitialStateSign(writer, number);
+            writer.Write(", ");
+            WriteFinalStateSetSign(writer, number);
+            writer.Write(@"\right)");
+        }
+
+        private static void WriteStateMachineSign(StreamWriter writer, int number)
+        {
+            WriteSymbol(writer, "M", number);
         }
 
         private static Tuple<Grammar, int> OptimizeGrammar(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType)
