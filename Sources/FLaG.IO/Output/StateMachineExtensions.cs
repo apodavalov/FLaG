@@ -1,11 +1,8 @@
-﻿using FLaGLib.Collections;
-using FLaGLib.Data;
-using FLaGLib.Extensions;
+﻿using FLaGLib.Data;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
 
 namespace FLaG.IO.Output
 {
@@ -162,6 +159,9 @@ namespace FLaG.IO.Output
 
         public static Image DrawDiagram(this FLaGLib.Data.StateMachines.StateMachine stateMachine)
         {
+            return null;
+            /*
+
             using (Font stateFont = new Font(_FontName, 100f, FontStyle.Italic, GraphicsUnit.Pixel))
             {
                 using (Font transitionFont = new Font(_FontName, 70f, FontStyle.Italic, GraphicsUnit.Pixel))
@@ -322,7 +322,7 @@ namespace FLaG.IO.Output
                         return diagram;
                     }
                 }
-            }
+            } */
         }
     }
 }
