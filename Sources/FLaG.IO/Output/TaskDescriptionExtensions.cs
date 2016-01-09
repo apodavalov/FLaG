@@ -51,7 +51,7 @@ namespace FLaG.IO.Output
 
             Tuple<StateMachine, int> leftGrammarStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, GrammarType.Left, 1);
             Tuple<StateMachine, int> rightGrammarStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, GrammarType.Right, 2);
-            //Tuple<StateMachine, int> expressionStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, 3);
+            Tuple<StateMachine, int> expressionStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, 3);
 
             //leftGrammarStateMachine = OptimizeStateMachine(writer, diagramCounter, leftGrammarStateMachine, baseFullFileName);
             //rightGrammarStateMachine = OptimizeStateMachine(writer, diagramCounter, rightGrammarStateMachine, baseFullFileName);
@@ -97,8 +97,110 @@ namespace FLaG.IO.Output
 
         private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter writer, Counter diagramCounter,
             Expression expression, string baseFullFileName, int number)
+        { 
+            WriteRegexSection(writer, "Этап 2.4");
+            writer.Write("В процессе построения будем использовать изолированную от остальных пунктов нумерацию конечных автоматов. Построим ");
+            writer.Write("конечный автомат для выражения ");
+            WriteEquationRef(writer, _OriginalRegularExpressionLabel);
+            writer.Write(". Воспользуемся рекурсивным определением регулярного выражения для построения последовательности ");
+            writer.Write("конечных автоматов для каждого элементарного выражения, входящих в состав выражения ");
+            WriteEquationRef(writer, _OriginalRegularExpressionLabel);
+            writer.Write(". Собственно последний конечный автомат и будет являться искомым. Определим совокупность выражений, ");
+            writer.Write("входящих в состав исходного выражения ");
+            WriteEquationRef(writer, _OriginalRegularExpressionLabel);
+            writer.WriteLine();
+            writer.WriteLine();
+            writer.Write(@"\begin{equation}");
+            WriteEquationLabel(writer, _OriginalRegularExpressionExpandedLabel);
+            writer.WriteLine();
+            writer.WriteLine(@"\begin{split}");
+            WriteExpressionEx(writer, expression);
+            writer.WriteLine();
+            writer.WriteLine(@"\end{split}");
+            writer.WriteLine(@"\end{equation}");
+            writer.WriteLine();
+            writer.Write(@"Построим ");
+            writer.Write("конечные автоматы для указанных выражений. Каждую грамматику будем нумеровать по номеру выражения, ");
+            writer.WriteLine("для которого строится данная грамматика.");
+            writer.WriteLine();
+
+            writer.WriteLine(@"\begin{enumerate}");
+
+            int stateMachineNumber = -1;
+
+            StateMachine stateMachine = expression.MakeStateMachine(m => stateMachineNumber = OnStateMachinePostReport(writer, m));
+
+            writer.WriteLine(@"\end{enumerate}");
+            writer.WriteLine();
+
+            writer.Write("Далее по тексту (в следующих пунктах) будем обозначать полученный конечный автомат ");
+            writer.Write(@"\begin{math}");
+            WriteStateMachineSign(writer, stateMachineNumber);
+            writer.Write(@"\end{math}");
+            writer.Write(@" следующим образом: ");
+
+            writer.Write(@"\begin{math}");
+            WriteStateMachineSign(writer, number);
+            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine();
+
+            return new Tuple<StateMachine, int>(stateMachine, number);
+        }
+
+        private static int OnStateMachinePostReport(StreamWriter writer, StateMachinePostReport stateMachinePostReport)
         {
-            throw new NotImplementedException();
+            writer.Write(@"\item ");
+            writer.Write("Для выражения вида ");
+            writer.Write(@"\begin{math}");
+            WriteExpression(writer, stateMachinePostReport.New.Expression, true);
+            writer.Write(@"\end{math}, являющегося ");
+            writer.WriteLatex(GetExpressionTypeRussianName(stateMachinePostReport.New.Expression.ExpressionType, RussianCaseType.Ablative));
+
+            if (stateMachinePostReport.Dependencies.Count > 0)
+            {
+                if (stateMachinePostReport.Dependencies.Count < 2)
+                {
+                    writer.Write(" выражения с построенным конечным автоматом ");
+                }
+                else
+                {
+                    writer.Write(" выражений с построенными конечными автоматами ");
+                }
+
+                bool first = true;
+
+                foreach (StateMachineExpressionWithOriginal dependency in stateMachinePostReport.Dependencies)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        writer.Write(", ");
+                    }
+
+                    writer.Write(@"\begin{math}");
+                    WriteStateMachineSign(writer, dependency.StateMachineExpression.Number);
+                    writer.Write(@"\end{math}");
+
+                    if (dependency.OriginalStateMachineExpression != null)
+                    {
+                        writer.Write(" (построен из конечного автомата ");
+                        writer.Write(@"\begin{math}");
+                        WriteStateMachineSign(writer, dependency.OriginalStateMachineExpression.Number);
+                        writer.Write(@"\end{math}");
+                        writer.Write(@" путем соответствующей замены индексов)");
+                    }
+                }
+            }
+
+            writer.Write(", построим конечный автомат ");
+            WriteStateMachineEx(writer, stateMachinePostReport.New.StateMachine, stateMachinePostReport.New.Number);
+
+            writer.WriteLine(".");
+
+            return stateMachinePostReport.New.Number;
         }
 
         private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter writer, Counter diagramCounter,
@@ -827,7 +929,7 @@ namespace FLaG.IO.Output
         private static Tuple<Grammar,int> ConvertToGrammar(StreamWriter writer, Expression expression, GrammarType grammarType)
         {
             WriteSection(writer, grammarType, "Этап 2.3.1",1);
-            writer.Write("Построим ");
+            writer.Write("В процессе построения будем использовать изолированную от остальных пунктов нумерацию грамматик. Построим ");
             writer.WriteLatex(GetGrammarTypeRussianName(grammarType, RussianCaseType.Accusative));
             writer.Write(" грамматику для выражения ");
             WriteEquationRef(writer, _OriginalRegularExpressionLabel);
@@ -836,7 +938,7 @@ namespace FLaG.IO.Output
             writer.Write(" грамматик для каждого элементарного выражения, входящих в состав выражения ");
             WriteEquationRef(writer, _OriginalRegularExpressionLabel);
             writer.Write(". Собственно последняя грамматика и будет являться искомой. Определим совокупность выражений, ");
-            writer.Write("входящих в состав ");
+            writer.Write("входящих в состав исходного выражения ");
             WriteEquationRef(writer, _OriginalRegularExpressionLabel);
             writer.WriteLine();
             writer.WriteLine();
@@ -864,7 +966,7 @@ namespace FLaG.IO.Output
             writer.WriteLine(@"\end{enumerate}");
             writer.WriteLine();
 
-            writer.Write("Далее будем обозначать полученную грамматику ");
+            writer.Write("Далее по тексту (в следующих пунктах) будем обозначать полученную грамматику ");
             writer.Write(@"\begin{math}");
             WriteGrammarSign(writer, grammarNumber);
             writer.Write(@"\end{math}");
@@ -874,7 +976,7 @@ namespace FLaG.IO.Output
 
             writer.Write(@"\begin{math}");
             WriteGrammarSign(writer, grammarNumber);
-            writer.WriteLine(@"\end{math}. Другие грамматики, полученные на данном этапе использоваться не будут, ссылок на них далее по тексту тоже не будет.");
+            writer.WriteLine(@"\end{math}.");
             writer.WriteLine();
 
             return new Tuple<Grammar, int>(grammar, grammarNumber);
