@@ -80,17 +80,17 @@ namespace FLaG.IO.Output
             graphics.Transform = state;
         }
 
-        public static SizeF GetStatusLabelSize(Graphics g, Font stateFont, Font subscriptFont, SingleLabel status)
+        public static SizeF GetStateLabelSize(Graphics g, Font stateFont, Font subscriptFont, SingleLabel state)
         {
-            SizeF textSize = g.MeasureString(status.Sign.ToString(), stateFont);
+            SizeF textSize = g.MeasureString(state.Sign.ToString(), stateFont);
 
-            if (status.SignIndex != null)
+            if (state.SignIndex != null)
             {
-                int value = status.SignIndex.Value;
+                int value = state.SignIndex.Value;
 
                 SizeF indexSize = g.MeasureString(value.ToString(), subscriptFont);
 
-                float xSize = textSize.Width + 5 + indexSize.Width;
+                float xSize = textSize.Width + 2 + indexSize.Width;
                 float ySize = Math.Max(textSize.Height, 0.6f * textSize.Height + indexSize.Height);
 
                 textSize = new SizeF(xSize, ySize);
@@ -105,11 +105,13 @@ namespace FLaG.IO.Output
 
             using (Bitmap bitmap = new Bitmap(1, 1))
             {
+                bitmap.SetResolution(600, 600);
+
                 using (Graphics graphics = Graphics.FromImage(bitmap))
                 {
-                    foreach (SingleLabel status in states)
+                    foreach (SingleLabel state in states)
                     {
-                        SizeF textSize = GetStatusLabelSize(graphics, stateFont, subscriptFont, status);
+                        SizeF textSize = GetStateLabelSize(graphics, stateFont, subscriptFont, state);
 
                         if (radius < textSize.Width)
                         {
@@ -129,7 +131,7 @@ namespace FLaG.IO.Output
 
         public static void DrawCenteredStateName(Graphics g, Font stateFont, Font subscriptFont, RectangleF rect, SingleLabel state)
         {
-            SizeF labelSize = GetStatusLabelSize(g, stateFont, subscriptFont, state);
+            SizeF labelSize = GetStateLabelSize(g, stateFont, subscriptFont, state);
 
             float centerX = (rect.Left + rect.Right) / 2;
             float centerY = (rect.Top + rect.Bottom) / 2;
@@ -146,7 +148,7 @@ namespace FLaG.IO.Output
             if (state.SignIndex != null)
             {
                 int v = state.SignIndex.Value;
-                leftX += letterSize.Width + 5;
+                leftX += letterSize.Width + 2;
                 topY += 0.6f * letterSize.Height;
 
                 g.DrawString(v.ToString(), subscriptFont, Brushes.Black, new PointF(leftX, topY));
@@ -160,11 +162,11 @@ namespace FLaG.IO.Output
 
         public static Image DrawDiagram(this FLaGLib.Data.StateMachines.StateMachine stateMachine)
         {
-            using (Font stateFont = new Font(_FontName, 100, FontStyle.Italic, GraphicsUnit.Point))
+            using (Font stateFont = new Font(_FontName, 100f, FontStyle.Italic, GraphicsUnit.Pixel))
             {
-                using (Font transitionFont = new Font(_FontName, 70, FontStyle.Italic, GraphicsUnit.Point))
+                using (Font transitionFont = new Font(_FontName, 70f, FontStyle.Italic, GraphicsUnit.Pixel))
                 {
-                    using (Font subscriptFont = new Font(_FontName, 62, FontStyle.Italic, GraphicsUnit.Point))
+                    using (Font subscriptFont = new Font(_FontName, 62f, FontStyle.Italic, GraphicsUnit.Pixel))
                     {   
                         IReadOnlyDictionary<Label, SingleLabel> states = 
                             stateMachine.States.Select(s => new KeyValuePair<Label, SingleLabel>(s, s.ExtractSingleLabel())).
