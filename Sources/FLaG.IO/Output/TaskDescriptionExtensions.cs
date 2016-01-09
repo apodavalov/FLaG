@@ -8,6 +8,8 @@ using FLaGLib.Data.StateMachines;
 using FLaGLib.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -21,6 +23,7 @@ namespace FLaG.IO.Output
         private const string _OriginalRegularExpressionLabel = "originalRegularExpression";
         private const string _RussianCaseIsNotSupportedMessage = "Russian case type {0} is not supported.";
         private const string _OriginalRegularExpressionExpandedLabel = "originalRegularExpressionExpanded";
+        private const string _DiagramLabel = "diagram{0}";
 
         public static void Solve(this TaskDescription taskDescription, string baseTexFileName)
         {
@@ -128,7 +131,7 @@ namespace FLaG.IO.Output
 
             int stateMachineNumber = -1;
 
-            StateMachine stateMachine = expression.MakeStateMachine(m => stateMachineNumber = OnStateMachinePostReport(writer, m));
+            StateMachine stateMachine = expression.MakeStateMachine(m => stateMachineNumber = OnStateMachinePostReport(writer, m, diagramCounter, baseFullFileName));
 
             writer.WriteLine(@"\end{enumerate}");
             writer.WriteLine();
@@ -147,7 +150,7 @@ namespace FLaG.IO.Output
             return new Tuple<StateMachine, int>(stateMachine, number);
         }
 
-        private static int OnStateMachinePostReport(StreamWriter writer, StateMachinePostReport stateMachinePostReport)
+        private static int OnStateMachinePostReport(StreamWriter writer, StateMachinePostReport stateMachinePostReport, Counter diagramCounter, string baseFullFileName)
         {
             writer.Write(@"\item ");
             writer.Write("Для выражения вида ");
@@ -198,9 +201,46 @@ namespace FLaG.IO.Output
             writer.Write(", построим конечный автомат ");
             WriteStateMachineEx(writer, stateMachinePostReport.New.StateMachine, stateMachinePostReport.New.Number);
 
+            int number = diagramCounter.Next();
+
+            writer.Write(". Диаграмма состояний конечного автомата представлена на рис. ");
+            WriteDiagramRef(writer, number);
             writer.WriteLine(".");
+            writer.WriteLine();
+
+            using (Image image = stateMachinePostReport.New.StateMachine.DrawDiagram())
+            {
+                WriteDiagram(writer, image, baseFullFileName, number, "Диаграмма состояний конечного автомата");
+            }
+
+            writer.WriteLine();
 
             return stateMachinePostReport.New.Number;
+        }
+
+        private static void WriteDiagram(StreamWriter writer, Image image, string baseFullFileName, int number, string caption)
+        {
+            WriteImage(writer, image, string.Format(CultureInfo.InvariantCulture, "{0}_{1:00}.png", baseFullFileName, number), string.Format(CultureInfo.InvariantCulture, _DiagramLabel, number), caption);
+        }
+
+        private static void WriteImage(StreamWriter writer, Image image, string fileName, string label, string caption)
+        {
+            image.Save(fileName);
+
+            int widthInMm = (int)(image.Width / image.HorizontalResolution * 25.4f);
+
+            if (widthInMm > 160)
+            {
+                widthInMm = 160;
+            }
+
+            writer.Write(@"\imgh{" + widthInMm + "mm}{");
+            writer.WriteLatex(fileName);
+            writer.Write(@"}{");
+            writer.WriteLatex(caption);
+            writer.Write(@"}{img:");
+            writer.WriteLatex(label);
+            writer.Write(@"}");
         }
 
         private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter writer, Counter diagramCounter,
@@ -1344,6 +1384,18 @@ namespace FLaG.IO.Output
             writer.Write(@"\label{eq:");
             writer.WriteLatex(string.Concat(uniqueId,grammarType.ToString()));
             writer.Write(@"}");
+        }
+
+        private static void WriteImageRef(StreamWriter writer, string uniqueId)
+        {
+            writer.Write(@"\ref{img:");
+            writer.WriteLatex(uniqueId);
+            writer.Write(@"}");
+        }
+
+        private static void WriteDiagramRef(StreamWriter writer, int number)
+        {
+            WriteImageRef(writer, string.Format(CultureInfo.InvariantCulture, _DiagramLabel, number));
         }
 
         private static void WriteEquationRef(StreamWriter writer, string uniqueId, GrammarType grammarType)
