@@ -410,7 +410,7 @@ namespace FLaGLib.Test.Data.StateMachines
                 transitions
             );
 
-            IReadOnlySet<Label> metaState = stateMachine.GetMetaState();
+            IReadOnlySet<Label> metaState = stateMachine.GetMetaStates();
 
             CollectionAssert.AreEquivalent(states, metaState);
         }
@@ -447,7 +447,7 @@ namespace FLaGLib.Test.Data.StateMachines
                 transitions
             );
 
-            Assert.Throws<InvalidOperationException>(() => stateMachine.GetMetaState());
+            Assert.Throws<InvalidOperationException>(() => stateMachine.GetMetaStates());
         }
 
         [Test]
@@ -482,7 +482,7 @@ namespace FLaGLib.Test.Data.StateMachines
                 transitions
             );
 
-            Assert.Throws<InvalidOperationException>(() => stateMachine.GetMetaFinalState());
+            Assert.Throws<InvalidOperationException>(() => stateMachine.GetMetaFinalStates());
         }
 
         [Test]
@@ -524,7 +524,7 @@ namespace FLaGLib.Test.Data.StateMachines
                 s3State
             );
 
-            MetaFinalState metaFinalState = stateMachine.GetMetaFinalState();
+            MetaFinalState metaFinalState = stateMachine.GetMetaFinalStates();
 
             CollectionAssert.AreEquivalent(expectedOptionalStates, metaFinalState.OptionalStates);
             CollectionAssert.AreEquivalent(expectedRequiredStates, metaFinalState.RequiredStates);

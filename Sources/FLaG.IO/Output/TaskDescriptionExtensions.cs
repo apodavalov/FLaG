@@ -24,6 +24,7 @@ namespace FLaG.IO.Output
         private const string _RussianCaseIsNotSupportedMessage = "Russian case type {0} is not supported.";
         private const string _OriginalRegularExpressionExpandedLabel = "originalRegularExpressionExpanded";
         private const string _DiagramLabel = "diagram{0}";
+        private const string _RegularExpressionText = "регулярное выражение";
 
         public static void Solve(this TaskDescription taskDescription, string baseTexFileName)
         {
@@ -52,13 +53,15 @@ namespace FLaG.IO.Output
 
             WriteConvertToExpression(writer, expression);
 
-            Tuple<StateMachine, int> leftGrammarStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, GrammarType.Left, 1);
-            Tuple<StateMachine, int> rightGrammarStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, GrammarType.Right, 2);
-            Tuple<StateMachine, int> expressionStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, 3);
+            int stateMachineNumber = 1;
 
-            //leftGrammarStateMachine = OptimizeStateMachine(writer, diagramCounter, leftGrammarStateMachine, baseFullFileName);
-            //rightGrammarStateMachine = OptimizeStateMachine(writer, diagramCounter, rightGrammarStateMachine, baseFullFileName);
-            //expressionStateMachine = OptimizeStateMachine(writer, diagramCounter, expressionStateMachine, baseFullFileName);
+            Tuple<StateMachine, int> leftGrammarStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, GrammarType.Left, stateMachineNumber++);
+            Tuple<StateMachine, int> rightGrammarStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, GrammarType.Right, stateMachineNumber++);
+            Tuple<StateMachine, int> expressionStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, stateMachineNumber++);
+
+            leftGrammarStateMachine = OptimizeStateMachine(writer, diagramCounter, leftGrammarStateMachine, baseFullFileName, GetGrammarTypeRussianName(GrammarType.Left), stateMachineNumber);
+            rightGrammarStateMachine = OptimizeStateMachine(writer, diagramCounter, rightGrammarStateMachine, baseFullFileName, GetGrammarTypeRussianName(GrammarType.Right), leftGrammarStateMachine.Item2 + 1);
+            expressionStateMachine = OptimizeStateMachine(writer, diagramCounter, expressionStateMachine, baseFullFileName, _RegularExpressionText, rightGrammarStateMachine.Item2 + 1);
 
             //Expression leftGrammarExpression = ConvertToExpression(writer, leftGrammarStateMachine, expression, GrammarType.Left);
             //Expression rightGrammarExpression = ConvertToExpression(writer, rightGrammarStateMachine, expression, GrammarType.Right);
@@ -93,9 +96,276 @@ namespace FLaG.IO.Output
             throw new NotImplementedException();
         }
 
-        private static Tuple<StateMachine, int> OptimizeStateMachine(StreamWriter writer, Counter diagramCounter, Tuple<StateMachine, int> leftGrammarStateMachine, string baseFullFileName)
+        private static Tuple<StateMachine, int> OptimizeStateMachine(StreamWriter writer, Counter diagramCounter, Tuple<StateMachine, int> stateMachine, string baseFullFileName, string sectionCaption, int firstAvailableStateMachineNumber)
         {
-            throw new NotImplementedException();
+            Tuple<StateMachine, int> newStateMachine;
+
+            int stepNumber = 6;
+            
+            if (!CheckDeterministic(writer, stateMachine, sectionCaption))
+            {
+                newStateMachine = MakeDeterministic(writer, stateMachine, sectionCaption, firstAvailableStateMachineNumber++, stepNumber++);
+                stateMachine = newStateMachine;
+            }
+
+            return stateMachine;
+        }
+
+        private static Tuple<StateMachine, int> MakeDeterministic(StreamWriter writer, Tuple<StateMachine, int> stateMachine, string sectionCaption, int stateMachineNumber, int stepNumber)
+        {
+            WriteSection(writer, string.Format("Этап 2.{0}", stepNumber), sectionCaption);
+
+            writer.Write("Построим для недетерминированного конечного автомата ");
+
+            writer.Write(@"\begin{math}");
+            WriteStateMachineTuple(writer, stateMachine.Item2);
+            writer.Write(@"\end{math}");
+
+            writer.Write(" детерминированный конечный автомат ");
+
+            writer.Write(@"\begin{math}");
+            WriteStateMachineTuple(writer, stateMachineNumber);
+            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine();
+
+            writer.Write(@"Итак, получаем конечный автомат ");
+            WriteMetaStateMachineEx(writer, stateMachine.Item1, stateMachineNumber);
+            writer.WriteLine(".");
+            writer.WriteLine();
+
+            return new Tuple<StateMachine, int>(stateMachine.Item1.ConvertToDeterministicIfNot(), stateMachineNumber);
+        }
+
+        private static void WriteMetaStateMachineEx(StreamWriter writer, StateMachine stateMachine, int number)
+        {
+            writer.Write(@"\begin{math}");
+            WriteStateMachineTuple(writer, number);
+            writer.Write(@"\end{math}, где ");
+
+            writer.Write(@"\begin{math}");
+            WriteStateSetSign(writer, number);
+            writer.Write(" = ");
+            WriteMetaStateSet(writer, stateMachine.GetMetaStates());
+            writer.Write(@"\end{math} --- конечное множество состояний автомата, ");
+
+            writer.Write(@"\begin{math}");
+            WriteAlphabetSign(writer, number);
+            writer.Write(" = ");
+            WriteAlphabet(writer, stateMachine.Alphabet);
+            writer.Write(@"\end{math} --- входной алфавит автомата (конечное множество допустимых входных символов), ");
+
+            writer.Write(@"\begin{math}");
+            WriteTransitionSetSign(writer, number);
+            writer.Write(" = ");
+            WriteMetaTransitionSet(writer, stateMachine.GetMetaTransitions());
+            writer.Write(@"\end{math} --- множество функций переходов, ");
+
+            writer.Write(@"\begin{math}");
+            WriteInitialStateSign(writer, number);
+            writer.Write(" = ");
+            WriteMetaState(writer, stateMachine.GetMetaInitialState());
+            writer.Write(@"\end{math} --- начальное состояние автомата, ");
+
+            writer.Write(@"\begin{math}");
+            WriteFinalStateSetSign(writer, number);
+            writer.Write(" = ");
+            WriteMetaStateSet(writer, stateMachine.GetMetaFinalStates());
+            writer.Write(@"\end{math} --- конечное множество заключительных состояний");
+        }
+
+        private static void WriteMetaStateSet(StreamWriter writer, MetaFinalState metaFinalStates)
+        {
+            writer.Write(@"\{");
+
+            writer.Write(@"[");
+            writer.Write(@"{q_1},");
+            writer.Write(@"\dots,");
+            writer.Write(@"{q_j}");
+
+            if (metaFinalStates.OptionalStates.Count > 0)
+            {
+                writer.Write(@"{q_{j+1}},");
+                writer.Write(@"\dots,");
+                writer.Write(@"{q_{j+k}}");
+            }
+
+            writer.Write(@"]");
+            writer.Write(@"\comma ");
+
+            writer.Write(@"\{");
+            writer.Write(@"q_1,");
+            writer.Write(@"\dots,");
+            writer.Write(@"q_j");
+            writer.Write(@"\}");
+
+            writer.Write(@" \subseteq ");
+
+            WriteStateSet(writer,metaFinalStates.RequiredStates);
+
+            writer.Write(@"\comma j = \overline{1,");
+            writer.WriteLatex(metaFinalStates.RequiredStates.Count.ToString());
+            writer.Write(@"}");
+
+            if (metaFinalStates.OptionalStates.Count > 0)
+            {
+                writer.Write(@"\comma ");
+
+                writer.Write(@"\{");
+                writer.Write(@"{q_{j+1}},");
+                writer.Write(@"\dots,");
+                writer.Write(@"{q_{j+k}}");
+                writer.Write(@"\}");
+
+                writer.Write(@" \subseteq ");
+
+                WriteStateSet(writer, metaFinalStates.OptionalStates);
+
+                writer.Write(@"\comma k = \overline{0,");
+                writer.WriteLatex(metaFinalStates.OptionalStates.Count.ToString());
+                writer.Write(@"}");
+            }
+
+            writer.Write(@"\}");
+        }
+
+        private static void WriteMetaState(StreamWriter writer, Label metaState)
+        {
+            WriteLabel(writer, metaState);
+        }
+
+        private static void WriteMetaTransitionSet(StreamWriter writer, IEnumerable<MetaTransition> metaTransitions)
+        {
+            bool first = true;
+
+            if (metaTransitions.Any())
+            {
+                writer.Write(@"\{");
+
+                foreach (MetaTransition metaTransition in metaTransitions)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        writer.Write(@"\semicolon ");
+                    }
+
+                    WriteMetaTransition(writer, metaTransition);
+                }
+
+                writer.Write(@"\}");
+            }
+            else
+            {
+                writer.Write(@"{\varnothing}");
+            }
+        }
+
+        private static void WriteMetaTransition(StreamWriter writer, MetaTransition metaTransition)
+        {
+            writer.Write(@"\delta(");
+            writer.Write(@"[");
+
+            foreach (Label state in metaTransition.CurrentRequiredStates)
+            {
+                WriteState(writer, state);
+            }
+
+            if (metaTransition.CurrentOptionalStates.Count > 0)
+            {
+                writer.Write(@"q_1,");
+                writer.Write(@"\dots,");
+                writer.Write(@"q_k");
+            }
+
+            writer.Write(@"]");
+
+            writer.Write(@"\comma ");
+            WriteSymbol(writer, metaTransition.Symbol);
+            writer.Write(@") = ");
+
+            writer.Write(@"[");
+            
+            foreach (Label state in metaTransition.NextStates)
+            {
+                WriteState(writer, state);
+            }
+
+            writer.Write(@"]");
+
+            if (metaTransition.CurrentOptionalStates.Count > 0)
+            {
+                writer.Write(@"\comma ");
+                writer.Write(@"\{");
+                writer.Write(@"q_1,");
+                writer.Write(@"\dots,");
+                writer.Write(@"q_k");
+                writer.Write(@"\}");
+
+                writer.Write(@" \subseteq ");
+                WriteStateSet(writer, metaTransition.CurrentOptionalStates);
+                writer.Write(@"\comma k = \overline{0,");
+                writer.WriteLatex(metaTransition.CurrentOptionalStates.Count.ToString());
+                writer.Write(@"}");
+            }
+        }
+
+        private static void WriteMetaStateSet(StreamWriter writer, IEnumerable<Label> states)
+        {
+            int count = states.Count();
+
+            if (count > 0)
+            {
+                writer.Write(@"\{");
+                writer.Write(@"[");
+                writer.Write(@"q_1,");
+                writer.Write(@"\dots,");
+                writer.Write(@"q_k");
+                writer.Write(@"]\comma ");
+                writer.Write(@"\{");
+                writer.Write(@"q_1,");
+                writer.Write(@"\dots,");
+                writer.Write(@"q_k");
+                writer.Write(@"\}");
+                writer.Write(@" \subseteq ");
+                WriteStateSet(writer, states);
+                writer.Write(@"\comma k = \overline{1,");
+                writer.WriteLatex(states.Count().ToString());
+                writer.Write(@"}");
+                writer.Write(@"\}");
+            }
+            else
+            {
+                writer.Write(@"{\varnothing}");
+            }
+        }
+
+        private static bool CheckDeterministic(StreamWriter writer, Tuple<StateMachine, int> stateMachine, string sectionCaption)
+        {
+            WriteSection(writer, "Этап 2.5", sectionCaption);
+            writer.Write("На этом шаге проверяем, являются ли построенный конечный автомат детерминированным. ");
+            bool deterministic = stateMachine.Item1.IsDeterministic();
+
+            writer.Write("Рассматриваем множество функций переходов построенного конечного автомата ");
+            writer.Write(@"\begin{math}");
+            WriteStateMachineSign(writer, stateMachine.Item2);
+            writer.Write(@"\end{math}. ");
+            
+            if (deterministic)
+            {
+                writer.WriteLine(@"Видим, что автомат является детерминированным, т.к. каждое состояние имеет ровно одну функцию перехода для каждого возможного символа.");
+            }
+            else
+            {
+                writer.WriteLine(@"Видим, что автомат является недетерминированным, т.к. не каждое состояние имеет ровно одну функцию перехода для каждого возможного символа.");
+            }
+
+            writer.WriteLine();
+
+            return deterministic;
+            
         }
 
         private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter writer, Counter diagramCounter,
@@ -349,7 +619,7 @@ namespace FLaG.IO.Output
                     }
                     else
                     {
-                        writer.Write(", ");
+                        writer.Write(@"\comma ");
                     }
 
                     WriteTransition(writer, transition);
@@ -399,7 +669,7 @@ namespace FLaG.IO.Output
                     }
                     else
                     {
-                        writer.Write(", ");
+                        writer.Write(@"\comma ");
                     }
 
                     WriteSymbol(writer, symbol);
@@ -434,7 +704,7 @@ namespace FLaG.IO.Output
                     }
                     else
                     {
-                        writer.Write(", ");
+                        writer.Write(@"\comma ");
                     }
 
                     WriteState(writer, state);
@@ -1141,7 +1411,7 @@ namespace FLaG.IO.Output
                     }
                     else
                     {
-                        writer.Write(", ");
+                        writer.Write(@"\comma ");
                     }
 
                     WriteRule(writer, rule);
@@ -1243,7 +1513,7 @@ namespace FLaG.IO.Output
                     }
                     else
                     {
-                        writer.Write(", ");
+                        writer.Write(@"\comma ");
                     }
 
                     WriteSymbol(writer, symbol);
@@ -1259,9 +1529,19 @@ namespace FLaG.IO.Output
         
         private static void WriteLabel(StreamWriter writer, Label label)
         {
+            if (label.LabelType == LabelType.Complex)
+            {
+                writer.Write("[");
+            }
+
             foreach (SingleLabel singleLabel in label.Sublabels)
             {
                 WriteSingleLabel(writer, singleLabel);
+            }
+
+            if (label.LabelType == LabelType.Complex)
+            {
+                writer.Write("]");
             }
         }
 
@@ -1361,7 +1641,7 @@ namespace FLaG.IO.Output
 
         private static void WriteRegexSection(StreamWriter writer, string title, int subcount = 0)
         {
-            WriteSection(writer, title, "регулярное выражение", subcount);
+            WriteSection(writer, title, _RegularExpressionText, subcount);
         }
 
         private static void WriteConvertToExpression(StreamWriter writer, Expression expression)
@@ -2271,7 +2551,11 @@ namespace FLaG.IO.Output
             writer.WriteLine(@"\renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}.}");
             writer.WriteLine(@"\newcommand{\imgh}[4]{\begin{figure}[H]\center{\includegraphics[width=#1]{#2}}\caption{#3}\label{#4}\end{figure}}");
             writer.WriteLine(@"\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}\par}");
+            writer.WriteLine(@"\newcommand{\comma}{,\allowbreak}");
+            writer.WriteLine(@"\newcommand{\semicolon}{;\allowbreak}");
             writer.WriteLine(@"\tolerance=10000");
+            writer.WriteLine(@"\relpenalty=10000");
+            writer.WriteLine(@"\binoppenalty=10000");
             writer.WriteLine(@"\begin{document}");
             writer.WriteLine(@"\begin{titlepage}");
             writer.WriteLine(@"\newpage");

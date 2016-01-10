@@ -512,14 +512,21 @@ namespace FLaGLib.Data.StateMachines
             return new StateMachine(initialState, finalStates, transitions);
         }
 
-        public IReadOnlySet<Label> GetMetaState()
+        public Label GetMetaInitialState()
+        {
+            CheckStatesSimple("Meta state cannot be obtained for non simple states.");
+
+            return InitialState.ConvertToComplex();
+        }
+
+        public IReadOnlySet<Label> GetMetaStates()
         {
             CheckStatesSimple("Meta state cannot be obtained for non simple states.");
 
             return States;
         }
 
-        public MetaFinalState GetMetaFinalState()
+        public MetaFinalState GetMetaFinalStates()
         {
             CheckStatesSimple("Meta final state cannot be obtained for non simple states.");
 
