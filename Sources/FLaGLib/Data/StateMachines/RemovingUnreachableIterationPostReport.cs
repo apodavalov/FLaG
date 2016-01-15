@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace FLaGLib.Data.StateMachines
 {
-    public class RemovingUnreachableStatesPostReport
+    public class RemovingUnreachableStatesIterationPostReport
     {
         public IReadOnlySet<Label> CurrentReachableStates
         {
@@ -14,12 +14,12 @@ namespace FLaGLib.Data.StateMachines
         }
 
         public IReadOnlySet<Label> CurrentApproachedStates
-        {
+        {   
             get;
             private set;
         }
 
-        public IReadOnlySet<Label> NextApproachedStates
+        public IReadOnlySet<Label> CurrentApproachedMinusCurrentReachableStates
         {
             get;
             private set;
@@ -37,12 +37,19 @@ namespace FLaGLib.Data.StateMachines
             private set;
         }
 
-        public RemovingUnreachableStatesPostReport(
+        public bool IsLastIteration
+        {
+            get;
+            private set;
+        }
+
+        public RemovingUnreachableStatesIterationPostReport(
             IEnumerable<Label> currentReachableStates,
             IEnumerable<Label> nextReachableStates,
             IEnumerable<Label> currentApproachedStates,
-            IEnumerable<Label> nextApproachedStates,             
-            int iteration)
+            IEnumerable<Label> currentApproachedMinusReachableStates,
+            int iteration,
+            bool isLastIteration)
         {
             if (currentReachableStates == null)
             {
@@ -59,16 +66,17 @@ namespace FLaGLib.Data.StateMachines
                 throw new ArgumentNullException(nameof(currentApproachedStates));
             }
 
-            if (nextApproachedStates == null)
+            if (currentApproachedMinusReachableStates == null)
             {
-                throw new ArgumentNullException(nameof(nextApproachedStates));
+                throw new ArgumentNullException(nameof(currentApproachedMinusReachableStates));
             }
 
-            CurrentReachableStates = currentReachableStates.ToHashSet().AsReadOnly();
-            NextReachableStates = nextReachableStates.ToHashSet().AsReadOnly();
-            NextApproachedStates = nextApproachedStates.ToHashSet().AsReadOnly();
-            CurrentApproachedStates = currentApproachedStates.ToHashSet().AsReadOnly();
+            CurrentReachableStates = currentReachableStates.ToSortedSet().AsReadOnly();
+            NextReachableStates = nextReachableStates.ToSortedSet().AsReadOnly();
+            CurrentApproachedMinusCurrentReachableStates = currentApproachedMinusReachableStates.ToSortedSet().AsReadOnly();
+            CurrentApproachedStates = currentApproachedStates.ToSortedSet().AsReadOnly();
             Iteration = iteration;
+            IsLastIteration = isLastIteration;
         }
     }
 }

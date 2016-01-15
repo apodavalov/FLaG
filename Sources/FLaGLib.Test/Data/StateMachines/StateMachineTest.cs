@@ -282,49 +282,46 @@ namespace FLaGLib.Test.Data.StateMachines
 
             StateMachine stateMachine = new StateMachine(expectedInitialState, finalStates, transitions);
 
-            RemovingUnreachableStatesPostReport expectedBegin = 
-                new RemovingUnreachableStatesPostReport(
-                    EnumerateHelper.Sequence(s16State),
-                    EnumerateHelper.Sequence(s16State),
+            RemovingUnreachableStatesBeginPostReport expectedBegin = 
+                new RemovingUnreachableStatesBeginPostReport(
                     EnumerateHelper.Sequence(s16State),
                     EnumerateHelper.Sequence(s16State),
                     0);
 
-            IReadOnlyList<RemovingUnreachableStatesPostReport> expectedSequence = EnumerateHelper.Sequence(
-                new RemovingUnreachableStatesPostReport(
+            IReadOnlyList<RemovingUnreachableStatesIterationPostReport> expectedSequence = EnumerateHelper.Sequence(
+                new RemovingUnreachableStatesIterationPostReport(
                     EnumerateHelper.Sequence(s16State),
                     EnumerateHelper.Sequence(s2State,s7State,s12State,s16State),
                     EnumerateHelper.Sequence(s2State,s7State,s12State),
                     EnumerateHelper.Sequence(s2State,s7State,s12State),
-                    1),
-                new RemovingUnreachableStatesPostReport(
+                    1,
+                    false),
+                new RemovingUnreachableStatesIterationPostReport(
                     EnumerateHelper.Sequence(s2State,s7State,s12State,s16State),
                     EnumerateHelper.Sequence(s2State,s4State,s7State,s9State,s12State,s14State,s16State),
                     EnumerateHelper.Sequence(s4State,s9State,s14State),
                     EnumerateHelper.Sequence(s4State,s9State,s14State),
-                    2)
-            ).ToList().AsReadOnly();
-
-            RemovingUnreachableStatesPostReport expectedEnd =
-                new RemovingUnreachableStatesPostReport(
+                    2,
+                    false),
+                new RemovingUnreachableStatesIterationPostReport(
                     EnumerateHelper.Sequence(s2State, s4State, s7State, s9State, s12State, s14State, s16State),
                     EnumerateHelper.Sequence(s2State, s4State, s7State, s9State, s12State, s14State, s16State),
                     EnumerateHelper.Sequence(s2State, s7State, s12State),
                     Enumerable.Empty<Label>(),
-                    3);
+                    3,
+                    true)
+            ).ToList().AsReadOnly();
 
-            PostReportTestHelper<RemovingUnreachableStatesPostReport, RemovingUnreachableStatesPostReport, RemovingUnreachableStatesPostReport> helper =
-                new PostReportTestHelper<RemovingUnreachableStatesPostReport, RemovingUnreachableStatesPostReport, RemovingUnreachableStatesPostReport>(
+            PostReportTestHelper<RemovingUnreachableStatesBeginPostReport, RemovingUnreachableStatesIterationPostReport> helper =
+                new PostReportTestHelper<RemovingUnreachableStatesBeginPostReport, RemovingUnreachableStatesIterationPostReport>(
                     expectedBegin,    
                     expectedSequence,
-                    expectedEnd,
-                    OnTuple,
                     OnTuple,
                     OnTuple);
 
             helper.StartTest();
 
-            StateMachine actualStateMachine = stateMachine.RemoveUnreachableStates(helper.OnBeginPostReport, helper.OnIterationPostReport, helper.OnEndPostReport);
+            StateMachine actualStateMachine = stateMachine.RemoveUnreachableStates(helper.OnBeginPostReport, helper.OnIterationPostReport);
 
             helper.FinishTest();
 
@@ -335,11 +332,19 @@ namespace FLaGLib.Test.Data.StateMachines
             Assert.AreEqual(expectedInitialState, actualStateMachine.InitialState);
         }
 
-        private void OnTuple(RemovingUnreachableStatesPostReport current, RemovingUnreachableStatesPostReport tuple)
+        private void OnTuple(RemovingUnreachableStatesBeginPostReport current, RemovingUnreachableStatesBeginPostReport tuple)
         {
             Assert.AreEqual(current.Iteration, tuple.Iteration);
+            CollectionAssert.AreEquivalent(current.ApproachedStates, tuple.ApproachedStates);
+            CollectionAssert.AreEquivalent(current.ReachableStates, tuple.ReachableStates);
+        }
+
+        private void OnTuple(RemovingUnreachableStatesIterationPostReport current, RemovingUnreachableStatesIterationPostReport tuple)
+        {
+            Assert.AreEqual(current.IsLastIteration, tuple.IsLastIteration);
+            Assert.AreEqual(current.Iteration, tuple.Iteration);
             CollectionAssert.AreEquivalent(current.CurrentApproachedStates, tuple.CurrentApproachedStates);
-            CollectionAssert.AreEquivalent(current.NextApproachedStates, tuple.NextApproachedStates);
+            CollectionAssert.AreEquivalent(current.CurrentApproachedMinusCurrentReachableStates, tuple.CurrentApproachedMinusCurrentReachableStates);
             CollectionAssert.AreEquivalent(current.CurrentReachableStates, tuple.CurrentReachableStates);
             CollectionAssert.AreEquivalent(current.NextReachableStates, tuple.NextReachableStates);
         }

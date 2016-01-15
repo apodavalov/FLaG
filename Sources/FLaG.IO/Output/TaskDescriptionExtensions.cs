@@ -108,7 +108,105 @@ namespace FLaG.IO.Output
                 stateMachine = newStateMachine;
             }
 
+            newStateMachine = RemoveUnreachableStates(writer, stateMachine, sectionCaption, firstAvailableStateMachineNumber++, stepNumber++);
+            stateMachine = newStateMachine;
+
             return stateMachine;
+        }
+
+        private static Tuple<StateMachine, int> RemoveUnreachableStates(StreamWriter writer, Tuple<StateMachine, int> stateMachine, string sectionCaption, int stateMachineNumber, int stepNumber)
+        {
+            WriteSection(writer, string.Format("Этап 2.{0}", stepNumber), sectionCaption);
+
+            writer.Write("Выполним удаление недостижимых символов детерминированного конечного автомата ");
+
+            writer.Write(@"\begin{math}");
+            WriteStateMachineTuple(writer, stateMachine.Item2);
+            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine();
+
+            StateMachine newStateMachine;
+
+            writer.WriteLine(@"\begin{enumerate}");
+            newStateMachine = stateMachine.Item1.RemoveUnreachableStates(bpr => OnBeginPostReport(writer, bpr), ipr => OnIteratePostReport(writer, ipr));
+            writer.WriteLine(@"\end{enumerate}");
+            writer.WriteLine();
+            
+            writer.Write(@"В результате получаем следующий детерминированный конечный автомат ");
+            WriteStateMachineEx(writer, newStateMachine, stateMachineNumber);
+            writer.WriteLine(@".");
+            writer.WriteLine();
+
+            return new Tuple<StateMachine, int>(newStateMachine, stateMachineNumber);
+
+        }
+
+        private static void OnIteratePostReport(StreamWriter writer, RemovingUnreachableStatesIterationPostReport postReport)
+        {
+            writer.Write(@"\item ");
+            writer.Write(@"\begin{math}");
+            WriteApproachedStateSetSign(writer, postReport.Iteration);
+            writer.Write(@" = ");
+            WriteStateSet(writer, postReport.CurrentApproachedStates);
+            writer.Write(@"\comma ");
+            WriteApproachedStateSetSign(writer, postReport.Iteration);
+            writer.Write(@" \setminus ");
+            WriteReachableStateSetSign(writer);
+            writer.Write(@" = ");
+            WriteStateSet(writer, postReport.CurrentApproachedStates);
+            writer.Write(@" \setminus ");
+            WriteStateSet(writer, postReport.CurrentReachableStates);
+            writer.Write(@" = ");
+            WriteStateSet(writer, postReport.CurrentApproachedMinusCurrentReachableStates);
+
+            if (postReport.IsLastIteration)
+            {
+                writer.Write(@" = ");
+                writer.Write(@"\varnothing");
+            }
+            else
+            {
+                writer.Write(@" \neq ");
+                writer.Write(@"\varnothing");
+                writer.Write(@"\comma ");
+                WriteReachableStateSetSign(writer);
+                writer.Write(@" = ");
+                WriteReachableStateSetSign(writer);
+                writer.Write(@" \cup ");
+                WriteStateSet(writer, postReport.CurrentApproachedStates);
+                writer.Write(@" = ");
+                WriteStateSet(writer, postReport.CurrentReachableStates);
+                writer.Write(@" \cup ");
+                WriteStateSet(writer, postReport.CurrentApproachedStates);
+                writer.Write(@" = ");
+                WriteStateSet(writer, postReport.NextReachableStates);
+            }
+
+            writer.WriteLine(@"\end{math}.");
+        }
+
+        private static void OnBeginPostReport(StreamWriter writer, RemovingUnreachableStatesBeginPostReport postReport)
+        {
+            writer.Write(@"\item ");
+            writer.Write(@"\begin{math}");
+            WriteReachableStateSetSign(writer);
+            writer.Write(@" = ");
+            WriteStateSet(writer, postReport.ReachableStates);
+            writer.Write(@"\comma ");
+            WriteApproachedStateSetSign(writer, postReport.Iteration);
+            writer.Write(@" = ");
+            WriteStateSet(writer, postReport.ApproachedStates);
+            writer.WriteLine(@"\end{math}.");
+        }
+
+        private static void WriteReachableStateSetSign(StreamWriter writer)
+        {
+            WriteSymbol(writer, "R", null);
+        }
+
+        private static void WriteApproachedStateSetSign(StreamWriter writer, int number)
+        {
+            WriteSymbol(writer, "P", number);
         }
 
         private static Tuple<StateMachine, int> MakeDeterministic(StreamWriter writer, Tuple<StateMachine, int> stateMachine, string sectionCaption, int stateMachineNumber, int stepNumber)

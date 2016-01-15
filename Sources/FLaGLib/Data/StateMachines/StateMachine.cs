@@ -134,32 +134,26 @@ namespace FLaGLib.Data.StateMachines
         }
 
         public StateMachine RemoveUnreachableStates(
-            Action<RemovingUnreachableStatesPostReport> onBegin = null, 
-            Action<RemovingUnreachableStatesPostReport> onIterate = null, 
-            Action<RemovingUnreachableStatesPostReport> onEnd = null)
+            Action<RemovingUnreachableStatesBeginPostReport> onBegin = null, 
+            Action<RemovingUnreachableStatesIterationPostReport> onIterate = null)
         {
-            ISet<Label> currentReachableStatesSet = new SortedSet<Label>();
-            ISet<Label> currentApproachedStatesSet = new SortedSet<Label>();
+            ISet<Label> currentReachableStatesSet = new HashSet<Label>();
+            ISet<Label> currentApproachedStatesSet = new HashSet<Label>();
 
             int i = 0;
 
             currentReachableStatesSet.Add(InitialState);
             currentApproachedStatesSet.Add(InitialState);
 
-            ISet<Label> nextApproachedStatesSet = new SortedSet<Label>();
-
             if (onBegin != null)
             {
-                IReadOnlySet<Label> currentReachableStatesList = new SortedSet<Label>(currentReachableStatesSet).AsReadOnly();
-                IReadOnlySet<Label> nextApproachedStatesList = new SortedSet<Label>(currentApproachedStatesSet).AsReadOnly();
-
-                onBegin(new RemovingUnreachableStatesPostReport(
-                    currentReachableStatesList,
-                    currentReachableStatesList,
-                    nextApproachedStatesList,
-                    nextApproachedStatesList,
+                onBegin(new RemovingUnreachableStatesBeginPostReport(
+                    currentReachableStatesSet,
+                    currentApproachedStatesSet,
                     i));
             }
+
+            ISet<Label> nextApproachedStatesSet = new HashSet<Label>();
 
             do
             {
@@ -169,45 +163,28 @@ namespace FLaGLib.Data.StateMachines
                 {
                     if (currentApproachedStatesSet.Contains(transition.CurrentState))
                     {
-                       nextApproachedStatesSet.Add(transition.NextState);
+                        nextApproachedStatesSet.Add(transition.NextState);
                     }
                 }
 
-                IReadOnlySet<Label> currentReachableStates = new SortedSet<Label>(currentReachableStatesSet).AsReadOnly();
-                IReadOnlySet<Label> currentApproachedStates = new SortedSet<Label>(nextApproachedStatesSet).AsReadOnly();
+                ISet<Label> currentReachableStates = currentReachableStatesSet.ToHashSet();
+                ISet<Label> currentApproachedStates = nextApproachedStatesSet.ToHashSet();
 
                 nextApproachedStatesSet.ExceptWith(currentReachableStatesSet);
                 currentReachableStatesSet.UnionWith(nextApproachedStatesSet);
 
-                IReadOnlySet<Label> nextReachableStates = new SortedSet<Label>(currentReachableStatesSet).AsReadOnly();
-                IReadOnlySet<Label> nextApproachedStates = new SortedSet<Label>(nextApproachedStatesSet).AsReadOnly();
-
-                if (nextApproachedStatesSet.Count > 0)
+                if (onIterate != null)
                 {
-                    if (onIterate != null)
-                    {
-                        onIterate(new RemovingUnreachableStatesPostReport(
-                            currentReachableStates,
-                            nextReachableStates,
-                            currentApproachedStates,
-                            nextApproachedStates,
-                            i));
-                    }
-                }
-                else
-                {
-                    if (onEnd != null)
-                    {
-                        onEnd(new RemovingUnreachableStatesPostReport(
-                            currentReachableStates,
-                            nextReachableStates,
-                            currentApproachedStates,
-                            nextApproachedStates,
-                            i));
-                    }
+                    onIterate(new RemovingUnreachableStatesIterationPostReport(
+                        currentReachableStates,
+                        currentReachableStatesSet,
+                        currentApproachedStates,
+                        nextApproachedStatesSet,
+                        i,
+                        !(nextApproachedStatesSet.Count > 0)));
                 }
 
-                ISet<Label> temp = currentApproachedStatesSet;                
+                ISet<Label> temp = currentApproachedStatesSet;
                 currentApproachedStatesSet = nextApproachedStatesSet;
                 nextApproachedStatesSet = temp;
 
@@ -228,7 +205,7 @@ namespace FLaGLib.Data.StateMachines
 
             ISet<Label> newFinalStates = currentReachableStatesSet;
 
-            return new StateMachine(InitialState, newFinalStates, newTransitions);            
+            return new StateMachine(InitialState, newFinalStates, newTransitions);
         }
 
         public StateMachine Reorganize(IDictionary<Label, Label> map)

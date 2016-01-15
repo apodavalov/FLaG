@@ -15,12 +15,13 @@ namespace FLaGLib.Test.Data.StateMachines
         public void Cctor_CurrentReachableStatesNull_Fail()
         {
             Assert.Throws<ArgumentNullException>(() =>
-                new RemovingUnreachableStatesPostReport(
+                new RemovingUnreachableStatesIterationPostReport(
                     null, 
                     Enumerable.Empty<Label>(),
                     Enumerable.Empty<Label>(),
                     Enumerable.Empty<Label>(),
-                    0
+                    0,
+                    false
                 )
             );
         }
@@ -29,12 +30,13 @@ namespace FLaGLib.Test.Data.StateMachines
         public void Cctor_CurrentApproachedStatesNull_Fail()
         {
             Assert.Throws<ArgumentNullException>(() =>
-                new RemovingUnreachableStatesPostReport(
+                new RemovingUnreachableStatesIterationPostReport(
                     Enumerable.Empty<Label>(),
                     Enumerable.Empty<Label>(), 
                     null,
                     Enumerable.Empty<Label>(),
-                    0
+                    0,
+                    true
                 )
             );
         }
@@ -43,12 +45,13 @@ namespace FLaGLib.Test.Data.StateMachines
         public void Cctor_NextReachableStatesNull_Fail()
         {
             Assert.Throws<ArgumentNullException>(() =>
-                new RemovingUnreachableStatesPostReport(
+                new RemovingUnreachableStatesIterationPostReport(
                     Enumerable.Empty<Label>(), 
                     null,
                     Enumerable.Empty<Label>(),
                     Enumerable.Empty<Label>(), 
-                    0
+                    0,
+                    false
                 )
             );
         }
@@ -57,12 +60,13 @@ namespace FLaGLib.Test.Data.StateMachines
         public void Cctor_NextApproachedStatesNull_Fail()
         {
             Assert.Throws<ArgumentNullException>(() =>
-                new RemovingUnreachableStatesPostReport(
+                new RemovingUnreachableStatesIterationPostReport(
                     Enumerable.Empty<Label>(),
                     Enumerable.Empty<Label>(),
                     Enumerable.Empty<Label>(),
                     null,
-                    0
+                    0,
+                    true
                 )
             );
         }
@@ -75,19 +79,23 @@ namespace FLaGLib.Test.Data.StateMachines
             IEnumerable<Label> expectedCurrentApproachedStates = EnumerateHelper.Sequence(new Label(new SingleLabel('f')), new Label(new SingleLabel('g')));
             IEnumerable<Label> expectedNextApproachedStates = EnumerateHelper.Sequence(new Label(new SingleLabel('h')), new Label(new SingleLabel('i')));
             int expectedIteration = 45;
+            bool expectedIsLastIteration = true;
 
-            RemovingUnreachableStatesPostReport actual =
-                new RemovingUnreachableStatesPostReport(
+            RemovingUnreachableStatesIterationPostReport actual =
+                new RemovingUnreachableStatesIterationPostReport(
                     expectedCurrentReachableStates,
                     expectedNextReachableStates,
                     expectedCurrentApproachedStates,
-                    expectedNextApproachedStates,expectedIteration);
+                    expectedNextApproachedStates,
+                    expectedIteration, 
+                    expectedIsLastIteration);
 
             CollectionAssert.AreEquivalent(expectedCurrentReachableStates,actual.CurrentReachableStates);
             CollectionAssert.AreEquivalent(expectedNextReachableStates, actual.NextReachableStates);
             CollectionAssert.AreEquivalent(expectedCurrentApproachedStates, actual.CurrentApproachedStates);
-            CollectionAssert.AreEquivalent(expectedNextApproachedStates, actual.NextApproachedStates);
+            CollectionAssert.AreEquivalent(expectedNextApproachedStates, actual.CurrentApproachedMinusCurrentReachableStates);
             Assert.AreEqual(expectedIteration, actual.Iteration);
+            Assert.AreEqual(expectedIsLastIteration, actual.IsLastIteration);
         }
     }
 }
