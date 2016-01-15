@@ -404,8 +404,11 @@ namespace FLaG.IO.Output
                         writer.Write(@"\semicolon ");
                     }
 
+                    writer.Write(@"\newline ");
                     WriteMetaTransition(writer, metaTransition);
                 }
+
+                writer.Write(@"\newline ");
 
                 writer.Write(@"\}");
             }
@@ -434,7 +437,7 @@ namespace FLaG.IO.Output
 
             writer.Write(@"]");
 
-            writer.Write(@"\comma ");
+            writer.Write(@", ");
             WriteSymbol(writer, metaTransition.Symbol);
             writer.Write(@") = ");
 
@@ -449,7 +452,7 @@ namespace FLaG.IO.Output
 
             if (metaTransition.CurrentOptionalStates.Count > 0)
             {
-                writer.Write(@"\comma ");
+                writer.Write(@",\newline ");
                 writer.Write(@"\{");
                 writer.Write(@"q_1,");
                 writer.Write(@"\dots,");
