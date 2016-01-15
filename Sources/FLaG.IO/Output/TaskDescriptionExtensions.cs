@@ -101,8 +101,10 @@ namespace FLaG.IO.Output
             Tuple<StateMachine, int> newStateMachine;
 
             int stepNumber = 6;
-            
-            if (!CheckDeterministic(writer, stateMachine, sectionCaption))
+
+            bool isDeterministic = CheckDeterministic(writer, stateMachine, sectionCaption);
+
+            if (!isDeterministic)
             {
                 newStateMachine = MakeDeterministic(writer, stateMachine, sectionCaption, firstAvailableStateMachineNumber++, stepNumber++);
                 stateMachine = newStateMachine;
@@ -111,7 +113,59 @@ namespace FLaG.IO.Output
             newStateMachine = RemoveUnreachableStates(writer, stateMachine, sectionCaption, firstAvailableStateMachineNumber++, stepNumber++);
             stateMachine = newStateMachine;
 
+            if (!isDeterministic)
+            {
+                newStateMachine = Reorganize(writer, stateMachine, firstAvailableStateMachineNumber++);
+                stateMachine = newStateMachine;
+            }
+
             return stateMachine;
+        }
+
+        private static Tuple<StateMachine, int> Reorganize(StreamWriter writer, Tuple<StateMachine, int> stateMachine, int stateMachineNumber)
+        {
+            writer.Write(@"Для упрощения дальнейших преобразований выполним переобозначения состояний детерминированного конечного автомата ");
+            writer.Write(@"\begin{math}");
+            WriteStateMachineTuple(writer, stateMachine.Item2);
+            writer.Write(@"\end{math}. ");
+
+            StateMachine newStateMachine = stateMachine.Item1.Reorganize(map => OnStateMachineMap(writer, map));
+
+            writer.Write(@"Итак, получаем детерминированный конечный автомат ");
+            WriteStateMachineEx(writer, newStateMachine, stateMachineNumber);
+
+            writer.WriteLine(@".");
+            writer.WriteLine();
+
+            return new Tuple<StateMachine, int>(newStateMachine, stateMachineNumber);
+        }
+
+        private static void OnStateMachineMap(StreamWriter writer, IReadOnlyDictionary<Label, Label> map)
+        {
+            writer.Write(@"Введем новые состояния соответствующие старым: ");
+
+            bool first = true;
+
+            foreach (KeyValuePair<Label, Label> stateState in map)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    writer.Write(@", ");
+                }
+
+                writer.Write(@"\begin{math}");
+                WriteState(writer, stateState.Key);
+                writer.Write(@" \equiv ");
+                WriteState(writer, stateState.Value);
+                writer.Write(@"\end{math}");
+            }
+
+            writer.WriteLine(".");
+            writer.WriteLine();
         }
 
         private static Tuple<StateMachine, int> RemoveUnreachableStates(StreamWriter writer, Tuple<StateMachine, int> stateMachine, string sectionCaption, int stateMachineNumber, int stepNumber)

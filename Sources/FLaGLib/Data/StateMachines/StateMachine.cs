@@ -236,6 +236,11 @@ namespace FLaGLib.Data.StateMachines
             return Reorganize(map);
         }
 
+        public StateMachine Reorganize(Action<IReadOnlyDictionary<Label, Label>> onStateMap = null)
+        {
+            return Reorganize('S', onStateMap);
+        }
+
         public StateMachine Reorganize(char stateSign, Action<IReadOnlyDictionary<Label,Label>> onStateMap = null)
         {
             Dictionary<Label, Label> dictionary = new Dictionary<Label, Label>();
