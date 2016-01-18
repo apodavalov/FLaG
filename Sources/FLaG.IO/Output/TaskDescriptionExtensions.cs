@@ -2141,7 +2141,7 @@ namespace FLaG.IO.Output
         private static void WriteEquationLabel(StreamWriter writer, string uniqueId, GrammarType grammarType)
         {
             writer.Write(@"\label{eq:");
-            writer.WriteLatex(string.Concat(uniqueId,grammarType.ToString(_RussianCulture)));
+            writer.WriteLatex(string.Concat(uniqueId,grammarType.ToString()));
             writer.Write(@"}");
         }
 
@@ -2160,7 +2160,7 @@ namespace FLaG.IO.Output
         private static void WriteEquationRef(StreamWriter writer, string uniqueId, GrammarType grammarType)
         {
             writer.Write(@"(\ref{eq:");
-            writer.WriteLatex(string.Concat(uniqueId,grammarType.ToString(_RussianCulture)));
+            writer.WriteLatex(string.Concat(uniqueId,grammarType.ToString()));
             writer.Write(@"})");
         }
 
