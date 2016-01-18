@@ -166,7 +166,7 @@ namespace FLaG.IO.Output
             writer.WriteLine(@"\end{math}.");
             writer.WriteLine();
 
-            writer.Write(@"Система уравнений с регулярными коэффициентами примет следующий вид: ");
+            writer.WriteLine(@"Система уравнений с регулярными коэффициентами примет следующий вид: ");
 
             Expression expression = grammar.MakeExpression(grammarType, bpr => OnBeginPostReport(writer, bpr), ipr => OnIteratePostReport(writer, ipr));
 
@@ -191,14 +191,103 @@ namespace FLaG.IO.Output
             return result;
         }
 
+        private static void WriteMatrix(StreamWriter writer, Matrix matrix)
+        {
+            writer.WriteLine(@"\begin{cases}");
+
+            writer.WriteLine(@"\begin{array}{l l}");
+
+            for (int i = 0; i < matrix.RowCount; i++)
+            {
+                writer.Write(@"{");
+
+                WriteNonTerminal(writer, matrix.NonTerminals[i]);
+
+                writer.Write(@" = ");
+
+                bool first = true;
+
+                for (int j = 0; j < matrix.ColumnCount; j++)
+                {
+                    if (matrix[i,j] == null)
+                    {
+                        continue;
+                    }
+
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        writer.Write(@" + ");
+                    }
+
+                    WriteTargetExpression(writer, matrix.GrammarType, matrix[i, j], j < matrix.ColumnCount - 1 ? matrix.NonTerminals[j] : null);
+                }
+
+                writer.WriteLine(@"}\\");
+            }
+
+            writer.WriteLine(@"\end{array}");
+            writer.WriteLine(@"\end{cases}");
+        }
+
+        private static void WriteTargetExpression(StreamWriter writer, GrammarType grammarType, Expression expression, NonTerminalSymbol nonTerminalSymbol)
+        {
+            if (grammarType == GrammarType.Left && nonTerminalSymbol != null)
+            {
+                WriteNonTerminal(writer, nonTerminalSymbol);
+            }
+
+            if (expression.ExpressionType != ExpressionType.Empty || nonTerminalSymbol == null)
+            {
+                writer.Write(@"{");
+
+                bool needBrackets = expression.ExpressionType == ExpressionType.BinaryUnion || expression.ExpressionType == ExpressionType.Union;
+
+                if (needBrackets)
+                {
+                    writer.Write(@"(");
+                }
+
+                WriteExpression(writer, expression);
+                
+                if (needBrackets)
+                {
+                    writer.Write(@")");
+                }
+
+                writer.Write(@"}");
+            }
+
+            if (grammarType == GrammarType.Right && nonTerminalSymbol != null)
+            {
+                WriteNonTerminal(writer, nonTerminalSymbol);
+            }
+        }
+
         private static void OnBeginPostReport(StreamWriter writer, Matrix postReport)
         {
-            //throw new NotImplementedException();
+            writer.WriteLine(@"\begin{math}");
+            WriteMatrix(writer, postReport);
+            writer.WriteLine(@"\end{math}");
+            writer.WriteLine();
+            writer.WriteLine(@"Найдем решение данной системы.");
+            writer.WriteLine();
+            writer.WriteLine(@"\begin{math}");
+            WriteMatrix(writer, postReport);
+            writer.WriteLine(@"\end{math}");
+            writer.WriteLine();
         }
 
         private static void OnIteratePostReport(StreamWriter writer, Matrix postReport)
         {
-            //throw new NotImplementedException();
+            writer.WriteLine(@"\begin{math}");
+            writer.WriteLine(@"\Rightarrow");
+            WriteMatrix(writer, postReport);
+            writer.WriteLine(@"\end{math}");
+            writer.WriteLine();
         }
 
         private static Tuple<StateMachine, int> OptimizeStateMachine(StreamWriter writer, Counter diagramCounter, Tuple<StateMachine, int> stateMachine, string baseFullFileName, string sectionCaption, int firstAvailableStateMachineNumber)
