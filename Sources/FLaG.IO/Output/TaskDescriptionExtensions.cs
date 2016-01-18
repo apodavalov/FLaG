@@ -2,6 +2,7 @@
 using FLaGLib.Collections;
 using FLaGLib.Data;
 using FLaGLib.Data.Grammars;
+using FLaGLib.Data.Helpers;
 using FLaGLib.Data.Languages;
 using FLaGLib.Data.RegExps;
 using FLaGLib.Data.StateMachines;
@@ -135,9 +136,44 @@ namespace FLaG.IO.Output
 
             WriteSection(writer, "Этап 2.11.2", sectionCaption, 1);
 
-            // 
+            writer.Write(@"Используя теорию уравнений с регулярными коэффициентами, выполним построение регулярного выражения для грамматики ");
+            writer.Write(@"\begin{math}");
+            WriteGrammarTuple(writer, grammarNumber);
+            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine();
+
+            writer.Write(@"Система уравнений с регулярными коэффициентами примет следующий вид: ");
+
+            Expression expression = grammar.MakeExpression(grammarType, bpr => OnBeginPostReport(writer, bpr), ipr => OnIteratePostReport(writer, ipr));
+
+            writer.Write(@"Таким образом, мы определили все неизвестные. Доказано, что решение для ");
+            writer.Write(@"\begin{math}");
+            WriteNonTerminal(writer, grammar.Target);
+            writer.Write(@"\end{math}");
+            writer.Write(@" будет представлять собой искомое выражение, обозначающее язык, заданный грамматикой ");
+            writer.Write(@"\begin{math}");
+            WriteGrammarTuple(writer, grammarNumber);
+            writer.Write(@"\end{math}. ");
+            writer.Write(@"Таким образом, искомое регулярное выражение примет следующий вид ");
+            writer.Write(@"\begin{math}");
+            WriteNonTerminal(writer, grammar.Target);
+            writer.Write(@" = ");
+            WriteExpression(writer, expression);
+            writer.Write(@" = ");
+            WriteExpression(writer, result);
+            writer.Write(@"\end{math}.");
 
             return result;
+        }
+
+        private static void OnBeginPostReport(StreamWriter writer, Matrix postReport)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private static void OnIteratePostReport(StreamWriter writer, Matrix postReport)
+        {
+            //throw new NotImplementedException();
         }
 
         private static Tuple<StateMachine, int> OptimizeStateMachine(StreamWriter writer, Counter diagramCounter, Tuple<StateMachine, int> stateMachine, string baseFullFileName, string sectionCaption, int firstAvailableStateMachineNumber)
