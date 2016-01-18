@@ -25,6 +25,8 @@ namespace FLaG.IO.Output
         private const string _OriginalRegularExpressionExpandedLabel = "originalRegularExpressionExpanded";
         private const string _DiagramLabel = "diagram{0}";
         private const string _RegularExpressionText = "регулярное выражение";
+        private const string _SectionCaptionRegexFormat = "{0} [{1}]";
+        private const string _SectionCaptionGrammarFormat = "{0}";
 
         public static void Solve(this TaskDescription taskDescription, string baseTexFileName)
         {
@@ -60,13 +62,21 @@ namespace FLaG.IO.Output
             Tuple<StateMachine, int> expressionStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, stateMachineNumber++);
 
             leftGrammarStateMachine = OptimizeStateMachine(writer, diagramCounter, leftGrammarStateMachine, baseFullFileName, GetGrammarTypeRussianName(GrammarType.Left), stateMachineNumber);
+
+            Expression leftGrammarExpression = ConvertToExpression(writer, leftGrammarStateMachine, expression, GrammarType.Left,
+                string.Format(_SectionCaptionGrammarFormat, GetGrammarTypeRussianName(GrammarType.Left)), 1);
+
             rightGrammarStateMachine = OptimizeStateMachine(writer, diagramCounter, rightGrammarStateMachine, baseFullFileName, GetGrammarTypeRussianName(GrammarType.Right), leftGrammarStateMachine.Item2 + 1);
+
+            Expression rightGrammarExpression = ConvertToExpression(writer, rightGrammarStateMachine, expression, GrammarType.Right,
+                string.Format(_SectionCaptionGrammarFormat, GetGrammarTypeRussianName(GrammarType.Right)), 2);
+
             expressionStateMachine = OptimizeStateMachine(writer, diagramCounter, expressionStateMachine, baseFullFileName, _RegularExpressionText, rightGrammarStateMachine.Item2 + 1);
 
-            //Expression leftGrammarExpression = ConvertToExpression(writer, leftGrammarStateMachine, expression, GrammarType.Left);
-            //Expression rightGrammarExpression = ConvertToExpression(writer, rightGrammarStateMachine, expression, GrammarType.Right);
-            //Expression leftStateMachineExpression = ConvertToExpression(writer, expressionStateMachine, expression, GrammarType.Left);
-            //Expression rightStateMachineExpression = ConvertToExpression(writer, expressionStateMachine, expression, GrammarType.Right);
+            Expression leftStateMachineExpression = ConvertToExpression(writer, expressionStateMachine, expression, GrammarType.Left, 
+                string.Format(_SectionCaptionRegexFormat, GetGrammarTypeRussianName(GrammarType.Left), _RegularExpressionText),3);
+            Expression rightStateMachineExpression = ConvertToExpression(writer, expressionStateMachine, expression, GrammarType.Right, 
+                string.Format(_SectionCaptionRegexFormat, GetGrammarTypeRussianName(GrammarType.Right), _RegularExpressionText),4);
 
             //ConvertToEntity(writer, expression, language);
         }
@@ -91,9 +101,42 @@ namespace FLaG.IO.Output
             throw new NotImplementedException();
         }
 
-        private static Expression ConvertToExpression(StreamWriter writer, Tuple<StateMachine, int> stateMachine, Expression result, GrammarType grammarType)
+        private static Expression ConvertToExpression(StreamWriter writer, Tuple<StateMachine, int> stateMachine, Expression result, GrammarType grammarType, string sectionCaption, int grammarNumber)
         {
-            throw new NotImplementedException();
+            WriteSection(writer, "Этап 2.11", sectionCaption);
+
+            writer.WriteLine(@"Для проверки правильности построения конечного автомата выполним обратные преобразования, то есть рассмотрим множество входных цепочек допускает данный автомат.");
+
+            WriteSection(writer, "Этап 2.11.1", sectionCaption, 1);
+
+            writer.Write(@"Выполним построение ");
+            writer.Write(GetGrammarTypeRussianName(grammarType, RussianCaseType.Genitive));
+            writer.Write(@" грамматики ");
+
+            writer.Write(@"\begin{math}");
+            WriteGrammarTuple(writer, grammarNumber);
+            writer.Write(@"\end{math}");
+
+            writer.Write(@" по минимальному детерминированному конечному автомату ");
+
+            writer.Write(@"\begin{math}");
+            WriteStateMachineTuple(writer, stateMachine.Item2);
+            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine();
+
+            writer.Write(@"Итак, получаем грамматику ");
+
+            Grammar grammar = stateMachine.Item1.MakeGrammar(grammarType);
+
+            WriteGrammarEx(writer, grammar, grammarNumber);
+            writer.WriteLine(".");
+            writer.WriteLine();
+
+            WriteSection(writer, "Этап 2.11.2", sectionCaption, 1);
+
+            // 
+
+            return result;
         }
 
         private static Tuple<StateMachine, int> OptimizeStateMachine(StreamWriter writer, Counter diagramCounter, Tuple<StateMachine, int> stateMachine, string baseFullFileName, string sectionCaption, int firstAvailableStateMachineNumber)
@@ -900,7 +943,7 @@ namespace FLaG.IO.Output
             writer.Write(@" для автоматной грамматики ");
             writer.Write(@"\begin{math}");
             WriteGrammarSign(writer, grammar.Item2);
-            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine(@"\end{math}. Обозначения для полученных выше грамматик использовать больше не будем. ");
             writer.WriteLine();
             writer.Write(@"Строим конечный автомат ");
 
