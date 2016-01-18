@@ -6,9 +6,9 @@ using System.Linq;
 
 namespace FLaGLib.Data.StateMachines
 {
-    public class SetsOfEquivalence : ReadOnlySet<SetOfEquivalence>, IComparable<SetsOfEquivalence>, IEquatable<SetsOfEquivalence>
+    public class SetsOfEquivalence : ReadOnlyList<SetOfEquivalence>, IComparable<SetsOfEquivalence>, IEquatable<SetsOfEquivalence>
     {
-        public SetsOfEquivalence(IEnumerable<SetOfEquivalence> set) : base(set.ToSortedSetNullable()) { }
+        public SetsOfEquivalence(IEnumerable<SetOfEquivalence> set) : base(set?.OrderBy(c => c).ToList()) { }
 
         public static bool operator ==(SetsOfEquivalence objA, SetsOfEquivalence objB)
         {

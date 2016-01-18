@@ -105,57 +105,6 @@ namespace FLaGLib.Test.Extensions
         {
             IEnumerable<int> iEnumerable = null;
             Assert.Throws<ArgumentNullException>(() => IEnumerableExtension.ToSortedSet(iEnumerable));
-        }
-
-        [Test]
-        public void ToSortedSetNullableTest()
-        {
-            int[] variable = new int[2];
-            for (int i = 0; i < variable.GetLength(0); i++)
-            {
-                variable[i] = i;
-            }
-
-            SortedSet<int> expectedSortedSet = new SortedSet<int>(variable);
-            SortedSet<int> actualSortedSet = IEnumerableExtension.ToSortedSetNullable(variable);
-            Assert.AreEqual(expectedSortedSet, actualSortedSet);
-            IEnumerable<int> iEnumerable = null;
-            actualSortedSet = IEnumerableExtension.ToSortedSetNullable(iEnumerable);
-            Assert.AreEqual(null, actualSortedSet);
-        }
-
-        [Test]
-        public void ToHashSetNullableTest()
-        {
-            int[] variable = new int[2];
-            for (int i = 0; i < variable.GetLength(0); i++)
-            {
-                variable[i] = i;
-            }
-
-            HashSet<int> expectedHashSet = new HashSet<int>(variable);
-            HashSet<int> actualHashSet = IEnumerableExtension.ToHashSetNullable(variable);
-            Assert.AreEqual(expectedHashSet, actualHashSet);
-            IEnumerable<int> iEnumerable = null;
-            actualHashSet = IEnumerableExtension.ToHashSetNullable(iEnumerable);
-            Assert.AreEqual(null, actualHashSet);
-        }
-
-        [Test]
-        public void ToListNullableTest()
-        {
-            int[] variable = new int[2];
-            for (int i = 0; i < variable.GetLength(0); i++)
-            {
-                variable[i] = i;
-            }
-
-            List<int> expectedList = new List<int>(variable);
-            List<int> actualList = IEnumerableExtension.ToListNullable(variable);
-            Assert.AreEqual(expectedList, actualList);
-            IEnumerable<int> iEnumerable = null;
-            actualList = IEnumerableExtension.ToListNullable(iEnumerable);
-            Assert.AreEqual(null, actualList);
-        }
+        }       
     }
 }

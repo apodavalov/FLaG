@@ -85,6 +85,8 @@
     <Compile Include="Data\RegExps\StateMachinePostReport.cs" />
     <Compile Include="Data\RegExps\UnionHelper.cs" />
     <Compile Include="Data\RegExps\Concat.cs" />
+    <Compile Include="Data\StateMachines\MinimizingBeginPostReport.cs" />
+    <Compile Include="Data\StateMachines\MinimizingIterationPostReport.cs" />
     <Compile Include="Data\StateMachines\RemovingUnreachableBeginPostReport.cs" />
     <Compile Include="Helpers\Matrix.cs" />
     <Compile Include="Data\RegExps\BinaryUnion.cs" />
@@ -99,15 +101,12 @@
     <Compile Include="Data\StateMachines\LabelSetEqualityComparer.cs" />
     <Compile Include="Data\StateMachines\MetaFinalState.cs" />
     <Compile Include="Data\StateMachines\MetaTransition.cs" />
-    <Compile Include="Data\StateMachines\SetsOfEquivalencePostReport.cs" />
-    <Compile Include="Data\StateMachines\SetOfEquivalenceTransitionsPostReport.cs" />
     <Compile Include="Data\StateMachines\ClassOfEquivalence.cs" />
     <Compile Include="Data\StateMachines\ClassOfEquivalenceSet.cs" />
     <Compile Include="Data\StateMachines\RemovingUnreachableIterationPostReport.cs" />
     <Compile Include="Data\StateMachines\SetsOfEquivalence.cs" />
     <Compile Include="Data\StateMachines\SetOfEquivalence.cs" />
     <Compile Include="Data\StateMachines\SetOfEquivalenceTransition.cs" />
-    <Compile Include="Data\StateMachines\SetsOfEquivalenceResult.cs" />
     <Compile Include="Extensions\IDictionaryExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtension.cs" />
     <Compile Include="Extensions\IEquatableExtension.cs" />

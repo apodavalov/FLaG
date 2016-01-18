@@ -8,7 +8,24 @@ namespace FLaGLib.Data.StateMachines
 {
     public class SetOfEquivalence : ReadOnlySet<Label>, IComparable<SetOfEquivalence>, IEquatable<SetOfEquivalence>
     {
-        public SetOfEquivalence(IEnumerable<Label> set) : base(set.ToSortedSetNullable()) { }
+        public IReadOnlyList<SetOfEquivalenceTransition> Transitions
+        {
+            get;
+            private set;
+        }
+
+        public SetOfEquivalence(IEnumerable<Label> set) : this(set, Enumerable.Empty<SetOfEquivalenceTransition>()) { }
+
+        public SetOfEquivalence(IEnumerable<Label> set, IEnumerable<SetOfEquivalenceTransition> transitions)
+            : base(set?.ToSortedSet())
+        {
+            if (transitions == null)
+            {
+                throw new ArgumentNullException(nameof(transitions));
+            }
+
+            Transitions = transitions.ToList().AsReadOnly();
+        }
 
         public static bool operator ==(SetOfEquivalence objA, SetOfEquivalence objB)
         {

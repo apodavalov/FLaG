@@ -1096,122 +1096,71 @@ namespace FLaGLib.Test.Data.StateMachines
 
             StateMachine stateMachine = new StateMachine(initialState, finalStates, transitions);
 
-            IReadOnlyList<SetOfEquivalence> setsOfEquivalence = EnumerateHelper.Sequence(
-                new SetOfEquivalence(
-                    EnumerateHelper.Sequence(
-                        s1State,
-                        s2State,
-                        s4State
-                    )                    
+            IReadOnlyList<IEnumerable<Label>> setsOfEquivalence = EnumerateHelper.Sequence(
+                EnumerateHelper.Sequence(
+                    s1State,
+                    s2State,
+                    s4State
                 ),
-                new SetOfEquivalence(
-                    EnumerateHelper.Sequence(
-                        s3State,
-                        s5State,
-                        s6State
-                    )                    
-                ),
-                new SetOfEquivalence(
+                EnumerateHelper.Sequence(
+                    s3State,
+                    s5State,
+                    s6State
+                ),                
                     EnumerateHelper.Sequence(
                         s1State
-                    )                    
                 ),
-                new SetOfEquivalence(
-                    EnumerateHelper.Sequence(
-                        s2State,
-                        s4State
-                    )                    
-                )
+                EnumerateHelper.Sequence(
+                    s2State,
+                    s4State
+                )                
             ).ToList().AsReadOnly();
 
             IReadOnlyList<IEnumerable<char>> charsSet = EnumerateHelper.Sequence(
                 EnumerateHelper.Sequence('a','c')
             ).ToList().AsReadOnly();
+
+            MinimizingBeginPostReport expectedBeginPostReport = new MinimizingBeginPostReport(
+                new SetsOfEquivalence(
+                    EnumerateHelper.Sequence(
+                        new SetOfEquivalence(setsOfEquivalence[0]),
+                        new SetOfEquivalence(setsOfEquivalence[1])
+                    )
+                ), 0
+             );
             
-            IReadOnlyList<SetsOfEquivalencePostReport> expectedSetsOfEquivalencePostReports = EnumerateHelper.Sequence( 
-                new SetsOfEquivalencePostReport(
+            IReadOnlyList<MinimizingIterationPostReport> expectedIterationPostReports = EnumerateHelper.Sequence<MinimizingIterationPostReport>(
+                new MinimizingIterationPostReport(
                     new SetsOfEquivalence(
                         EnumerateHelper.Sequence(
-                            setsOfEquivalence[0],
-                            setsOfEquivalence[1]
-                        )                        
-                    ),0
+                            new SetOfEquivalence(setsOfEquivalence[2], new SetOfEquivalenceTransition(charsSet[0], 0).AsSequence()),
+                            new SetOfEquivalence(setsOfEquivalence[3], new SetOfEquivalenceTransition(charsSet[0], 1).AsSequence()),
+                            new SetOfEquivalence(setsOfEquivalence[1], new SetOfEquivalenceTransition(charsSet[0], 1).AsSequence())
+                        )
+                    ), 1, false
                  ),
-                new SetsOfEquivalencePostReport(
+                new MinimizingIterationPostReport(
                     new SetsOfEquivalence(
                         EnumerateHelper.Sequence(
-                            setsOfEquivalence[2],
-                            setsOfEquivalence[3],
-                            setsOfEquivalence[1]                               
-                        )                        
-                    ),1
-                 ),
-                new SetsOfEquivalencePostReport(
-                    new SetsOfEquivalence(
-                        EnumerateHelper.Sequence(
-                            setsOfEquivalence[2],
-                            setsOfEquivalence[3],
-                            setsOfEquivalence[1]    
-                        )                        
-                    ),2
+                            new SetOfEquivalence(setsOfEquivalence[2], new SetOfEquivalenceTransition(charsSet[0], 1).AsSequence()),
+                            new SetOfEquivalence(setsOfEquivalence[3], new SetOfEquivalenceTransition(charsSet[0], 2).AsSequence()),
+                            new SetOfEquivalence(setsOfEquivalence[1], new SetOfEquivalenceTransition(charsSet[0], 2).AsSequence())
+                        )
+                    ), 2, true
                  )
             ).ToList().AsReadOnly();
 
-            IReadOnlyList<SetOfEquivalenceTransitionsPostReport> expectedSetOfEquivalenceTransitionsPostReports = EnumerateHelper.Sequence(
-               new SetOfEquivalenceTransitionsPostReport(
-                    EnumerateHelper.Sequence(
-                        new SetOfEquivalenceTransition(setsOfEquivalence[2],charsSet[0],setsOfEquivalence[0],0),
-                        new SetOfEquivalenceTransition(setsOfEquivalence[3],charsSet[0],setsOfEquivalence[1],1),
-                        new SetOfEquivalenceTransition(setsOfEquivalence[1],charsSet[0],setsOfEquivalence[1],1)
-                    ),
-                    1
-               ),
-               new SetOfEquivalenceTransitionsPostReport(
-                    EnumerateHelper.Sequence(
-                        new SetOfEquivalenceTransition(setsOfEquivalence[2],charsSet[0],setsOfEquivalence[3],1),
-                        new SetOfEquivalenceTransition(setsOfEquivalence[3],charsSet[0],setsOfEquivalence[1],2),
-                        new SetOfEquivalenceTransition(setsOfEquivalence[1],charsSet[0],setsOfEquivalence[1],2)
-                    ),
-                    2
-               )
-            ).ToList().AsReadOnly();
+            bool expectedEndPostReport = true;
 
-            bool onResultInvoked = false;
-            int actualSetsOfEquivalencePostReportCount = 0;
-            int actualSetOfEquivalenceTransitionsPostReportCount = 0;
+            PostReportTestHelper<MinimizingBeginPostReport, MinimizingIterationPostReport, bool> helper =
+                new PostReportTestHelper<MinimizingBeginPostReport, MinimizingIterationPostReport, bool>
+                (expectedBeginPostReport, expectedIterationPostReports, expectedEndPostReport, OnTuple, OnTuple, OnTuple);
 
-            StateMachine actualStateMachine = stateMachine.Minimize(
-                setsOfEquivalenceReport =>
-                {
-                    actualSetsOfEquivalencePostReportCount = 
-                        OnSetsOfEquivalnceReport(
-                        setsOfEquivalenceReport, 
-                        expectedSetsOfEquivalencePostReports, 
-                        actualSetsOfEquivalencePostReportCount, 
-                        actualSetOfEquivalenceTransitionsPostReportCount);
-                },
-                setOfEquivalenceTransitionsReport =>
-                {
-                    actualSetOfEquivalenceTransitionsPostReportCount = 
-                        OnSetOfEquivalnceTransitionsReport(
-                        setOfEquivalenceTransitionsReport,
-                        expectedSetOfEquivalenceTransitionsPostReports, 
-                        actualSetsOfEquivalencePostReportCount, 
-                        actualSetOfEquivalenceTransitionsPostReportCount);
-                },
-                setOfEquivalenceResult =>
-                {
-                    Assert.IsFalse(onResultInvoked);
-                    onResultInvoked = true;
-                    Assert.AreEqual(expectedSetsOfEquivalencePostReports.Count, actualSetsOfEquivalencePostReportCount);
-                    Assert.AreEqual(expectedSetOfEquivalenceTransitionsPostReports.Count, actualSetOfEquivalenceTransitionsPostReportCount);
-                    Assert.IsTrue(setOfEquivalenceResult.IsStatesCombined);
-                    Assert.AreEqual(expectedSetOfEquivalenceTransitionsPostReports.Count, setOfEquivalenceResult.LastIteration);
-                });
+            helper.StartTest();
 
-            Assert.IsTrue(onResultInvoked);
-            Assert.AreEqual(expectedSetsOfEquivalencePostReports.Count, actualSetsOfEquivalencePostReportCount);
-            Assert.AreEqual(expectedSetOfEquivalenceTransitionsPostReports.Count, actualSetOfEquivalenceTransitionsPostReportCount);
+            StateMachine actualStateMachine = stateMachine.Minimize(helper.OnBeginPostReport, helper.OnIterationPostReport, helper.OnEndPostReport);
+
+            helper.FinishTest();
 
             CollectionAssert.AreEquivalent(expectedAlphabet, actualStateMachine.Alphabet);
             CollectionAssert.AreEquivalent(expectedStates, actualStateMachine.States);
@@ -1220,55 +1169,59 @@ namespace FLaGLib.Test.Data.StateMachines
             Assert.AreEqual(expectedInitialState, actualStateMachine.InitialState);
         }
 
-        private int OnSetsOfEquivalnceReport(
-            SetsOfEquivalencePostReport actualReport, IReadOnlyList<SetsOfEquivalencePostReport> expectedSequence, 
-            int actualSetsOfEquivalencePostReportCount, int actualSetOfEquivalenceTransitionsPostReportCount)
+        private void OnTuple(bool actual, bool expected)
         {
-            Assert.IsTrue(actualSetsOfEquivalencePostReportCount < expectedSequence.Count);
-
-            SetsOfEquivalencePostReport expected = expectedSequence[actualSetsOfEquivalencePostReportCount];
-
-            Assert.AreEqual(expected.Iteration, actualReport.Iteration);
-
-            Assert.AreEqual(expected.SetsOfEquivalence, actualReport.SetsOfEquivalence);
-
-            Assert.AreEqual(actualSetsOfEquivalencePostReportCount, actualSetOfEquivalenceTransitionsPostReportCount);
-            return actualSetsOfEquivalencePostReportCount + 1;
+            Assert.AreEqual(expected, actual);
         }
 
-        private int OnSetOfEquivalnceTransitionsReport(SetOfEquivalenceTransitionsPostReport actualReport, IReadOnlyList<SetOfEquivalenceTransitionsPostReport> expectedSequence,
-            int actualSetsOfEquivalencePostReportCount, int actualSetOfEquivalenceTransitionsPostReportCount)
+        private void OnTuple(MinimizingBeginPostReport actual, MinimizingBeginPostReport expected)
         {
-            Assert.IsTrue(actualSetOfEquivalenceTransitionsPostReportCount < expectedSequence.Count);
+            Assert.AreEqual(expected.Iteration, actual.Iteration);
+            CheckSetsOfEquivalence(expected.SetsOfEquivalence, actual.SetsOfEquivalence);
+        }
 
-            SetOfEquivalenceTransitionsPostReport expected = expectedSequence[actualSetOfEquivalenceTransitionsPostReportCount];
+        private void OnTuple(MinimizingIterationPostReport actual, MinimizingIterationPostReport expected)
+        {
+            Assert.AreEqual(expected.Iteration, actual.Iteration);
+            Assert.AreEqual(expected.IsLastIteration, actual.IsLastIteration);
+            CheckSetsOfEquivalence(expected.SetsOfEquivalence, actual.SetsOfEquivalence);
+        }
 
-            Assert.AreEqual(expected.Iteration, actualReport.Iteration);
+        private void CheckSetsOfEquivalence(SetsOfEquivalence expected, SetsOfEquivalence actual)
+        {
+            Assert.AreEqual(expected.Count, actual.Count);
 
-            Assert.AreEqual(expected.SetOfEquivalenceTransitions.Count, actualReport.SetOfEquivalenceTransitions.Count);
-
-            using (IEnumerator<SetOfEquivalenceTransition> currentSetOfEquivalenceTransitionsEnumerator = expected.SetOfEquivalenceTransitions.GetEnumerator())
+            using (IEnumerator<SetOfEquivalence> expectedSetOfEquivalenceEnumerator = expected.GetEnumerator())
             {
-                using (IEnumerator<SetOfEquivalenceTransition> actualSetOfEquivalenceTransitionsEnumerator = actualReport.SetOfEquivalenceTransitions.GetEnumerator())
+                using (IEnumerator<SetOfEquivalence> actualSetOfEquivalenceEnumerator = actual.GetEnumerator())
                 {
-                    while (currentSetOfEquivalenceTransitionsEnumerator.MoveNext() && actualSetOfEquivalenceTransitionsEnumerator.MoveNext())
+                    while (expectedSetOfEquivalenceEnumerator.MoveNext() && actualSetOfEquivalenceEnumerator.MoveNext())
                     {
-                        Assert.AreEqual(currentSetOfEquivalenceTransitionsEnumerator.Current.IndexOfCurrentSetOfEquivalence,
+                        Assert.AreEqual(expectedSetOfEquivalenceEnumerator.Current, actualSetOfEquivalenceEnumerator.Current);
+
+                        CheckSetOfEquivalenceTransitions(expectedSetOfEquivalenceEnumerator.Current.Transitions, actualSetOfEquivalenceEnumerator.Current.Transitions);
+                    }
+                }
+            }
+        }
+
+        private void CheckSetOfEquivalenceTransitions(IReadOnlyList<SetOfEquivalenceTransition> expected, IReadOnlyList<SetOfEquivalenceTransition> actual)
+        {
+            Assert.AreEqual(expected.Count, actual.Count);
+
+            using (IEnumerator<SetOfEquivalenceTransition> expectedSetOfEquivalenceTransitionsEnumerator = expected.GetEnumerator())
+            {
+                using (IEnumerator<SetOfEquivalenceTransition> actualSetOfEquivalenceTransitionsEnumerator = actual.GetEnumerator())
+                {
+                    while (expectedSetOfEquivalenceTransitionsEnumerator.MoveNext() && actualSetOfEquivalenceTransitionsEnumerator.MoveNext())
+                    {
+                        Assert.AreEqual(expectedSetOfEquivalenceTransitionsEnumerator.Current.IndexOfCurrentSetOfEquivalence,
                             actualSetOfEquivalenceTransitionsEnumerator.Current.IndexOfCurrentSetOfEquivalence);
 
                         CollectionAssert.AreEquivalent(
-                            currentSetOfEquivalenceTransitionsEnumerator.Current.Symbols,
+                            expectedSetOfEquivalenceTransitionsEnumerator.Current.Symbols,
                             actualSetOfEquivalenceTransitionsEnumerator.Current.Symbols);
-
-                        Assert.AreEqual(currentSetOfEquivalenceTransitionsEnumerator.Current.CurrentSetOfEquivalence,
-                            actualSetOfEquivalenceTransitionsEnumerator.Current.CurrentSetOfEquivalence);
-
-                        Assert.AreEqual(currentSetOfEquivalenceTransitionsEnumerator.Current.NextSetOfEquivalence,
-                            actualSetOfEquivalenceTransitionsEnumerator.Current.NextSetOfEquivalence);
                     }
-
-                    Assert.AreEqual(actualSetsOfEquivalencePostReportCount, actualSetOfEquivalenceTransitionsPostReportCount + 1);
-                    return actualSetOfEquivalenceTransitionsPostReportCount + 1;
                 }
             }
         }

@@ -361,9 +361,9 @@ namespace FLaGLib.Data.StateMachines
         }
 
         public StateMachine Minimize(
-            Action<SetsOfEquivalencePostReport> onSetsOfEquivalence = null,
-            Action<SetOfEquivalenceTransitionsPostReport> onSetOfEquivalenceTransitions = null,
-            Action<SetsOfEquivalenceResult> onSetsOfEquivalenceResult = null)
+            Action<MinimizingBeginPostReport> onBegin = null,
+            Action<MinimizingIterationPostReport> onIterate = null,
+            Action<bool> onEnd = null)
         {
             ILookup<Label, Transition> transitionsByCurrentState = Transitions.ToLookup(transition => transition.CurrentState);
 
@@ -371,16 +371,17 @@ namespace FLaGLib.Data.StateMachines
             nonFinalStates.ExceptWith(FinalStates);
 
             SetsOfEquivalence setsOfEquivalence = new SetsOfEquivalence(
-                new SortedSet<SetOfEquivalence>(
-                    EnumerateHelper.Sequence(
-                    new SetOfEquivalence(new SortedSet<Label>(nonFinalStates)), 
-                    new SetOfEquivalence(new SortedSet<Label>(FinalStates)))));
+                EnumerateHelper.Sequence(
+                    new SetOfEquivalence(nonFinalStates), 
+                    new SetOfEquivalence(FinalStates)
+                )
+            );
 
             int i = 0;
 
-            if (onSetsOfEquivalence != null)
+            if (onBegin != null)
             {
-                onSetsOfEquivalence(new SetsOfEquivalencePostReport(setsOfEquivalence, i));
+                onBegin(new MinimizingBeginPostReport(setsOfEquivalence, i));
             }
 
             bool changed;
@@ -397,9 +398,7 @@ namespace FLaGLib.Data.StateMachines
 
                 IDictionary<Label, int> statesMap = GetStatesMap(setsOfEquivalence);
 
-                List<SetOfEquivalence> setsOfEquivalenceList = setsOfEquivalence.ToList();
-
-                foreach (SetOfEquivalence setOfEquivalence in setsOfEquivalenceList)
+                foreach (SetOfEquivalence setOfEquivalence in setsOfEquivalence)
                 {
                     IDictionary<ClassOfEquivalenceSet, ISet<Label>> classEquivalenceSetMap = new Dictionary<ClassOfEquivalenceSet, ISet<Label>>();
                     
@@ -419,14 +418,13 @@ namespace FLaGLib.Data.StateMachines
                             }
                             else
                             {
-                                groupMap[groupNum] = equality = new SortedSet<char>();
+                                groupMap[groupNum] = equality = new HashSet<char>();
                             }
 
                             equality.Add(transition.Symbol);
                         }
 
-                        ClassOfEquivalenceSet classOfEquivalenceSet =
-                            new ClassOfEquivalenceSet(new SortedSet<ClassOfEquivalence>(groupMap.Select(item => new ClassOfEquivalence(item.Key, item.Value.AsReadOnly()))));
+                        ClassOfEquivalenceSet classOfEquivalenceSet = new ClassOfEquivalenceSet(groupMap.Select(item => new ClassOfEquivalence(item.Key, item.Value)));
 
                         ISet<Label> states;
 
@@ -436,7 +434,7 @@ namespace FLaGLib.Data.StateMachines
                         }
                         else
                         {
-                            classEquivalenceSetMap[classOfEquivalenceSet] = states = new SortedSet<Label>();
+                            classEquivalenceSetMap[classOfEquivalenceSet] = states = new HashSet<Label>();
                         }
 
                         states.Add(state); 
@@ -444,36 +442,26 @@ namespace FLaGLib.Data.StateMachines
 
                     foreach (KeyValuePair<ClassOfEquivalenceSet,ISet<Label>> entry in classEquivalenceSetMap)
                     {
-                        SetOfEquivalence set = new SetOfEquivalence(entry.Value);
+                        SetOfEquivalence set = new SetOfEquivalence(entry.Value, entry.Key.Select(c => new SetOfEquivalenceTransition(c.Symbols, c.SetNum)));
                         buildingSetsOfEquivalence.Add(set);
-
-                        foreach (ClassOfEquivalence clazz in entry.Key)
-                        {
-                            setOfEquivalenceTransitions.Add(new SetOfEquivalenceTransition(set, clazz.Symbols, setsOfEquivalenceList[clazz.SetNum], clazz.SetNum));
-                        }
                     }
                 }
 
-                if (onSetOfEquivalenceTransitions != null)
-                {
-                    onSetOfEquivalenceTransitions(new SetOfEquivalenceTransitionsPostReport(setOfEquivalenceTransitions.AsReadOnly(), i));
-                }
-
-                SetsOfEquivalence nextSetsOfEquivalence = new SetsOfEquivalence(new SortedSet<SetOfEquivalence>(buildingSetsOfEquivalence));
+                SetsOfEquivalence nextSetsOfEquivalence = new SetsOfEquivalence(buildingSetsOfEquivalence);
 
                 changed = setsOfEquivalence != nextSetsOfEquivalence;
 
                 setsOfEquivalence = nextSetsOfEquivalence;
 
-                if (onSetsOfEquivalence != null)
+                if (onIterate != null)
                 {
-                    onSetsOfEquivalence(new SetsOfEquivalencePostReport(setsOfEquivalence, i));
+                    onIterate(new MinimizingIterationPostReport(setsOfEquivalence, i, !changed));
                 }
             } while (changed);
 
-            if (onSetsOfEquivalenceResult != null)
+            if (onEnd != null)
             {
-                onSetsOfEquivalenceResult(new SetsOfEquivalenceResult(setsOfEquivalence.Count != States.Count,i));
+                onEnd(setsOfEquivalence.Count != States.Count);
             }
 
             if (setsOfEquivalence.Count == States.Count)
@@ -483,11 +471,9 @@ namespace FLaGLib.Data.StateMachines
 
             IDictionary<Label, Label> newStatesMap = GetOldNewStatesMap(setsOfEquivalence);
 
-            ISet<Transition> transitions = new HashSet<Transition>(
-                Transitions.Select(
-                item => new Transition(newStatesMap[item.CurrentState], item.Symbol, newStatesMap[item.NextState])));
+            ISet<Transition> transitions = Transitions.Select(item => new Transition(newStatesMap[item.CurrentState], item.Symbol, newStatesMap[item.NextState])).ToHashSet();
 
-            ISet<Label> finalStates = new HashSet<Label>(FinalStates.Select(item => newStatesMap[item]));
+            ISet<Label> finalStates = FinalStates.Select(item => newStatesMap[item]).ToHashSet();
 
             Label initialState = newStatesMap[InitialState];
 
@@ -722,8 +708,7 @@ namespace FLaGLib.Data.StateMachines
 
         private IDictionary<Label, int> GetStatesMap(SetsOfEquivalence setsOfEquivalence)
         {
-            return setsOfEquivalence.SelectMany((set, index) => set.Select(item => new Tuple<Label, int>(item, index))).
-                    ToDictionary(item => item.Item1, item => item.Item2);
+            return setsOfEquivalence.SelectMany((set, index) => set.Select(item => new KeyValuePair<Label, int>(item, index))).ToDictionary();
         }
 
         private IDictionary<Label, Label> GetOldNewStatesMap(SetsOfEquivalence setsOfEquivalence)

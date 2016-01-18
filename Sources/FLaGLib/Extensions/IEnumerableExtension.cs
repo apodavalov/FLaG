@@ -84,16 +84,6 @@ namespace FLaGLib.Extensions
             }
         }
 
-        public static List<T> ToListNullable<T>(this IEnumerable<T> obj)
-        {
-            if (obj == null)
-            {
-                return null;
-            }
-
-            return obj.ToList();
-        }
-
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> obj)
         {
             if (obj == null)
@@ -124,26 +114,6 @@ namespace FLaGLib.Extensions
             return new SortedSet<T>(obj);
         }
         
-        public static SortedSet<T> ToSortedSetNullable<T>(this IEnumerable<T> obj)
-        {
-            if (obj == null)
-            {
-                return null;
-            }
-
-            return obj.ToSortedSet();
-        }
-
-        public static HashSet<T> ToHashSetNullable<T>(this IEnumerable<T> obj)
-        {
-            if (obj == null)
-            {
-                return null;
-            }
-
-            return obj.ToHashSet();
-        }
-
         public static int GetSequenceHashCode<T>(this IEnumerable<T> obj) where T : IEquatable<T>
         {
             if (obj == null)

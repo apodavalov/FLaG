@@ -76,11 +76,8 @@
     <Compile Include="Data\StateMachines\MetaFinalStateTest.cs" />
     <Compile Include="Data\StateMachines\MetaTransitionTest.cs" />
     <Compile Include="Data\StateMachines\SetOfEquivalenceTest.cs" />
-    <Compile Include="Data\StateMachines\SetsOfEquivalencePostReportTest.cs" />
-    <Compile Include="Data\StateMachines\SetOfEquivalenceTransitionsPostReportTest.cs" />
     <Compile Include="Data\StateMachines\RemovingUnreachableStatesPostReportTest.cs" />
     <Compile Include="Data\StateMachines\SetOfEquivalenceTransitionTest.cs" />
-    <Compile Include="Data\StateMachines\SetsOfEquivalenceResultTest.cs" />
     <Compile Include="Data\StateMachines\SetsOfEquivalenceTest.cs" />
     <Compile Include="Data\StateMachines\StateMachineTest.cs" />
     <Compile Include="Data\StateMachines\TransitionTest.cs" />

@@ -2,7 +2,7 @@
 
 namespace FLaGLib.Data.StateMachines
 {
-    public class SetsOfEquivalencePostReport
+    public class MinimizingBeginPostReport
     {
         public SetsOfEquivalence SetsOfEquivalence
         {
@@ -16,7 +16,7 @@ namespace FLaGLib.Data.StateMachines
             private set;
         }
 
-        public SetsOfEquivalencePostReport(SetsOfEquivalence setsOfEquivalence, int iteration)
+        public MinimizingBeginPostReport(SetsOfEquivalence setsOfEquivalence, int iteration)
         {
             if (setsOfEquivalence == null)
             {

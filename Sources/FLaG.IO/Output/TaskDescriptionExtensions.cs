@@ -119,7 +119,179 @@ namespace FLaG.IO.Output
                 stateMachine = newStateMachine;
             }
 
+            newStateMachine = Minimize(writer, stateMachine, sectionCaption, firstAvailableStateMachineNumber++, stepNumber++);
+            stateMachine = newStateMachine;
+
             return stateMachine;
+        }
+
+        private static Tuple<StateMachine, int> Minimize(StreamWriter writer, Tuple<StateMachine, int> stateMachine, string sectionCaption, int stateMachineNumber, int stepNumber)
+        {
+            WriteSection(writer, string.Format("Этап 2.{0}", stepNumber), sectionCaption);
+
+            writer.Write("Выполним минимизацию детерминированного конечного автомата ");
+            writer.Write(@"\begin{math}");
+            WriteStateMachineTuple(writer, stateMachine.Item2);
+            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine();
+
+            StateMachine newStateMachine;
+
+            writer.WriteLine(@"\begin{enumerate}");
+            newStateMachine = stateMachine.Item1.Minimize(bpr => OnBeginPostReport(writer, bpr), ipr => OnIteratePostReport(writer, ipr));
+            writer.WriteLine(@"\end{enumerate}");
+            writer.WriteLine();
+
+            writer.Write(@"В результате получаем следующий детерминированный конечный автомат ");
+            WriteStateMachineEx(writer, newStateMachine, stateMachineNumber);
+            writer.WriteLine(@".");
+            writer.WriteLine(); 
+
+            return new Tuple<StateMachine, int>(newStateMachine, stateMachineNumber);
+        }
+
+        private static void OnIteratePostReport(StreamWriter writer, MinimizingIterationPostReport postReport)
+        {
+            writer.Write(@"\item Вычисляем ");
+            writer.Write(@"\begin{math}");
+            WriteSetsOfEquivalenceSign(writer, postReport.Iteration);
+            writer.Write(@"\end{math}:");
+
+            foreach (Tuple<SetOfEquivalence,int> transition in postReport.SetsOfEquivalence.Select((value,index) => new Tuple<SetOfEquivalence, int>(value,index)))
+            {
+                writer.WriteLine(@"\newline");
+
+                writer.Write(@"\begin{math}");
+                WriteSetOfEquivalenceSign(writer, transition.Item2, postReport.Iteration);
+                writer.Write(@" = ");
+                WriteStateSet(writer, transition.Item1);
+                writer.Write(@"\end{math}");
+                writer.Write(@" --- ");
+
+                bool first = true;
+
+                foreach (SetOfEquivalenceTransition transition1 in transition.Item1.Transitions)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        writer.Write(@"; ");
+                    }
+
+                    writer.Write(@"по символам ");
+                    writer.Write(@"\begin{math}");
+                    WriteAlphabet(writer, transition1.Symbols);
+                    writer.Write(@"\end{math} ");
+                    writer.Write(@"переходят в класс ");
+                    writer.Write(@"\begin{math}");
+                    WriteSetOfEquivalenceSign(writer, transition1.IndexOfCurrentSetOfEquivalence, postReport.Iteration - 1);
+                    writer.Write(@"\end{math}");
+                }
+
+                writer.WriteLine(@".");
+            }
+
+            writer.WriteLine();
+
+            writer.WriteLine("Таким образом, множество классов ");
+            writer.WriteLatex(postReport.Iteration.ToString());
+            writer.WriteLine(@"-эквивалентности примет вид: ");
+            writer.Write(@"\begin{math}");
+            WriteSetsOfEquivalence(writer, postReport.SetsOfEquivalence, postReport.Iteration);
+            writer.WriteLine(@"\end{math}. ");
+            
+            writer.Write("Видно, что множество классов ");
+            writer.WriteLatex((postReport.Iteration-1).ToString());
+            writer.Write(@"-эквивалентности и ");
+            writer.WriteLatex(postReport.Iteration.ToString());
+            writer.Write(@"-эквивалентности ");
+
+            if (postReport.IsLastIteration)
+            {
+                writer.WriteLine("совпадают.");
+            }
+            else
+            {
+                writer.WriteLine("не совпадают.");
+            }
+
+            writer.WriteLine();
+        }
+
+        private static void OnBeginPostReport(StreamWriter writer, MinimizingBeginPostReport postReport)
+        {
+            writer.Write(@"\item Множество классов ");
+            writer.WriteLatex(postReport.Iteration.ToString());
+            writer.WriteLine(@"-эквивалентности имеет вид: ");
+            writer.WriteLine(@"\newline");
+            writer.Write(@"\begin{math}");
+            WriteSetsOfEquivalence(writer, postReport.SetsOfEquivalence, postReport.Iteration);
+            writer.Write(@"\end{math}.");
+        }
+
+        private static void WriteSetsOfEquivalence(StreamWriter writer, SetsOfEquivalence setsOfEquivalence, int iteration)
+        {
+            writer.Write("R(");
+            writer.WriteLatex(iteration.ToString());
+            writer.Write(")");
+            writer.Write(@" = \{");
+
+            bool first = true;
+
+            foreach (int index in setsOfEquivalence.Select((value,index) => index))
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    writer.Write(@"\comma ");
+                }
+
+                WriteSetOfEquivalenceSign(writer, index, iteration);
+            }
+
+            writer.Write(@"\} = \{");
+
+            first = true;
+            
+            foreach (SetOfEquivalence setOfEquivalence in setsOfEquivalence)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    writer.Write(@"\comma ");
+                }
+
+                WriteStateSet(writer, setOfEquivalence);
+            }
+
+            writer.Write(@"\}");
+        }
+
+        private static void WriteSetsOfEquivalenceSign(StreamWriter writer, int iteration)
+        {
+            writer.Write("{R");
+            writer.Write("(");
+            writer.WriteLatex(iteration.ToString());
+            writer.Write(")}");
+        }
+
+
+        private static void WriteSetOfEquivalenceSign(StreamWriter writer, int index, int iteration)
+        {
+            writer.Write("{{r_");
+            writer.WriteLatex((index + 1).ToString());
+            writer.Write("}(");
+            writer.WriteLatex(iteration.ToString());
+            writer.Write(")}");
         }
 
         private static Tuple<StateMachine, int> Reorganize(StreamWriter writer, Tuple<StateMachine, int> stateMachine, int stateMachineNumber)
@@ -192,7 +364,6 @@ namespace FLaG.IO.Output
             writer.WriteLine();
 
             return new Tuple<StateMachine, int>(newStateMachine, stateMachineNumber);
-
         }
 
         private static void OnIteratePostReport(StreamWriter writer, RemovingUnreachableStatesIterationPostReport postReport)
