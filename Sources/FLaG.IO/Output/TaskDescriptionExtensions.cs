@@ -119,8 +119,12 @@ namespace FLaG.IO.Output
                 stateMachine = newStateMachine;
             }
 
+            WriteDiagramStep(writer, baseFullFileName, stateMachine, diagramCounter.Next(), "Этап 2.{0}", sectionCaption, stepNumber++);
+
             newStateMachine = Minimize(writer, stateMachine, sectionCaption, firstAvailableStateMachineNumber++, stepNumber++);
             stateMachine = newStateMachine;
+
+            WriteDiagramStep(writer, baseFullFileName, stateMachine, diagramCounter.Next(), "Этап 2.{0}", sectionCaption, stepNumber++);
 
             return stateMachine;
         }
@@ -814,6 +818,27 @@ namespace FLaG.IO.Output
             return stateMachinePostReport.New.Number;
         }
 
+        private static void WriteDiagramStep(StreamWriter writer, string baseFullFileName, Tuple<StateMachine, int> stateMachine, int imageNumber,
+            string stepTitlePattern, string sectionCaption, int stepNumber, int subcount = 0)
+        {
+            WriteSection(writer, string.Format(stepTitlePattern, stepNumber), sectionCaption, subcount);
+
+            writer.Write("Построим диаграмму состояний конечного автомата ");
+            writer.Write(@"\begin{math}");
+            WriteStateMachineSign(writer, stateMachine.Item2);
+            writer.Write(@"\end{math} (см. рис. ");
+            WriteDiagramRef(writer, imageNumber);
+            writer.WriteLine(@").");
+            writer.WriteLine();
+
+            using (Image image = stateMachine.Item1.DrawDiagram())
+            {
+                WriteDiagram(writer, image, baseFullFileName, imageNumber, "Диаграмма состояний конечного автомата.");
+            }
+
+            writer.WriteLine();
+        }
+
         private static void WriteDiagram(StreamWriter writer, Image image, string baseFullFileName, int number, string caption)
         {
             WriteImage(writer, image, string.Format(CultureInfo.InvariantCulture, "{0}_{1:00}.png", baseFullFileName, number), string.Format(CultureInfo.InvariantCulture, _DiagramLabel, number), caption);
@@ -873,6 +898,8 @@ namespace FLaG.IO.Output
 
             writer.WriteLine(".");
             writer.WriteLine();
+
+            WriteDiagramStep(writer, baseFullFileName, new Tuple<StateMachine, int>(stateMachine, number), diagramCounter.Next(), "Этап 2.3.3.{0}", GetGrammarTypeRussianName(grammarType), 3, 2);
 
             return new Tuple<StateMachine, int>(stateMachine, number);
         }
