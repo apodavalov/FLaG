@@ -2030,7 +2030,7 @@ namespace FLaG.IO.Output
             WriteExpression(writer, expression, true);
             writer.WriteLine();
             writer.WriteLine(@"\end{split}");
-            writer.WriteLine(@"\end{equation}.");
+            writer.WriteLine(@"\end{equation}");
         }
 
         private static void WriteEquationLabel(StreamWriter writer, string uniqueId, GrammarType grammarType)
