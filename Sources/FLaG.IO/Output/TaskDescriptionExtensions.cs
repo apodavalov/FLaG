@@ -1050,10 +1050,6 @@ namespace FLaG.IO.Output
 
         private static void WriteImage(StreamWriter writer, Image image, string fileName, string label, string caption)
         {
-            return;
-
-            /*
-
             image.Save(fileName);
 
             int widthInMm = (int)(image.Width / image.HorizontalResolution * 25.4f);
@@ -1070,8 +1066,6 @@ namespace FLaG.IO.Output
             writer.Write(@"}{img:");
             writer.WriteLatex(label);
             writer.Write(@"}");
-
-            */
         }
 
         private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter writer, Counter diagramCounter,
@@ -2243,7 +2237,7 @@ namespace FLaG.IO.Output
 
         private static void WriteDiagramRef(StreamWriter writer, int number)
         {
-            // WriteImageRef(writer, string.Format(CultureInfo.InvariantCulture, _DiagramLabel, number));
+            WriteImageRef(writer, string.Format(CultureInfo.InvariantCulture, _DiagramLabel, number));
         }
 
         private static void WriteEquationRef(StreamWriter writer, string uniqueId, GrammarType grammarType)
