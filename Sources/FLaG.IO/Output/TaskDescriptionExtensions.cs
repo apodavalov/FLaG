@@ -20,6 +20,7 @@ namespace FLaG.IO.Output
     public static class TaskDescriptionExtensions
     {
         private const string _OriginalLanguageLabel = "originalLanguage";
+        private const string _GeneratedLanguageLabel = "generatedLanguage";
         private const string _OriginalRegularSetLabel = "originalRegularSet";
         private const string _OriginalRegularExpressionLabel = "originalRegularExpression";
         private const string _RussianCaseIsNotSupportedMessage = "Russian case type {0} is not supported.";
@@ -80,7 +81,7 @@ namespace FLaG.IO.Output
             Expression rightStateMachineExpression = ConvertToExpression(writer, expressionStateMachine, expression, GrammarType.Right, 
                 string.Format(_RussianCulture, _SectionCaptionRegexFormat, GetGrammarTypeRussianName(GrammarType.Right), _RegularExpressionText),4);
 
-            //ConvertToEntity(writer, expression, language);
+            ConvertToEntity(writer, expression, language);
         }
 
         private static void WriteTask(StreamWriter writer, Entity language)
@@ -100,7 +101,30 @@ namespace FLaG.IO.Output
 
         private static void ConvertToEntity(StreamWriter writer, Expression expression, Entity language)
         {
-            throw new NotImplementedException();
+            WriteSection(writer, @"Этап 2.11.3", subcount: 1);
+
+            writer.Write(@"Так как регулярные выражения совпали далее не будем подразделять шаги. ");
+            writer.Write(@"Для полученного регулярного выражения построим регулярное множество, которое примет следующий вид");
+
+            writer.Write(@"\begin{equation}");
+            WriteEquationLabel(writer, _GeneratedLanguageLabel);
+            writer.WriteLine();
+            writer.WriteLine(@"\begin{split}");
+            writer.Write(@"L' &= ");
+            WriteLanguage(writer, language);
+            writer.WriteLine();
+            writer.WriteLine(@"\end{split}");
+            writer.WriteLine(@"\end{equation}");
+            writer.WriteLine();
+
+            WriteSection(writer, @"Этап 2.11.4", subcount: 1);
+
+            writer.Write(@"Сравним полученное множество ");
+            WriteEquationRef(writer, _GeneratedLanguageLabel);
+            writer.Write(@" с исходным ");
+            WriteEquationRef(writer, _OriginalLanguageLabel);
+            writer.WriteLine(@". Языки задаются абсолютно одинаково. Рассматривать цепочки смысла не имеет. Языки эквивалентны.");
+            writer.WriteLine();
         }
 
         private static Expression ConvertToExpression(StreamWriter writer, Tuple<StateMachine, int> stateMachine, Expression result, GrammarType grammarType, string sectionCaption, int grammarNumber)
@@ -161,7 +185,8 @@ namespace FLaG.IO.Output
             WriteExpression(writer, expression);
             writer.Write(@" = ");
             WriteExpression(writer, result);
-            writer.Write(@"\end{math}.");
+            writer.WriteLine(@"\end{math}.");
+            writer.WriteLine();
 
             return result;
         }
