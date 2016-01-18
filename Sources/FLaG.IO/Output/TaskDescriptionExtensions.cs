@@ -104,18 +104,18 @@ namespace FLaG.IO.Output
 
             if (!isDeterministic)
             {
-                newStateMachine = MakeDeterministic(writer, stateMachine, sectionCaption, firstAvailableStateMachineNumber++, 5);
+                newStateMachine = MakeDeterministic(writer, stateMachine, sectionCaption, firstAvailableStateMachineNumber++, 6);
                 stateMachine = newStateMachine;
             }
             else
             {
-                WriteSection(writer, string.Format("Этап 2.{0}", 5), sectionCaption);
+                WriteSection(writer, string.Format("Этап 2.{0}", 6), sectionCaption);
 
                 writer.WriteLine("Данный этап пропускаем, так как конечный автомат является детеминированным.");
                 writer.WriteLine();
             }
 
-            newStateMachine = RemoveUnreachableStates(writer, stateMachine, sectionCaption, firstAvailableStateMachineNumber++, 6);
+            newStateMachine = RemoveUnreachableStates(writer, stateMachine, sectionCaption, firstAvailableStateMachineNumber++, 7);
             stateMachine = newStateMachine;
 
             if (!isDeterministic)
@@ -124,12 +124,12 @@ namespace FLaG.IO.Output
                 stateMachine = newStateMachine;
             }
 
-            WriteDiagramStep(writer, baseFullFileName, stateMachine, diagramCounter.Next(), "Этап 2.{0}", sectionCaption, 7);
+            WriteDiagramStep(writer, baseFullFileName, stateMachine, diagramCounter.Next(), "Этап 2.{0}", sectionCaption, 8);
 
-            newStateMachine = Minimize(writer, stateMachine, sectionCaption, firstAvailableStateMachineNumber++, 8);
+            newStateMachine = Minimize(writer, stateMachine, sectionCaption, firstAvailableStateMachineNumber++, 9);
             stateMachine = newStateMachine;
 
-            WriteDiagramStep(writer, baseFullFileName, stateMachine, diagramCounter.Next(), "Этап 2.{0}", sectionCaption, 9);
+            WriteDiagramStep(writer, baseFullFileName, stateMachine, diagramCounter.Next(), "Этап 2.{0}", sectionCaption, 10);
 
             return stateMachine;
         }
@@ -679,7 +679,7 @@ namespace FLaG.IO.Output
 
         private static bool CheckDeterministic(StreamWriter writer, Tuple<StateMachine, int> stateMachine, string sectionCaption)
         {
-            WriteSection(writer, "Этап 2.4", sectionCaption);
+            WriteSection(writer, "Этап 2.5", sectionCaption);
             writer.Write("На этом шаге проверяем, являются ли построенный конечный автомат детерминированным. ");
             bool deterministic = stateMachine.Item1.IsDeterministic();
 
@@ -705,8 +705,13 @@ namespace FLaG.IO.Output
 
         private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter writer, Counter diagramCounter,
             Expression expression, string baseFullFileName, int number)
-        { 
+        {
             WriteRegexSection(writer, "Этап 2.3");
+
+            writer.WriteLine("Данный этап при построении автомата из регулярного выражения пропускаем.");
+            writer.WriteLine();
+
+            WriteRegexSection(writer, "Этап 2.4");
             writer.Write("В процессе построения будем использовать изолированную от остальных пунктов нумерацию конечных автоматов. Построим ");
             writer.Write("конечный автомат для выражения ");
             WriteEquationRef(writer, _OriginalRegularExpressionLabel);
@@ -905,6 +910,11 @@ namespace FLaG.IO.Output
             writer.WriteLine();
 
             WriteDiagramStep(writer, baseFullFileName, new Tuple<StateMachine, int>(stateMachine, number), diagramCounter.Next(), "Этап 2.3.3.{0}", GetGrammarTypeRussianName(grammarType), 3, 2);
+
+            WriteSection(writer, grammarType, "Этап 2.4");
+
+            writer.WriteLine("Данный этап при построении автомата из грамматики пропускаем.");
+            writer.WriteLine();
 
             return new Tuple<StateMachine, int>(stateMachine, number);
         }
