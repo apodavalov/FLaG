@@ -4,10 +4,10 @@ using System;
 
 namespace FLaG
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
+	class Program
+	{
+		static void Main(string[] args)
+		{
 			if (args.Length < 2)
 			{
 				Console.WriteLine("Usage:");
@@ -15,8 +15,8 @@ namespace FLaG
 				return;
 			}
 
-            TaskDescription taskDescription = TaskDescription.Load(args[0]);
-            taskDescription.Solve(args[1]);
-        }
-    }
+			TaskDescription taskDescription = TaskDescription.Load(args[0]);
+			taskDescription.Solve(args[1]);
+		}
+	}
 }
