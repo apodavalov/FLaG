@@ -35,10 +35,9 @@ namespace FLaG.IO.Output
         {
             FileInfo baseFileInfo = new FileInfo(baseTexFileName);
 
-            string baseFullFileName = baseFileInfo.FullName.Substring(0, baseFileInfo.FullName.Length - baseFileInfo.Extension.Length);
-            string baseTexFullFileName = baseFileInfo.FullName;
+            string baseFullFileName = baseTexFileName.Substring(0, baseTexFileName.Length - baseFileInfo.Extension.Length).Replace(".","-");
 
-            using (StreamWriter streamWriter = new StreamWriter(baseTexFullFileName, false, new UTF8Encoding(false)))
+            using (StreamWriter streamWriter = new StreamWriter(baseTexFileName, false, new UTF8Encoding(false)))
             {
                 WriteProlog(streamWriter, taskDescription.Author, taskDescription.Variant);
                 
@@ -1045,7 +1044,7 @@ namespace FLaG.IO.Output
 
         private static void WriteDiagram(StreamWriter writer, Image image, string baseFullFileName, int number, string caption)
         {
-            WriteImage(writer, image, string.Format(CultureInfo.InvariantCulture, "{0}_{1:00}.png", baseFullFileName, number), string.Format(CultureInfo.InvariantCulture, _DiagramLabel, number), caption);
+            WriteImage(writer, image, string.Format(CultureInfo.InvariantCulture, "{0}-{1:00}.png", baseFullFileName, number), string.Format(CultureInfo.InvariantCulture, _DiagramLabel, number), caption);
         }
 
         private static void WriteImage(StreamWriter writer, Image image, string fileName, string label, string caption)
