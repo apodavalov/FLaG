@@ -1,4 +1,4 @@
-PDFLATEX=pdflatex
+LATEXMK=latexmk
 FLAG=Sources/FLaG/bin/Release/FLaG.exe
 MONO=mono
 OUTPUT=Output
@@ -19,7 +19,7 @@ $(OUTPUT)/%.tex: $(SAMPLES)/%.xml $(OUTPUT)
 	$(MONO) $(FLAG) $< $@
 
 $(OUTPUT)/%.pdf: $(OUTPUT)/%.tex
-	$(PDFLATEX) --output-directory=$(OUTPUT) $<
+	export buf_size=1000000; $(LATEXMK) -pdf --output-directory=$(OUTPUT) $<
 
 %.tex: $(OUTPUT)/%.tex
 
