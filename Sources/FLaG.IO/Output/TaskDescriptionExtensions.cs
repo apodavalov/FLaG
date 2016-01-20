@@ -489,9 +489,9 @@ namespace FLaG.IO.Output
 
         private static void WriteSetOfEquivalenceSign(StreamWriter writer, int index, int iteration)
         {
-            writer.Write("{{r_");
+            writer.Write("{{r_{");
             writer.WriteLatex((index + 1).ToString(_RussianCulture));
-            writer.Write("}(");
+            writer.Write("}}(");
             writer.WriteLatex(iteration.ToString(_RussianCulture));
             writer.Write(")}");
         }
