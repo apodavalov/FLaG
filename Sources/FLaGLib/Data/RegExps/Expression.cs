@@ -218,7 +218,7 @@ namespace FLaGLib.Data.RegExps
             for (int i = 0; i < dependencyMap.Count; i++)
             {
                 Expression expression = dependencyMap[i].Expression;
-                IEnumerable<GrammarExpressionWithOriginal> dependencies = dependencyMap[i].OrderBy(item => item).Select(item => grammars[item]);
+                IEnumerable<GrammarExpressionWithOriginal> dependencies = dependencyMap[i].Select(item => grammars[item]);
                 grammars[i] = new GrammarExpressionWithOriginal(expression.GenerateGrammar(grammarType, _StartIndex + i, ref index, ref additionalGrammarNumber, onIterate, dependencies.ToArray()));
             }
 
@@ -238,7 +238,7 @@ namespace FLaGLib.Data.RegExps
             for (int i = 0; i < dependencyMap.Count; i++)
             {
                 Expression expression = dependencyMap[i].Expression;
-                IEnumerable<StateMachineExpressionWithOriginal> dependencies = dependencyMap[i].OrderBy(item => item).Select(item => stateMachines[item]);
+                IEnumerable<StateMachineExpressionWithOriginal> dependencies = dependencyMap[i].Select(item => stateMachines[item]);
                 stateMachines[i] = new StateMachineExpressionWithOriginal(expression.GenerateStateMachine(_StartIndex + i, ref index, ref additionalStateMachineNumber, onIterate, dependencies.ToArray()));
             }
 
