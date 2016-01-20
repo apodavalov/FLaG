@@ -689,7 +689,7 @@ namespace FLaG.IO.Output
             WriteInitialStateSign(writer, number);
             writer.Write(" = ");
             WriteMetaState(writer, stateMachine.GetMetaInitialState());
-            writer.Write(@"\end{math} --- начальное состояние автомата, ");
+            writer.Write(@"\end{math} --- начальное состояние автомата, \linebreak");
 
             writer.Write(@"\begin{math}");
             WriteFinalStateSetSign(writer, number);
