@@ -1,4 +1,4 @@
-sudo apt-get install mono
+sudo apt-get install mono-complete
 sudo apt-get install monodevelop
 sudo apt-get install texlive-full
 
