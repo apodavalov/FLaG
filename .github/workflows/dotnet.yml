@@ -3,12 +3,20 @@ name: .NET CI
 on:
   push:
     branches: [ master ]
+    paths:
+      - 'Sources/**'
   pull_request:
     branches: [ master ]
+    paths:
+      - 'Sources/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./Sources
 
     steps:
     - uses: actions/checkout@v4
