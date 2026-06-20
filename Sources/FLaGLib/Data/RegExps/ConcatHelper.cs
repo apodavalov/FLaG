@@ -1,31 +1,30 @@
-﻿using FLaGLib.Extensions;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using System.Text;
 
 namespace FLaGLib.Data.RegExps
 {
-    public class ConcatHelper
+    public static class ConcatHelper
     {
-        public static Expression MakeExpression(ICollection<Expression> expressions)
+        public static Expression MakeExpression(IEnumerable<Expression> expressions)
         {
-            if (expressions == null)
+            using IEnumerator<Expression> enumerator = expressions.GetEnumerator();
+            if (!enumerator.MoveNext())
             {
-                return null;
+                return new Empty();
             }
+            Expression first = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                return first;
+            }
+            ImmutableList<Expression>.Builder list = ImmutableList.CreateBuilder<Expression>();
+            list.Add(first);
+            do
+            {
+                list.Add(enumerator.Current);
+            } while (enumerator.MoveNext());
 
-            if (expressions.Count == 0)
-            {
-                return Empty.Instance;
-            }
-            else if (expressions.Count == 1)
-            {
-                return expressions.Single();
-            }
-            else
-            {
-                return new Concat(expressions);
-            }
+            return new Concat(list.ToImmutable());
         }
 
         public static IEnumerable<Expression> Iterate(IEnumerable<Expression> expressions)
@@ -41,11 +40,9 @@ namespace FLaGLib.Data.RegExps
 
         public static IEnumerable<Expression> Iterate(Expression expressionToIterate)
         {
-            BinaryConcat binaryConcat = expressionToIterate.As<BinaryConcat>();
-
-            if (binaryConcat != null)
+            if (expressionToIterate is BinaryConcat binaryConcat)
             {
-                foreach (Expression expression in Iterate(binaryConcat.Left.AsSequence().Concat(binaryConcat.Right)))
+                foreach (Expression expression in Iterate([binaryConcat.Left, binaryConcat.Right]))
                 {
                     yield return expression;
                 }
@@ -53,9 +50,7 @@ namespace FLaGLib.Data.RegExps
                 yield break;
             }
 
-            Concat concat = expressionToIterate.As<Concat>();
-
-            if (concat != null)
+            if (expressionToIterate is Concat concat)
             {
                 foreach (Expression expression in Iterate(concat.Expressions))
                 {
@@ -68,7 +63,11 @@ namespace FLaGLib.Data.RegExps
             yield return expressionToIterate;
         }
 
-        public static void ToString(StringBuilder builder, IReadOnlyList<Expression> expressions, int priority)
+        public static void ToString(
+            StringBuilder builder,
+            IEnumerable<Expression> expressions,
+            int priority
+        )
         {
             bool first = true;
 

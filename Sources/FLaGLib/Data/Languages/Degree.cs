@@ -1,137 +1,43 @@
-using FLaGLib.Collections;
-using FLaGLib.Data.RegExps;
-using FLaGLib.Extensions;
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
+using FLaGLib.Data.RegExps;
 
 namespace FLaGLib.Data.Languages
 {
-    public class Degree : Entity, IEquatable<Degree>, IComparable<Degree>
-	{
-		public Entity Entity
-		{
-			get;
-			private set;
-		}
+    [ComparableEquatable]
+    public sealed partial class Degree : Entity
+    {
+        public Entity Entity { get; }
 
-        public Exponent Exponent
-        {
-            get;
-            private set;
-        }
+        public Exponent Exponent { get; }
 
         public Degree(Entity entity, Exponent exponent)
         {
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity));
-            }
-
-            if (exponent == null)
-            {
-                throw new ArgumentNullException(nameof(exponent));
-            }
-
             Entity = entity;
             Exponent = exponent;
 
-            _Variables = new Lazy<IReadOnlySet<Variable>>(CollectVariables);
+            _Variables = new Lazy<IImmutableSet<Variable>>(CollectVariables);
         }
 
-        private IReadOnlySet<Variable> CollectVariables()
+        private ImmutableSortedSet<Variable> CollectVariables()
         {
-            SortedSet<Variable> variables = new SortedSet<Variable>();
+            var variables = ImmutableSortedSet.CreateBuilder<Variable>();
 
-            if (Exponent is Variable)
+            if (Exponent is Variable variable)
             {
-                variables.Add((Variable)Exponent);
+                variables.Add(variable);
             }
 
             variables.UnionWith(Entity.Variables);
 
-            return variables.AsReadOnly();
+            return variables.ToImmutable();
         }
 
-        public static bool operator ==(Degree objA, Degree objB)
+        public bool EqualsNonnull(Degree other) =>
+            Entity.Equals(other.Entity) && Exponent.Equals(other.Exponent);
+
+        public int CompareToNonnull(Degree other)
         {
-            return Equals(objA, objB);
-        }
-
-        public static bool operator !=(Degree objA, Degree objB)
-        {
-            return !Equals(objA, objB);
-        }
-
-        public static bool operator <(Degree objA, Degree objB)
-        {
-            return Compare(objA, objB) < 0;
-        }
-
-        public static bool operator >(Degree objA, Degree objB)
-        {
-            return Compare(objA, objB) > 0;
-        }
-
-        public static bool operator >=(Degree objA, Degree objB)
-        {
-            return Compare(objA, objB) > -1;
-        }
-
-        public static bool operator <=(Degree objA, Degree objB)
-        {
-            return Compare(objA, objB) < 1;
-        }
-
-        public static bool Equals(Degree objA, Degree objB)
-        {
-            if ((object)objA == null)
-            {
-                if ((object)objB == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return objA.Equals(objB);
-        }
-
-        public static int Compare(Degree objA, Degree objB)
-        {
-            if (objA == null)
-            {
-                if (objB == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            return objA.CompareTo(objB);
-        }
-
-        public bool Equals(Degree other)
-        {
-            if (other == null)
-            {
-                return false;
-            }
-
-            return Entity.Equals(other.Entity) && Exponent.Equals(other.Exponent);
-        }
-
-        public int CompareTo(Degree other)
-        {
-            if (other == null)
-            {
-                return 1;
-            }
-
             int result = Entity.CompareTo(other.Entity);
 
             if (result != 0)
@@ -142,59 +48,19 @@ namespace FLaGLib.Data.Languages
             return Exponent.CompareTo(other.Exponent);
         }
 
-        public override bool Equals(object obj)
-        {
-            Degree degree = obj as Degree;
-            return Equals(degree);
-        }
+        public override int GetHashCode() => HashCode.Combine(Entity, Exponent);
 
-        public override int GetHashCode()
-        {
-            return Entity.GetHashCode() ^ Exponent.GetHashCode();
-        }
+        private readonly Lazy<IImmutableSet<Variable>> _Variables;
 
-        public override bool Equals(Entity other)
-        {
-            Degree degree = other as Degree;
-            return Equals(degree);
-        }
+        public override IImmutableSet<Variable> Variables => _Variables.Value;
 
-        public override int CompareTo(Entity other)
-        {
-            if (other == null || other is Degree)
-            {
-                return CompareTo((Degree)other);
-            }
+        public override int Priority => 1;
 
-            return string.Compare(GetType().FullName, other.GetType().FullName);
-        }
-
-        private readonly Lazy<IReadOnlySet<Variable>> _Variables;
-
-        public override IReadOnlySet<Variable> Variables
-        {
-            get { return _Variables.Value; }
-        }
-
-        public override int Priority
-        {
-            get
-            {
-                return 1;
-            }
-        }
-
-        public override EntityType EntityType
-        {
-            get
-            {
-                return EntityType.Degree;
-            }
-        }
+        public override EntityType EntityType => EntityType.Degree;
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             sb.Append(Entity.ToString());
 
@@ -205,9 +71,6 @@ namespace FLaGLib.Data.Languages
             return sb.ToString();
         }
 
-        public override Expression ToRegExp()
-        {
-            return Exponent.ToRegExp(Entity);
-        }
+        public override Expression ToRegExp() => Exponent.ToRegExp(Entity);
     }
 }

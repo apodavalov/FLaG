@@ -1,138 +1,24 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7E7EF604-E8DB-4C77-9078-64FDBE430E4A}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
     <RootNamespace>FLaGLib</RootNamespace>
-    <AssemblyName>FLaGLib</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <ProjectReference
+      Include="..\FLaG.CmpEq\FLaG.CmpEq.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false"
+    />
+
+    <ProjectReference Include="..\FLaG.CmpEq.Attributes\FLaG.CmpEq.Attributes.csproj" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Collections\IReadOnlySet.cs" />
-    <Compile Include="Collections\ReadOnlyList.cs" />
-    <Compile Include="Collections\ReadOnlySet.cs" />
-    <Compile Include="Data\Grammars\Chain.cs" />
-    <Compile Include="Data\Grammars\ChainRulesEndPostReport.cs" />
-    <Compile Include="Data\Grammars\ChainRulesEndTuple.cs" />
-    <Compile Include="Data\Grammars\BeginPostReport.cs" />
-    <Compile Include="Data\Grammars\ChainRulesBeginPostReport.cs" />
-    <Compile Include="Data\Grammars\ChainRulesIterationPostReport.cs" />
-    <Compile Include="Data\Grammars\ChainRulesIterationTuple.cs" />
-    <Compile Include="Data\Grammars\IterationPostReport.cs" />
-    <Compile Include="Data\Grammars\Grammar.cs" />
-    <Compile Include="Data\Grammars\GrammarType.cs" />
-    <Compile Include="Data\Grammars\MakeStateMachineGrammarPostReport.cs" />
-    <Compile Include="Data\Grammars\NonTerminalSymbol.cs" />
-    <Compile Include="Data\Grammars\Rule.cs" />
-    <Compile Include="Data\Grammars\Symbol.cs" />
-    <Compile Include="Data\Grammars\SymbolTuple.cs" />
-    <Compile Include="Data\Grammars\SymbolType.cs" />
-    <Compile Include="Data\Grammars\TerminalSymbol.cs" />
-    <Compile Include="Data\Label.cs" />
-    <Compile Include="Data\LabelType.cs" />
-    <Compile Include="Data\Languages\Concat.cs" />
-    <Compile Include="Data\Languages\EntityType.cs" />
-    <Compile Include="Data\Languages\Exponent.cs" />
-    <Compile Include="Data\Languages\ExponentType.cs" />
-    <Compile Include="Data\Languages\Sign.cs" />
-    <Compile Include="Data\Languages\Quantity.cs" />
-    <Compile Include="Data\Languages\Union.cs" />
-    <Compile Include="Data\Languages\Entity.cs" />
-    <Compile Include="Data\Languages\Degree.cs" />
-    <Compile Include="Data\Languages\Symbol.cs" />
-    <Compile Include="Data\Languages\Variable.cs" />
-    <Compile Include="Data\RegExps\ConcatHelper.cs" />
-    <Compile Include="Data\RegExps\DependencyCollection.cs" />
-    <Compile Include="Data\RegExps\ExpressionType.cs" />
-    <Compile Include="Data\RegExps\GrammarExpressionWithOriginal.cs" />
-    <Compile Include="Data\RegExps\GrammarExpressionTuple.cs" />
-    <Compile Include="Data\RegExps\GrammarPostReport.cs" />
-    <Compile Include="Data\RegExps\LanguageExpressionTuple.cs" />
-    <Compile Include="Data\RegExps\LanguagePostReport.cs" />
-    <Compile Include="Data\RegExps\StateMachineExpressionTuple.cs" />
-    <Compile Include="Data\RegExps\StateMachineExpressionWithOriginal.cs" />
-    <Compile Include="Data\RegExps\StateMachinePostReport.cs" />
-    <Compile Include="Data\RegExps\UnionHelper.cs" />
-    <Compile Include="Data\RegExps\Concat.cs" />
-    <Compile Include="Data\StateMachines\MinimizingBeginPostReport.cs" />
-    <Compile Include="Data\StateMachines\MinimizingIterationPostReport.cs" />
-    <Compile Include="Data\StateMachines\RemovingUnreachableBeginPostReport.cs" />
-    <Compile Include="Helpers\Matrix.cs" />
-    <Compile Include="Data\RegExps\BinaryUnion.cs" />
-    <Compile Include="Data\RegExps\BinaryConcat.cs" />
-    <Compile Include="Data\RegExps\ConstIteration.cs" />
-    <Compile Include="Data\RegExps\Empty.cs" />
-    <Compile Include="Data\RegExps\Expression.cs" />
-    <Compile Include="Data\RegExps\Iteration.cs" />
-    <Compile Include="Data\RegExps\Symbol.cs" />
-    <Compile Include="Data\RegExps\Union.cs" />
-    <Compile Include="Data\SingleLabel.cs" />
-    <Compile Include="Data\StateMachines\LabelSetEqualityComparer.cs" />
-    <Compile Include="Data\StateMachines\MetaFinalState.cs" />
-    <Compile Include="Data\StateMachines\MetaTransition.cs" />
-    <Compile Include="Data\StateMachines\ClassOfEquivalence.cs" />
-    <Compile Include="Data\StateMachines\ClassOfEquivalenceSet.cs" />
-    <Compile Include="Data\StateMachines\RemovingUnreachableIterationPostReport.cs" />
-    <Compile Include="Data\StateMachines\SetsOfEquivalence.cs" />
-    <Compile Include="Data\StateMachines\SetOfEquivalence.cs" />
-    <Compile Include="Data\StateMachines\SetOfEquivalenceTransition.cs" />
-    <Compile Include="Extensions\IDictionaryExtensions.cs" />
-    <Compile Include="Extensions\IEnumerableExtension.cs" />
-    <Compile Include="Extensions\IEquatableExtension.cs" />
-    <Compile Include="Extensions\IListExtensions.cs" />
-    <Compile Include="Extensions\IReadOnlyListExtensions.cs" />
-    <Compile Include="Helpers\DepthData.cs" />
-    <Compile Include="Helpers\EnumerateHelper.cs" />
-    <Compile Include="Extensions\IComparableExtensions.cs" />
-    <Compile Include="Extensions\IntNullableExtensions.cs" />
-    <Compile Include="Extensions\ISetExtensions.cs" />
-    <Compile Include="Extensions\NullableExtensions.cs" />
-    <Compile Include="Extensions\ObjectExtensions.cs" />
-    <Compile Include="Helpers\WalkData.cs" />
-    <Compile Include="Helpers\WalkDataLabel.cs" />
-    <Compile Include="Helpers\WalkStatus.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Data\StateMachines\StateMachine.cs" />
-    <Compile Include="Data\StateMachines\Transition.cs" />
+    <Using Include="FLaG.CmpEq.Attributes" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

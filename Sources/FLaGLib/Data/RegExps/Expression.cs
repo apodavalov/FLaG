@@ -1,119 +1,51 @@
-﻿using FLaGLib.Data.Grammars;
+﻿using System.Collections.Immutable;
+using System.Text;
+using FLaGLib.Data.Grammars;
 using FLaGLib.Data.StateMachines;
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace FLaGLib.Data.RegExps
 {
-    public abstract class Expression : IEquatable<Expression>, IComparable<Expression>
+    [ComparableEquatable]
+    public abstract partial class Expression
     {
         private const int _StartIndex = 1;
-        private const string _UnknownGrammarTemplate = "Unknown grammar type: {0}";
 
-        internal Expression() 
+        internal Expression()
         {
-            _WalkData = new Lazy<IReadOnlyList<WalkData<Expression>>>(GetWalkData);
-            _DependencyMap = new Lazy<IReadOnlyList<DependencyCollection>>(GetDependencyMap);
+            _WalkData = new Lazy<IImmutableList<WalkData<Expression>>>(GetWalkData);
+            _DependencyMap = new Lazy<IImmutableList<DependencyCollection>>(GetDependencyMap);
         }
 
-        public static bool operator ==(Expression objA, Expression objB)
+        public abstract override int GetHashCode();
+
+        public virtual bool EqualsNonnull(Expression other)
         {
-            return Equals(objA, objB);
+            return ExpressionType == other.ExpressionType;
         }
 
-        public static bool operator !=(Expression objA, Expression objB)
+        public virtual int CompareToNonnull(Expression other)
         {
-            return !Equals(objA, objB);
+            return ExpressionType.CompareTo(other.ExpressionType);
         }
-
-        public static bool operator <(Expression objA, Expression objB)
-        {
-            return Compare(objA, objB) < 0;
-        }
-
-        public static bool operator >(Expression objA, Expression objB)
-        {
-            return Compare(objA, objB) > 0;
-        }
-
-        public static bool operator >=(Expression objA, Expression objB)
-        {
-            return Compare(objA, objB) > -1;
-        }
-
-        public static bool operator <=(Expression objA, Expression objB)
-        {
-            return Compare(objA, objB) < 1;
-        }
-
-        public static bool Equals(Expression objA, Expression objB)
-        {
-            if ((object)objA == null)
-            {
-                if ((object)objB == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return objA.Equals(objB);
-        }
-
-        public static int Compare(Expression objA, Expression objB)
-        {
-            if (objA == null)
-            {
-                if (objB == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            return objA.CompareTo(objB);
-        }
-
-        public override abstract bool Equals(object obj);
-
-        public override abstract int GetHashCode();
-
-        public abstract bool Equals(Expression other);
-
-        public abstract int CompareTo(Expression other);
 
         public abstract int Priority { get; }
 
         public abstract ExpressionType ExpressionType { get; }
 
-        private Lazy<IReadOnlyList<WalkData<Expression>>> _WalkData;
-        private Lazy<IReadOnlyList<DependencyCollection>> _DependencyMap;
+        private Lazy<IImmutableList<WalkData<Expression>>> _WalkData;
+        private Lazy<IImmutableList<DependencyCollection>> _DependencyMap;
 
-        public IReadOnlyList<DependencyCollection> DependencyMap
+        public IImmutableList<DependencyCollection> DependencyMap
         {
-            get
-            {
-                return _DependencyMap.Value;
-            }
+            get { return _DependencyMap.Value; }
         }
 
-        protected string UnknownGrammarMessage(GrammarType grammarType)
+        private ILookup<int, int> GetDependencyIndexMap()
         {
-            return string.Format(_UnknownGrammarTemplate, grammarType);
-        }
-        
-        private ILookup<int,int> GetDependencyIndexMap()
-        {
-            Stack<int> stack = new Stack<int>();
-            IDictionary<int, IList<int>> dependencyMap = new Dictionary<int, IList<int>>();
+            Stack<int> stack = [];
+            Dictionary<int, List<int>> dependencyMap = [];
 
             foreach (WalkData<Expression> data in _WalkData.Value)
             {
@@ -126,15 +58,15 @@ namespace FLaGLib.Data.RegExps
                         {
                             int index = stack.Peek();
 
-                            IList<int> set;
+                            List<int> set;
 
-                            if (dependencyMap.ContainsKey(index))
+                            if (dependencyMap.TryGetValue(index, out List<int>? value))
                             {
-                                set = dependencyMap[index];
+                                set = value;
                             }
                             else
                             {
-                                dependencyMap[index] = set = new List<int>();
+                                dependencyMap[index] = set = [];
                             }
 
                             set.Add(dependencyIndex);
@@ -145,18 +77,22 @@ namespace FLaGLib.Data.RegExps
                         stack.Pop();
                         break;
                     default:
-                        throw new InvalidOperationException(string.Format("Unknown status: {0}.", data.Status));
+                        throw new InvalidOperationException(
+                            string.Format("Unknown status: {0}.", data.Status)
+                        );
                 }
             }
 
-            return dependencyMap.ToLookup<int, int, IList<int>>();
+            return dependencyMap.ToLookup<int, int, List<int>>();
         }
 
         internal static void CheckDependencies<T>(T[] dependencies, int expectedCount)
         {
             if (dependencies.Length != expectedCount)
             {
-                throw new InvalidOperationException(string.Format("Expected exactly {0} dependencies.", expectedCount));
+                throw new InvalidOperationException(
+                    string.Format("Expected exactly {0} dependencies.", expectedCount)
+                );
             }
         }
 
@@ -166,89 +102,137 @@ namespace FLaGLib.Data.RegExps
 
         public abstract Expression TryToLetItBeEmpty();
 
-        private IReadOnlyList<Expression> GetSubexpressionsInCalculateOrder()
+        private ImmutableList<Expression> GetSubexpressionsInCalculateOrder()
         {
-            return _WalkData.Value.Where(wd => wd.Status == WalkStatus.Begin).OrderBy(wd => wd.Index).Select(wd => wd.Value).ToList().AsReadOnly();
+            return _WalkData
+                .Value.Where(wd => wd.Status == WalkStatus.Begin)
+                .OrderBy(wd => wd.Index)
+                .Select(wd => wd.Value)
+                .ToImmutableList();
         }
 
-        private IReadOnlyList<DependencyCollection> GetDependencyMap()
+        private ImmutableList<DependencyCollection> GetDependencyMap()
         {
             ILookup<int, int> map = GetDependencyIndexMap();
-            IReadOnlyList<Expression> subexpressions = GetSubexpressionsInCalculateOrder();
-
-            return subexpressions.Select((e, i) => new DependencyCollection(e, map[i].ToList())).ToList().AsReadOnly();
+            IImmutableList<Expression> subexpressions = GetSubexpressionsInCalculateOrder();
+            return subexpressions
+                .Select((e, i) => new DependencyCollection(e, map[i].ToImmutableList()))
+                .ToImmutableList();
         }
 
-        internal abstract GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber, 
-            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies);
+        internal abstract GrammarExpressionTuple GenerateGrammar(
+            GrammarType grammarType,
+            int grammarNumber,
+            ref int index,
+            ref int additionalGrammarNumber,
+            Action<GrammarPostReport>? onIterate,
+            params GrammarExpressionWithOriginal[] dependencies
+        );
 
-        private LanguageExpressionTuple CheckRegular(int languageNumber, Action<LanguagePostReport> onIterate, params LanguageExpressionTuple[] dependencies)
+        private LanguageExpressionTuple CheckRegular(
+            int languageNumber,
+            Action<LanguagePostReport>? onIterate,
+            params LanguageExpressionTuple[] dependencies
+        )
         {
-            LanguageExpressionTuple languageExpression = new LanguageExpressionTuple(this, languageNumber);
-
-            if (onIterate != null)
-            {
-                onIterate(new LanguagePostReport(languageExpression, dependencies));
-            }
-
+            LanguageExpressionTuple languageExpression = new(this, languageNumber);
+            onIterate?.Invoke(new LanguagePostReport(languageExpression, dependencies));
             return languageExpression;
         }
 
-        public void CheckRegular(Action<LanguagePostReport> onIterate = null)
+        public void CheckRegular(Action<LanguagePostReport>? onIterate = null)
         {
-            IReadOnlyList<DependencyCollection> dependencyMap = DependencyMap;
+            IImmutableList<DependencyCollection> dependencyMap = DependencyMap;
             LanguageExpressionTuple[] languages = new LanguageExpressionTuple[dependencyMap.Count];
 
-            for (int i = 0; i < dependencyMap.Count; i++)
+            for (int i = 0; i < dependencyMap.Count; ++i)
             {
                 Expression expression = dependencyMap[i].Expression;
-                IEnumerable<LanguageExpressionTuple> dependencies = dependencyMap[i].OrderBy(item => item).Select(item => languages[item]);
-                languages[i] = expression.CheckRegular(_StartIndex + i, onIterate, dependencies.ToArray());
+                IEnumerable<LanguageExpressionTuple> dependencies = dependencyMap[i]
+                    .Order()
+                    .Select(item => languages[item]);
+                languages[i] = expression.CheckRegular(
+                    _StartIndex + i,
+                    onIterate,
+                    dependencies.ToArray()
+                );
             }
         }
 
-        public Grammar MakeGrammar(GrammarType grammarType, Action<GrammarPostReport> onIterate = null)
+        public Grammar MakeGrammar(
+            GrammarType grammarType,
+            Action<GrammarPostReport>? onIterate = null
+        )
         {
-            IReadOnlyList<DependencyCollection> dependencyMap = DependencyMap;
-            GrammarExpressionWithOriginal[] grammars = new GrammarExpressionWithOriginal[dependencyMap.Count];
+            IImmutableList<DependencyCollection> dependencyMap = DependencyMap;
+            GrammarExpressionWithOriginal[] grammars = new GrammarExpressionWithOriginal[
+                dependencyMap.Count
+            ];
 
             int index = _StartIndex;
             int additionalGrammarNumber = _StartIndex + dependencyMap.Count + 1;
-                
-            for (int i = 0; i < dependencyMap.Count; i++)
+
+            for (int i = 0; i < dependencyMap.Count; ++i)
             {
                 Expression expression = dependencyMap[i].Expression;
-                IEnumerable<GrammarExpressionWithOriginal> dependencies = dependencyMap[i].Select(item => grammars[item]);
-                grammars[i] = new GrammarExpressionWithOriginal(expression.GenerateGrammar(grammarType, _StartIndex + i, ref index, ref additionalGrammarNumber, onIterate, dependencies.ToArray()));
+                IEnumerable<GrammarExpressionWithOriginal> dependencies = dependencyMap[i]
+                    .Select(item => grammars[item]);
+                grammars[i] = new GrammarExpressionWithOriginal(
+                    expression.GenerateGrammar(
+                        grammarType,
+                        _StartIndex + i,
+                        ref index,
+                        ref additionalGrammarNumber,
+                        onIterate,
+                        dependencies.ToArray()
+                    )
+                );
             }
 
-            return grammars[grammars.Length - 1].GrammarExpression.Grammar;
+            return grammars[^1].GrammarExpression.Grammar;
         }
 
-        internal abstract StateMachineExpressionTuple GenerateStateMachine(int stateMachineNumber, ref int index, ref int additionalStateMachineNumber, Action<StateMachinePostReport> onIterate, params StateMachineExpressionWithOriginal[] dependencies);
+        internal abstract StateMachineExpressionTuple GenerateStateMachine(
+            int stateMachineNumber,
+            ref int index,
+            ref int additionalStateMachineNumber,
+            Action<StateMachinePostReport>? onIterate,
+            params StateMachineExpressionWithOriginal[] dependencies
+        );
 
-        public StateMachine MakeStateMachine(Action<StateMachinePostReport> onIterate = null)
+        public StateMachine MakeStateMachine(Action<StateMachinePostReport>? onIterate = null)
         {
-            IReadOnlyList<DependencyCollection> dependencyMap = DependencyMap;
-            StateMachineExpressionWithOriginal[] stateMachines = new StateMachineExpressionWithOriginal[dependencyMap.Count];
+            IImmutableList<DependencyCollection> dependencyMap = DependencyMap;
+            StateMachineExpressionWithOriginal[] stateMachines =
+                new StateMachineExpressionWithOriginal[dependencyMap.Count];
 
             int index = _StartIndex;
             int additionalStateMachineNumber = _StartIndex + dependencyMap.Count + 1;
 
-            for (int i = 0; i < dependencyMap.Count; i++)
+            for (int i = 0; i < dependencyMap.Count; ++i)
             {
                 Expression expression = dependencyMap[i].Expression;
-                IEnumerable<StateMachineExpressionWithOriginal> dependencies = dependencyMap[i].Select(item => stateMachines[item]);
-                stateMachines[i] = new StateMachineExpressionWithOriginal(expression.GenerateStateMachine(_StartIndex + i, ref index, ref additionalStateMachineNumber, onIterate, dependencies.ToArray()));
+                IEnumerable<StateMachineExpressionWithOriginal> dependencies = dependencyMap[i]
+                    .Select(item => stateMachines[item]);
+                stateMachines[i] = new StateMachineExpressionWithOriginal(
+                    expression.GenerateStateMachine(
+                        _StartIndex + i,
+                        ref index,
+                        ref additionalStateMachineNumber,
+                        onIterate,
+                        dependencies.ToArray()
+                    )
+                );
             }
 
-            return stateMachines[stateMachines.Length - 1].StateMachineExpression.StateMachine;
+            return stateMachines[^1].StateMachineExpression.StateMachine;
         }
 
-        private IReadOnlyList<WalkData<Expression>> GetWalkData()
+        private ImmutableList<WalkData<Expression>> GetWalkData()
         {
-            WalkDataLabel<DepthData<Expression>>[] depthData = 
-               WalkInternal().Select(data => new WalkDataLabel<DepthData<Expression>>(false,0,data)).ToArray();
+            WalkDataLabel<DepthData<Expression>>[] depthData = WalkInternal()
+                .Select(data => new WalkDataLabel<DepthData<Expression>>(false, 0, data))
+                .ToArray();
 
             int maxDepth = 0;
             int currentDepth = 0;
@@ -257,11 +241,11 @@ namespace FLaGLib.Data.RegExps
             {
                 if (data.Value.Status == WalkStatus.Begin)
                 {
-                    currentDepth++;
+                    ++currentDepth;
                 }
                 else
                 {
-                    currentDepth--;
+                    --currentDepth;
                 }
 
                 if (maxDepth < currentDepth)
@@ -271,23 +255,27 @@ namespace FLaGLib.Data.RegExps
             }
 
             int currentIndex = _StartIndex;
-          
+
             while (maxDepth > 0)
             {
-                WalkDataLabel<DepthData<Expression>> prev = null;
+                WalkDataLabel<DepthData<Expression>>? prev = null;
 
                 foreach (WalkDataLabel<DepthData<Expression>> data in depthData)
                 {
-                    if (prev != null)
+                    if (prev is not null)
                     {
-                        if (prev.Value.Status == WalkStatus.Begin && data.Value.Status == WalkStatus.End && !data.Marked)
+                        if (
+                            prev.Value.Status == WalkStatus.Begin
+                            && data.Value.Status == WalkStatus.End
+                            && !data.Marked
+                        )
                         {
                             prev.Marked = true;
                             data.Marked = true;
                             prev.Index = currentIndex;
                             data.Index = currentIndex;
 
-                            currentIndex++;
+                            ++currentIndex;
 
                             prev = null;
                         }
@@ -299,10 +287,16 @@ namespace FLaGLib.Data.RegExps
                     }
                 }
 
-                maxDepth--;
+                --maxDepth;
             }
 
-            return depthData.Select(data => new WalkData<Expression>(data.Value.Status, data.Index, data.Value.Value)).ToList().AsReadOnly();
+            return depthData
+                .Select(data => new WalkData<Expression>(
+                    data.Value.Status,
+                    data.Index,
+                    data.Value.Value
+                ))
+                .ToImmutableList();
         }
 
         internal abstract IEnumerable<DepthData<Expression>> WalkInternal();
@@ -326,10 +320,8 @@ namespace FLaGLib.Data.RegExps
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
-
+            StringBuilder sb = new();
             ToString(sb);
-
             return sb.ToString();
         }
     }

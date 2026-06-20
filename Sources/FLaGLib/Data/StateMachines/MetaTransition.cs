@@ -1,163 +1,55 @@
-﻿using FLaGLib.Collections;
-using FLaGLib.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using System.Text;
+using FLaGLib.Extensions;
 
 namespace FLaGLib.Data.StateMachines
 {
-    public class MetaTransition : IComparable<MetaTransition>, IEquatable<MetaTransition>
+    [ComparableEquatable]
+    public sealed partial class MetaTransition(
+        IEnumerable<Label> metaCurrentRequiredStates,
+        IEnumerable<Label> metaCurrentOptionalStates,
+        char symbol,
+        IEnumerable<Label> metaNextStates
+    )
     {
-        public IReadOnlySet<Label> CurrentRequiredStates
-        {
-            get;
-            private set;
-        }
+        public IImmutableSet<Label> CurrentRequiredStates { get; } =
+            metaCurrentRequiredStates.ToImmutableSortedSet();
 
-        public IReadOnlySet<Label> CurrentOptionalStates
-        {
-            get;
-            private set;
-        }
+        public IImmutableSet<Label> CurrentOptionalStates { get; } =
+            metaCurrentOptionalStates.ToImmutableSortedSet();
 
-        public char Symbol
-        {
-            get;
-            private set;
-        }
+        public char Symbol { get; } = symbol;
 
-        public IReadOnlySet<Label> NextStates
-        {
-            get;
-            private set;
-        }
-
-        public MetaTransition(
-            IEnumerable<Label> metaCurrentRequiredStates,
-            IEnumerable<Label> metaCurrentOptionalStates, 
-            char symbol,
-            IEnumerable<Label> metaNextStates)
-        {
-            if (metaCurrentRequiredStates == null)
-            {
-                throw new ArgumentNullException(nameof(metaCurrentRequiredStates));
-            }
-
-            if (metaCurrentOptionalStates == null)
-            {
-                throw new ArgumentNullException(nameof(metaCurrentOptionalStates));
-            }
-
-            if (metaNextStates == null)
-            {
-                throw new ArgumentNullException(nameof(metaNextStates));
-            }
-
-            CurrentOptionalStates = metaCurrentOptionalStates.ToSortedSet().AsReadOnly();
-            CurrentRequiredStates = metaCurrentRequiredStates.ToSortedSet().AsReadOnly();
-            NextStates = metaNextStates.ToSortedSet().AsReadOnly();
-            Symbol = symbol;
-        }
-
-        public static bool operator ==(MetaTransition objA, MetaTransition objB)
-        {
-            return Equals(objA, objB);
-        }
-
-        public static bool operator !=(MetaTransition objA, MetaTransition objB)
-        {
-            return !Equals(objA, objB);
-        }
-
-        public static bool operator <(MetaTransition objA, MetaTransition objB)
-        {
-            return Compare(objA, objB) < 0;
-        }
-
-        public static bool operator >(MetaTransition objA, MetaTransition objB)
-        {
-            return Compare(objA, objB) > 0;
-        }
-
-        public static bool operator >=(MetaTransition objA, MetaTransition objB)
-        {
-            return Compare(objA, objB) > -1;
-        }
-
-        public static bool operator <=(MetaTransition objA, MetaTransition objB)
-        {
-            return Compare(objA, objB) < 1;
-        }
-
-        public static bool Equals(MetaTransition objA, MetaTransition objB)
-        {
-            if ((object)objA == null)
-            {
-                if ((object)objB == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return objA.Equals(objB);
-        }
-
-        public static int Compare(MetaTransition objA, MetaTransition objB)
-        {
-            if (objA == null)
-            {
-                if (objB == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            return objA.CompareTo(objB);
-        }
-
-        public override bool Equals(object obj)
-        {
-            MetaTransition metaTransition = obj as MetaTransition;
-            return Equals(metaTransition);
-        }
+        public IImmutableSet<Label> NextStates { get; } = metaNextStates.ToImmutableSortedSet();
 
         public override int GetHashCode()
         {
-            return
-                Symbol.GetHashCode() ^
-                CurrentRequiredStates.GetSequenceHashCode() ^
-                CurrentOptionalStates.GetSequenceHashCode() ^
-                NextStates.GetSequenceHashCode();
-        }
-
-        public bool Equals(MetaTransition other)
-        {
-            if (other == null)
+            HashCode hashCode = new();
+            hashCode.Add(Symbol);
+            foreach (Label label in CurrentRequiredStates)
             {
-                return false;
+                hashCode.Add(label);
+            }
+            foreach (Label label in CurrentOptionalStates)
+            {
+                hashCode.Add(label);
+            }
+            foreach (Label label in NextStates)
+            {
+                hashCode.Add(label);
             }
 
-            return
-                CurrentOptionalStates.SequenceEqual(other.CurrentOptionalStates) &&
-                CurrentRequiredStates.SequenceEqual(other.CurrentRequiredStates) &&
-                NextStates.SequenceEqual(other.NextStates) &&
-                Symbol == other.Symbol;
+            return hashCode.ToHashCode();
         }
 
-        public int CompareTo(MetaTransition other)
-        {
-            if (other == null)
-            {
-                return 1;
-            }
+        public bool EqualsNonnull(MetaTransition other) =>
+            CurrentOptionalStates.SequenceEqual(other.CurrentOptionalStates)
+            && CurrentRequiredStates.SequenceEqual(other.CurrentRequiredStates)
+            && NextStates.SequenceEqual(other.NextStates)
+            && Symbol == other.Symbol;
 
+        public int CompareToNonnull(MetaTransition other)
+        {
             int result = Symbol.CompareTo(other.Symbol);
 
             if (result != 0)
@@ -182,13 +74,13 @@ namespace FLaGLib.Data.StateMachines
             return NextStates.SequenceCompare(other.NextStates);
         }
 
-        public override string ToString() 
+        public override string ToString()
         {
-            StringBuilder sb = new StringBuilder("δ([");
+            StringBuilder sb = new("δ([");
 
-            foreach (Label l in CurrentRequiredStates)
+            foreach (Label label in CurrentRequiredStates)
             {
-                sb.Append(l.ToString());
+                sb.Append(label.ToString());
                 sb.Append(' ');
             }
 
@@ -198,20 +90,20 @@ namespace FLaGLib.Data.StateMachines
             sb.Append(Symbol);
             sb.Append(") -> [");
 
-            foreach (Label l in NextStates)
+            foreach (Label label in NextStates)
             {
                 sb.Append(' ');
-                sb.Append(l.ToString());                
+                sb.Append(label.ToString());
             }
 
             sb.Append("], q_1 ... q_");
             sb.Append(CurrentOptionalStates.Count);
             sb.Append(" :");
 
-            foreach (Label l in CurrentOptionalStates)
+            foreach (Label label in CurrentOptionalStates)
             {
                 sb.Append(' ');
-                sb.Append(l.ToString());
+                sb.Append(label.ToString());
             }
 
             return sb.ToString();

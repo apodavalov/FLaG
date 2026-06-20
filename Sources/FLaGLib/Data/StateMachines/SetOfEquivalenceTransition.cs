@@ -1,35 +1,14 @@
-﻿using FLaGLib.Collections;
-using FLaGLib.Extensions;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Immutable;
 
 namespace FLaGLib.Data.StateMachines
 {
-    public class SetOfEquivalenceTransition
+    public sealed class SetOfEquivalenceTransition(
+        IEnumerable<char> symbols,
+        int indexOfCurrentSetOfEquivalence
+    )
     {
-        public IReadOnlySet<char> Symbols
-        {
-            get;
-            private set;
-        }
+        public IImmutableSet<char> Symbols { get; } = symbols.ToImmutableSortedSet();
 
-        public int IndexOfCurrentSetOfEquivalence
-        {
-            get;
-            private set;
-        }
-
-        public SetOfEquivalenceTransition(
-            IEnumerable<char> symbols,
-            int indexOfCurrentSetOfEquivalence)
-        {
-            if (symbols == null)
-            {
-                throw new ArgumentNullException(nameof(symbols));
-            }
-
-            Symbols = symbols.ToSortedSet().AsReadOnly();
-            IndexOfCurrentSetOfEquivalence = indexOfCurrentSetOfEquivalence;
-        }
+        public int IndexOfCurrentSetOfEquivalence { get; } = indexOfCurrentSetOfEquivalence;
     }
 }

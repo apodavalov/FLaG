@@ -3,6 +3,6 @@
     public enum ExponentType
     {
         Quantity,
-        Variable
+        Variable,
     }
 }

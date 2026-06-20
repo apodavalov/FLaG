@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Text;
+﻿using System.Text;
 
 namespace FLaG.IO.Output
 {
@@ -17,12 +16,7 @@ namespace FLaG.IO.Output
 
         private static string Escape(string value)
         {
-            if (value == null)
-            {
-                return null;
-            }
-
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             foreach (char c in value)
             {
@@ -61,7 +55,7 @@ namespace FLaG.IO.Output
                     default:
                         sb.Append(c);
                         break;
-                }                
+                }
             }
 
             return sb.ToString();

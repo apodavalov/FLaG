@@ -1,116 +1,28 @@
-﻿using FLaGLib.Collections;
+﻿using System.Collections.Immutable;
 using FLaGLib.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace FLaGLib.Data.StateMachines
 {
-    public class ClassOfEquivalence : IComparable<ClassOfEquivalence>, IEquatable<ClassOfEquivalence>
+    [ComparableEquatable]
+    public sealed partial class ClassOfEquivalence(int setNum, IEnumerable<char> symbols)
     {
-        public int SetNum
-        {
-            get;
-            private set;
-        }
+        public int SetNum { get; } = setNum;
 
-        public IReadOnlySet<char> Symbols
-        {
-            get;
-            private set;
-        }
-
-        public ClassOfEquivalence(int setNum, IEnumerable<char> symbols)
-        {
-            if (symbols == null)
-            {
-                throw new ArgumentNullException(nameof(symbols));
-            }
-
-            SetNum = setNum;
-            Symbols = symbols.ToSortedSet().AsReadOnly();
-        }
-
-        public static bool operator ==(ClassOfEquivalence objA, ClassOfEquivalence objB)
-        {
-            return Equals(objA, objB);
-        }
-
-        public static bool operator !=(ClassOfEquivalence objA, ClassOfEquivalence objB)
-        {
-            return !Equals(objA, objB);
-        }
-
-        public static bool operator <(ClassOfEquivalence objA, ClassOfEquivalence objB)
-        {
-            return Compare(objA, objB) < 0;
-        }
-
-        public static bool operator >(ClassOfEquivalence objA, ClassOfEquivalence objB)
-        {
-            return Compare(objA, objB) > 0;
-        }
-
-        public static bool operator >=(ClassOfEquivalence objA, ClassOfEquivalence objB)
-        {
-            return Compare(objA, objB) > -1;
-        }
-
-        public static bool operator <=(ClassOfEquivalence objA, ClassOfEquivalence objB)
-        {
-            return Compare(objA, objB) < 1;
-        }
-
-        public static bool Equals(ClassOfEquivalence objA, ClassOfEquivalence objB)
-        {
-            if ((object)objA == null)
-            {
-                if ((object)objB == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return objA.Equals(objB);
-        }
-
-        public static int Compare(ClassOfEquivalence objA, ClassOfEquivalence objB)
-        {
-            if (objA == null)
-            {
-                if (objB == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            return objA.CompareTo(objB);
-        }
-
-        public override bool Equals(object obj)
-        {
-            ClassOfEquivalence classOfEquivalence = obj as ClassOfEquivalence;
-            return Equals(classOfEquivalence);
-        }
+        public IImmutableSet<char> Symbols { get; } = symbols.ToImmutableSortedSet();
 
         public override int GetHashCode()
         {
-            return SetNum.GetHashCode() ^ Symbols.GetSequenceHashCode();
+            HashCode hashCode = new();
+            hashCode.Add(SetNum);
+            foreach (char symbol in Symbols)
+            {
+                hashCode.Add(symbol);
+            }
+            return hashCode.ToHashCode();
         }
 
-        public bool Equals(ClassOfEquivalence other)
+        public bool EqualsNonnull(ClassOfEquivalence other)
         {
-            if (other == null)
-            {
-                return false;
-            }
-
             if (!SetNum.Equals(other.SetNum))
             {
                 return false;
@@ -119,13 +31,8 @@ namespace FLaGLib.Data.StateMachines
             return Symbols.SequenceEqual(other.Symbols);
         }
 
-        public int CompareTo(ClassOfEquivalence other)
+        public int CompareToNonnull(ClassOfEquivalence other)
         {
-            if (other == null)
-            {
-                return 1;
-            }
-
             int result = SetNum.CompareTo(other.SetNum);
 
             if (result != 0)

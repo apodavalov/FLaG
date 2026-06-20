@@ -3,6 +3,6 @@
     public enum LabelType
     {
         Simple,
-        Complex
+        Complex,
     }
 }

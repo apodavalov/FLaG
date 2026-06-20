@@ -1,101 +1,27 @@
-﻿using FLaGLib.Collections;
+﻿using System.Collections.Immutable;
 using FLaGLib.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace FLaGLib.Data.StateMachines
 {
-    public class SetsOfEquivalence : ReadOnlyList<SetOfEquivalence>, IComparable<SetsOfEquivalence>, IEquatable<SetsOfEquivalence>
+    [ComparableEquatable]
+    public sealed partial class SetsOfEquivalence(IEnumerable<SetOfEquivalence> set)
     {
-        public SetsOfEquivalence(IEnumerable<SetOfEquivalence> set) : base(set?.OrderBy(c => c).ToList()) { }
-
-        public static bool operator ==(SetsOfEquivalence objA, SetsOfEquivalence objB)
-        {
-            return Equals(objA, objB);
-        }
-
-        public static bool operator !=(SetsOfEquivalence objA, SetsOfEquivalence objB)
-        {
-            return !Equals(objA, objB);
-        }
-
-        public static bool operator <(SetsOfEquivalence objA, SetsOfEquivalence objB)
-        {
-            return Compare(objA, objB) < 0;
-        }
-
-        public static bool operator >(SetsOfEquivalence objA, SetsOfEquivalence objB)
-        {
-            return Compare(objA, objB) > 0;
-        }
-
-        public static bool operator >=(SetsOfEquivalence objA, SetsOfEquivalence objB)
-        {
-            return Compare(objA, objB) > -1;
-        }
-
-        public static bool operator <=(SetsOfEquivalence objA, SetsOfEquivalence objB)
-        {
-            return Compare(objA, objB) < 1;
-        }
-
-        public static bool Equals(SetsOfEquivalence objA, SetsOfEquivalence objB)
-        {
-            if ((object)objA == null)
-            {
-                if ((object)objB == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return objA.Equals(objB);
-        }
-
-        public static int Compare(SetsOfEquivalence objA, SetsOfEquivalence objB)
-        {
-            if (objA == null)
-            {
-                if (objB == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            return objA.CompareTo(objB);
-        }
-
-        public override bool Equals(object obj)
-        {
-            SetsOfEquivalence setsOfEquivalence = obj as SetsOfEquivalence;
-            return Equals(setsOfEquivalence);
-        }
+        public IImmutableList<SetOfEquivalence> SortedList { get; } = set.Order().ToImmutableList();
 
         public override int GetHashCode()
         {
-            return this.GetSequenceHashCode();
-        }
-
-        public bool Equals(SetsOfEquivalence other)
-        {
-            if (other == null)
+            HashCode hashCode = new();
+            foreach (SetOfEquivalence set in SortedList)
             {
-                return false;
+                hashCode.Add(set);
             }
-
-            return this.SequenceEqual(other);
+            return hashCode.ToHashCode();
         }
 
-        public int CompareTo(SetsOfEquivalence other)
-        {
-            return this.SequenceCompare(other);
-        }
+        public bool EqualsNonnull(SetsOfEquivalence other) =>
+            SortedList.SequenceEqual(other.SortedList);
+
+        public int CompareToNonnull(SetsOfEquivalence other) =>
+            SortedList.SequenceCompare(other.SortedList);
     }
 }

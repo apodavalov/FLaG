@@ -1,94 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Immutable;
 
 namespace FLaGLib.Data.Grammars
 {
-    public abstract class Symbol : IComparable<Symbol>, IEquatable<Symbol>
+    [ComparableEquatable]
+    public abstract partial class Symbol
     {
-        public abstract IEnumerable<TerminalSymbol> Alphabet 
-        { 
-            get; 
-        }
+        public abstract IEnumerable<TerminalSymbol> Alphabet { get; }
 
-        public abstract IEnumerable<NonTerminalSymbol> NonTerminals 
-        { 
-            get; 
-        }
+        public abstract IEnumerable<NonTerminalSymbol> NonTerminals { get; }
 
-        public abstract Symbol Reorganize(IDictionary<NonTerminalSymbol,NonTerminalSymbol> map);
+        public abstract Symbol Reorganize(
+            IImmutableDictionary<NonTerminalSymbol, NonTerminalSymbol> map
+        );
 
         public abstract SymbolType SymbolType { get; }
-        
-        public static bool operator ==(Symbol objA, Symbol objB)
-        {
-            return Equals(objA, objB);
-        }
 
-        public static bool operator !=(Symbol objA, Symbol objB)
-        {
-            return !Equals(objA, objB);
-        }
+        public abstract override int GetHashCode();
 
-        public static bool operator <(Symbol objA, Symbol objB)
-        {
-            return Compare(objA, objB) < 0;
-        }
+        public virtual int CompareToNonnull(Symbol other) => SymbolType.CompareTo(other.SymbolType);
 
-        public static bool operator >(Symbol objA, Symbol objB)
-        {
-            return Compare(objA, objB) > 0;
-        }
-
-        public static bool operator >=(Symbol objA, Symbol objB)
-        {
-            return Compare(objA, objB) > -1;
-        }
-
-        public static bool operator <=(Symbol objA, Symbol objB)
-        {
-            return Compare(objA, objB) < 1;
-        }
-
-        public static bool Equals(Symbol objA, Symbol objB)
-        {
-            if ((object)objA == null)
-            {
-                if ((object)objB == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return objA.Equals(objB);
-        }
-
-        public static int Compare(Symbol objA, Symbol objB)
-        {
-            if (objA == null)
-            {
-                if (objB == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            return objA.CompareTo(objB);
-        }
-
-        public override abstract bool Equals(object obj);
-
-        public override abstract int GetHashCode();
-
-        public abstract bool Equals(Symbol other);
-
-        public abstract int CompareTo(Symbol other);
-
-        public override abstract string ToString();
+        public virtual bool EqualsNonnull(Symbol other) => SymbolType.Equals(other.SymbolType);
     }
 }

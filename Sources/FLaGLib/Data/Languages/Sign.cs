@@ -3,6 +3,6 @@
     public enum Sign
     {
         MoreThan,
-        MoreThanOrEqual
+        MoreThanOrEqual,
     }
 }

@@ -1,30 +1,11 @@
 ﻿namespace FLaGLib.Helpers
 {
-    class WalkDataLabel<T>
+    sealed class WalkDataLabel<T>(bool marked, int index, T value)
     {
-        public bool Marked
-        {
-            get;
-            set;
-        }
+        public bool Marked { get; set; } = marked;
 
-        public int Index
-        {
-            get;
-            set;
-        }
+        public int Index { get; set; } = index;
 
-        public T Value
-        {
-            get;
-            private set;
-        }
-
-        public WalkDataLabel(bool marked, int index, T value)
-        {
-            Marked = marked;
-            Index = index;
-            Value = value;
-        }
+        public T Value { get; set; } = value;
     }
 }

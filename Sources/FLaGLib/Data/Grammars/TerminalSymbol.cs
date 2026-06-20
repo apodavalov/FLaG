@@ -1,164 +1,31 @@
-﻿using FLaGLib.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Immutable;
 
 namespace FLaGLib.Data.Grammars
 {
-    public class TerminalSymbol : Symbol, IComparable<TerminalSymbol>, IEquatable<TerminalSymbol>
+    [ComparableEquatable]
+    public sealed partial class TerminalSymbol(char symbol) : Symbol
     {
-        public char Symbol
-        {
-            get;
-            private set;
-        }
+        public char Symbol { get; private set; } = symbol;
 
-        public TerminalSymbol(char symbol)
-        {
-            Symbol = symbol;
-        }
+        public override IEnumerable<TerminalSymbol> Alphabet => [this];
 
-        public override IEnumerable<TerminalSymbol> Alphabet
-        {
-            get 
-            {
-                return EnumerateHelper.Sequence(this);
-            }
-        }
+        public override IEnumerable<NonTerminalSymbol> NonTerminals => [];
 
-        public override IEnumerable<NonTerminalSymbol> NonTerminals
-        {
-            get 
-            {
-                return Enumerable.Empty<NonTerminalSymbol>();
-            }
-        }
+        public bool EqualsNonnull(TerminalSymbol other) => Symbol.Equals(other.Symbol);
 
-        public static bool operator ==(TerminalSymbol objA, TerminalSymbol objB)
-        {
-            return Equals(objA, objB);
-        }
+        public int CompareToNonnull(TerminalSymbol other) => Symbol.CompareTo(other.Symbol);
 
-        public static bool operator !=(TerminalSymbol objA, TerminalSymbol objB)
-        {
-            return !Equals(objA, objB);
-        }
+        public override int GetHashCode() => Symbol.GetHashCode();
 
-        public static bool operator <(TerminalSymbol objA, TerminalSymbol objB)
-        {
-            return Compare(objA, objB) < 0;
-        }
-
-        public static bool operator >(TerminalSymbol objA, TerminalSymbol objB)
-        {
-            return Compare(objA, objB) > 0;
-        }
-
-        public static bool operator >=(TerminalSymbol objA, TerminalSymbol objB)
-        {
-            return Compare(objA, objB) > -1;
-        }
-
-        public static bool operator <=(TerminalSymbol objA, TerminalSymbol objB)
-        {
-            return Compare(objA, objB) < 1;
-        }
-
-        public static bool Equals(TerminalSymbol objA, TerminalSymbol objB)
-        {
-            if ((object)objA == null)
-            {
-                if ((object)objB == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return objA.Equals(objB);
-        }
-
-        public static int Compare(TerminalSymbol objA, TerminalSymbol objB)
-        {
-            if (objA == null)
-            {
-                if (objB == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            return objA.CompareTo(objB);
-        }
-
-        public bool Equals(TerminalSymbol other)
-        {
-            if (other == null)
-            {
-                return false;
-            }
-
-            return Symbol.Equals(other.Symbol);
-        }
-
-        public int CompareTo(TerminalSymbol other)
-        {
-            if (other == null)
-            {
-                return 1;
-            }
-
-            return Symbol.CompareTo(other.Symbol);
-        }
-
-        public override bool Equals(object obj)
-        {
-            TerminalSymbol terminalSymbol = obj as TerminalSymbol;
-            return Equals(terminalSymbol);
-        }
-
-        public override int GetHashCode()
-        {
-            return Symbol.GetHashCode();
-        }
-
-        public override bool Equals(Symbol other)
-        {
-            TerminalSymbol terminalSymbol = other as TerminalSymbol;
-            return Equals(terminalSymbol);
-        }
-
-        public override int CompareTo(Symbol other)
-        {
-            if (other == null || other is TerminalSymbol)
-            {
-                return CompareTo((TerminalSymbol)other);
-            }
-
-            return string.Compare(GetType().FullName, other.GetType().FullName);
-        }
-
-        public override Symbol Reorganize(IDictionary<NonTerminalSymbol, NonTerminalSymbol> map)
+        public override Symbol Reorganize(
+            IImmutableDictionary<NonTerminalSymbol, NonTerminalSymbol> map
+        )
         {
             return this;
         }
 
-        public override SymbolType SymbolType
-        {
-            get 
-            {
-                return SymbolType.Terminal;
-            }
-        }
+        public override SymbolType SymbolType => SymbolType.Terminal;
 
-        public override string ToString()
-        {
-            return Symbol.ToString();
-        }
+        public override string ToString() => Symbol.ToString();
     }
 }

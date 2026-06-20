@@ -1,170 +1,49 @@
-﻿using FLaGLib.Collections;
+﻿using System.Collections.Immutable;
 using FLaGLib.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace FLaGLib.Data.Grammars
 {
-    public class Rule : IComparable<Rule>, IEquatable<Rule>
+    [ComparableEquatable]
+    public sealed partial class Rule
     {
-        public IReadOnlySet<Chain> Chains
-        {
-            get;
-            private set;
-        }
+        public IImmutableSet<Chain> Chains { get; }
 
-        public NonTerminalSymbol Target
-        {
-            get;
-            private set;
-        }
+        public NonTerminalSymbol Target { get; }
 
-        public IReadOnlySet<TerminalSymbol> Alphabet
-        {
-            get;
-            private set;
-        }
+        public IImmutableSet<TerminalSymbol> Alphabet { get; }
 
-        public IReadOnlySet<NonTerminalSymbol> NonTerminals
-        {
-            get;
-            private set;
-        }
+        public IImmutableSet<NonTerminalSymbol> NonTerminals { get; }
 
         public Rule(IEnumerable<Chain> chains, NonTerminalSymbol target)
         {
-            if (chains == null)
-            {
-                throw new ArgumentNullException(nameof(chains));
-            }
-
-            if (target == null)
-            {
-                throw new ArgumentNullException(nameof(target));
-            }
-
-            Chains = chains.ToSortedSet().AsReadOnly();
-
-            if (!Chains.Any())
-            {
-                throw new ArgumentException("Rule must contain at least one chain.");
-            }
-
-            if (Chains.AnyNull())
-            {
-                throw new ArgumentException("At least one null chain was found.");
-            }
-
-            Alphabet = Chains.SelectMany(chain => chain.Alphabet).ToSortedSet().AsReadOnly();
+            Chains = chains.ToImmutableSortedSet();
+            Alphabet = Chains.SelectMany(chain => chain.Alphabet).ToImmutableSortedSet();
             Target = target;
-            ISet<NonTerminalSymbol> nonTerminals = Chains.SelectMany(chain => chain.NonTerminals).ToSortedSet();
-            nonTerminals.Add(Target);
-            NonTerminals = nonTerminals.AsReadOnly();
+            NonTerminals = Chains
+                .SelectMany(chain => chain.NonTerminals)
+                .Concat([Target])
+                .ToImmutableSortedSet();
         }
 
-        public Rule Reorganize(IDictionary<NonTerminalSymbol,NonTerminalSymbol> map)
-        {
-            if (map == null)
-            {
-                throw new ArgumentNullException(nameof(map));
-            }
-
-            return new Rule(Chains.Select(chain => chain.Reorganize(map)),map.ValueOrDefault(Target,Target));
-        }
-
-        public static bool operator ==(Rule objA, Rule objB)
-        {
-            return Equals(objA, objB);
-        }
-
-        public static bool operator !=(Rule objA, Rule objB)
-        {
-            return !Equals(objA, objB);
-        }
-
-        public static bool operator <(Rule objA, Rule objB)
-        {
-            return Compare(objA, objB) < 0;
-        }
-
-        public static bool operator >(Rule objA, Rule objB)
-        {
-            return Compare(objA, objB) > 0;
-        }
-
-        public static bool operator >=(Rule objA, Rule objB)
-        {
-            return Compare(objA, objB) > -1;
-        }
-
-        public static bool operator <=(Rule objA, Rule objB)
-        {
-            return Compare(objA, objB) < 1;
-        }
-
-        public static bool Equals(Rule objA, Rule objB)
-        {
-            if ((object)objA == null)
-            {
-                if ((object)objB == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return objA.Equals(objB);
-        }
-
-        public static int Compare(Rule objA, Rule objB)
-        {
-            if (objA == null)
-            {
-                if (objB == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            return objA.CompareTo(objB);
-        }
-
-        public override bool Equals(object obj)
-        {
-            Rule rule = obj as Rule;
-            return Equals(rule);
-        }
+        public Rule Reorganize(IImmutableDictionary<NonTerminalSymbol, NonTerminalSymbol> map) =>
+            new(Chains.Select(chain => chain.Reorganize(map)), map.ValueOrThrow(Target));
 
         public override int GetHashCode()
         {
-            return Target.GetHashCode() ^ Chains.GetSequenceHashCode();
+            HashCode hashCode = new();
+            hashCode.Add(Target);
+            foreach (Chain chain in Chains)
+            {
+                hashCode.Add(chain);
+            }
+            return hashCode.ToHashCode();
         }
 
-        public bool Equals(Rule other)
+        public bool EqualsNonnull(Rule other) =>
+            Target.Equals(other.Target) && Chains.SequenceEqual(other.Chains);
+
+        public int CompareToNonnull(Rule other)
         {
-            if (other == null)
-            {
-                return false;
-            }
-
-            return
-                Target.Equals(other.Target) &&
-                Chains.SequenceEqual(other.Chains);
-        }
-
-        public int CompareTo(Rule other)
-        {
-            if (other == null)
-            {
-                return 1;
-            }
-
             int result = Target.CompareTo(other.Target);
 
             if (result != 0)
@@ -175,12 +54,7 @@ namespace FLaGLib.Data.Grammars
             return Chains.SequenceCompare(other.Chains);
         }
 
-        public override string ToString()
-        {
-            return string.Format("{0} -> {1}",
-                Target,
-                string.Join<Chain>("|", Chains)
-            );
-        }
+        public override string ToString() =>
+            string.Format("{0} -> {1}", Target, string.Join("|", Chains));
     }
 }

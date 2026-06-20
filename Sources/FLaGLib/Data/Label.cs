@@ -1,161 +1,46 @@
-﻿using FLaGLib.Collections;
-using FLaGLib.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using System.Text;
+using FLaGLib.Extensions;
 
 namespace FLaGLib.Data
 {
-    public class Label : IComparable<Label>, IEquatable<Label>
+    [ComparableEquatable]
+    public sealed partial class Label
     {
-        public IReadOnlySet<SingleLabel> Sublabels
-        {
-            get;
-            private set;        
-        }
+        public IImmutableSet<SingleLabel> Sublabels { get; }
 
-        public LabelType LabelType
-        {
-            get;
-            private set;
-        }
+        public LabelType LabelType { get; }
 
         public Label(IEnumerable<SingleLabel> sublabels)
         {
-            if (sublabels == null)
-            {
-                throw new ArgumentNullException(nameof(sublabels));
-            }
-
-            if (!sublabels.Any())
-            {
-                throw new ArgumentException("Parameter sublabels contains no labels.");
-            }
-
-            if (sublabels.AnyNull())
-            {
-                throw new ArgumentException("At least one sublabel is null.");
-            }
-
-            Sublabels = sublabels.ToSortedSet().AsReadOnly();
-
+            Sublabels = sublabels.ToImmutableSortedSet();
             LabelType = LabelType.Complex;
         }
 
         public Label(SingleLabel singleLabel)
         {
-            if (singleLabel == null)
-            {
-                throw new ArgumentNullException(nameof(singleLabel));
-            }
-
-            Sublabels = new SortedSet<SingleLabel>(new SingleLabel[] { singleLabel } ).AsReadOnly();
+            Sublabels = [singleLabel];
             LabelType = LabelType.Simple;
-        }
-
-        public static bool operator ==(Label objA, Label objB)
-        {
-            return Equals(objA, objB);
-        }
-
-        public static bool operator !=(Label objA, Label objB)
-        {
-            return !Equals(objA, objB);
-        }
-
-        public static bool operator <(Label objA, Label objB)
-        {
-            return Compare(objA, objB) < 0;
-        }
-
-        public static bool operator >(Label objA, Label objB)
-        {
-            return Compare(objA, objB) > 0;
-        }
-
-        public static bool operator >=(Label objA, Label objB)
-        {
-            return Compare(objA, objB) > -1;
-        }
-
-        public static bool operator <=(Label objA, Label objB)
-        {
-            return Compare(objA, objB) < 1;
-        }
-
-        public static bool Equals(Label objA, Label objB)
-        {
-            if ((object)objA == null)
-            {
-                if ((object)objB == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return objA.Equals(objB);
-        }
-
-        public static int Compare(Label objA, Label objB)
-        {
-            if (objA == null)
-            {
-                if (objB == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            return objA.CompareTo(objB);
-        }
-
-        public override bool Equals(object obj)
-        {
-            Label label = obj as Label;
-            return Equals(label);
         }
 
         public override int GetHashCode()
         {
-            int hash = LabelType.GetHashCode();
+            HashCode hashCode = new();
+            hashCode.Add(LabelType);
 
             foreach (SingleLabel label in Sublabels)
             {
-                hash ^= label.GetHashCode();
+                hashCode.Add(label);
             }
 
-            return hash;
+            return hashCode.ToHashCode();
         }
 
-        public bool Equals(Label other)
+        public bool EqualsNonnull(Label other) =>
+            LabelType.Equals(other.LabelType) && Sublabels.SequenceEqual(other.Sublabels);
+
+        public int CompareToNonnull(Label other)
         {
-            if (other == null)
-            {
-                return false;
-            }
-
-            if (!LabelType.Equals(other.LabelType))
-            {
-                return false;
-            }
-
-            return Sublabels.SequenceEqual(other.Sublabels);
-        }
-
-        public int CompareTo(Label other)
-        {
-            if (other == null)
-            {
-                return 1;
-            }
-
             int result = LabelType.CompareTo(other.LabelType);
 
             if (result != 0)
@@ -168,22 +53,21 @@ namespace FLaGLib.Data
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
 
             if (LabelType == LabelType.Complex)
             {
-                builder.Append("[");
+                builder.Append('[');
             }
 
             foreach (SingleLabel label in Sublabels)
             {
-                builder.Append("{").Append(label).Append("}");
+                builder.Append('{').Append(label).Append('}');
             }
-
 
             if (LabelType == LabelType.Complex)
             {
-                builder.Append("]");
+                builder.Append(']');
             }
 
             return builder.ToString();
@@ -193,17 +77,21 @@ namespace FLaGLib.Data
         {
             if (LabelType != LabelType.Simple)
             {
-                throw new InvalidOperationException("Cannot convert label to complex for non simple label type.");
+                throw new InvalidOperationException(
+                    "Cannot convert label to complex for non simple label type."
+                );
             }
 
-            return new Label(new HashSet<SingleLabel>(Sublabels));
+            return new Label(Sublabels);
         }
 
         public SingleLabel ExtractSingleLabel()
         {
             if (LabelType != LabelType.Simple)
             {
-                throw new InvalidOperationException("Cannot extract single label from non simple label type.");
+                throw new InvalidOperationException(
+                    "Cannot extract single label from non simple label type."
+                );
             }
 
             return Sublabels.Single();

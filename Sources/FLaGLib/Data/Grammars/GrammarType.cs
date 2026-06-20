@@ -3,6 +3,6 @@
     public enum GrammarType
     {
         Left,
-        Right
+        Right,
     }
 }

@@ -1,38 +1,20 @@
 ﻿using FLaGLib.Data.RegExps;
-using System;
 using RegExpConcat = FLaGLib.Data.RegExps.BinaryConcat;
 using RegExpConstIteration = FLaGLib.Data.RegExps.ConstIteration;
 using RegExpIteration = FLaGLib.Data.RegExps.Iteration;
 
 namespace FLaGLib.Data.Languages
 {
-    public class Variable : Exponent, IEquatable<Variable>, IComparable<Variable>
+    [ComparableEquatable]
+    public sealed partial class Variable : Exponent
     {
-        public char Name
-        {
-            get;
-            private set;
-        }
+        public char Name { get; }
 
-        public Sign Sign
-        {
-            get;
-            private set;
-        }
+        public Sign Sign { get; }
 
-        public int Number
-        {
-            get;
-            private set;
-        }
+        public int Number { get; }
 
-        public override ExponentType ExponentType
-        {
-            get
-            {
-                return ExponentType.Variable;
-            }
-        }
+        public override ExponentType ExponentType => ExponentType.Variable;
 
         public Variable(char name, Sign sign, int number)
         {
@@ -51,133 +33,22 @@ namespace FLaGLib.Data.Languages
             Number = number;
         }
 
-        public static bool operator ==(Variable objA, Variable objB)
-        {
-            return Equals(objA, objB);
-        }
+        public override int GetHashCode() => Name.GetHashCode();
 
-        public static bool operator !=(Variable objA, Variable objB)
-        {
-            return !Equals(objA, objB);
-        }
+        public bool EqualsNonnull(Variable other) => Name.Equals(other.Name);
 
-        public static bool operator <(Variable objA, Variable objB)
-        {
-            return Compare(objA, objB) < 0;
-        }
+        public int CompareToNonnull(Variable other) => Name.CompareTo(other.Name);
 
-        public static bool operator >(Variable objA, Variable objB)
-        {
-            return Compare(objA, objB) > 0;
-        }
-
-        public static bool operator >=(Variable objA, Variable objB)
-        {
-            return Compare(objA, objB) > -1;
-        }
-
-        public static bool operator <=(Variable objA, Variable objB)
-        {
-            return Compare(objA, objB) < 1;
-        }
-
-        public static bool Equals(Variable objA, Variable objB)
-        {
-            if ((object)objA == null)
-            {
-                if ((object)objB == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return objA.Equals(objB);
-        }
-
-        public static int Compare(Variable objA, Variable objB)
-        {
-            if (objA == null)
-            {
-                if (objB == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            return objA.CompareTo(objB);
-        }
-
-        public override bool Equals(object obj)
-        {
-            Variable variable = obj as Variable;
-            return Equals(variable);
-        }
-
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode();
-        }
-
-        public bool Equals(Variable other)
-        {
-            if (other == null)
-            {
-                return false;
-            }
-
-            return Name.Equals(other.Name);            
-        }
-
-        public int CompareTo(Variable other)
-        {
-            if (other == null)
-            {
-                return 1;
-            }
-
-            return Name.CompareTo(other.Name);
-        }
-
-        public override bool Equals(Exponent other)
-        {
-            Variable variable = other as Variable;
-            return Equals(variable);
-        }
-
-        public override int CompareTo(Exponent other)
-        {
-            if (other == null || other is Variable)
-            {
-                return CompareTo((Variable)other);
-            }
-
-            return string.Compare(GetType().FullName, other.GetType().FullName);
-        }
-
-        public override string ToString()
-        {
-            return Name.ToString();
-        }
+        public override string ToString() => Name.ToString();
 
         public override Expression ToRegExp(Entity entity)
         {
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity));
-            }
-
             int number = Number;
             Sign sign = Sign;
 
             if (number > 0 && sign == Sign.MoreThanOrEqual)
             {
-                number--;
+                --number;
                 sign = Sign.MoreThan;
             }
 

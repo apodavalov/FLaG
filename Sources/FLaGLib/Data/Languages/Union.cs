@@ -1,224 +1,73 @@
-using FLaGLib.Collections;
+using System.Collections.Immutable;
 using FLaGLib.Data.RegExps;
 using FLaGLib.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using RegExpBinaryUnion = FLaGLib.Data.RegExps.BinaryUnion;
 
 namespace FLaGLib.Data.Languages
 {
-	public class Union : Entity, IEquatable<Union>, IComparable<Union>
-	{
-        public IReadOnlySet<Entity> EntityCollection
+    [ComparableEquatable]
+    public sealed partial class Union : Entity
+    {
+        public IImmutableSet<Entity> EntityCollection { get; }
+
+        public Union(IEnumerable<Entity> entities)
         {
-            get;
-            private set;
-        }
-
-        public Union(IEnumerable<Entity> entities) 
-        {
-            if (entities == null)
-            {
-                throw new ArgumentNullException(nameof(entities));
-            }
-
-            EntityCollection = new SortedSet<Entity>(entities).AsReadOnly();
-
-            if (EntityCollection.AnyNull())
-            {
-                throw new ArgumentException("There are null items in collection.");
-            }
+            EntityCollection = entities.ToImmutableSortedSet();
 
             if (EntityCollection.Count < 2)
             {
                 throw new ArgumentException("Union must have at least two items.");
             }
 
-            _Variables = new Lazy<IReadOnlySet<Variable>>(() => CollectVariables(EntityCollection));
+            _Variables = new Lazy<IImmutableSet<Variable>>(() =>
+                CollectVariables(EntityCollection)
+            );
         }
 
-        public static bool operator ==(Union objA, Union objB)
-        {
-            return Equals(objA, objB);
-        }
+        public bool EqualsNonnull(Union other) =>
+            EntityCollection.SequenceEqual(other.EntityCollection);
 
-        public static bool operator !=(Union objA, Union objB)
-        {
-            return !Equals(objA, objB);
-        }
-
-        public static bool operator <(Union objA, Union objB)
-        {
-            return Compare(objA, objB) < 0;
-        }
-
-        public static bool operator >(Union objA, Union objB)
-        {
-            return Compare(objA, objB) > 0;
-        }
-
-        public static bool operator >=(Union objA, Union objB)
-        {
-            return Compare(objA, objB) > -1;
-        }
-
-        public static bool operator <=(Union objA, Union objB)
-        {
-            return Compare(objA, objB) < 1;
-        }
-
-        public static bool Equals(Union objA, Union objB)
-        {
-            if ((object)objA == null)
-            {
-                if ((object)objB == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return objA.Equals(objB);
-        }
-
-        public static int Compare(Union objA, Union objB)
-        {
-            if (objA == null)
-            {
-                if (objB == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            return objA.CompareTo(objB);
-        }
-
-        public bool Equals(Union other)
-        {
-            if (other == null)
-            {
-                return false;
-            }
-
-            return EntityCollection.SequenceEqual(other.EntityCollection);
-        }
-
-        public int CompareTo(Union other)
-        {
-            if (other == null)
-            {
-                return 1;
-            }
-
-            return EntityCollection.SequenceCompare(other.EntityCollection);
-        }
-
-        public override bool Equals(object obj)
-        {
-            Union union = obj as Union;
-            return Equals(union);
-        }
+        public int CompareToNonnull(Union other) =>
+            EntityCollection.SequenceCompare(other.EntityCollection);
 
         public override int GetHashCode()
         {
-            return EntityCollection.GetSequenceHashCode();
-        }
-
-        public override bool Equals(Entity other)
-        {
-            Union union = other as Union;
-            return Equals(union);
-        }
-
-        public override int CompareTo(Entity other)
-        {
-            if (other == null || other is Union)
-            {
-                return CompareTo((Union)other);
-            }
-
-            return string.Compare(GetType().FullName,other.GetType().FullName);
-        }
-
-        private readonly Lazy<IReadOnlySet<Variable>> _Variables;
-
-        public override IReadOnlySet<Variable> Variables
-        {
-            get { return _Variables.Value; }
-        }
-
-        public override int Priority
-        {
-            get
-            {
-                return 3;
-            }
-        }
-
-        public override EntityType EntityType
-        {
-            get
-            {
-                return EntityType.Union;
-            }
-        }
-
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append('(');
-
-            bool first = true;
-
+            HashCode hashCode = new();
             foreach (Entity entity in EntityCollection)
             {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    sb.Append(',');
-                }
-
-                sb.Append(entity.ToString());
+                hashCode.Add(entity);
             }
-
-            sb.Append(')');
-
-            return sb.ToString();
+            return hashCode.ToHashCode();
         }
+
+        private readonly Lazy<IImmutableSet<Variable>> _Variables;
+
+        public override IImmutableSet<Variable> Variables => _Variables.Value;
+
+        public override int Priority => 3;
+
+        public override EntityType EntityType => EntityType.Union;
+
+        public override string ToString() =>
+            string.Concat("(", string.Join(',', EntityCollection), ")");
 
         public override Expression ToRegExp()
         {
-            Entity prev = null;
-            Expression expression = null;
+            Expression? prev = null;
 
             foreach (Entity entity in EntityCollection)
             {
-                if (prev == null)
+                if (prev is null)
                 {
-                    expression = entity.ToRegExp();
+                    prev = entity.ToRegExp();
                 }
                 else
                 {
-                    expression = new RegExpBinaryUnion(expression, entity.ToRegExp());
+                    prev = new RegExpBinaryUnion(prev, entity.ToRegExp());
                 }
-
-                prev = entity;
             }
 
-            return expression;
+            return prev!;
         }
     }
 }
-

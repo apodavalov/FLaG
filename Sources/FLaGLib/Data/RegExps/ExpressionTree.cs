@@ -1,18 +1,7 @@
-﻿using FLaGLib.Data.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FLaGLib.Helpers;
 
 namespace FLaGLib.Data.RegExps
 {
-    public class ExpressionTree : Tree<Expression, ExpressionTreeCollection>
-    {
-        public ExpressionTree(Expression entry, ExpressionTreeCollection subtrees = null)
-            : base(entry, subtrees)
-        {
-
-        }
-    }
+    public sealed class ExpressionTree(Expression entry, ExpressionTreeCollection? subtrees = null)
+        : Tree<Expression, ExpressionTreeCollection>(entry, subtrees) { }
 }

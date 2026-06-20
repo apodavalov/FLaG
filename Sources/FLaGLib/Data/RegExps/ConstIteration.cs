@@ -1,34 +1,19 @@
-﻿using FLaGLib.Data.Grammars;
+﻿using System.Text;
+using FLaGLib.Data.Grammars;
 using FLaGLib.Data.StateMachines;
-using FLaGLib.Extensions;
 using FLaGLib.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace FLaGLib.Data.RegExps
 {
-    public class ConstIteration : Expression, IEquatable<ConstIteration>, IComparable<ConstIteration>
+    [ComparableEquatable]
+    public sealed partial class ConstIteration : Expression
     {
-        public Expression Expression
-        {
-            get;
-            private set;
-        }
+        public Expression Expression { get; }
 
-        public int IterationCount
-        {
-            get;
-            private set;
-        }
+        public int IterationCount { get; }
 
         public ConstIteration(Expression expression, int iterationCount)
         {
-            if (expression == null)
-            {
-                throw new ArgumentNullException(nameof(expression));
-            }
-
             if (iterationCount < 0)
             {
                 throw new ArgumentException("Count must not be less than zero.");
@@ -38,86 +23,15 @@ namespace FLaGLib.Data.RegExps
             IterationCount = iterationCount;
         }
 
-        public static bool operator ==(ConstIteration objA, ConstIteration objB)
+        public bool EqualsNonnull(ConstIteration other)
         {
-            return Equals(objA, objB);
+            return Expression.EqualsNonnull(other.Expression)
+                && IterationCount.Equals(other.IterationCount);
         }
 
-        public static bool operator !=(ConstIteration objA, ConstIteration objB)
+        public int CompareToNonnull(ConstIteration other)
         {
-            return !Equals(objA, objB);
-        }
-
-        public static bool operator <(ConstIteration objA, ConstIteration objB)
-        {
-            return Compare(objA, objB) < 0;
-        }
-
-        public static bool operator >(ConstIteration objA, ConstIteration objB)
-        {
-            return Compare(objA, objB) > 0;
-        }
-
-        public static bool operator >=(ConstIteration objA, ConstIteration objB)
-        {
-            return Compare(objA, objB) > -1;
-        }
-
-        public static bool operator <=(ConstIteration objA, ConstIteration objB)
-        {
-            return Compare(objA, objB) < 1;
-        }
-
-        public static bool Equals(ConstIteration objA, ConstIteration objB)
-        {
-            if ((object)objA == null)
-            {
-                if ((object)objB == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return objA.Equals(objB);
-        }
-
-        public static int Compare(ConstIteration objA, ConstIteration objB)
-        {
-            if (objA == null)
-            {
-                if (objB == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            return objA.CompareTo(objB);
-        }
-
-        public bool Equals(ConstIteration other)
-        {
-            if (other == null)
-            {
-                return false;
-            }
-
-            return Expression.Equals(other.Expression) && IterationCount.Equals(other.IterationCount);
-        }
-
-        public int CompareTo(ConstIteration other)
-        {
-            if (other == null)
-            {
-                return 1;
-            }
-
-            int result = Expression.CompareTo(other.Expression);
+            int result = Expression.CompareToNonnull(other.Expression);
 
             if (result != 0)
             {
@@ -127,32 +41,7 @@ namespace FLaGLib.Data.RegExps
             return IterationCount.CompareTo(other.IterationCount);
         }
 
-        public override bool Equals(object obj)
-        {
-            ConstIteration constIteration = obj as ConstIteration;
-            return Equals(constIteration);
-        }
-
-        public override int GetHashCode()
-        {
-            return Expression.GetHashCode() ^ IterationCount.GetHashCode();
-        }
-
-        public override bool Equals(Expression other)
-        {
-            ConstIteration constIteration = other as ConstIteration;
-            return Equals(constIteration);
-        }
-
-        public override int CompareTo(Expression other)
-        {
-            if (other == null || other is ConstIteration)
-            {
-                return CompareTo((ConstIteration)other);
-            }
-
-            return string.Compare(GetType().FullName, other.GetType().FullName);
-        }
+        public override int GetHashCode() => HashCode.Combine(Expression, IterationCount);
 
         internal override IEnumerable<DepthData<Expression>> WalkInternal()
         {
@@ -166,59 +55,69 @@ namespace FLaGLib.Data.RegExps
             yield return new DepthData<Expression>(this, WalkStatus.End);
         }
 
-        public override int Priority
-        {
-            get 
-            {
-                return 1;
-            }
-        }
+        public override int Priority => 1;
 
-        public override ExpressionType ExpressionType
-        {
-            get
-            {
-                return ExpressionType.ConstIteration;
-            }
-        }
+        public override ExpressionType ExpressionType => ExpressionType.ConstIteration;
 
         internal override void ToString(StringBuilder builder)
         {
-            Expression.ToString(Expression.Priority > Priority,builder);
+            Expression.ToString(Expression.Priority > Priority, builder);
             builder.Append("^(");
             builder.Append(IterationCount);
             builder.Append(')');
         }
 
-        internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
-            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
+        internal override GrammarExpressionTuple GenerateGrammar(
+            GrammarType grammarType,
+            int grammarNumber,
+            ref int index,
+            ref int additionalGrammarNumber,
+            Action<GrammarPostReport>? onIterate,
+            params GrammarExpressionWithOriginal[] dependencies
+        )
         {
             CheckDependencies(dependencies);
 
             if (IterationCount == 0)
             {
-                return Empty.Instance.GenerateGrammar(grammarType, grammarNumber, ref index, ref additionalGrammarNumber, onIterate);
+                return new Empty().GenerateGrammar(
+                    grammarType,
+                    grammarNumber,
+                    ref index,
+                    ref additionalGrammarNumber,
+                    onIterate
+                );
             }
 
             GrammarExpressionTuple original = dependencies[0].GrammarExpression;
 
             if (IterationCount == 1)
             {
-                GrammarExpressionTuple grammarExpressionTuple = new GrammarExpressionTuple(this, original.Grammar, grammarNumber);
+                GrammarExpressionTuple grammarExpressionTuple = new(
+                    this,
+                    original.Grammar,
+                    grammarNumber
+                );
 
-                if (onIterate != null)
-                {
-                    onIterate(new GrammarPostReport(grammarExpressionTuple, new GrammarExpressionWithOriginal(original).AsSequence()));
-                }
+                onIterate?.Invoke(
+                    new GrammarPostReport(
+                        grammarExpressionTuple,
+                        [new GrammarExpressionWithOriginal(original)]
+                    )
+                );
 
                 return grammarExpressionTuple;
             }
 
-            GrammarExpressionTuple dependency1 = original; 
+            GrammarExpressionTuple dependency1 = original;
 
-            for (int i = 1; i < IterationCount; i++)
+            for (int i = 1; i < IterationCount; ++i)
             {
-                GrammarExpressionTuple dependency2 = Mirror(original, ref index, ref additionalGrammarNumber);
+                GrammarExpressionTuple dependency2 = Mirror(
+                    original,
+                    ref index,
+                    ref additionalGrammarNumber
+                );
 
                 int number;
 
@@ -230,10 +129,19 @@ namespace FLaGLib.Data.RegExps
                 {
                     number = additionalGrammarNumber++;
                 }
-                
-                GrammarExpressionTuple expressionTuple = 
-                    new BinaryConcat(dependency1.Expression, dependency2.Expression).
-                        GenerateGrammar(grammarType, number, ref index, ref additionalGrammarNumber, onIterate, new GrammarExpressionWithOriginal(dependency1), new GrammarExpressionWithOriginal(dependency2, original));
+
+                GrammarExpressionTuple expressionTuple = new BinaryConcat(
+                    dependency1.Expression,
+                    dependency2.Expression
+                ).GenerateGrammar(
+                    grammarType,
+                    number,
+                    ref index,
+                    ref additionalGrammarNumber,
+                    onIterate,
+                    new GrammarExpressionWithOriginal(dependency1),
+                    new GrammarExpressionWithOriginal(dependency2, original)
+                );
 
                 dependency1 = expressionTuple;
             }
@@ -241,25 +149,42 @@ namespace FLaGLib.Data.RegExps
             return dependency1;
         }
 
-        internal override StateMachineExpressionTuple GenerateStateMachine(int stateMachineNumber, ref int index, ref int additionalStateMachineNumber, Action<StateMachinePostReport> onIterate, params StateMachineExpressionWithOriginal[] dependencies)
+        internal override StateMachineExpressionTuple GenerateStateMachine(
+            int stateMachineNumber,
+            ref int index,
+            ref int additionalStateMachineNumber,
+            Action<StateMachinePostReport>? onIterate,
+            params StateMachineExpressionWithOriginal[] dependencies
+        )
         {
             CheckDependencies(dependencies);
 
             if (IterationCount == 0)
             {
-                return Empty.Instance.GenerateStateMachine(stateMachineNumber, ref index, ref additionalStateMachineNumber, onIterate);
+                return new Empty().GenerateStateMachine(
+                    stateMachineNumber,
+                    ref index,
+                    ref additionalStateMachineNumber,
+                    onIterate
+                );
             }
 
             StateMachineExpressionTuple original = dependencies[0].StateMachineExpression;
 
             if (IterationCount == 1)
             {
-                StateMachineExpressionTuple stateMachineExpressionTuple = new StateMachineExpressionTuple(this, original.StateMachine, stateMachineNumber);
+                StateMachineExpressionTuple stateMachineExpressionTuple = new(
+                    this,
+                    original.StateMachine,
+                    stateMachineNumber
+                );
 
-                if (onIterate != null)
-                {
-                    onIterate(new StateMachinePostReport(stateMachineExpressionTuple, new StateMachineExpressionWithOriginal(original).AsSequence()));
-                }
+                onIterate?.Invoke(
+                    new StateMachinePostReport(
+                        stateMachineExpressionTuple,
+                        [new StateMachineExpressionWithOriginal(original)]
+                    )
+                );
 
                 return stateMachineExpressionTuple;
             }
@@ -268,7 +193,11 @@ namespace FLaGLib.Data.RegExps
 
             for (int i = 1; i < IterationCount; i++)
             {
-                StateMachineExpressionTuple dependency2 = Mirror(original, ref index, ref additionalStateMachineNumber);
+                StateMachineExpressionTuple dependency2 = Mirror(
+                    original,
+                    ref index,
+                    ref additionalStateMachineNumber
+                );
 
                 int number;
 
@@ -281,9 +210,17 @@ namespace FLaGLib.Data.RegExps
                     number = additionalStateMachineNumber++;
                 }
 
-                StateMachineExpressionTuple expressionTuple =
-                    new BinaryConcat(dependency1.Expression, dependency2.Expression).
-                        GenerateStateMachine(number, ref index, ref additionalStateMachineNumber, onIterate, new StateMachineExpressionWithOriginal(dependency1), new StateMachineExpressionWithOriginal(dependency2, original));
+                StateMachineExpressionTuple expressionTuple = new BinaryConcat(
+                    dependency1.Expression,
+                    dependency2.Expression
+                ).GenerateStateMachine(
+                    number,
+                    ref index,
+                    ref additionalStateMachineNumber,
+                    onIterate,
+                    new StateMachineExpressionWithOriginal(dependency1),
+                    new StateMachineExpressionWithOriginal(dependency2, original)
+                );
 
                 dependency1 = expressionTuple;
             }
@@ -296,30 +233,36 @@ namespace FLaGLib.Data.RegExps
             CheckDependencies(dependencies, 1);
         }
 
-        private StateMachineExpressionTuple Mirror(StateMachineExpressionTuple stateMachine, ref int index, ref int additionalStateMachineNumber)
+        private StateMachineExpressionTuple Mirror(
+            StateMachineExpressionTuple stateMachine,
+            ref int index,
+            ref int additionalStateMachineNumber
+        )
         {
             StateMachine newStateMachine = stateMachine.StateMachine.Reorganize(index);
             index += newStateMachine.States.Count;
 
-            return
-                new StateMachineExpressionTuple(
-                    stateMachine.Expression,
-                    newStateMachine,
-                    additionalStateMachineNumber++
-                );
+            return new StateMachineExpressionTuple(
+                stateMachine.Expression,
+                newStateMachine,
+                additionalStateMachineNumber++
+            );
         }
 
-        private GrammarExpressionTuple Mirror(GrammarExpressionTuple grammar, ref int index, ref int additionalGrammarNumber)
+        private static GrammarExpressionTuple Mirror(
+            GrammarExpressionTuple grammar,
+            ref int index,
+            ref int additionalGrammarNumber
+        )
         {
             Grammar newGrammar = grammar.Grammar.Reorganize(index);
             index += newGrammar.NonTerminals.Count;
 
-            return
-                new GrammarExpressionTuple(
-                    grammar.Expression,
-                    newGrammar,
-                    additionalGrammarNumber++
-                );
+            return new GrammarExpressionTuple(
+                grammar.Expression,
+                newGrammar,
+                additionalGrammarNumber++
+            );
         }
 
         public override Expression Optimize()
@@ -327,22 +270,20 @@ namespace FLaGLib.Data.RegExps
             switch (IterationCount)
             {
                 case 0:
-                    return Empty.Instance;
+                    return new Empty();
                 case 1:
                     return Expression.Optimize();
                 default:
                     Expression expression = Expression.Optimize();
-
-                    ConstIteration constIteration = expression.As<ConstIteration>();
-
-                    if (constIteration != null)
+                    if (expression is ConstIteration constIteration)
                     {
-                        return new ConstIteration(constIteration.Expression, constIteration.IterationCount * IterationCount);
+                        return new ConstIteration(
+                            constIteration.Expression,
+                            constIteration.IterationCount * IterationCount
+                        );
                     }
 
-                    Iteration iteration = expression.As<Iteration>();
-
-                    if (iteration != null && !iteration.IsPositive)
+                    if (expression is Iteration iteration && !iteration.IsPositive)
                     {
                         return iteration;
                     }

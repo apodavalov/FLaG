@@ -1,8 +1,8 @@
-﻿namespace FLaGLib.Data.Helpers
+﻿namespace FLaGLib.Helpers
 {
     public enum TreeOperator
     {
         Concat,
-        Union
+        Union,
     }
 }

@@ -1,32 +1,25 @@
-﻿using FLaGLib.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Immutable;
 
-namespace FLaGLib.Data.Helpers
+namespace FLaGLib.Helpers
 {
-    public class TreeCollection<E,C> : IEnumerable<Tree<E,C>> where C : TreeCollection<E, C>
+    public class TreeCollection<E, C> : IEnumerable<Tree<E, C>>
+        where C : TreeCollection<E, C>
     {
-        protected IEnumerable<Tree<E,C>> _Internal;
+        protected IEnumerable<Tree<E, C>> _Internal;
 
-        public TreeOperator Operator
-        {
-            get;
-            private set;
-        }
+        public TreeOperator Operator { get; }
 
-        public TreeCollection(IEnumerable<Tree<E,C>> subtrees, TreeOperator @operator)
+        public TreeCollection(IEnumerable<Tree<E, C>> subtrees, TreeOperator @operator)
         {
             Operator = @operator;
-
-            if (Operator == TreeOperator.Concat)
+            _Internal = Operator switch
             {
-                _Internal = new List<Tree<E,C>>(subtrees);
-            }
-            else
-            {
-                _Internal = new SortedSet<Tree<E,C>>(subtrees);
-            }
+                TreeOperator.Concat => subtrees.ToImmutableList(),
+                TreeOperator.Union => subtrees.ToImmutableSortedSet(),
+                _ => throw new InvalidOperationException(
+                    string.Format("Tree operator {0} is not supported.", Operator)
+                ),
+            };
 
             if (_Internal.Count() < 2)
             {
@@ -34,14 +27,9 @@ namespace FLaGLib.Data.Helpers
             }
         }
 
-        public IEnumerator<Tree<E,C>> GetEnumerator()
-        {
-            return _Internal.GetEnumerator();
-        }
+        public IEnumerator<Tree<E, C>> GetEnumerator() => _Internal.GetEnumerator();
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return ((System.Collections.IEnumerable)_Internal).GetEnumerator();
-        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() =>
+            _Internal.GetEnumerator();
     }
 }

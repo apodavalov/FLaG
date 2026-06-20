@@ -1,25 +1,25 @@
-﻿using FLaGLib.Collections;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Immutable;
 
 namespace FLaGLib.Data.RegExps
 {
-    public class DependencyCollection : ReadOnlyList<int>
+    public sealed class DependencyCollection(
+        Expression expression,
+        ImmutableList<int> dependencyIndices
+    ) : IEnumerable<int>
     {
-        public Expression Expression
+        public Expression Expression { get; } = expression;
+
+        public ImmutableList<int> DependencyIndices { get; } = dependencyIndices;
+
+        public IEnumerator<int> GetEnumerator()
         {
-            get;
-            private set;
+            return DependencyIndices.GetEnumerator();
         }
 
-        internal DependencyCollection(Expression expression, IList<int> dependencyIndices) : base(dependencyIndices)
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            if (expression == null)
-            {
-                throw new ArgumentNullException(nameof(expression));
-            }
-
-            Expression = expression;
+            return GetEnumerator();
         }
     }
 }

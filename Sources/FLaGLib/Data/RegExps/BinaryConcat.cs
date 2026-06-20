@@ -1,159 +1,36 @@
-﻿using FLaGLib.Collections;
+﻿using System.Collections.Immutable;
+using System.Text;
 using FLaGLib.Data.Grammars;
 using FLaGLib.Data.StateMachines;
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace FLaGLib.Data.RegExps
 {
-    public class BinaryConcat : Expression, IEquatable<BinaryConcat>, IComparable<BinaryConcat>
+    [ComparableEquatable]
+    public sealed partial class BinaryConcat(Expression left, Expression right) : Expression
     {
-        public Expression Left
+        public Expression Left { get; } = left;
+
+        public Expression Right { get; } = right;
+
+        public bool EqualsNonnull(BinaryConcat other)
         {
-            get;
-            private set;
-        }
-
-        public Expression Right
-        {
-            get;
-            private set;
-        }
-
-        public BinaryConcat(Expression left, Expression right)
-        {
-            if (left == null)
-            {
-                throw new ArgumentNullException(nameof(left));
-            }
-
-            if (right == null)
-            {
-                throw new ArgumentNullException(nameof(right));
-            }
-
-            Left = left;
-            Right = right;
-        }
-
-        public static bool operator ==(BinaryConcat objA, BinaryConcat objB)
-        {
-            return Equals(objA, objB);
-        }
-
-        public static bool operator !=(BinaryConcat objA, BinaryConcat objB)
-        {
-            return !Equals(objA, objB);
-        }
-
-        public static bool operator <(BinaryConcat objA, BinaryConcat objB)
-        {
-            return Compare(objA, objB) < 0;
-        }
-
-        public static bool operator >(BinaryConcat objA, BinaryConcat objB)
-        {
-            return Compare(objA, objB) > 0;
-        }
-
-        public static bool operator >=(BinaryConcat objA, BinaryConcat objB)
-        {
-            return Compare(objA, objB) > -1;
-        }
-
-        public static bool operator <=(BinaryConcat objA, BinaryConcat objB)
-        {
-            return Compare(objA, objB) < 1;
-        }
-
-        public static bool Equals(BinaryConcat objA, BinaryConcat objB)
-        {
-            if ((object)objA == null)
-            {
-                if ((object)objB == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return objA.Equals(objB);
-        }
-
-        public static int Compare(BinaryConcat objA, BinaryConcat objB)
-        {
-            if (objA == null)
-            {
-                if (objB == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            return objA.CompareTo(objB);
-        }
-
-        public bool Equals(BinaryConcat other)
-        {
-            if (other == null)
-            {
-                return false;
-            }
-
-            IEnumerable<Expression> expression1 = ConcatHelper.Iterate(Left.AsSequence().Concat(Right));
-            IEnumerable<Expression> expression2 = ConcatHelper.Iterate(other.Left.AsSequence().Concat(other.Right));
+            IEnumerable<Expression> expression1 = ConcatHelper.Iterate([Left, Right]);
+            IEnumerable<Expression> expression2 = ConcatHelper.Iterate([other.Left, other.Right]);
 
             return expression1.SequenceEqual(expression2);
         }
 
-        public int CompareTo(BinaryConcat other)
+        public int CompareToNonnull(BinaryConcat other)
         {
-            if (other == null)
-            {
-                return 1;
-            }
-
-            IEnumerable<Expression> expression1 = ConcatHelper.Iterate(Left.AsSequence().Concat(Right));
-            IEnumerable<Expression> expression2 = ConcatHelper.Iterate(other.Left.AsSequence().Concat(other.Right));
+            IEnumerable<Expression> expression1 = ConcatHelper.Iterate([Left, Right]);
+            IEnumerable<Expression> expression2 = ConcatHelper.Iterate([other.Left, other.Right]);
 
             return expression1.SequenceCompare(expression2);
         }
 
-        public override bool Equals(object obj)
-        {
-            BinaryConcat concat = obj as BinaryConcat;
-            return Equals(concat);
-        }
-
-        public override int GetHashCode()
-        {
-            return Left.GetHashCode() ^ Right.GetHashCode();
-        }
-
-        public override bool Equals(Expression other)
-        {
-            BinaryConcat concat = other as BinaryConcat;
-            return Equals(concat);
-        }
-
-        public override int CompareTo(Expression other)
-        {
-            if (other == null || other is BinaryConcat)
-            {
-                return CompareTo((BinaryConcat)other);
-            }
-
-            return string.Compare(GetType().FullName, other.GetType().FullName);
-        }
+        public override int GetHashCode() => HashCode.Combine(Left, Right);
 
         internal override IEnumerable<DepthData<Expression>> WalkInternal()
         {
@@ -172,41 +49,28 @@ namespace FLaGLib.Data.RegExps
             yield return new DepthData<Expression>(this, WalkStatus.End);
         }
 
-        public override int Priority
-        {
-            get 
-            {
-                return 2; 
-            }
-        }
+        public override int Priority => 2;
 
-        public override ExpressionType ExpressionType
-        {
-            get
-            {
-                return ExpressionType.BinaryConcat;
-            }
-        }
+        public override ExpressionType ExpressionType => ExpressionType.BinaryConcat;
 
-        internal override void ToString(StringBuilder builder)
-        {
-            ConcatHelper.ToString(builder, ConcatHelper.Iterate(Left.AsSequence().Concat(Right)).ToList().AsReadOnly(), Priority);
-        }
+        internal override void ToString(StringBuilder builder) =>
+            ConcatHelper.ToString(builder, ConcatHelper.Iterate([Left, Right]), Priority);
 
-        internal override GrammarExpressionTuple GenerateGrammar(GrammarType grammarType, int grammarNumber,
-            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
+        internal override GrammarExpressionTuple GenerateGrammar(
+            GrammarType grammarType,
+            int grammarNumber,
+            ref int index,
+            ref int additionalGrammarNumber,
+            Action<GrammarPostReport>? onIterate,
+            params GrammarExpressionWithOriginal[] dependencies
+        )
         {
             CheckDependencies(dependencies);
-
-            switch (grammarType)
-            {
-                case GrammarType.Left:
-                    return GenerateLeftGrammar(grammarNumber, ref index, ref additionalGrammarNumber, onIterate, dependencies);
-                case GrammarType.Right:
-                    return GenerateRightGrammar(grammarNumber, ref index, ref additionalGrammarNumber, onIterate, dependencies);
-                default:
-                    throw new InvalidOperationException(UnknownGrammarMessage(grammarType));
-            }
+            return GrammarDispatcher.Dispatch(
+                grammarType,
+                () => GenerateLeftGrammar(grammarNumber, onIterate, dependencies),
+                () => GenerateRightGrammar(grammarNumber, onIterate, dependencies)
+            );
         }
 
         private static void CheckDependencies<T>(T[] dependencies)
@@ -214,7 +78,13 @@ namespace FLaGLib.Data.RegExps
             CheckDependencies(dependencies, 2);
         }
 
-        internal override StateMachineExpressionTuple GenerateStateMachine(int stateMachineNumber, ref int index, ref int additionalStateMachineNumber, Action<StateMachinePostReport> onIterate, params StateMachineExpressionWithOriginal[] dependencies)
+        internal override StateMachineExpressionTuple GenerateStateMachine(
+            int stateMachineNumber,
+            ref int index,
+            ref int additionalStateMachineNumber,
+            Action<StateMachinePostReport>? onIterate,
+            params StateMachineExpressionWithOriginal[] dependencies
+        )
         {
             CheckDependencies(dependencies);
 
@@ -223,14 +93,14 @@ namespace FLaGLib.Data.RegExps
 
             Label initialState = stateMachine1.InitialState;
 
-            ISet<Label> finalStates = stateMachine2.FinalStates.ToHashSet();
+            HashSet<Label> finalStates = stateMachine2.FinalStates.ToHashSet();
 
             if (stateMachine2.FinalStates.Contains(stateMachine2.InitialState))
             {
-                finalStates.AddRange(stateMachine1.FinalStates);
+                finalStates.UnionWith(stateMachine1.FinalStates);
             }
 
-            ISet<Transition> transitions = stateMachine1.Transitions.ToHashSet();
+            HashSet<Transition> transitions = stateMachine1.Transitions.ToHashSet();
 
             foreach (Transition transition in stateMachine2.Transitions)
             {
@@ -238,7 +108,7 @@ namespace FLaGLib.Data.RegExps
                 {
                     foreach (Label state in stateMachine1.FinalStates)
                     {
-                        transitions.Add(new Transition(state, transition.Symbol, transition.NextState));
+                        transitions.Add(new(state, transition.Symbol, transition.NextState));
                     }
                 }
 
@@ -247,96 +117,90 @@ namespace FLaGLib.Data.RegExps
 
             IEnumerable<Label> states = stateMachine1.States.Concat(stateMachine2.States);
 
-            StateMachineExpressionTuple stateMachineExpressionTuple =
-              new StateMachineExpressionTuple(
-                  this,
-                  new StateMachine(initialState, finalStates, transitions, states),
-                  stateMachineNumber
-              );
+            StateMachineExpressionTuple stateMachineExpressionTuple = new(
+                this,
+                new StateMachine(initialState, finalStates, transitions, states),
+                stateMachineNumber
+            );
 
-            if (onIterate != null)
-            {
-                onIterate(new StateMachinePostReport(stateMachineExpressionTuple, dependencies));
-            }
+            onIterate?.Invoke(
+                new StateMachinePostReport(stateMachineExpressionTuple, dependencies)
+            );
 
-            return stateMachineExpressionTuple;            
+            return stateMachineExpressionTuple;
         }
 
-        private GrammarExpressionTuple GenerateRightGrammar(int grammarNumber,
-            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
+        private GrammarExpressionTuple GenerateRightGrammar(
+            int grammarNumber,
+            Action<GrammarPostReport>? onIterate,
+            params GrammarExpressionWithOriginal[] dependencies
+        )
         {
             Grammar leftExpGrammar = dependencies[0].GrammarExpression.Grammar;
             Grammar rightExpGrammar = dependencies[1].GrammarExpression.Grammar;
 
-            IReadOnlySet<Rule> terminalSymbolsOnlyRules;
-            IReadOnlySet<Rule> otherRules;
-
-            leftExpGrammar.SplitRules(out terminalSymbolsOnlyRules, out otherRules);
-
-            ISet<Rule> newRules = new HashSet<Rule>(otherRules.Concat(rightExpGrammar.Rules));
+            leftExpGrammar.SplitRules(
+                out ImmutableSortedSet<Rule> terminalSymbolsOnlyRules,
+                out ImmutableSortedSet<Rule> otherRules
+            );
+            HashSet<Rule> newRules = otherRules.Concat(rightExpGrammar.Rules).ToHashSet();
 
             foreach (Rule rule in terminalSymbolsOnlyRules)
             {
-                ISet<Chain> newChains = new HashSet<Chain>(
-                    rule.Chains.Select(
-                        chain => new Chain(
-                            chain.Concat(EnumerateHelper.Sequence(rightExpGrammar.Target))
-                        )
-                    )
-                );
-
+                HashSet<Chain> newChains = rule
+                    .Chains.Select(chain => new Chain(chain.Concat([rightExpGrammar.Target])))
+                    .ToHashSet();
                 newRules.Add(new Rule(newChains, rule.Target));
             }
 
-            GrammarExpressionTuple grammarExpressionTuple = new GrammarExpressionTuple(this, new Grammar(newRules, leftExpGrammar.Target), grammarNumber);
-
-            if (onIterate != null)
-            {
-                onIterate(new GrammarPostReport(grammarExpressionTuple, dependencies));
-            }
+            GrammarExpressionTuple grammarExpressionTuple = new(
+                this,
+                new Grammar(newRules, leftExpGrammar.Target),
+                grammarNumber
+            );
+            onIterate?.Invoke(new GrammarPostReport(grammarExpressionTuple, dependencies));
 
             return grammarExpressionTuple;
         }
 
-        private GrammarExpressionTuple GenerateLeftGrammar(int grammarNumber,
-            ref int index, ref int additionalGrammarNumber, Action<GrammarPostReport> onIterate, params GrammarExpressionWithOriginal[] dependencies)
+        private GrammarExpressionTuple GenerateLeftGrammar(
+            int grammarNumber,
+            Action<GrammarPostReport>? onIterate,
+            params GrammarExpressionWithOriginal[] dependencies
+        )
         {
             Grammar leftExpGrammar = dependencies[0].GrammarExpression.Grammar;
             Grammar rightExpGrammar = dependencies[1].GrammarExpression.Grammar;
 
-            IReadOnlySet<Rule> terminalSymbolsOnlyRules;
-            IReadOnlySet<Rule> otherRules;
+            rightExpGrammar.SplitRules(
+                out ImmutableSortedSet<Rule> terminalSymbolsOnlyRules,
+                out ImmutableSortedSet<Rule> otherRules
+            );
 
-            rightExpGrammar.SplitRules(out terminalSymbolsOnlyRules, out otherRules);
-
-            ISet<Rule> newRules = new HashSet<Rule>(otherRules.Concat(leftExpGrammar.Rules));
+            HashSet<Rule> newRules = otherRules.Concat(leftExpGrammar.Rules).ToHashSet();
 
             foreach (Rule rule in terminalSymbolsOnlyRules)
             {
-                ISet<Chain> newChains = new HashSet<Chain>(
-                    rule.Chains.Select(
-                        chain => new Chain(
-                            EnumerateHelper.Sequence(leftExpGrammar.Target).Concat(chain)
-                        )
-                    )
-                );
-
+                HashSet<Chain> newChains = rule
+                    .Chains.Select(chain => new Chain(chain.Prepend(leftExpGrammar.Target)))
+                    .ToHashSet();
                 newRules.Add(new Rule(newChains, rule.Target));
             }
 
-            GrammarExpressionTuple grammarExpressionTuple = new GrammarExpressionTuple(this, new Grammar(newRules, rightExpGrammar.Target), grammarNumber);
+            GrammarExpressionTuple grammarExpressionTuple = new(
+                this,
+                new Grammar(newRules, rightExpGrammar.Target),
+                grammarNumber
+            );
 
-            if (onIterate != null)
-            {
-                onIterate(new GrammarPostReport(grammarExpressionTuple, dependencies));
-            }
+            onIterate?.Invoke(new GrammarPostReport(grammarExpressionTuple, dependencies));
 
             return grammarExpressionTuple;
         }
 
         public override Expression Optimize()
         {
-            return new Concat(ConcatHelper.Iterate(Left.AsSequence().Concat(Right))).Optimize();
+            return new Concat(ConcatHelper.Iterate([Left, Right]).ToImmutableList()).Optimize();
         }
 
         public override bool CanBeEmpty()

@@ -1,35 +1,38 @@
-﻿using FLaGLib.Collections;
-using FLaGLib.Extensions;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using System.Text;
 
 namespace FLaGLib.Data.RegExps
 {
     public static class UnionHelper
     {
-        public static Expression MakeExpression(ICollection<Expression> expressions)
+        public static Expression MakeExpression(IEnumerable<Expression> expressions)
         {
-            if (expressions == null)
+            using IEnumerator<Expression> enumerator = expressions.GetEnumerator();
+            if (!enumerator.MoveNext())
             {
-                return null;
+                throw new InvalidOperationException(
+                    "Empty union makes an expression that doesn't accept any string."
+                );
             }
+            Expression first = enumerator.Current;
+            if (!enumerator.MoveNext())
+            {
+                return first;
+            }
+            ImmutableList<Expression>.Builder list = ImmutableList.CreateBuilder<Expression>();
+            list.Add(first);
+            do
+            {
+                list.Add(enumerator.Current);
+            } while (enumerator.MoveNext());
 
-            if (expressions.Count == 0)
-            {
-                return Empty.Instance;
-            }
-            else if (expressions.Count == 1)
-            {
-                return expressions.Single();
-            }
-            else
-            {
-                return new Union(expressions);
-            }
+            return new Union(list.ToImmutable());
         }
 
-        public static IEnumerable<Expression> Iterate(ISet<Expression> visitedExpressions, IEnumerable<Expression> expressions)
+        public static IEnumerable<Expression> Iterate(
+            ISet<Expression> visitedExpressions,
+            IEnumerable<Expression> expressions
+        )
         {
             foreach (Expression expression in expressions)
             {
@@ -40,13 +43,19 @@ namespace FLaGLib.Data.RegExps
             }
         }
 
-        public static IEnumerable<Expression> Iterate(ISet<Expression> visitedExpressions, Expression expressionToIterate)
+        public static IEnumerable<Expression> Iterate(
+            ISet<Expression> visitedExpressions,
+            Expression expressionToIterate
+        )
         {
-            BinaryUnion binaryUnion = expressionToIterate.As<BinaryUnion>();
-
-            if (binaryUnion != null)
+            if (expressionToIterate is BinaryUnion binaryUnion)
             {
-                foreach (Expression expression in Iterate(visitedExpressions, binaryUnion.Left.AsSequence().Concat(binaryUnion.Right)))
+                foreach (
+                    Expression expression in Iterate(
+                        visitedExpressions,
+                        [binaryUnion.Left, binaryUnion.Right]
+                    )
+                )
                 {
                     if (visitedExpressions.Add(expression))
                     {
@@ -57,9 +66,7 @@ namespace FLaGLib.Data.RegExps
                 yield break;
             }
 
-            Union union = expressionToIterate.As<Union>();
-
-            if (union != null)
+            if (expressionToIterate is Union union)
             {
                 foreach (Expression expression in Iterate(visitedExpressions, union.Expressions))
                 {
@@ -75,7 +82,11 @@ namespace FLaGLib.Data.RegExps
             yield return expressionToIterate;
         }
 
-        public static void ToString(StringBuilder builder, IReadOnlySet<Expression> expressions, int priority)
+        public static void ToString(
+            StringBuilder builder,
+            IEnumerable<Expression> expressions,
+            int priority
+        )
         {
             bool first = true;
 

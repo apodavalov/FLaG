@@ -1,95 +1,26 @@
-﻿using FLaGLib.Collections;
+﻿using System.Collections.Immutable;
 using FLaGLib.Data.RegExps;
-using FLaGLib.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace FLaGLib.Data.Languages
 {
-    public abstract class Entity : IEquatable<Entity>, IComparable<Entity>
-    {   
-        public static bool operator ==(Entity objA, Entity objB)
-        {
-            return Equals(objA, objB);
-        }
+    [ComparableEquatable]
+    public abstract partial class Entity
+    {
+        public abstract override int GetHashCode();
 
-        public static bool operator !=(Entity objA, Entity objB)
-        {
-            return !Equals(objA, objB);
-        }
-
-        public static bool operator <(Entity objA, Entity objB)
-        {
-            return Compare(objA, objB) < 0;
-        }
-
-        public static bool operator >(Entity objA, Entity objB)
-        {
-            return Compare(objA, objB) > 0;
-        }
-
-        public static bool operator >=(Entity objA, Entity objB)
-        {
-            return Compare(objA, objB) > -1;
-        }
-
-        public static bool operator <=(Entity objA, Entity objB)
-        {
-            return Compare(objA, objB) < 1;
-        }
-
-        public static bool Equals(Entity objA, Entity objB)
-        {
-            if ((object)objA == null)
-            {
-                if ((object)objB == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return objA.Equals(objB);
-        }
-
-        public static int Compare(Entity objA, Entity objB)
-        {
-            if (objA == null)
-            {
-                if (objB == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            return objA.CompareTo(objB);
-        }
-
-        public override abstract bool Equals(object obj);
-
-        public override abstract int GetHashCode();
-
-        public abstract bool Equals(Entity other);
-
-        public abstract int CompareTo(Entity other);
-
-        public abstract IReadOnlySet<Variable> Variables { get; }
+        public abstract IImmutableSet<Variable> Variables { get; }
 
         public abstract int Priority { get; }
 
         public abstract EntityType EntityType { get; }
 
-        protected IReadOnlySet<Variable> CollectVariables(IEnumerable<Entity> entities)
-        {
-            return new SortedSet<Variable>(entities.SelectMany(entity => entity.Variables)).AsReadOnly();
-        }
+        protected static IImmutableSet<Variable> CollectVariables(IEnumerable<Entity> entities) =>
+            entities.SelectMany(entity => entity.Variables).ToImmutableSortedSet();
 
         public abstract Expression ToRegExp();
+
+        public virtual bool EqualsNonnull(Entity other) => EntityType.Equals(other.EntityType);
+
+        public virtual int CompareToNonnull(Entity other) => EntityType.CompareTo(other.EntityType);
     }
 }

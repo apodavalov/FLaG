@@ -1,18 +1,12 @@
 ﻿using FLaG.IO.Input;
-using FLaGLib.Collections;
 using FLaGLib.Data;
 using FLaGLib.Data.Grammars;
-using FLaGLib.Data.Helpers;
 using FLaGLib.Data.Languages;
 using FLaGLib.Data.RegExps;
 using FLaGLib.Data.StateMachines;
-using FLaGLib.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
+using FLaGLib.Helpers;
+using System.Collections.Immutable;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace FLaG.IO.Output
@@ -33,53 +27,36 @@ namespace FLaG.IO.Output
 
         public static void Solve(this TaskDescription taskDescription, string baseTexFileName)
         {
-            FileInfo baseFileInfo = new FileInfo(baseTexFileName);
-
-            string baseFullFileName = baseTexFileName.Substring(0, baseTexFileName.Length - baseFileInfo.Extension.Length).Replace(".","-");
-
-            using (StreamWriter streamWriter = new StreamWriter(baseTexFileName, false, new UTF8Encoding(false)))
-            {
-                WriteProlog(streamWriter, taskDescription.Author, taskDescription.Variant);
-                
-                WriteBody(streamWriter, taskDescription.Language, baseFullFileName);
-                
-                WriteEpilog(streamWriter);
-            }
+            FileInfo baseFileInfo = new(baseTexFileName);
+            string baseFullFileName = baseTexFileName[..^baseFileInfo.Extension.Length].Replace(".", "-");
+            using StreamWriter streamWriter = new(baseTexFileName, false, new UTF8Encoding(false));
+            WriteProlog(streamWriter, taskDescription.Author, taskDescription.Variant);
+            WriteBody(streamWriter, taskDescription.Language, baseFullFileName);
+            WriteEpilog(streamWriter);
         }
 
         private static void WriteBody(StreamWriter writer, Entity language, string baseFullFileName)
-        {
-            Counter diagramCounter = new Counter();
-
+        { 
+            Counter diagramCounter = new(); 
             WriteTask(writer, language);
-
-            Expression expression = WriteCheckLanguageType(writer, language);
-
+            Expression expression = WriteCheckLanguageType(writer, language); 
             WriteConvertToExpression(writer, expression);
-
             int stateMachineNumber = 1;
-
-            Tuple<StateMachine, int> leftGrammarStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, GrammarType.Left, stateMachineNumber++);
+            Tuple<StateMachine, int> leftGrammarStateMachine = 
+                ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, GrammarType.Left, stateMachineNumber++);
             Tuple<StateMachine, int> rightGrammarStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, GrammarType.Right, stateMachineNumber++);
             Tuple<StateMachine, int> expressionStateMachine = ConvertToStateMachine(writer, diagramCounter, expression, baseFullFileName, stateMachineNumber++);
-
             leftGrammarStateMachine = OptimizeStateMachine(writer, diagramCounter, leftGrammarStateMachine, baseFullFileName, GetGrammarTypeRussianName(GrammarType.Left), stateMachineNumber);
-
-            Expression leftGrammarExpression = ConvertToExpression(writer, leftGrammarStateMachine, expression, GrammarType.Left,
+            ConvertToExpression(writer, leftGrammarStateMachine, expression, GrammarType.Left,
                 string.Format(_RussianCulture, _SectionCaptionGrammarFormat, GetGrammarTypeRussianName(GrammarType.Left)), 1);
-
             rightGrammarStateMachine = OptimizeStateMachine(writer, diagramCounter, rightGrammarStateMachine, baseFullFileName, GetGrammarTypeRussianName(GrammarType.Right), leftGrammarStateMachine.Item2 + 1);
-
-            Expression rightGrammarExpression = ConvertToExpression(writer, rightGrammarStateMachine, expression, GrammarType.Right,
+            ConvertToExpression(writer, rightGrammarStateMachine, expression, GrammarType.Right,
                 string.Format(_RussianCulture, _SectionCaptionGrammarFormat, GetGrammarTypeRussianName(GrammarType.Right)), 2);
-
             expressionStateMachine = OptimizeStateMachine(writer, diagramCounter, expressionStateMachine, baseFullFileName, _RegularExpressionText, rightGrammarStateMachine.Item2 + 1);
-
-            Expression leftStateMachineExpression = ConvertToExpression(writer, expressionStateMachine, expression, GrammarType.Left, 
-                string.Format(_RussianCulture, _SectionCaptionRegexFormat, GetGrammarTypeRussianName(GrammarType.Left), _RegularExpressionText),3);
-            Expression rightStateMachineExpression = ConvertToExpression(writer, expressionStateMachine, expression, GrammarType.Right, 
-                string.Format(_RussianCulture, _SectionCaptionRegexFormat, GetGrammarTypeRussianName(GrammarType.Right), _RegularExpressionText),4);
-
+            ConvertToExpression(writer, expressionStateMachine, expression, GrammarType.Left,
+                string.Format(_RussianCulture, _SectionCaptionRegexFormat, GetGrammarTypeRussianName(GrammarType.Left), _RegularExpressionText), 3);
+            ConvertToExpression(writer, expressionStateMachine, expression, GrammarType.Right,
+                string.Format(_RussianCulture, _SectionCaptionRegexFormat, GetGrammarTypeRussianName(GrammarType.Right), _RegularExpressionText), 4);
             ConvertToEntity(writer, expression, language);
         }
 
@@ -167,8 +144,7 @@ namespace FLaG.IO.Output
 
             writer.WriteLine(@"Система уравнений с регулярными коэффициентами примет следующий вид: ");
 
-            Expression expression = grammar.MakeExpression(grammarType, bpr => OnBeginPostReport(writer, bpr), ipr => OnIteratePostReport(writer, ipr));
-
+            Expression expression = grammar.MakeExpression(grammarType, bpr => OnBeginPostReport(writer, bpr), ipr => OnIteratePostReport(writer, ipr)) ?? throw new InvalidOperationException("Unable to make expression.");
             writer.Write(@"Таким образом, мы определили все неизвестные. Доказано, что решение для ");
             writer.Write(@"\begin{math}");
             WriteNonTerminal(writer, grammar.Target);
@@ -196,7 +172,7 @@ namespace FLaG.IO.Output
 
             writer.WriteLine(@"\begin{array}{l l}");
 
-            for (int i = 0; i < matrix.RowCount; i++)
+            for (int i = 0; i < matrix.RowCount; ++i)
             {
                 writer.Write(@"{");
 
@@ -206,9 +182,9 @@ namespace FLaG.IO.Output
 
                 bool first = true;
 
-                for (int j = 0; j < matrix.ColumnCount; j++)
+                for (int j = 0; j < matrix.ColumnCount; ++j)
                 {
-                    if (matrix[i,j] == null)
+                    if (matrix[i, j] == null)
                     {
                         continue;
                     }
@@ -232,14 +208,19 @@ namespace FLaG.IO.Output
             writer.WriteLine(@"\end{cases}");
         }
 
-        private static void WriteTargetExpression(StreamWriter writer, GrammarType grammarType, Expression expression, NonTerminalSymbol nonTerminalSymbol)
+        private static void WriteTargetExpression(StreamWriter writer, GrammarType grammarType, Expression? expression, NonTerminalSymbol? nonTerminalSymbol)
         {
-            if (grammarType == GrammarType.Left && nonTerminalSymbol != null)
+            if (grammarType == GrammarType.Left && nonTerminalSymbol is not null)
             {
                 WriteNonTerminal(writer, nonTerminalSymbol);
             }
 
-            if (expression.ExpressionType != ExpressionType.Empty || nonTerminalSymbol == null)
+            if (expression is null)
+            {
+                throw new InvalidOperationException("Unexpected null expression.");
+            }
+
+            if (expression.ExpressionType != ExpressionType.Empty || nonTerminalSymbol is null)
             {
                 writer.Write(@"{");
 
@@ -251,7 +232,7 @@ namespace FLaG.IO.Output
                 }
 
                 WriteExpression(writer, expression);
-                
+
                 if (needBrackets)
                 {
                     writer.Write(@")");
@@ -347,7 +328,7 @@ namespace FLaG.IO.Output
             writer.Write(@"В результате получаем следующий детерминированный конечный автомат ");
             WriteStateMachineEx(writer, newStateMachine, stateMachineNumber);
             writer.WriteLine(@".");
-            writer.WriteLine(); 
+            writer.WriteLine();
 
             return new Tuple<StateMachine, int>(newStateMachine, stateMachineNumber);
         }
@@ -359,14 +340,14 @@ namespace FLaG.IO.Output
             WriteSetsOfEquivalenceSign(writer, postReport.Iteration);
             writer.Write(@"\end{math}:");
 
-            foreach (Tuple<SetOfEquivalence,int> transition in postReport.SetsOfEquivalence.Select((value,index) => new Tuple<SetOfEquivalence, int>(value,index)))
+            foreach (Tuple<SetOfEquivalence, int> transition in postReport.SetsOfEquivalence.SortedList.Select((value, index) => new Tuple<SetOfEquivalence, int>(value, index)))
             {
                 writer.WriteLine(@"\newline");
 
                 writer.Write(@"\begin{math}");
                 WriteSetOfEquivalenceSign(writer, transition.Item2, postReport.Iteration);
                 writer.Write(@" = ");
-                WriteStateSet(writer, transition.Item1);
+                WriteStateSet(writer, transition.Item1.Set);
                 writer.Write(@"\end{math}");
                 writer.Write(@" --- ");
 
@@ -404,9 +385,9 @@ namespace FLaG.IO.Output
             writer.Write(@"\begin{math}");
             WriteSetsOfEquivalence(writer, postReport.SetsOfEquivalence, postReport.Iteration);
             writer.WriteLine(@"\end{math}. ");
-            
+
             writer.Write("Видно, что множество классов ");
-            writer.WriteLatex((postReport.Iteration-1).ToString(_RussianCulture));
+            writer.WriteLatex((postReport.Iteration - 1).ToString(_RussianCulture));
             writer.Write(@"-эквивалентности и ");
             writer.WriteLatex(postReport.Iteration.ToString(_RussianCulture));
             writer.Write(@"-эквивалентности ");
@@ -443,7 +424,7 @@ namespace FLaG.IO.Output
 
             bool first = true;
 
-            foreach (int index in setsOfEquivalence.Select((value,index) => index))
+            foreach (int index in setsOfEquivalence.SortedList.Select((value, index) => index))
             {
                 if (first)
                 {
@@ -460,8 +441,8 @@ namespace FLaG.IO.Output
             writer.Write(@"\} = \{");
 
             first = true;
-            
-            foreach (SetOfEquivalence setOfEquivalence in setsOfEquivalence)
+
+            foreach (SetOfEquivalence setOfEquivalence in setsOfEquivalence.SortedList)
             {
                 if (first)
                 {
@@ -472,7 +453,7 @@ namespace FLaG.IO.Output
                     writer.Write(@"\comma ");
                 }
 
-                WriteStateSet(writer, setOfEquivalence);
+                WriteStateSet(writer, setOfEquivalence.Set);
             }
 
             writer.Write(@"\}");
@@ -559,7 +540,7 @@ namespace FLaG.IO.Output
             newStateMachine = stateMachine.Item1.RemoveUnreachableStates(bpr => OnBeginPostReport(writer, bpr), ipr => OnIteratePostReport(writer, ipr));
             writer.WriteLine(@"\end{enumerate}");
             writer.WriteLine();
-            
+
             writer.Write(@"В результате получаем следующий детерминированный конечный автомат ");
             WriteStateMachineEx(writer, newStateMachine, stateMachineNumber);
             writer.WriteLine(@".");
@@ -725,7 +706,7 @@ namespace FLaG.IO.Output
 
             writer.Write(@" \subseteq ");
 
-            WriteStateSet(writer,metaFinalStates.RequiredStates);
+            WriteStateSet(writer, metaFinalStates.RequiredStates);
 
             writer.Write(@"\comma j = \overline{1,");
             writer.WriteLatex(metaFinalStates.RequiredStates.Count.ToString(_RussianCulture));
@@ -815,7 +796,7 @@ namespace FLaG.IO.Output
             writer.Write(@") = ");
 
             writer.Write(@"[");
-            
+
             foreach (Label state in metaTransition.NextStates)
             {
                 WriteState(writer, state);
@@ -880,7 +861,7 @@ namespace FLaG.IO.Output
             writer.Write(@"\begin{math}");
             WriteStateMachineSign(writer, stateMachine.Item2);
             writer.Write(@"\end{math}. ");
-            
+
             if (deterministic)
             {
                 writer.WriteLine(@"Видим, что автомат является детерминированным, т.к. каждое состояние имеет ровно одну функцию перехода для каждого возможного символа.");
@@ -893,7 +874,7 @@ namespace FLaG.IO.Output
             writer.WriteLine();
 
             return deterministic;
-            
+
         }
 
         private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter writer, Counter diagramCounter,
@@ -1011,11 +992,8 @@ namespace FLaG.IO.Output
             writer.WriteLine(".");
             writer.WriteLine();
 
-            using (Image image = stateMachinePostReport.New.StateMachine.DrawDiagram())
-            {
-                WriteDiagram(writer, image, baseFullFileName, number, "Диаграмма состояний конечного автомата");
-            }
-
+            byte[] pngImage = stateMachinePostReport.New.StateMachine.DrawDiagram();
+            WriteDiagram(writer, pngImage, baseFullFileName, number, "Диаграмма состояний конечного автомата");
             writer.WriteLine();
 
             return stateMachinePostReport.New.Number;
@@ -1034,24 +1012,24 @@ namespace FLaG.IO.Output
             writer.WriteLine(@").");
             writer.WriteLine();
 
-            using (Image image = stateMachine.Item1.DrawDiagram())
-            {
-                WriteDiagram(writer, image, baseFullFileName, imageNumber, "Диаграмма состояний конечного автомата.");
-            }
+            byte[] pngImage = stateMachine.Item1.DrawDiagram();
+            WriteDiagram(writer, pngImage, baseFullFileName, imageNumber, "Диаграмма состояний конечного автомата.");
 
             writer.WriteLine();
         }
 
-        private static void WriteDiagram(StreamWriter writer, Image image, string baseFullFileName, int number, string caption)
+        private static void WriteDiagram(StreamWriter writer, byte[] pngImage, string baseFullFileName, int number, string caption)
         {
-            WriteImage(writer, image, string.Format(CultureInfo.InvariantCulture, "{0}-{1:00}.png", baseFullFileName, number), string.Format(CultureInfo.InvariantCulture, _DiagramLabel, number), caption);
+            WriteImage(writer, pngImage, string.Format(CultureInfo.InvariantCulture, "{0}-{1:00}.png", baseFullFileName, number), string.Format(CultureInfo.InvariantCulture, _DiagramLabel, number), caption);
         }
 
-        private static void WriteImage(StreamWriter writer, Image image, string fileName, string label, string caption)
+        private static void WriteImage(StreamWriter writer, byte[] pngImage, string fileName, string label, string caption)
         {
-            image.Save(fileName);
+            using (FileStream fileStream = new(fileName,FileMode.Create, FileAccess.Write, FileShare.None)) {
+                fileStream.Write(pngImage);
+            }
 
-            int widthInMm = (int)(image.Width / image.HorizontalResolution * 25.4f);
+            int widthInMm = (int)(/*Width*/1 / /*HorizontalResolution*/600 * 25.4f);
 
             if (widthInMm > 160)
             {
@@ -1072,7 +1050,7 @@ namespace FLaG.IO.Output
         {
             WriteSection(writer, grammarType, "Этап 2.3");
 
-            Tuple<Grammar,int> grammar = ConvertToGrammar(writer, expression, grammarType);
+            Tuple<Grammar, int> grammar = ConvertToGrammar(writer, expression, grammarType);
 
             grammar = OptimizeGrammar(writer, grammar, grammarType);
 
@@ -1206,7 +1184,7 @@ namespace FLaG.IO.Output
         private static void WriteSymbol(StreamWriter writer, char symbol)
         {
             writer.WriteLatex(symbol.ToString(_RussianCulture));
-        }  
+        }
 
         private static void WriteAlphabet(StreamWriter writer, IEnumerable<char> alphabet)
         {
@@ -1354,8 +1332,8 @@ namespace FLaG.IO.Output
 
         private static Tuple<Grammar, int> MakeStateMachineGrammar(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType)
         {
-            int number = grammar.Item2+1;
-            
+            int number = grammar.Item2 + 1;
+
             WriteSection(writer, grammarType, "Этап 2.3.3", 1);
 
             writer.WriteLine("На этом шаге для приведенный грамматики строим конечный автомат.");
@@ -1369,7 +1347,7 @@ namespace FLaG.IO.Output
             writer.Write(@"\end{math}");
             writer.WriteLine(" к автоматному виду.");
 
-            Grammar newGrammar = grammar.Item1.MakeStateMachineGrammar(grammarType, bpr => OnBeginPostReport(writer,bpr,number), ipr => OnIteratePostReport(writer, ipr, number));
+            Grammar newGrammar = grammar.Item1.MakeStateMachineGrammar(grammarType, bpr => OnBeginPostReport(writer, bpr, number), ipr => OnIteratePostReport(writer, ipr, number));
 
             writer.WriteLine();
 
@@ -1498,7 +1476,7 @@ namespace FLaG.IO.Output
             }
         }
 
-        private static void WriteNonTerminalSymbolMap(StreamWriter writer, int iteration, IReadOnlyDictionary<NonTerminalSymbol,IReadOnlySet<NonTerminalSymbol>> symbolMap)
+        private static void WriteNonTerminalSymbolMap(StreamWriter writer, int iteration, IReadOnlyDictionary<NonTerminalSymbol, IReadOnlySet<NonTerminalSymbol>> symbolMap)
         {
             bool first = true;
 
@@ -1526,7 +1504,7 @@ namespace FLaG.IO.Output
             writer.Write(@"{");
             WriteSymbol(writer, "N", number);
             writer.Write(@"^");
-            WriteNonTerminal(writer,nonTerminal);
+            WriteNonTerminal(writer, nonTerminal);
             writer.Write(@"}");
         }
 
@@ -1576,7 +1554,7 @@ namespace FLaG.IO.Output
             writer.Write("Исключаем из построенных множеств нетерминалы, для которых эти множества построены: ");
 
             bool first = true;
-            
+
             foreach (KeyValuePair<NonTerminalSymbol, ChainRulesEndTuple> value in postReport.SymbolMap)
             {
                 if (first)
@@ -1593,11 +1571,11 @@ namespace FLaG.IO.Output
                 writer.Write(" = ");
                 WriteWorkSetSign(writer, value.Key, value.Value.Iteration);
                 writer.Write(@" \setminus ");
-                WriteSymbolSet(writer, value.Key.AsSequence());
+                WriteSymbolSet(writer, [value.Key]);
                 writer.Write(" = ");
                 WriteSymbolSet(writer, value.Value.NonTerminals);
                 writer.Write(@" \setminus ");
-                WriteSymbolSet(writer, value.Key.AsSequence());
+                WriteSymbolSet(writer, [value.Key]);
                 writer.Write(" = ");
                 WriteSymbolSet(writer, value.Value.FinalNonTerminals);
                 writer.Write(@"\end{math}");
@@ -1675,12 +1653,12 @@ namespace FLaG.IO.Output
             }
             else
             {
-                writer.WriteLine(@"В результате выполнения алгоритма удаление бесполезных символов не произошло.");                
+                writer.WriteLine(@"В результате выполнения алгоритма удаление бесполезных символов не произошло.");
             }
 
             writer.WriteLine();
 
-            return new Tuple<Grammar,int>(newGrammar, newGrammarNumber);
+            return new Tuple<Grammar, int>(newGrammar, newGrammarNumber);
         }
 
         private static Tuple<Grammar, int> RemoveEmptyRules(StreamWriter writer, Tuple<Grammar, int> grammar, GrammarType grammarType)
@@ -1797,9 +1775,9 @@ namespace FLaG.IO.Output
             return iteratePostReport.Iteration;
         }
 
-        private static Tuple<Grammar,int> ConvertToGrammar(StreamWriter writer, Expression expression, GrammarType grammarType)
+        private static Tuple<Grammar, int> ConvertToGrammar(StreamWriter writer, Expression expression, GrammarType grammarType)
         {
-            WriteSection(writer, grammarType, "Этап 2.3.1",1);
+            WriteSection(writer, grammarType, "Этап 2.3.1", 1);
             writer.Write("В процессе построения будем использовать изолированную от остальных пунктов нумерацию грамматик. Построим ");
             writer.WriteLatex(GetGrammarTypeRussianName(grammarType, RussianCaseType.Accusative));
             writer.Write(" грамматику для выражения ");
@@ -1823,7 +1801,7 @@ namespace FLaG.IO.Output
             writer.WriteLine(@"\end{equation}");
             writer.WriteLine();
             writer.Write(@"Построим ");
-            writer.WriteLatex(GetGrammarTypeRussianName(grammarType, RussianCaseType.Accusative,false));
+            writer.WriteLatex(GetGrammarTypeRussianName(grammarType, RussianCaseType.Accusative, false));
             writer.Write(" грамматики для указанных выражений. Каждую грамматику будем нумеровать по номеру выражения, ");
             writer.WriteLine("для которого строится данная грамматика.");
             writer.WriteLine();
@@ -1951,7 +1929,7 @@ namespace FLaG.IO.Output
         }
 
         private static void WriteRuleSet(StreamWriter writer, IEnumerable<Rule> rules)
-        { 
+        {
             bool first = true;
 
             if (rules.Any())
@@ -2081,7 +2059,7 @@ namespace FLaG.IO.Output
                 writer.Write(@"{\varnothing}");
             }
         }
-        
+
         private static void WriteLabel(StreamWriter writer, Label label)
         {
             if (label.LabelType == LabelType.Complex)
@@ -2167,7 +2145,7 @@ namespace FLaG.IO.Output
         }
 
 
-        private static void WriteSection(StreamWriter writer, string title, string subtitle = null, int subcount = 0)
+        private static void WriteSection(StreamWriter writer, string title, string? subtitle = null, int subcount = 0)
         {
             writer.Write(@"\");
 
@@ -2204,7 +2182,7 @@ namespace FLaG.IO.Output
             writer.WriteLine(@"\section{Этап 2}");
             writer.WriteLine(@"\subsection{Этап 2.1}");
             writer.Write(@"Выражение ");
-            WriteEquationRef(writer,_OriginalRegularSetLabel);
+            WriteEquationRef(writer, _OriginalRegularSetLabel);
             writer.WriteLine(" уже представляет регулярное множество.");
             writer.WriteLine(@"\subsection{Этап 2.2}");
             writer.Write(@"Регулярное выражение для множества ");
@@ -2223,7 +2201,7 @@ namespace FLaG.IO.Output
         private static void WriteEquationLabel(StreamWriter writer, string uniqueId, GrammarType grammarType)
         {
             writer.Write(@"\label{eq:");
-            writer.WriteLatex(string.Concat(uniqueId,grammarType.ToString()));
+            writer.WriteLatex(string.Concat(uniqueId, grammarType.ToString()));
             writer.Write(@"}");
         }
 
@@ -2242,7 +2220,7 @@ namespace FLaG.IO.Output
         private static void WriteEquationRef(StreamWriter writer, string uniqueId, GrammarType grammarType)
         {
             writer.Write(@"(\ref{eq:");
-            writer.WriteLatex(string.Concat(uniqueId,grammarType.ToString()));
+            writer.WriteLatex(string.Concat(uniqueId, grammarType.ToString()));
             writer.Write(@"})");
         }
 
@@ -2518,7 +2496,7 @@ namespace FLaG.IO.Output
         }
 
         private static int OnLanguagePostReport(StreamWriter writer, LanguagePostReport languagePostReport)
-        {            
+        {
             writer.Write(@"\item Регулярное множество вида ");
             writer.Write(@"\begin{math}");
             WriteExpression(writer, languagePostReport.New.Expression, true, true);
@@ -2528,7 +2506,7 @@ namespace FLaG.IO.Output
 
             if (languagePostReport.Dependencies.Count > 0)
             {
-                bool plural = languagePostReport.Dependencies.Count > 1; 
+                bool plural = languagePostReport.Dependencies.Count > 1;
 
                 if (plural)
                 {
@@ -2593,29 +2571,29 @@ namespace FLaG.IO.Output
 
             switch (expression.ExpressionType)
             {
-                case FLaGLib.Data.RegExps.ExpressionType.Concat:
+                case ExpressionType.Concat:
                     WriteConcatEx(writer, (FLaGLib.Data.RegExps.Concat)expression, dependencyMap, index, asRegularSet);
                     break;
-                case FLaGLib.Data.RegExps.ExpressionType.BinaryConcat:
-                    WriteBinaryConcatEx(writer, (FLaGLib.Data.RegExps.BinaryConcat)expression, dependencyMap, index, asRegularSet);
+                case ExpressionType.BinaryConcat:
+                    WriteBinaryConcatEx(writer, (BinaryConcat)expression, dependencyMap, index, asRegularSet);
                     break;
-                case FLaGLib.Data.RegExps.ExpressionType.Union:
+                case ExpressionType.Union:
                     WriteUnionEx(writer, (FLaGLib.Data.RegExps.Union)expression, dependencyMap, index, asRegularSet);
                     break;
-                case FLaGLib.Data.RegExps.ExpressionType.BinaryUnion:
-                    WriteBinaryUnionEx(writer, (FLaGLib.Data.RegExps.BinaryUnion)expression, dependencyMap, index, asRegularSet);
+                case ExpressionType.BinaryUnion:
+                    WriteBinaryUnionEx(writer, (BinaryUnion)expression, dependencyMap, index, asRegularSet);
                     break;
-                case FLaGLib.Data.RegExps.ExpressionType.Symbol:
+                case ExpressionType.Symbol:
                     WriteSymbolEx(writer, (FLaGLib.Data.RegExps.Symbol)expression, dependencyMap, index);
                     break;
-                case FLaGLib.Data.RegExps.ExpressionType.Iteration:
-                    WriteIterationEx(writer, (FLaGLib.Data.RegExps.Iteration)expression, dependencyMap, index, asRegularSet);
+                case ExpressionType.Iteration:
+                    WriteIterationEx(writer, (Iteration)expression, dependencyMap, index, asRegularSet);
                     break;
-                case FLaGLib.Data.RegExps.ExpressionType.ConstIteration:
-                    WriteConstIterationEx(writer, (FLaGLib.Data.RegExps.ConstIteration)expression, dependencyMap, index, asRegularSet);
+                case ExpressionType.ConstIteration:
+                    WriteConstIterationEx(writer, (ConstIteration)expression, dependencyMap, index, asRegularSet);
                     break;
-                case FLaGLib.Data.RegExps.ExpressionType.Empty:
-                    WriteEmptyEx(writer, (FLaGLib.Data.RegExps.Empty)expression, dependencyMap, index);
+                case ExpressionType.Empty:
+                    WriteEmptyEx(writer, (Empty)expression, dependencyMap, index);
                     break;
                 default:
                     throw new InvalidOperationException(string.Format("The expression type {0} is not supported.", expression.ExpressionType));
@@ -2627,12 +2605,12 @@ namespace FLaG.IO.Output
             writer.Write(@"}");
         }
 
-        private static void WriteEmptyEx(StreamWriter writer, FLaGLib.Data.RegExps.Empty empty, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index)
+        private static void WriteEmptyEx(StreamWriter writer, Empty empty, IReadOnlyList<DependencyCollection> dependencyMap, int index)
         {
             writer.Write(@"{\varepsilon}");
         }
 
-        private static void WriteConstIterationEx(StreamWriter writer, FLaGLib.Data.RegExps.ConstIteration constIteration, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index, bool asRegularSet)
+        private static void WriteConstIterationEx(StreamWriter writer, ConstIteration constIteration, IReadOnlyList<DependencyCollection> dependencyMap, int index, bool asRegularSet)
         {
             bool needBrackets = constIteration.Expression.Priority >= constIteration.Priority;
 
@@ -2654,7 +2632,7 @@ namespace FLaG.IO.Output
             writer.Write("}");
         }
 
-        private static void WriteIterationEx(StreamWriter writer, FLaGLib.Data.RegExps.Iteration iteration, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index, bool asRegularSet)
+        private static void WriteIterationEx(StreamWriter writer, Iteration iteration, IReadOnlyList<DependencyCollection> dependencyMap, int index, bool asRegularSet)
         {
             bool needBrackets = iteration.Expression.Priority >= iteration.Priority;
 
@@ -2685,30 +2663,30 @@ namespace FLaG.IO.Output
             writer.Write("}");
         }
 
-        private static void WriteSymbolEx(StreamWriter writer, FLaGLib.Data.RegExps.Symbol symbol, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index)
+        private static void WriteSymbolEx(StreamWriter writer, FLaGLib.Data.RegExps.Symbol symbol, IReadOnlyList<DependencyCollection> dependencyMap, int index)
         {
             writer.WriteLatex(symbol.Character.ToString(_RussianCulture));
         }
 
-        private static void WriteBinaryUnionEx(StreamWriter writer, FLaGLib.Data.RegExps.BinaryUnion binaryUnion, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index, bool asRegularSet)
+        private static void WriteBinaryUnionEx(StreamWriter writer, BinaryUnion binaryUnion, IReadOnlyList<DependencyCollection> dependencyMap, int index, bool asRegularSet)
         {
             WriteExpressionsEx(writer, dependencyMap, index, asRegularSet ? @" \cup " : " + ", asRegularSet);
         }
 
-        private static void WriteBinaryConcatEx(StreamWriter writer, FLaGLib.Data.RegExps.BinaryConcat binaryConcat, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index, bool asRegularSet)
+        private static void WriteBinaryConcatEx(StreamWriter writer, BinaryConcat binaryConcat, IReadOnlyList<DependencyCollection> dependencyMap, int index, bool asRegularSet)
         {
             WriteExpressionsEx(writer, dependencyMap, index, @" \cdot ", asRegularSet);
         }
 
-        private static void WriteExpressionsEx(StreamWriter writer, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index, string separator, bool asRegularSet)
+        private static void WriteExpressionsEx(StreamWriter writer, IReadOnlyList<DependencyCollection> dependencyMap, int index, string separator, bool asRegularSet)
         {
-            FLaGLib.Data.RegExps.DependencyCollection dependencies = dependencyMap[index];
+            DependencyCollection dependencies = dependencyMap[index];
 
             bool first = true;
 
             foreach (int i in dependencies)
             {
-                FLaGLib.Data.RegExps.DependencyCollection currentDependencies = dependencyMap[i];
+                DependencyCollection currentDependencies = dependencyMap[i];
 
                 bool needBrackets;
 
@@ -2737,17 +2715,17 @@ namespace FLaG.IO.Output
             }
         }
 
-        private static void WriteUnionEx(StreamWriter writer, FLaGLib.Data.RegExps.Union union, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index, bool asRegularSet)
+        private static void WriteUnionEx(StreamWriter writer, FLaGLib.Data.RegExps.Union union, IReadOnlyList<DependencyCollection> dependencyMap, int index, bool asRegularSet)
         {
             throw new NotSupportedException();
         }
 
-        private static void WriteConcatEx(StreamWriter writer, FLaGLib.Data.RegExps.Concat concat, IReadOnlyList<FLaGLib.Data.RegExps.DependencyCollection> dependencyMap, int index, bool asRegularSet)
+        private static void WriteConcatEx(StreamWriter writer, FLaGLib.Data.RegExps.Concat concat, IReadOnlyList<DependencyCollection> dependencyMap, int index, bool asRegularSet)
         {
             throw new NotSupportedException();
         }
 
-        private static void WriteExpression(StreamWriter writer, FLaGLib.Data.RegExps.Expression expression, bool writeDots = false, bool asRegularSet = false)
+        private static void WriteExpression(StreamWriter writer, Expression expression, bool writeDots = false, bool asRegularSet = false)
         {
             if (writer == null)
             {
@@ -2761,29 +2739,29 @@ namespace FLaG.IO.Output
 
             switch (expression.ExpressionType)
             {
-                case FLaGLib.Data.RegExps.ExpressionType.Concat:
+                case ExpressionType.Concat:
                     WriteConcat(writer, (FLaGLib.Data.RegExps.Concat)expression, writeDots, asRegularSet);
                     break;
-                case FLaGLib.Data.RegExps.ExpressionType.BinaryConcat:
-                    WriteBinaryConcat(writer, (FLaGLib.Data.RegExps.BinaryConcat)expression, writeDots, asRegularSet);
+                case ExpressionType.BinaryConcat:
+                    WriteBinaryConcat(writer, (BinaryConcat)expression, writeDots, asRegularSet);
                     break;
-                case FLaGLib.Data.RegExps.ExpressionType.Union:
+                case ExpressionType.Union:
                     WriteUnion(writer, (FLaGLib.Data.RegExps.Union)expression, writeDots, asRegularSet);
                     break;
-                case FLaGLib.Data.RegExps.ExpressionType.BinaryUnion:
-                    WriteBinaryUnion(writer, (FLaGLib.Data.RegExps.BinaryUnion)expression, writeDots, asRegularSet);
+                case ExpressionType.BinaryUnion:
+                    WriteBinaryUnion(writer, (BinaryUnion)expression, writeDots, asRegularSet);
                     break;
-                case FLaGLib.Data.RegExps.ExpressionType.Symbol:
+                case ExpressionType.Symbol:
                     WriteSymbol(writer, (FLaGLib.Data.RegExps.Symbol)expression);
                     break;
-                case FLaGLib.Data.RegExps.ExpressionType.Iteration:
-                    WriteIteration(writer, (FLaGLib.Data.RegExps.Iteration)expression, writeDots, asRegularSet);
+                case ExpressionType.Iteration:
+                    WriteIteration(writer, (Iteration)expression, writeDots, asRegularSet);
                     break;
-                case FLaGLib.Data.RegExps.ExpressionType.ConstIteration:
-                    WriteConstIteration(writer, (FLaGLib.Data.RegExps.ConstIteration)expression, writeDots, asRegularSet);
+                case ExpressionType.ConstIteration:
+                    WriteConstIteration(writer, (ConstIteration)expression, writeDots, asRegularSet);
                     break;
-                case FLaGLib.Data.RegExps.ExpressionType.Empty:
-                    WriteEmpty(writer, (FLaGLib.Data.RegExps.Empty)expression);
+                case ExpressionType.Empty:
+                    WriteEmpty(writer, (Empty)expression);
                     break;
                 default:
                     throw new InvalidOperationException(string.Format("The expression type {0} is not supported.", expression.ExpressionType));
@@ -2795,7 +2773,7 @@ namespace FLaG.IO.Output
             writer.WriteLatex(symbol.Character.ToString(_RussianCulture));
         }
 
-        private static void WriteConstIteration(StreamWriter writer, FLaGLib.Data.RegExps.ConstIteration constIteration, bool writeDots, bool asRegularSet)
+        private static void WriteConstIteration(StreamWriter writer, ConstIteration constIteration, bool writeDots, bool asRegularSet)
         {
             bool needBrackets = constIteration.Expression.Priority >= constIteration.Priority;
 
@@ -2817,7 +2795,7 @@ namespace FLaG.IO.Output
             writer.Write("}");
         }
 
-        private static void WriteIteration(StreamWriter writer, FLaGLib.Data.RegExps.Iteration iteration, bool writeDots, bool asRegularSet)
+        private static void WriteIteration(StreamWriter writer, Iteration iteration, bool writeDots, bool asRegularSet)
         {
             bool needBrackets = iteration.Expression.Priority >= iteration.Priority;
 
@@ -2855,31 +2833,31 @@ namespace FLaG.IO.Output
 
         private static void WriteBinaryUnion(StreamWriter writer, FLaGLib.Data.RegExps.BinaryUnion binaryUnion, bool writeDots, bool asRegularSet)
         {
-            ISet<FLaGLib.Data.RegExps.Expression> visitedExpression = new HashSet<FLaGLib.Data.RegExps.Expression>();
-            WriteExpressions(writer, FLaGLib.Data.RegExps.UnionHelper.Iterate(visitedExpression, binaryUnion), asRegularSet ? @" \cup " : " + ", binaryUnion.Priority, writeDots, asRegularSet);
+            HashSet<Expression> visitedExpression = [];
+            WriteExpressions(writer, UnionHelper.Iterate(visitedExpression, binaryUnion), asRegularSet ? @" \cup " : " + ", binaryUnion.Priority, writeDots, asRegularSet);
         }
 
         private static void WriteUnion(StreamWriter writer, FLaGLib.Data.RegExps.Union union, bool writeDots, bool asRegularSet)
         {
-            ISet<FLaGLib.Data.RegExps.Expression> visitedExpression = new HashSet<FLaGLib.Data.RegExps.Expression>();
-            WriteExpressions(writer, FLaGLib.Data.RegExps.UnionHelper.Iterate(visitedExpression, union), asRegularSet ? @" \cup " : " + ", union.Priority, writeDots, asRegularSet);
+            HashSet<Expression> visitedExpression = [];
+            WriteExpressions(writer, UnionHelper.Iterate(visitedExpression, union), asRegularSet ? @" \cup " : " + ", union.Priority, writeDots, asRegularSet);
         }
 
-        private static void WriteBinaryConcat(StreamWriter writer, FLaGLib.Data.RegExps.BinaryConcat binaryConcat, bool writeDots, bool asRegularSet)
+        private static void WriteBinaryConcat(StreamWriter writer, BinaryConcat binaryConcat, bool writeDots, bool asRegularSet)
         {
-            WriteExpressions(writer, FLaGLib.Data.RegExps.ConcatHelper.Iterate(binaryConcat), writeDots ? @" \cdot " : string.Empty, binaryConcat.Priority, writeDots, asRegularSet);
+            WriteExpressions(writer, ConcatHelper.Iterate(binaryConcat), writeDots ? @" \cdot " : string.Empty, binaryConcat.Priority, writeDots, asRegularSet);
         }
 
         private static void WriteConcat(StreamWriter writer, FLaGLib.Data.RegExps.Concat concat, bool writeDots, bool asRegularSet)
         {
-            WriteExpressions(writer, FLaGLib.Data.RegExps.ConcatHelper.Iterate(concat), writeDots ? @" \cdot " : string.Empty, concat.Priority, writeDots, asRegularSet);
+            WriteExpressions(writer, ConcatHelper.Iterate(concat), writeDots ? @" \cdot " : string.Empty, concat.Priority, writeDots, asRegularSet);
         }
 
-        private static void WriteExpressions(StreamWriter writer, IEnumerable<FLaGLib.Data.RegExps.Expression> expressions, string separator, int priority, bool writeDots, bool asRegularSet)
+        private static void WriteExpressions(StreamWriter writer, IEnumerable<Expression> expressions, string separator, int priority, bool writeDots, bool asRegularSet)
         {
             bool first = true;
 
-            foreach (FLaGLib.Data.RegExps.Expression expression in expressions)
+            foreach (Expression expression in expressions)
             {
                 bool needBrackets;
 
@@ -2908,18 +2886,8 @@ namespace FLaG.IO.Output
             }
         }
 
-        private static void WriteLanguage(StreamWriter writer, FLaGLib.Data.Languages.Entity entity)
+        private static void WriteLanguage(StreamWriter writer, Entity entity)
         {
-            if (writer == null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
-
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity));
-            }
-
             writer.Write(@"\left\{");
 
             WriteEntity(writer, entity);
@@ -2928,21 +2896,21 @@ namespace FLaG.IO.Output
             writer.Write(@"\right\}");
         }
 
-        private static void WriteEntity(StreamWriter writer, FLaGLib.Data.Languages.Entity entity)
+        private static void WriteEntity(StreamWriter writer, Entity entity)
         {
             switch (entity.EntityType)
             {
-                case FLaGLib.Data.Languages.EntityType.Concat:
+                case EntityType.Concat:
                     WriteConcat(writer, (FLaGLib.Data.Languages.Concat)entity);
                     break;
-                case FLaGLib.Data.Languages.EntityType.Union:
+                case EntityType.Union:
                     WriteUnion(writer, (FLaGLib.Data.Languages.Union)entity);
                     break;
-                case FLaGLib.Data.Languages.EntityType.Symbol:
+                case EntityType.Symbol:
                     WriteSymbol(writer, (FLaGLib.Data.Languages.Symbol)entity);
                     break;
-                case FLaGLib.Data.Languages.EntityType.Degree:
-                    WriteDegree(writer, (FLaGLib.Data.Languages.Degree)entity);
+                case EntityType.Degree:
+                    WriteDegree(writer, (Degree)entity);
                     break;
                 default:
                     throw new InvalidOperationException(string.Format("The entity type {0} is not supported.", entity.EntityType));
@@ -2954,7 +2922,7 @@ namespace FLaG.IO.Output
             writer.WriteLatex(symbol.Character.ToString(_RussianCulture));
         }
 
-        private static void WriteDegree(StreamWriter writer, FLaGLib.Data.Languages.Degree degree)
+        private static void WriteDegree(StreamWriter writer, Degree degree)
         {
             bool needBrackets = degree.Entity.Priority >= degree.Priority;
 
@@ -2986,11 +2954,11 @@ namespace FLaG.IO.Output
             WriteEntities(writer, union.EntityCollection, string.Empty, union.Priority);
         }
 
-        private static void WriteEntities(StreamWriter writer, IEnumerable<FLaGLib.Data.Languages.Entity> entities, string separator, int priority)
+        private static void WriteEntities(StreamWriter writer, IEnumerable<Entity> entities, string separator, int priority)
         {
             bool first = true;
 
-            foreach (FLaGLib.Data.Languages.Entity entity in entities)
+            foreach (Entity entity in entities)
             {
                 bool needBrackets;
 
@@ -3019,49 +2987,49 @@ namespace FLaG.IO.Output
             }
         }
 
-        private static void WriteExponent(StreamWriter writer, FLaGLib.Data.Languages.Exponent exponent)
+        private static void WriteExponent(StreamWriter writer, Exponent exponent)
         {
             switch (exponent.ExponentType)
             {
                 case FLaGLib.Data.Languages.ExponentType.Quantity:
-                    WriteQuantity(writer, (FLaGLib.Data.Languages.Quantity)exponent);
+                    WriteQuantity(writer, (Quantity)exponent);
                     break;
                 case FLaGLib.Data.Languages.ExponentType.Variable:
-                    WriteVariable(writer, (FLaGLib.Data.Languages.Variable)exponent);
+                    WriteVariable(writer, (Variable)exponent);
                     break;
                 default:
                     throw new InvalidOperationException(string.Format("The exponent type {0} is not supported.", exponent.ExponentType));
             }
         }
 
-        private static void WriteVariable(StreamWriter writer, FLaGLib.Data.Languages.Variable variable)
+        private static void WriteVariable(StreamWriter writer, Variable variable)
         {
             writer.WriteLatex(variable.Name.ToString(_RussianCulture));
         }
 
-        private static void WriteQuantity(StreamWriter writer, FLaGLib.Data.Languages.Quantity quantity)
+        private static void WriteQuantity(StreamWriter writer, Quantity quantity)
         {
             writer.WriteLatex(quantity.Count.ToString(_RussianCulture));
         }
 
-        private static void WriteVariables(StreamWriter writer, IReadOnlySet<FLaGLib.Data.Languages.Variable> variables)
+        private static void WriteVariables(StreamWriter writer, IImmutableSet<Variable> variables)
         {
-            if (!variables.Any())
+            if (variables.Count == 0)
             {
                 return;
             }
 
             writer.Write(@" \mid \forall ");
 
-            foreach (FLaGLib.Data.Languages.Variable variable in variables)
+            foreach (Variable variable in variables)
             {
                 writer.WriteLatex(variable.Name.ToString(_RussianCulture));
                 switch (variable.Sign)
                 {
-                    case FLaGLib.Data.Languages.Sign.MoreThan:
+                    case Sign.MoreThan:
                         writer.Write(@" > ");
                         break;
-                    case FLaGLib.Data.Languages.Sign.MoreThanOrEqual:
+                    case Sign.MoreThanOrEqual:
                         writer.Write(@" \geq ");
                         break;
                     default:
@@ -3078,7 +3046,6 @@ namespace FLaG.IO.Output
 
             writer.Write(@" \text{ --- целые}");
         }
-
 
         private static void WriteProlog(StreamWriter writer, AuthorDescription author, string variant)
         {
@@ -3147,7 +3114,7 @@ namespace FLaG.IO.Output
             writer.WriteLine();
             writer.WriteLine(@"\newbox{\lbox}");
             writer.Write(@"\savebox{\lbox}{\hbox{");
-            writer.WriteLatex(string.Join(author.LastName,author.FirstName,author.SecondName));
+            writer.WriteLatex(string.Join(author.LastName, author.FirstName, author.SecondName));
             writer.WriteLine(@"}}");
             writer.WriteLine(@"\newlength{\maxl}");
             writer.WriteLine(@"\setlength{\maxl}{\wd\lbox}");

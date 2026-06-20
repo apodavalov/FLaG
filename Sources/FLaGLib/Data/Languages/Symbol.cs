@@ -1,166 +1,30 @@
-﻿using FLaGLib.Collections;
+﻿using System.Collections.Immutable;
 using FLaGLib.Data.RegExps;
-using FLaGLib.Extensions;
-using System;
-using System.Collections.Generic;
 using RegExpSymbol = FLaGLib.Data.RegExps.Symbol;
 
 namespace FLaGLib.Data.Languages
 {
-    public class Symbol : Entity, IEquatable<Symbol>, IComparable<Symbol>
+    [ComparableEquatable]
+    public sealed partial class Symbol(char character) : Entity
     {
-        public char Character
-        {
-            get;
-            private set;
-        }
+        public char Character { get; } = character;
 
-        public Symbol(char character)
-        {
-            Character = character;
-        }
+        public bool EqualsNonnull(Symbol other) => Character.Equals(other.Character);
 
-        public static bool operator ==(Symbol objA, Symbol objB)
-        {
-            return Equals(objA, objB);
-        }
+        public override int GetHashCode() => Character.GetHashCode();
 
-        public static bool operator !=(Symbol objA, Symbol objB)
-        {
-            return !Equals(objA, objB);
-        }
+        public int CompareToNonnull(Symbol other) => Character.CompareTo(other.Character);
 
-        public static bool operator <(Symbol objA, Symbol objB)
-        {
-            return Compare(objA, objB) < 0;
-        }
+        private readonly Lazy<IImmutableSet<Variable>> _Variables = new(() => []);
 
-        public static bool operator >(Symbol objA, Symbol objB)
-        {
-            return Compare(objA, objB) > 0;
-        }
+        public override IImmutableSet<Variable> Variables => _Variables.Value;
 
-        public static bool operator >=(Symbol objA, Symbol objB)
-        {
-            return Compare(objA, objB) > -1;
-        }
+        public override int Priority => 0;
 
-        public static bool operator <=(Symbol objA, Symbol objB)
-        {
-            return Compare(objA, objB) < 1;
-        }
+        public override EntityType EntityType => EntityType.Symbol;
 
-        public static bool Equals(Symbol objA, Symbol objB)
-        {
-            if ((object)objA == null)
-            {
-                if ((object)objB == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return objA.Equals(objB);
-        }
+        public override string ToString() => Character.ToString();
 
-        public static int Compare(Symbol objA, Symbol objB)
-        {
-            if (objA == null)
-            {
-                if (objB == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            return objA.CompareTo(objB);
-        }
-
-        public bool Equals(Symbol other)
-        {
-            if (other == null)
-            {
-                return false;
-            }
-
-            return Character.Equals(other.Character);
-        }
-
-        public int CompareTo(Symbol other)
-        {
-            if (other == null)
-            {
-                return 1;
-            }
-
-            return Character.CompareTo(other.Character);
-        }
-
-        public override bool Equals(object obj)
-        {
-            Symbol symbol = obj as Symbol;
-            return Equals(symbol);
-        }
-
-        public override int GetHashCode()
-        {
-            return Character.GetHashCode();
-        }
-
-        public override bool Equals(Entity other)
-        {
-            Symbol symbol = other as Symbol;
-            return Equals(symbol);
-        }
-
-        public override int CompareTo(Entity other)
-        {
-            if (other == null || other is Symbol)
-            {
-                return CompareTo((Symbol)other);
-            }
-
-            return string.Compare(GetType().FullName, other.GetType().FullName);
-        }
-
-        private readonly Lazy<IReadOnlySet<Variable>> _Variables = 
-            new Lazy<IReadOnlySet<Variable>>(() => new SortedSet<Variable>().AsReadOnly());
-
-        public override IReadOnlySet<Variable> Variables
-        {
-            get { return _Variables.Value; }
-        }
-
-        public override int Priority
-        {
-            get
-            {
-                return 0;
-            }
-        }
-
-        public override EntityType EntityType
-        {
-            get
-            {
-                return EntityType.Symbol;
-            }
-        }
-
-        public override string ToString()
-        {
-            return Character.ToString();
-        }
-
-        public override Expression ToRegExp()
-        {
-            return new RegExpSymbol(Character);
-        }
+        public override Expression ToRegExp() => new RegExpSymbol(Character);
     }
 }

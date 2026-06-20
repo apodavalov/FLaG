@@ -1,16 +1,11 @@
-﻿using FLaGLib.Data.Languages;
-using FLaGLib.Extensions;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Xml;
 using System.Xml.Schema;
+using FLaGLib.Data.Languages;
 
 namespace FLaG.IO.Input
 {
-    public class TaskDescription
+    public sealed class TaskDescription(Entity language, AuthorDescription author, string variant)
     {
         private const string _TaskElementName = "task";
         private const string _VariablesElementName = "variables";
@@ -44,57 +39,18 @@ namespace FLaG.IO.Input
 
         private const string _SchemaPath = "FLaG.IO.Input.lang.xsd";
 
-        public Entity Language
-        {
-            get;
-            private set;
-        }
+        public Entity Language { get; } = language;
 
-        public AuthorDescription Author
-        {
-            get;
-            private set;
-        }
+        public AuthorDescription Author { get; } = author;
 
-        public string Variant
-        {
-            get;
-            private set;
-        }
-
-        public TaskDescription(Entity language, AuthorDescription author, string variant)
-        {
-            if (language == null)
-            {
-                throw new ArgumentNullException(nameof(language));
-            }
-
-            if (author == null)
-            {
-                throw new ArgumentNullException(nameof(author));
-            }
-
-            if (variant == null)
-            {
-                throw new ArgumentNullException(nameof(variant));
-            }
-
-            Language = language;
-            Author = author;
-            Variant = variant;
-        }
+        public string Variant { get; } = variant;
 
         private static TaskDescription LoadFromStream(XmlReader reader)
         {
-            ISet<Variable> variables = new HashSet<Variable>();
-            Entity language = null;
-            AuthorDescription author = null;
-            string variant = null;
-
-            if (reader == null)
-            {
-                throw new ArgumentNullException(nameof(reader));
-            }
+            HashSet<Variable> variables = [];
+            Entity? language = null;
+            AuthorDescription? author = null;
+            string? variant = null;
 
             while (!reader.IsStartElement(_TaskElementName))
             {
@@ -109,7 +65,6 @@ namespace FLaG.IO.Input
             }
 
             bool isEmpty = reader.IsEmptyElement;
-
             reader.ReadStartElement(_VariablesElementName);
 
             while (reader.IsStartElement(_VariableElementName))
@@ -123,7 +78,6 @@ namespace FLaG.IO.Input
             }
 
             isEmpty = reader.IsEmptyElement;
-
             reader.ReadStartElement(_LanguageElementName);
 
             if (reader.IsStartElement())
@@ -149,15 +103,16 @@ namespace FLaG.IO.Input
                         variant = LoadVariant(reader);
                         break;
                     default:
-                        throw new InvalidOperationException(string.Format("Element type {0} is not supported.", reader.Name));
+                        throw new InvalidOperationException(
+                            string.Format("Element type {0} is not supported.", reader.Name)
+                        );
                 }
             }
 
             reader.ReadEndElement();
-
             reader.ReadEndElement();
 
-            return new TaskDescription(language, author, variant);
+            return new TaskDescription(language!, author!, variant!);
         }
 
         private static string LoadVariant(XmlReader reader)
@@ -178,10 +133,10 @@ namespace FLaG.IO.Input
         private static AuthorDescription LoadAuthor(XmlReader reader)
         {
             bool isEmpty = reader.IsEmptyElement;
-            string firstName = null;
-            string secondName = null;
-            string lastName = null;
-            string group = null;
+            string? firstName = null;
+            string? secondName = null;
+            string? lastName = null;
+            string? group = null;
 
             if (reader.HasAttributes)
                 while (reader.MoveToNextAttribute())
@@ -208,67 +163,66 @@ namespace FLaG.IO.Input
                 reader.ReadEndElement();
             }
 
-            return new AuthorDescription(firstName, secondName, lastName, group);
+            return new AuthorDescription(firstName!, secondName!, lastName!, group!);
         }
 
         public static TaskDescription LoadFromStream(Stream stream)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
+            using Stream schema = assembly.GetManifestResourceStream(_SchemaPath)!;
+            XmlSchema xmlSchema = XmlSchema.Read(schema, null)!;
 
-            using (Stream schema = assembly.GetManifestResourceStream(_SchemaPath))
+            XmlReaderSettings settings = new()
             {
-                XmlSchema xmlSchema = XmlSchema.Read(schema, null);
+                ValidationType = ValidationType.Schema,
+                ValidationFlags =
+                    XmlSchemaValidationFlags.ReportValidationWarnings
+                    | XmlSchemaValidationFlags.ProcessIdentityConstraints,
+                IgnoreComments = true,
+            };
 
-                XmlReaderSettings settings = new XmlReaderSettings();
-                settings.ValidationType = ValidationType.Schema;
-                settings.ValidationFlags = XmlSchemaValidationFlags.ReportValidationWarnings | XmlSchemaValidationFlags.ProcessIdentityConstraints;
-                settings.IgnoreComments = true;
-                settings.ValidationEventHandler += new ValidationEventHandler(ValidationEventHandler);
-                settings.Schemas.Add(xmlSchema);
+            settings.ValidationEventHandler += new ValidationEventHandler(ValidationEventHandler);
+            settings.Schemas.Add(xmlSchema);
+            using XmlReader reader = XmlReader.Create(stream, settings);
 
-                using (XmlReader reader = XmlReader.Create(stream, settings))
-                {
-                    return LoadFromStream(reader);
-                }
-            }
+            return LoadFromStream(reader);
         }
 
         public static TaskDescription Load(string fileName)
         {
-            using (FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                return LoadFromStream(stream);
-            }
+            using FileStream stream = new(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+            return LoadFromStream(stream);
         }
 
-        private static void ValidationEventHandler(object sender, ValidationEventArgs e)
-        {
+        private static void ValidationEventHandler(object? sender, ValidationEventArgs e) =>
             throw e.Exception;
-        }
 
-        private static Entity LoadEntity(XmlReader reader, IReadOnlyDictionary<char,Variable> variables)
+        private static Entity LoadEntity(
+            XmlReader reader,
+            IReadOnlyDictionary<char, Variable> variables
+        )
         {
             while (!reader.IsStartElement())
             {
                 reader.Read();
-            } 
-
-            switch (reader.Name)
-            {
-                case _ConcatElementName:
-                    return LoadConcat(reader, variables);
-                case _UnionElementName:
-                    return LoadUnion(reader, variables);
-                case _DegreeElementName:
-                    return LoadDegree(reader, variables);
-                case _SymbolElementName:
-                    return LoadSymbol(reader, variables);
-                default:
-                    throw new InvalidOperationException(string.Format("Entity type {0} is not supported.", reader.Name));
             }
+
+            return reader.Name switch
+            {
+                _ConcatElementName => LoadConcat(reader, variables),
+                _UnionElementName => LoadUnion(reader, variables),
+                _DegreeElementName => LoadDegree(reader, variables),
+                _SymbolElementName => LoadSymbol(reader, variables),
+                _ => throw new InvalidOperationException(
+                    string.Format("Entity type {0} is not supported.", reader.Name)
+                ),
+            };
         }
 
-        private static Symbol LoadSymbol(XmlReader reader, IReadOnlyDictionary<char, Variable> variables)
+        private static Symbol LoadSymbol(
+            XmlReader reader,
+            IReadOnlyDictionary<char, Variable> variables
+        )
         {
             while (!reader.IsStartElement(_SymbolElementName))
             {
@@ -276,18 +230,19 @@ namespace FLaG.IO.Input
             }
 
             reader.ReadStartElement();
-
             char value = reader.ReadContentAsString()[0];
-
             reader.ReadEndElement();
 
             return new Symbol(value);
         }
 
-        private static Degree LoadDegree(XmlReader reader, IReadOnlyDictionary<char, Variable> variables)
+        private static Degree LoadDegree(
+            XmlReader reader,
+            IReadOnlyDictionary<char, Variable> variables
+        )
         {
-            Entity baseEntity = null;
-            Exponent exponent = null;
+            Entity? baseEntity = null;
+            Exponent? exponent = null;
 
             while (!reader.IsStartElement(_DegreeElementName))
             {
@@ -299,7 +254,6 @@ namespace FLaG.IO.Input
             while (reader.IsStartElement())
             {
                 string name = reader.Name;
-
                 reader.ReadStartElement();
 
                 if (reader.IsStartElement())
@@ -313,7 +267,9 @@ namespace FLaG.IO.Input
                             exponent = LoadExponent(reader, variables);
                             break;
                         default:
-                            throw new InvalidOperationException(string.Format(_ElementIsNotSupportedTemplate, name));
+                            throw new InvalidOperationException(
+                                string.Format(_ElementIsNotSupportedTemplate, name)
+                            );
                     }
                 }
 
@@ -322,10 +278,13 @@ namespace FLaG.IO.Input
 
             reader.ReadEndElement();
 
-            return new Degree(baseEntity, exponent);
+            return new Degree(baseEntity!, exponent!);
         }
 
-        private static Exponent LoadExponent(XmlReader reader, IReadOnlyDictionary<char, Variable> variables)
+        private static Exponent LoadExponent(
+            XmlReader reader,
+            IReadOnlyDictionary<char, Variable> variables
+        )
         {
             while (!reader.IsStartElement())
             {
@@ -339,11 +298,16 @@ namespace FLaG.IO.Input
                 case _VrefElementName:
                     return LoadVref(reader, variables);
                 default:
-                    throw new InvalidOperationException(string.Format("Exponent type {0} is not supported.", reader.Name));
+                    throw new InvalidOperationException(
+                        string.Format("Exponent type {0} is not supported.", reader.Name)
+                    );
             }
         }
 
-        private static Variable LoadVref(XmlReader reader, IReadOnlyDictionary<char, Variable> variables)
+        private static Variable LoadVref(
+            XmlReader reader,
+            IReadOnlyDictionary<char, Variable> variables
+        )
         {
             reader.ReadStartElement();
             char variableName = reader.ReadContentAsString()[0];
@@ -360,17 +324,17 @@ namespace FLaG.IO.Input
             }
 
             reader.ReadStartElement();
-
             int value = reader.ReadContentAsInt();
-
             reader.ReadEndElement();
-
             return new Quantity(value);
         }
 
-        private static Union LoadUnion(XmlReader reader, IReadOnlyDictionary<char, Variable> variables)
+        private static Union LoadUnion(
+            XmlReader reader,
+            IReadOnlyDictionary<char, Variable> variables
+        )
         {
-            ISet<Entity> entityCollection = new HashSet<Entity>();
+            HashSet<Entity> entityCollection = [];
 
             while (!reader.IsStartElement(_UnionElementName))
             {
@@ -378,7 +342,6 @@ namespace FLaG.IO.Input
             }
 
             bool isEmpty = reader.IsEmptyElement;
-
             reader.ReadStartElement(_UnionElementName);
 
             while (reader.IsStartElement())
@@ -394,9 +357,12 @@ namespace FLaG.IO.Input
             return new Union(entityCollection);
         }
 
-        private static Concat LoadConcat(XmlReader reader, IReadOnlyDictionary<char, Variable> variables)
+        private static Concat LoadConcat(
+            XmlReader reader,
+            IReadOnlyDictionary<char, Variable> variables
+        )
         {
-            IList<Entity> entityCollection = new List<Entity>();
+            List<Entity> entityCollection = [];
 
             while (!reader.IsStartElement(_ConcatElementName))
             {
@@ -458,7 +424,9 @@ namespace FLaG.IO.Input
                             num = int.Parse(reader.Value);
                             break;
                         default:
-                            throw new InvalidOperationException(string.Format(_ElementIsNotSupportedTemplate, reader.Name));
+                            throw new InvalidOperationException(
+                                string.Format(_ElementIsNotSupportedTemplate, reader.Name)
+                            );
                     }
                 } while (reader.MoveToNextAttribute());
             }

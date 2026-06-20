@@ -1,38 +1,14 @@
-﻿using FLaGLib.Collections;
-using FLaGLib.Extensions;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Immutable;
 
 namespace FLaGLib.Data.StateMachines
 {
-    public class MetaFinalState
+    public sealed class MetaFinalState(
+        IEnumerable<Label> requiredStates,
+        IEnumerable<Label> optionalStates
+    )
     {
-        public IReadOnlySet<Label> RequiredStates
-        {
-            get;
-            private set;
-        }
+        public IImmutableSet<Label> RequiredStates { get; } = requiredStates.ToImmutableSortedSet();
 
-        public IReadOnlySet<Label> OptionalStates
-        {
-            get;
-            private set;
-        }
-
-        public MetaFinalState(IEnumerable<Label> requiredStates, IEnumerable<Label> optionalStates)
-        {
-            if (requiredStates == null)
-            {
-                throw new ArgumentNullException(nameof(requiredStates));
-            }
-
-            if (optionalStates == null)
-            {
-                throw new ArgumentNullException(nameof(optionalStates));
-            }
-
-            RequiredStates = requiredStates.ToSortedSet().AsReadOnly();
-            OptionalStates = optionalStates.ToSortedSet().AsReadOnly();
-        }
+        public IImmutableSet<Label> OptionalStates { get; } = optionalStates.ToImmutableSortedSet();
     }
 }

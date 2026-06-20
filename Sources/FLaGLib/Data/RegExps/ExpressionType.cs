@@ -9,6 +9,6 @@
         Empty,
         Symbol,
         Iteration,
-        ConstIteration
+        ConstIteration,
     }
 }

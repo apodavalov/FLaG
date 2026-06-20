@@ -1,56 +1,35 @@
-﻿using FLaGLib.Collections;
+﻿using System.Collections.Immutable;
 using FLaGLib.Data.Grammars;
-using FLaGLib.Data.Helpers;
 using FLaGLib.Extensions;
 using FLaGLib.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace FLaGLib.Data.StateMachines
 {
-    public class StateMachine
+    public sealed class StateMachine
     {
         internal const char _DefaultStateSymbol = 'S';
 
-        public Label InitialState
-        {
-            get;
-            private set;
-        }
+        public Label InitialState { get; }
 
-        public IReadOnlySet<Label> FinalStates
-        {
-            get;
-            private set;
-        }
+        public IImmutableSet<Label> FinalStates { get; }
 
-        public IReadOnlySet<Transition> Transitions
-        {
-            get;
-            private set;
-        }
+        public IImmutableSet<Transition> Transitions { get; }
 
-        public IReadOnlySet<Label> States
-        {
-            get;
-            private set;
-        }
+        public IImmutableSet<Label> States { get; }
 
-        public IReadOnlySet<char> Alphabet
-        {
-            get;
-            private set;
-        }
+        public IImmutableSet<char> Alphabet { get; }
 
         public bool IsDeterministic()
         {
-            Transition prevTransition = null;
+            Transition? prevTransition = null;
 
             foreach (Transition transition in Transitions)
             {
-                if (prevTransition != null && prevTransition.CurrentState == transition.CurrentState && prevTransition.Symbol == transition.Symbol)
+                if (
+                    prevTransition is not null
+                    && prevTransition.CurrentState == transition.CurrentState
+                    && prevTransition.Symbol == transition.Symbol
+                )
                 {
                     return false;
                 }
@@ -61,47 +40,45 @@ namespace FLaGLib.Data.StateMachines
             return true;
         }
 
-        public RegExps.Expression MakeExpression(GrammarType grammarType, Action<Matrix> onBegin = null, Action<Matrix> onIterate = null)
-        {
-            return MakeGrammar(grammarType).MakeExpression(grammarType, onBegin, onIterate);
-        }
+        public RegExps.Expression MakeExpression(
+            GrammarType grammarType,
+            Action<Matrix>? onBegin = null,
+            Action<Matrix>? onIterate = null
+        ) => MakeGrammar(grammarType).MakeExpression(grammarType, onBegin, onIterate);
 
-        public Grammar MakeGrammar(GrammarType grammarType)
-        {
-            switch (grammarType)
-            {
-                case GrammarType.Left:
-                    return MakeGrammarLeft();
-                case GrammarType.Right:
-                    return MakeGrammarRight();
-                default:
-                    throw new InvalidOperationException(Grammar.GrammarIsNotSupportedMessage);
-            }
-        }
+        public Grammar MakeGrammar(GrammarType grammarType) =>
+            GrammarDispatcher.Dispatch(grammarType, MakeGrammarLeft, MakeGrammarRight);
 
         private Grammar MakeGrammarLeft()
         {
-            IDictionary<char, TerminalSymbol> charTerminalMap = Alphabet.ToDictionary(c => c, c => new TerminalSymbol(c));
-            IDictionary<Label, NonTerminalSymbol> stateNonTerminalMap = States.ToDictionary(s => s, s => new NonTerminalSymbol(s));
+            Dictionary<char, TerminalSymbol> charTerminalMap = Alphabet.ToDictionary(
+                c => c,
+                c => new TerminalSymbol(c)
+            );
+            Dictionary<Label, NonTerminalSymbol> stateNonTerminalMap = States.ToDictionary(
+                s => s,
+                s => new NonTerminalSymbol(s)
+            );
 
             NonTerminalSymbol target = Grammar.GetNewNonTerminal(stateNonTerminalMap.Values);
-            
-            ISet<Rule> rules = new HashSet<Rule>();
+
+            HashSet<Rule> rules = [];
 
             foreach (Transition transition in Transitions)
             {
-                Chain chain = new Chain(
-                    EnumerateHelper.Sequence<Symbol>(
-                        stateNonTerminalMap[transition.CurrentState], charTerminalMap[transition.Symbol]
-                    )
-                );
+                Chain chain = new([
+                    stateNonTerminalMap[transition.CurrentState],
+                    charTerminalMap[transition.Symbol],
+                ]);
 
-                rules.Add(new Rule(chain.AsSequence(), stateNonTerminalMap[transition.NextState]));
+                rules.Add(new Rule([chain], stateNonTerminalMap[transition.NextState]));
             }
 
-            rules.Add(new Rule(Chain.Empty.AsSequence(), stateNonTerminalMap[InitialState]));
+            rules.Add(new Rule([Chain.Empty], stateNonTerminalMap[InitialState]));
 
-            IEnumerable<Chain> chains = FinalStates.Select(fs => new Chain(stateNonTerminalMap[fs].AsSequence()));
+            IEnumerable<Chain> chains = FinalStates.Select(fs => new Chain([
+                stateNonTerminalMap[fs],
+            ]));
 
             rules.Add(new Rule(chains, target));
 
@@ -110,54 +87,55 @@ namespace FLaGLib.Data.StateMachines
 
         private Grammar MakeGrammarRight()
         {
-            IDictionary<char, TerminalSymbol> charTerminalMap = Alphabet.ToDictionary(c => c, c => new TerminalSymbol(c));
-            IDictionary<Label, NonTerminalSymbol> stateNonTerminalMap = States.ToDictionary(s => s, s => new NonTerminalSymbol(s));
+            Dictionary<char, TerminalSymbol> charTerminalMap = Alphabet.ToDictionary(
+                c => c,
+                c => new TerminalSymbol(c)
+            );
+            Dictionary<Label, NonTerminalSymbol> stateNonTerminalMap = States.ToDictionary(
+                s => s,
+                s => new NonTerminalSymbol(s)
+            );
 
             NonTerminalSymbol target = stateNonTerminalMap[InitialState];
 
-            ISet<Rule> rules = new HashSet<Rule>();
+            HashSet<Rule> rules = [];
 
             foreach (Transition transition in Transitions)
             {
-                Chain chain = new Chain(
-                    EnumerateHelper.Sequence<Symbol>(
-                        charTerminalMap[transition.Symbol], stateNonTerminalMap[transition.NextState]
-                    )
-                );
-
-                rules.Add(new Rule(chain.AsSequence(), stateNonTerminalMap[transition.CurrentState]));
+                Chain chain = new([
+                    charTerminalMap[transition.Symbol],
+                    stateNonTerminalMap[transition.NextState],
+                ]);
+                rules.Add(new Rule([chain], stateNonTerminalMap[transition.CurrentState]));
             }
 
-            rules.AddRange(FinalStates.Select(fs => new Rule(Chain.Empty.AsSequence(), stateNonTerminalMap[fs])));
+            rules.UnionWith(FinalStates.Select(fs => new Rule([], stateNonTerminalMap[fs])));
 
             return new Grammar(rules, target);
         }
 
         public StateMachine RemoveUnreachableStates(
-            Action<RemovingUnreachableStatesBeginPostReport> onBegin = null, 
-            Action<RemovingUnreachableStatesIterationPostReport> onIterate = null)
+            Action<RemovingUnreachableStatesBeginPostReport>? onBegin = null,
+            Action<RemovingUnreachableStatesIterationPostReport>? onIterate = null
+        )
         {
-            ISet<Label> currentReachableStatesSet = new HashSet<Label>();
-            ISet<Label> currentApproachedStatesSet = new HashSet<Label>();
-
+            SortedSet<Label> currentReachableStatesSet = [];
+            SortedSet<Label> currentApproachedStatesSet = [];
             int i = 0;
-
             currentReachableStatesSet.Add(InitialState);
             currentApproachedStatesSet.Add(InitialState);
-
-            if (onBegin != null)
-            {
-                onBegin(new RemovingUnreachableStatesBeginPostReport(
+            onBegin?.Invoke(
+                new RemovingUnreachableStatesBeginPostReport(
                     currentReachableStatesSet,
                     currentApproachedStatesSet,
-                    i));
-            }
-
-            ISet<Label> nextApproachedStatesSet = new HashSet<Label>();
+                    i
+                )
+            );
+            SortedSet<Label> nextApproachedStatesSet = [];
 
             do
             {
-                i++;
+                ++i;
 
                 foreach (Transition transition in Transitions)
                 {
@@ -167,31 +145,30 @@ namespace FLaGLib.Data.StateMachines
                     }
                 }
 
-                ISet<Label> currentReachableStates = currentReachableStatesSet.ToHashSet();
-                ISet<Label> currentApproachedStates = nextApproachedStatesSet.ToHashSet();
-
+                SortedSet<Label> currentReachableStates = currentReachableStatesSet.ToSortedSet();
+                SortedSet<Label> currentApproachedStates = nextApproachedStatesSet.ToSortedSet();
                 nextApproachedStatesSet.ExceptWith(currentReachableStatesSet);
                 currentReachableStatesSet.UnionWith(nextApproachedStatesSet);
 
-                if (onIterate != null)
-                {
-                    onIterate(new RemovingUnreachableStatesIterationPostReport(
+                onIterate?.Invoke(
+                    new RemovingUnreachableStatesIterationPostReport(
                         currentReachableStates,
                         currentReachableStatesSet,
                         currentApproachedStates,
                         nextApproachedStatesSet,
                         i,
-                        !(nextApproachedStatesSet.Count > 0)));
-                }
+                        nextApproachedStatesSet.Count <= 0
+                    )
+                );
 
-                ISet<Label> temp = currentApproachedStatesSet;
-                currentApproachedStatesSet = nextApproachedStatesSet;
-                nextApproachedStatesSet = temp;
-
+                (currentApproachedStatesSet, nextApproachedStatesSet) = (
+                    nextApproachedStatesSet,
+                    currentApproachedStatesSet
+                );
                 nextApproachedStatesSet.Clear();
             } while (currentApproachedStatesSet.Count > 0);
 
-            ISet<Transition> newTransitions = new HashSet<Transition>();
+            HashSet<Transition> newTransitions = [];
 
             foreach (Transition transition in Transitions)
             {
@@ -203,21 +180,18 @@ namespace FLaGLib.Data.StateMachines
 
             currentReachableStatesSet.IntersectWith(FinalStates);
 
-            ISet<Label> newFinalStates = currentReachableStatesSet;
-
-            return new StateMachine(InitialState, newFinalStates, newTransitions);
+            return new StateMachine(InitialState, currentReachableStatesSet, newTransitions);
         }
 
         public StateMachine Reorganize(IDictionary<Label, Label> map)
         {
-            if (map == null)
-            {
-                throw new ArgumentNullException(nameof(map));
-            }
-
             Label initialState = map[InitialState];
             IEnumerable<Label> finalStates = FinalStates.Select(fs => map[fs]);
-            IEnumerable<Transition> transitions = Transitions.Select(t => new Transition(map[t.CurrentState], t.Symbol, map[t.NextState]));
+            IEnumerable<Transition> transitions = Transitions.Select(t => new Transition(
+                map[t.CurrentState],
+                t.Symbol,
+                map[t.NextState]
+            ));
 
             return new StateMachine(initialState, finalStates, transitions);
         }
@@ -226,51 +200,57 @@ namespace FLaGLib.Data.StateMachines
         {
             int index = firstIndex;
 
-            IDictionary<Label, Label> map = new Dictionary<Label, Label>();
+            Dictionary<Label, Label> map = [];
 
             foreach (Label symbol in States)
             {
-                map.Add(symbol, new Label(new SingleLabel('S', index++)));
+                map.Add(symbol, new(new SingleLabel('S', index++)));
             }
 
             return Reorganize(map);
         }
 
-        public StateMachine Reorganize(Action<IReadOnlyDictionary<Label, Label>> onStateMap = null)
+        public StateMachine Reorganize(Action<IReadOnlyDictionary<Label, Label>>? onStateMap = null)
         {
             return Reorganize('S', onStateMap);
         }
 
-        public StateMachine Reorganize(char stateSign, Action<IReadOnlyDictionary<Label,Label>> onStateMap = null)
+        public StateMachine Reorganize(
+            char stateSign,
+            Action<IReadOnlyDictionary<Label, Label>>? onStateMap = null
+        )
         {
-            Dictionary<Label, Label> dictionary = new Dictionary<Label, Label>();
+            Dictionary<Label, Label> dictionary = [];
 
             int i = 1;
 
             foreach (Label state in States)
             {
-                dictionary.Add(state, new Label(new SingleLabel(stateSign, i++)));
+                dictionary.Add(state, new(new SingleLabel(stateSign, i++)));
             }
 
             Label newInitialState = dictionary[InitialState];
-            ISet<Label> newFinalStates = new HashSet<Label>();
-            
+            HashSet<Label> newFinalStates = [];
+
             foreach (Label state in FinalStates)
             {
                 newFinalStates.Add(dictionary[state]);
             }
 
-            ISet<Transition> newTransitions = new HashSet<Transition>();
+            HashSet<Transition> newTransitions = [];
 
             foreach (Transition transition in Transitions)
             {
-                newTransitions.Add(new Transition(dictionary[transition.CurrentState],transition.Symbol,dictionary[transition.NextState]));
+                newTransitions.Add(
+                    new Transition(
+                        dictionary[transition.CurrentState],
+                        transition.Symbol,
+                        dictionary[transition.NextState]
+                    )
+                );
             }
 
-            if (onStateMap != null)
-            {
-                onStateMap(new ReadOnlyDictionary<Label,Label>(dictionary));
-            }
+            onStateMap?.Invoke(dictionary);
 
             return new StateMachine(newInitialState, newFinalStates, newTransitions);
         }
@@ -282,48 +262,37 @@ namespace FLaGLib.Data.StateMachines
                 return this;
             }
 
-            SortedSet<Transition> newTransitions = new SortedSet<Transition>();
-
-            SortedSet<Label> visitedNewStates = new SortedSet<Label>();
-
+            SortedSet<Transition> newTransitions = [];
+            SortedSet<Label> visitedNewStates = [];
             Label newInitialState = InitialState.ConvertToComplex();
-
             visitedNewStates.Add(newInitialState);
-
-            Queue<Label> queue = new Queue<Label>();
-
+            Queue<Label> queue = [];
             queue.Enqueue(newInitialState);
 
             do
             {
                 Label currentState = queue.Dequeue();
-
-                Dictionary<char, HashSet<SingleLabel>> symbolSingleLabelsDictionary = new Dictionary<char, HashSet<SingleLabel>>();
-
+                Dictionary<char, HashSet<SingleLabel>> symbolSingleLabelsDictionary = [];
                 foreach (Transition transition in Transitions)
                 {
-                    SingleLabel currentStateSingleLabel = transition.CurrentState.ExtractSingleLabel();
+                    SingleLabel currentStateSingleLabel =
+                        transition.CurrentState.ExtractSingleLabel();
 
                     if (currentState.Sublabels.Contains(currentStateSingleLabel))
                     {
-                        HashSet<SingleLabel> singleLabels;
-
-                        if (symbolSingleLabelsDictionary.ContainsKey(transition.Symbol))
-                        {
-                            singleLabels = symbolSingleLabelsDictionary[transition.Symbol];
-                        }
-                        else
-                        {
-                            symbolSingleLabelsDictionary[transition.Symbol] = singleLabels = new HashSet<SingleLabel>();
-                        }
-
-                        SingleLabel nextStateSingleLabel = transition.NextState.ExtractSingleLabel();
-
+                        HashSet<SingleLabel> singleLabels = symbolSingleLabelsDictionary.GetOrAdd(
+                            transition.Symbol,
+                            () => []
+                        );
+                        SingleLabel nextStateSingleLabel =
+                            transition.NextState.ExtractSingleLabel();
                         singleLabels.Add(nextStateSingleLabel);
                     }
                 }
 
-                foreach (KeyValuePair<char, HashSet<SingleLabel>> entry in symbolSingleLabelsDictionary)
+                foreach (
+                    KeyValuePair<char, HashSet<SingleLabel>> entry in symbolSingleLabelsDictionary
+                )
                 {
                     Label nextState = new Label(entry.Value);
                     newTransitions.Add(new Transition(currentState, entry.Key, nextState));
@@ -333,10 +302,9 @@ namespace FLaGLib.Data.StateMachines
                         queue.Enqueue(nextState);
                     }
                 }
-
             } while (queue.Count > 0);
 
-            HashSet<Label> newFinalStates = new HashSet<Label>();
+            HashSet<Label> newFinalStates = [];
 
             foreach (Label state in ExtractStates(newTransitions))
             {
@@ -357,152 +325,125 @@ namespace FLaGLib.Data.StateMachines
                 }
             }
 
-            return new StateMachine(newInitialState,newFinalStates,newTransitions);
+            return new StateMachine(newInitialState, newFinalStates, newTransitions);
         }
 
         public StateMachine Minimize(
-            Action<MinimizingBeginPostReport> onBegin = null,
-            Action<MinimizingIterationPostReport> onIterate = null,
-            Action<bool> onEnd = null)
+            Action<MinimizingBeginPostReport>? onBegin = null,
+            Action<MinimizingIterationPostReport>? onIterate = null,
+            Action<bool>? onEnd = null
+        )
         {
-            ILookup<Label, Transition> transitionsByCurrentState = Transitions.ToLookup(transition => transition.CurrentState);
-
-            ISet<Label> nonFinalStates = new SortedSet<Label>(States);
-            nonFinalStates.ExceptWith(FinalStates);
-
-            SetsOfEquivalence setsOfEquivalence = new SetsOfEquivalence(
-                EnumerateHelper.Sequence(
-                    new SetOfEquivalence(nonFinalStates), 
-                    new SetOfEquivalence(FinalStates)
-                )
+            ILookup<Label, Transition> transitionsByCurrentState = Transitions.ToLookup(
+                transition => transition.CurrentState
             );
+            SortedSet<Label> nonFinalStates = States.ToSortedSet();
+            nonFinalStates.ExceptWith(FinalStates);
+            SetsOfEquivalence setsOfEquivalence = new([
+                new SetOfEquivalence(nonFinalStates),
+                new SetOfEquivalence(FinalStates),
+            ]);
 
             int i = 0;
-
-            if (onBegin != null)
-            {
-                onBegin(new MinimizingBeginPostReport(setsOfEquivalence, i));
-            }
-
+            onBegin?.Invoke(new MinimizingBeginPostReport(setsOfEquivalence, i));
             bool changed;
 
             do
             {
                 changed = false;
-
-                i++;
-
-                List<SetOfEquivalence> buildingSetsOfEquivalence = new List<SetOfEquivalence>();
-
-                List<SetOfEquivalenceTransition> setOfEquivalenceTransitions = new List<SetOfEquivalenceTransition>();
-
+                ++i;
+                List<SetOfEquivalence> buildingSetsOfEquivalence = [];
+                List<SetOfEquivalenceTransition> setOfEquivalenceTransitions = [];
                 IDictionary<Label, int> statesMap = GetStatesMap(setsOfEquivalence);
 
-                foreach (SetOfEquivalence setOfEquivalence in setsOfEquivalence)
+                foreach (SetOfEquivalence setOfEquivalence in setsOfEquivalence.SortedList)
                 {
-                    IDictionary<ClassOfEquivalenceSet, ISet<Label>> classEquivalenceSetMap = new Dictionary<ClassOfEquivalenceSet, ISet<Label>>();
-                    
-                    foreach (Label state in setOfEquivalence)
+                    Dictionary<ClassOfEquivalenceSet, HashSet<Label>> classEquivalenceSetMap = [];
+
+                    foreach (Label state in setOfEquivalence.Set)
                     {
-                        IDictionary<int, ISet<char>> groupMap = new Dictionary<int, ISet<char>>();
+                        Dictionary<int, HashSet<char>> groupMap = [];
 
                         foreach (Transition transition in transitionsByCurrentState[state])
                         {
                             int groupNum = statesMap[transition.NextState];
 
-                            ISet<char> equality;
-
-                            if (groupMap.ContainsKey(groupNum))
-                            {
-                                equality = groupMap[groupNum];
-                            }
-                            else
-                            {
-                                groupMap[groupNum] = equality = new HashSet<char>();
-                            }
-
+                            HashSet<char> equality = groupMap.GetOrAdd(groupNum, () => []);
                             equality.Add(transition.Symbol);
                         }
 
-                        ClassOfEquivalenceSet classOfEquivalenceSet = new ClassOfEquivalenceSet(groupMap.Select(item => new ClassOfEquivalence(item.Key, item.Value)));
-
-                        ISet<Label> states;
-
-                        if (classEquivalenceSetMap.ContainsKey(classOfEquivalenceSet))
-                        {
-                            states = classEquivalenceSetMap[classOfEquivalenceSet];
-                        }
-                        else
-                        {
-                            classEquivalenceSetMap[classOfEquivalenceSet] = states = new HashSet<Label>();
-                        }
-
-                        states.Add(state); 
+                        ClassOfEquivalenceSet classOfEquivalenceSet = new(
+                            groupMap.Select(item => new ClassOfEquivalence(item.Key, item.Value))
+                        );
+                        HashSet<Label> states = classEquivalenceSetMap.GetOrAdd(
+                            classOfEquivalenceSet,
+                            () => []
+                        );
+                        states.Add(state);
                     }
 
-                    foreach (KeyValuePair<ClassOfEquivalenceSet,ISet<Label>> entry in classEquivalenceSetMap)
+                    foreach (
+                        KeyValuePair<
+                            ClassOfEquivalenceSet,
+                            HashSet<Label>
+                        > entry in classEquivalenceSetMap
+                    )
                     {
-                        SetOfEquivalence set = new SetOfEquivalence(entry.Value, entry.Key.Select(c => new SetOfEquivalenceTransition(c.Symbols, c.SetNum)));
+                        SetOfEquivalence set = new(
+                            entry.Value,
+                            entry.Key.ClassOfEquivalences.Select(
+                                c => new SetOfEquivalenceTransition(c.Symbols, c.SetNum)
+                            )
+                        );
                         buildingSetsOfEquivalence.Add(set);
                     }
                 }
 
-                SetsOfEquivalence nextSetsOfEquivalence = new SetsOfEquivalence(buildingSetsOfEquivalence);
-
+                SetsOfEquivalence nextSetsOfEquivalence = new(buildingSetsOfEquivalence);
                 changed = setsOfEquivalence != nextSetsOfEquivalence;
-
                 setsOfEquivalence = nextSetsOfEquivalence;
-
-                if (onIterate != null)
-                {
-                    onIterate(new MinimizingIterationPostReport(setsOfEquivalence, i, !changed));
-                }
+                onIterate?.Invoke(
+                    new MinimizingIterationPostReport(setsOfEquivalence, i, !changed)
+                );
             } while (changed);
 
-            if (onEnd != null)
-            {
-                onEnd(setsOfEquivalence.Count != States.Count);
-            }
+            onEnd?.Invoke(setsOfEquivalence.SortedList.Count != States.Count);
 
-            if (setsOfEquivalence.Count == States.Count)
+            if (setsOfEquivalence.SortedList.Count == States.Count)
             {
                 return this;
             }
 
             IDictionary<Label, Label> newStatesMap = GetOldNewStatesMap(setsOfEquivalence);
-
-            ISet<Transition> transitions = Transitions.Select(item => new Transition(newStatesMap[item.CurrentState], item.Symbol, newStatesMap[item.NextState])).ToHashSet();
-
-            ISet<Label> finalStates = FinalStates.Select(item => newStatesMap[item]).ToHashSet();
-
-            Label initialState = newStatesMap[InitialState];
-
-            return new StateMachine(initialState, finalStates, transitions);
+            return new StateMachine(
+                newStatesMap[InitialState],
+                FinalStates.Select(item => newStatesMap[item]),
+                Transitions.Select(item => new Transition(
+                    newStatesMap[item.CurrentState],
+                    item.Symbol,
+                    newStatesMap[item.NextState]
+                ))
+            );
         }
 
         public Label GetMetaInitialState()
         {
             CheckStatesSimple("Meta state cannot be obtained for non simple states.");
-
             return InitialState.ConvertToComplex();
         }
 
-        public IReadOnlySet<Label> GetMetaStates()
+        public IImmutableSet<Label> GetMetaStates()
         {
             CheckStatesSimple("Meta state cannot be obtained for non simple states.");
-
             return States;
         }
 
         public MetaFinalState GetMetaFinalStates()
         {
             CheckStatesSimple("Meta final state cannot be obtained for non simple states.");
-
-            SortedSet<Label> optionalStates = new SortedSet<Label>(States);
-            
+            SortedSet<Label> optionalStates = States.ToSortedSet();
             optionalStates.ExceptWith(FinalStates);
-
-            return new MetaFinalState(FinalStates, optionalStates.AsReadOnly());
+            return new MetaFinalState(FinalStates, optionalStates.ToImmutableSortedSet());
         }
 
         private void CheckStatesSimple(string message)
@@ -516,111 +457,105 @@ namespace FLaGLib.Data.StateMachines
             }
         }
 
-        public IReadOnlySet<MetaTransition> GetMetaTransitions()
+        public IImmutableSet<MetaTransition> GetMetaTransitions()
         {
             CheckStatesSimple("Meta transitions cannot be obtained for non simple states.");
-
-            IDictionary<char, IDictionary<Label, SortedSet<Label>>> map = 
-                new Dictionary<char, IDictionary<Label, SortedSet<Label>>>();
+            Dictionary<char, Dictionary<Label, SortedSet<Label>>> map = [];
 
             foreach (Transition transition in Transitions)
             {
-                IDictionary<Label, SortedSet<Label>> value;
-                if (map.ContainsKey(transition.Symbol))
-                {
-                    value = map[transition.Symbol];
-                }
-                else
-                {
-                    map[transition.Symbol] = value = new Dictionary<Label, SortedSet<Label>>();
-                }
-
-                SortedSet<Label> set;
-
-                if (value.ContainsKey(transition.CurrentState))
-                {
-                    set = value[transition.CurrentState];
-                }
-                else
-                {
-                    value[transition.CurrentState] = set = new SortedSet<Label>();
-                }
-
+                IDictionary<Label, SortedSet<Label>> value = map.GetOrAdd(
+                    transition.Symbol,
+                    () => []
+                );
+                SortedSet<Label> set = value.GetOrAdd(transition.CurrentState, () => []);
                 set.Add(transition.NextState);
             }
 
-            IDictionary<char, IDictionary<SortedSet<Label>, IList<SortedSet<Label>>>> metaTransitions = 
-                new Dictionary<char, IDictionary<SortedSet<Label>, IList<SortedSet<Label>>>>();
+            Dictionary<
+                char,
+                Dictionary<SortedSet<Label>, List<SortedSet<Label>>>
+            > metaTransitions = [];
+            Dictionary<char, List<Tuple<SortedSet<Label>, SortedSet<Label>>>> values = [];
 
-            IDictionary<char, IList<Tuple<SortedSet<Label>,SortedSet<Label>>>> values = 
-                new Dictionary<char,IList<Tuple<SortedSet<Label>,SortedSet<Label>>>>();
-
-            foreach (KeyValuePair<char, IDictionary<Label, SortedSet<Label>>> symbolStateStatesMap in map)
+            foreach (
+                KeyValuePair<char, Dictionary<Label, SortedSet<Label>>> symbolStateStatesMap in map
+            )
             {
-                foreach (KeyValuePair<Label,SortedSet<Label>> stateStatesMap in symbolStateStatesMap.Value)
+                foreach (
+                    KeyValuePair<
+                        Label,
+                        SortedSet<Label>
+                    > stateStatesMap in symbolStateStatesMap.Value
+                )
                 {
-                    IList<Tuple<SortedSet<Label>, SortedSet<Label>>> list;
-
-                    if (values.ContainsKey(symbolStateStatesMap.Key))
-                    {
-                        list = values[symbolStateStatesMap.Key];
-                    }
-                    else
-                    {
-                        values[symbolStateStatesMap.Key] = list = new List<Tuple<SortedSet<Label>, SortedSet<Label>>>();
-                    }
-
-                    Tuple<SortedSet<Label>, SortedSet<Label>> tuple = 
-                        new Tuple<SortedSet<Label>, SortedSet<Label>>(
-                            new SortedSet<Label>(EnumerateHelper.Sequence(stateStatesMap.Key)), 
-                            stateStatesMap.Value);
-
+                    List<Tuple<SortedSet<Label>, SortedSet<Label>>> list = values.GetOrAdd(
+                        symbolStateStatesMap.Key,
+                        () => []
+                    );
+                    Tuple<SortedSet<Label>, SortedSet<Label>> tuple = new(
+                        new SortedSet<Label>([stateStatesMap.Key]),
+                        stateStatesMap.Value
+                    );
                     list.Add(tuple);
-
                     AddMetaTransition(symbolStateStatesMap.Key, tuple, metaTransitions);
                 }
             }
 
             do
             {
-                IDictionary<char, IList<Tuple<SortedSet<Label>, SortedSet<Label>>>> newValues = 
-                    new Dictionary<char, IList<Tuple<SortedSet<Label>, SortedSet<Label>>>>();
+                Dictionary<char, List<Tuple<SortedSet<Label>, SortedSet<Label>>>> newValues = [];
 
-                foreach (KeyValuePair<char, IList<Tuple<SortedSet<Label>,SortedSet<Label>>>> symbolStateStatesMap in values)
+                foreach (
+                    KeyValuePair<
+                        char,
+                        List<Tuple<SortedSet<Label>, SortedSet<Label>>>
+                    > symbolStateStatesMap in values
+                )
                 {
-                    foreach (KeyValuePair<Label, SortedSet<Label>> stateStatesMap in map[symbolStateStatesMap.Key])
+                    foreach (
+                        KeyValuePair<Label, SortedSet<Label>> stateStatesMap in map[
+                            symbolStateStatesMap.Key
+                        ]
+                    )
                     {
-                        foreach (Tuple<SortedSet<Label>,SortedSet<Label>> metaTransition in symbolStateStatesMap.Value)
+                        foreach (
+                            Tuple<
+                                SortedSet<Label>,
+                                SortedSet<Label>
+                            > metaTransition in symbolStateStatesMap.Value
+                        )
                         {
-                            if (!stateStatesMap.Value.IsSupersetOf(metaTransition.Item2) &&
-                                !metaTransition.Item2.IsSupersetOf(stateStatesMap.Value))
+                            if (
+                                !stateStatesMap.Value.IsSupersetOf(metaTransition.Item2)
+                                && !metaTransition.Item2.IsSupersetOf(stateStatesMap.Value)
+                            )
                             {
-                                SortedSet<Label> currentState = new SortedSet<Label>(metaTransition.Item1);
+                                SortedSet<Label> currentState = metaTransition.Item1.ToSortedSet();
                                 currentState.Add(stateStatesMap.Key);
-
-                                SortedSet<Label> nextState = new SortedSet<Label>(metaTransition.Item2);
+                                SortedSet<Label> nextState = metaTransition.Item2.ToSortedSet();
                                 nextState.UnionWith(stateStatesMap.Value);
+                                Tuple<SortedSet<Label>, SortedSet<Label>> tuple = new(
+                                    currentState,
+                                    nextState
+                                );
 
-                                Tuple<SortedSet<Label>, SortedSet<Label>> tuple =
-                                    new Tuple<SortedSet<Label>, SortedSet<Label>>(currentState, nextState);
-
-                                if (!IsMetaTransitionAbsorbed(symbolStateStatesMap.Key,tuple,metaTransitions))
+                                if (
+                                    !IsMetaTransitionAbsorbed(
+                                        symbolStateStatesMap.Key,
+                                        tuple,
+                                        metaTransitions
+                                    )
+                                )
                                 {
-                                    IList<Tuple<SortedSet<Label>, SortedSet<Label>>> list;
-                                
-                                    if (newValues.ContainsKey(symbolStateStatesMap.Key))
-                                    {
-                                        list = newValues[symbolStateStatesMap.Key];
-                                    }
-                                    else
-                                    {
-                                        newValues[symbolStateStatesMap.Key] = list = 
-                                            new List<Tuple<SortedSet<Label>, SortedSet<Label>>>();
-                                    }
+                                    List<Tuple<SortedSet<Label>, SortedSet<Label>>> list =
+                                        newValues.GetOrAdd(symbolStateStatesMap.Key, () => []);
 
-                                    list.Add(tuple);
-
-                                    AddMetaTransition(symbolStateStatesMap.Key, tuple, metaTransitions);
+                                    AddMetaTransition(
+                                        symbolStateStatesMap.Key,
+                                        tuple,
+                                        metaTransitions
+                                    );
                                 }
                             }
                         }
@@ -630,33 +565,50 @@ namespace FLaGLib.Data.StateMachines
                 values = newValues;
             } while (values.Count > 0);
 
-            SortedSet<MetaTransition> metaTransitionSet = new SortedSet<MetaTransition>();
+            SortedSet<MetaTransition> metaTransitionSet = [];
 
-            foreach (KeyValuePair<char, IDictionary<SortedSet<Label>, IList<SortedSet<Label>>>> transitionMap in metaTransitions)
+            foreach (
+                KeyValuePair<
+                    char,
+                    Dictionary<SortedSet<Label>, List<SortedSet<Label>>>
+                > transitionMap in metaTransitions
+            )
             {
-                foreach (KeyValuePair<SortedSet<Label>, IList<SortedSet<Label>>> currentNextStatesMap in transitionMap.Value)
+                foreach (
+                    KeyValuePair<
+                        SortedSet<Label>,
+                        List<SortedSet<Label>>
+                    > currentNextStatesMap in transitionMap.Value
+                )
                 {
                     foreach (SortedSet<Label> currentState in currentNextStatesMap.Value)
                     {
-                        metaTransitionSet.Add(ToMetaTransition(transitionMap.Key, currentState, currentNextStatesMap.Key));
+                        metaTransitionSet.Add(
+                            ToMetaTransition(
+                                transitionMap.Key,
+                                currentState,
+                                currentNextStatesMap.Key
+                            )
+                        );
                     }
                 }
             }
 
-            return metaTransitionSet.AsReadOnly();
+            return metaTransitionSet.ToImmutableSortedSet();
         }
 
-        private bool IsMetaTransitionAbsorbed(char symbol, Tuple<SortedSet<Label>, SortedSet<Label>> tuple, 
-            IDictionary<char, IDictionary<SortedSet<Label>, IList<SortedSet<Label>>>> metaTransitions)
+        private static bool IsMetaTransitionAbsorbed(
+            char symbol,
+            Tuple<SortedSet<Label>, SortedSet<Label>> tuple,
+            Dictionary<char, Dictionary<SortedSet<Label>, List<SortedSet<Label>>>> metaTransitions
+        )
         {
-            IDictionary<SortedSet<Label>, IList<SortedSet<Label>>> map = metaTransitions[symbol];
+            Dictionary<SortedSet<Label>, List<SortedSet<Label>>> map = metaTransitions[symbol];
 
-            if (!map.ContainsKey(tuple.Item2))
+            if (!map.TryGetValue(tuple.Item2, out List<SortedSet<Label>>? list))
             {
                 return false;
             }
-
-            IList<SortedSet<Label>> list = map[tuple.Item2];
 
             foreach (SortedSet<Label> set in list)
             {
@@ -669,57 +621,55 @@ namespace FLaGLib.Data.StateMachines
             return false;
         }
 
-        private void AddMetaTransition(char symbol, Tuple<SortedSet<Label>, SortedSet<Label>> tuple,
-            IDictionary<char, IDictionary<SortedSet<Label>, IList<SortedSet<Label>>>> metaTransitions)
+        private static void AddMetaTransition(
+            char symbol,
+            Tuple<SortedSet<Label>, SortedSet<Label>> tuple,
+            Dictionary<char, Dictionary<SortedSet<Label>, List<SortedSet<Label>>>> metaTransitions
+        )
         {
-            IDictionary<SortedSet<Label>, IList<SortedSet<Label>>> map;
-
-            if (metaTransitions.ContainsKey(symbol))
-            {
-                map = metaTransitions[symbol];
-            }
-            else
-            {
-                metaTransitions[symbol] = map = new Dictionary<SortedSet<Label>,IList<SortedSet<Label>>>(LabelSetEqualityComparer.Instance);
-            }
-
-            IList<SortedSet<Label>> list;
-
-            if (map.ContainsKey(tuple.Item2))
-            {
-                list = map[tuple.Item2];
-            }
-            else
-            {
-                map[tuple.Item2] = list = new List<SortedSet<Label>>();
-            }
-
-            list.Add(tuple.Item1);
+            metaTransitions
+                .GetOrAdd(
+                    symbol,
+                    () =>
+                        new Dictionary<SortedSet<Label>, List<SortedSet<Label>>>(
+                            LabelSetEqualityComparer.Instance
+                        )
+                )
+                .GetOrAdd(tuple.Item2, () => [])
+                .Add(tuple.Item1);
         }
 
-        private MetaTransition ToMetaTransition(char symbol, SortedSet<Label> currentState, SortedSet<Label> nextState)
+        private MetaTransition ToMetaTransition(
+            char symbol,
+            SortedSet<Label> currentState,
+            SortedSet<Label> nextState
+        )
         {
-            SortedSet<Label> metaCurrentOptionalStates = new SortedSet<Label>(States);
+            SortedSet<Label> metaCurrentOptionalStates = States.ToSortedSet();
             metaCurrentOptionalStates.ExceptWith(currentState);
-
-            return new MetaTransition(currentState.AsReadOnly(), metaCurrentOptionalStates.AsReadOnly(), 
-                symbol, nextState.AsReadOnly());
+            return new MetaTransition(currentState, metaCurrentOptionalStates, symbol, nextState);
         }
 
-        private IDictionary<Label, int> GetStatesMap(SetsOfEquivalence setsOfEquivalence)
-        {
-            return setsOfEquivalence.SelectMany((set, index) => set.Select(item => new KeyValuePair<Label, int>(item, index))).ToDictionary();
-        }
+        private static Dictionary<Label, int> GetStatesMap(SetsOfEquivalence setsOfEquivalence) =>
+            setsOfEquivalence
+                .SortedList.SelectMany(
+                    (set, index) =>
+                        set.Set.Select(item => new KeyValuePair<Label, int>(item, index))
+                )
+                .ToDictionary();
 
-        private IDictionary<Label, Label> GetOldNewStatesMap(SetsOfEquivalence setsOfEquivalence)
-        {
-            return setsOfEquivalence.SelectMany(item => item.Select(subitem => new Tuple<Label, Label>(subitem, item.First()))).
-               ToDictionary(item => item.Item1, item => item.Item2);
-        }
+        private static Dictionary<Label, Label> GetOldNewStatesMap(
+            SetsOfEquivalence setsOfEquivalence
+        ) =>
+            setsOfEquivalence
+                .SortedList.SelectMany(item =>
+                    item.Set.Select(subitem => new Tuple<Label, Label>(subitem, item.Set.First()))
+                )
+                .ToDictionary(item => item.Item1, item => item.Item2);
 
-        private ISet<Label> ExtractStates(IEnumerable<Transition> transitions)
+        private static SortedSet<Label> ExtractStates(IEnumerable<Transition> transitions)
         {
-            ISet<Label> states = new SortedSet<Label>();
+            SortedSet<Label> states = [];
 
             foreach (Transition transition in transitions)
             {
@@ -730,68 +680,38 @@ namespace FLaGLib.Data.StateMachines
             return states;
         }
 
-        public StateMachine(Label initialState, IEnumerable<Label> finalStates, IEnumerable<Transition> transitions, IEnumerable<Label> allStates = null)
+        public StateMachine(
+            Label initialState,
+            IEnumerable<Label> finalStates,
+            IEnumerable<Transition> transitions,
+            IEnumerable<Label>? allStates = null
+        )
         {
-            if (initialState == null)
-            {
-                throw new ArgumentNullException(nameof(initialState));
-            }
-
-            if (finalStates == null)
-            {
-                throw new ArgumentNullException(nameof(finalStates));
-            }
-
-            if (transitions == null)
-            {
-                throw new ArgumentNullException(nameof(transitions));
-            }
-
-            FinalStates = finalStates.ToSortedSet().AsReadOnly();
-            Transitions = transitions.ToSortedSet().AsReadOnly();
-
-            if (Transitions.AnyNull())
-            {
-                throw new ArgumentException("One of the transitions is null.", nameof(transitions));
-            }
-
-            if (!FinalStates.Any())
-            {
-                throw new ArgumentException("Final states set is empty.", nameof(finalStates));
-            }
-
-            if (FinalStates.AnyNull())
-            {
-                throw new ArgumentException("One of the final state is null.", nameof(finalStates));                
-            }
-
-            ISet<Label> states = ExtractStates(Transitions);
-
+            FinalStates = finalStates.ToImmutableSortedSet();
+            Transitions = transitions.ToImmutableSortedSet();
+            SortedSet<Label> states = ExtractStates(Transitions);
             states.Add(initialState);
 
-            if (allStates != null)
+            if (allStates is not null)
             {
-                ISet<Label> allStatesSet = allStates.ToSortedSet();
-
-                if (allStatesSet.AnyNull())
-                {
-                    throw new ArgumentException("One of the state is null.", nameof(allStates));
-                }
+                SortedSet<Label> allStatesSet = allStates.ToSortedSet();
 
                 if (!allStatesSet.IsSupersetOf(states))
                 {
-                    throw new ArgumentException("States are not the superset of real states.", nameof(allStates));
+                    throw new ArgumentException(
+                        "States are not the superset of real states.",
+                        nameof(allStates)
+                    );
                 }
 
-                States = allStatesSet.AsReadOnly();
+                States = allStatesSet.ToImmutableSortedSet();
             }
             else
             {
-                States = states.AsReadOnly();
+                States = states.ToImmutableSortedSet();
             }
 
-            Alphabet = Transitions.Select(t => t.Symbol).ToSortedSet().AsReadOnly();
-
+            Alphabet = Transitions.Select(t => t.Symbol).ToImmutableSortedSet();
             InitialState = initialState;
         }
     }
