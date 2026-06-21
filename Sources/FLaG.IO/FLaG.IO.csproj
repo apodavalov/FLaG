@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FLaGLib\FLaGLib.csproj" />
+    <ProjectReference Include="..\FLaG.Core\FLaG.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

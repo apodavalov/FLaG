@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Xml;
 using System.Xml.Schema;
-using FLaGLib.Data.Languages;
+using FLaG.Core.Data.Languages;
 
 namespace FLaG.IO.Input
 {

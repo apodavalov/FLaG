@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>FLaG.Core</RootNamespace>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference
+      Include="..\FLaG.CmpEq\FLaG.CmpEq.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false"
+    />
+
+    <ProjectReference Include="..\FLaG.CmpEq.Attributes\FLaG.CmpEq.Attributes.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="FLaG.CmpEq.Attributes" />
+  </ItemGroup>
+</Project>
