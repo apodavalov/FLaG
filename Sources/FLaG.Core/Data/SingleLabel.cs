@@ -25,7 +25,7 @@ namespace FLaG.Core.Data
 
             if (SignIndex.HasValue && other.SignIndex.HasValue)
             {
-                SignIndex.Value.CompareTo(other.SignIndex.Value);
+                return SignIndex.Value.CompareTo(other.SignIndex.Value);
             }
 
             if (SignIndex.HasValue)

@@ -1,10 +1,8 @@
 <Solution>
-  <Configurations>
-    <Platform Name="Any CPU" />
-  </Configurations>
   <Project Path="FLaG/FLaG.csproj" />
   <Project Path="FLaG.CmpEq/FLaG.CmpEq.csproj" />
   <Project Path="FLaG.CmpEq.Attributes/FLaG.CmpEq.Attributes.csproj" />
   <Project Path="FLaG.IO/FLaG.IO.csproj" />
   <Project Path="FLaG.Core/FLaG.Core.csproj" />
+  <Project Path="FLaG.Core.UnitTests/FLaG.Core.UnitTests.csproj" />
 </Solution>
