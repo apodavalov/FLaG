@@ -8,7 +8,7 @@
 1. Install *texlive-full* with the following command.
 
 ```shell
-$ sudo apt install texlive-full
+sudo apt install texlive-full
 ```
 
 # Installation (Ubuntu/Debian only)
@@ -17,7 +17,7 @@ $ sudo apt install texlive-full
 1. Run the following command at the repository root to build.
 
 ```shell
-$ dotnet build -c Release Sources/FLaG.slnx
+dotnet build -c Release Sources/FLaG.slnx
 ```
 
 # Execution (Ubuntu/Debian only)
@@ -25,5 +25,5 @@ $ dotnet build -c Release Sources/FLaG.slnx
 1. Run the following command.
 
 ```shell
-$ make
+make
 ```
