@@ -1,6 +1,5 @@
 LATEXMK=latexmk
-FLAG=Sources/FLaG/bin/Release/FLaG.exe
-MONO=mono
+FLAG=Sources/FLaG/bin/Release/net10.0/FLaG
 OUTPUT=Output
 SAMPLES=Samples
 
@@ -16,7 +15,7 @@ $(OUTPUT):
 	mkdir $(OUTPUT)
 
 $(OUTPUT)/%.tex: $(SAMPLES)/%.xml $(OUTPUT)
-	$(MONO) $(FLAG) $< $@
+	$(FLAG) $< $@
 
 $(OUTPUT)/%.pdf: $(OUTPUT)/%.tex
 	export buf_size=1000000; $(LATEXMK) -pdf --output-directory=$(OUTPUT) $<
