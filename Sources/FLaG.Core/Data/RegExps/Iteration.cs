@@ -30,7 +30,7 @@ namespace FLaG.Core.Data.RegExps
             return IsPositive.CompareTo(other.IsPositive);
         }
 
-        public override int GetHashCode() => HashCode.Combine(Expression, IsPositive);
+        public override int FetchHashCode() => HashCode.Combine(Expression, IsPositive);
 
         internal override IEnumerable<DepthData<Expression>> WalkInternal()
         {

@@ -9,7 +9,7 @@ namespace FLaG.Core.Data.StateMachines
         public ImmutableSortedSet<ClassOfEquivalence> ClassOfEquivalences { get; } =
             set.ToImmutableSortedSet();
 
-        public override int GetHashCode()
+        public int FetchHashCode()
         {
             HashCode hashCode = new();
             foreach (ClassOfEquivalence classOfEquivalence in ClassOfEquivalences)

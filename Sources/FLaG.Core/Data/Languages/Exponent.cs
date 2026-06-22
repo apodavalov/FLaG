@@ -7,7 +7,7 @@ namespace FLaG.Core.Data.Languages
     {
         public abstract Expression ToRegExp(Entity entity);
 
-        public abstract override int GetHashCode();
+        public virtual int FetchHashCode() => ExponentType.GetHashCode();
 
         public virtual bool EqualsNonnull(Exponent other) =>
             ExponentType.Equals(other.ExponentType);

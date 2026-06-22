@@ -28,7 +28,7 @@ namespace FLaG.Core.Data.Languages
         public int CompareToNonnull(Concat other) =>
             EntityCollection.SequenceCompare(other.EntityCollection);
 
-        public override int GetHashCode()
+        public override int FetchHashCode()
         {
             HashCode hashCode = new();
             foreach (Entity entity in EntityCollection)

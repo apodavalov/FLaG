@@ -36,7 +36,7 @@ namespace FLaG.Core.Data.RegExps
             return expression1.SequenceCompare(expression2);
         }
 
-        public override int GetHashCode()
+        public override int FetchHashCode()
         {
             HashCode hashCode = new();
             foreach (Expression expression in Expressions)

@@ -6,7 +6,7 @@ namespace FLaG.Core.Data.Languages
     [ComparableEquatable]
     public abstract partial class Entity
     {
-        public abstract override int GetHashCode();
+        public virtual int FetchHashCode() => EntityType.GetHashCode();
 
         public abstract IImmutableSet<Variable> Variables { get; }
 

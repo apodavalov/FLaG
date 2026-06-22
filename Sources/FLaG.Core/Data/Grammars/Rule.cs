@@ -28,7 +28,7 @@ namespace FLaG.Core.Data.Grammars
         public Rule Reorganize(IImmutableDictionary<NonTerminalSymbol, NonTerminalSymbol> map) =>
             new(Chains.Select(chain => chain.Reorganize(map)), map.ValueOrThrow(Target));
 
-        public override int GetHashCode()
+        public int FetchHashCode()
         {
             HashCode hashCode = new();
             hashCode.Add(Target);

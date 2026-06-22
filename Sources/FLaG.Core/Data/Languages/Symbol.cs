@@ -11,7 +11,7 @@ namespace FLaG.Core.Data.Languages
 
         public bool EqualsNonnull(Symbol other) => Character.Equals(other.Character);
 
-        public override int GetHashCode() => Character.GetHashCode();
+        public override int FetchHashCode() => Character.GetHashCode();
 
         public int CompareToNonnull(Symbol other) => Character.CompareTo(other.Character);
 

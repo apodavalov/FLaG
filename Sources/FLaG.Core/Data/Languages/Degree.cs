@@ -48,7 +48,7 @@ namespace FLaG.Core.Data.Languages
             return Exponent.CompareTo(other.Exponent);
         }
 
-        public override int GetHashCode() => HashCode.Combine(Entity, Exponent);
+        public override int FetchHashCode() => HashCode.Combine(Entity, Exponent);
 
         private readonly Lazy<IImmutableSet<Variable>> _Variables;
 

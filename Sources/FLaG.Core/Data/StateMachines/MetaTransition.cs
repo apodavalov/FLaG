@@ -22,7 +22,7 @@ namespace FLaG.Core.Data.StateMachines
 
         public IImmutableSet<Label> NextStates { get; } = metaNextStates.ToImmutableSortedSet();
 
-        public override int GetHashCode()
+        public int FetchHashCode()
         {
             HashCode hashCode = new();
             hashCode.Add(Symbol);

@@ -15,7 +15,7 @@ namespace FLaG.Core.Data.Grammars
 
         public abstract SymbolType SymbolType { get; }
 
-        public abstract override int GetHashCode();
+        public virtual int FetchHashCode() => SymbolType.GetHashCode();
 
         public virtual int CompareToNonnull(Symbol other) => SymbolType.CompareTo(other.SymbolType);
 

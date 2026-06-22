@@ -17,7 +17,7 @@ namespace FLaG.Core.Data.StateMachines
         public SetOfEquivalence(IEnumerable<Label> set)
             : this(set, []) { }
 
-        public override int GetHashCode()
+        public int FetchHashCode()
         {
             HashCode hashCode = new();
             foreach (Label label in Set)

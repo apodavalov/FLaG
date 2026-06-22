@@ -23,7 +23,7 @@ namespace FLaG.Core.Data
             LabelType = LabelType.Simple;
         }
 
-        public override int GetHashCode()
+        public int FetchHashCode()
         {
             HashCode hashCode = new();
             hashCode.Add(LabelType);

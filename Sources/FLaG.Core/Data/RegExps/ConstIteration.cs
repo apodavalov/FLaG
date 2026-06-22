@@ -41,7 +41,7 @@ namespace FLaG.Core.Data.RegExps
             return IterationCount.CompareTo(other.IterationCount);
         }
 
-        public override int GetHashCode() => HashCode.Combine(Expression, IterationCount);
+        public override int FetchHashCode() => HashCode.Combine(Expression, IterationCount);
 
         internal override IEnumerable<DepthData<Expression>> WalkInternal()
         {

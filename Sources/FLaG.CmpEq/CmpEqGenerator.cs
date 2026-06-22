@@ -1,5 +1,8 @@
+using System;
+using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
@@ -41,7 +44,13 @@ public sealed class CmpEqGenerator : IIncrementalGenerator
             );
         }
 
-        return new ClassSemanticInfo(className, namespaceName, baseClassName, genericParameters);
+        return new ClassSemanticInfo(
+            className,
+            namespaceName,
+            baseClassName,
+            genericParameters,
+            classDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.SealedKeyword))
+        );
     }
 
     private static void Execute(SourceProductionContext context, ClassSemanticInfo info)
@@ -63,31 +72,38 @@ public sealed class CmpEqGenerator : IIncrementalGenerator
         );
         codeBuilder.AppendLine("    {");
 
-        codeBuilder.AppendLine($"        public bool Equals({fullTypeWithArgs}? obj)");
-        codeBuilder.AppendLine("        {");
-        codeBuilder.AppendLine("            if (obj is null)");
-        codeBuilder.AppendLine("            {");
-        codeBuilder.AppendLine("                return false;");
-        codeBuilder.AppendLine("            }");
-        codeBuilder.AppendLine("            return this.EqualsNonnull(obj);");
-        codeBuilder.AppendLine("        }");
-        codeBuilder.AppendLine();
-
-        codeBuilder.AppendLine($"        public int CompareTo({fullTypeWithArgs}? obj)");
-        codeBuilder.AppendLine("        {");
-        codeBuilder.AppendLine("            if (obj is null)");
-        codeBuilder.AppendLine("            {");
-        codeBuilder.AppendLine("                return 1;");
-        codeBuilder.AppendLine("            }");
-        codeBuilder.AppendLine("            return this.CompareToNonnull(obj);");
-        codeBuilder.AppendLine("        }");
-        codeBuilder.AppendLine();
-
         if (info.BaseClassName == null)
         {
             // =================================================================
             // CASE A: BASE CLASS OR STANDALONE CLASS
             // =================================================================
+
+            codeBuilder.AppendLine($"        public bool Equals({fullTypeWithArgs}? obj)");
+            codeBuilder.AppendLine("        {");
+            codeBuilder.AppendLine("            if (obj is null)");
+            codeBuilder.AppendLine("            {");
+            codeBuilder.AppendLine("                return false;");
+            codeBuilder.AppendLine("            }");
+            codeBuilder.AppendLine("            return this.EqualsNonnull(obj) &&");
+            codeBuilder.AppendLine(
+                "                this.GetTypeFingerprint().Equals(obj.GetTypeFingerprint());"
+            );
+            codeBuilder.AppendLine("        }");
+            codeBuilder.AppendLine();
+
+            codeBuilder.AppendLine($"        public int CompareTo({fullTypeWithArgs}? obj)");
+            codeBuilder.AppendLine("        {");
+            codeBuilder.AppendLine("            if (obj is null)");
+            codeBuilder.AppendLine("            {");
+            codeBuilder.AppendLine("                return 1;");
+            codeBuilder.AppendLine("            }");
+            codeBuilder.AppendLine("            int result = this.CompareToNonnull(obj);");
+            codeBuilder.AppendLine("            if (result != 0) { return result; }");
+            codeBuilder.AppendLine(
+                "            return this.GetTypeFingerprint().CompareTo(obj.GetTypeFingerprint());"
+            );
+            codeBuilder.AppendLine("        }");
+            codeBuilder.AppendLine();
 
             codeBuilder.AppendLine("        public override bool Equals(object? obj)");
             codeBuilder.AppendLine("        {");
@@ -102,7 +118,7 @@ public sealed class CmpEqGenerator : IIncrementalGenerator
             codeBuilder.AppendLine("        {");
             codeBuilder.AppendLine("            if (left is null) return right is null;");
             codeBuilder.AppendLine("            if (right is null) return false;");
-            codeBuilder.AppendLine("            return left.Equals(right) && right.Equals(left);");
+            codeBuilder.AppendLine("            return left.Equals(right);");
             codeBuilder.AppendLine("        }");
             codeBuilder.AppendLine();
             codeBuilder.AppendLine(
@@ -143,6 +159,25 @@ public sealed class CmpEqGenerator : IIncrementalGenerator
             codeBuilder.AppendLine("            if (left is null) return right is null;");
             codeBuilder.AppendLine("            return left.CompareTo(right) >= 0;");
             codeBuilder.AppendLine("        }");
+
+            codeBuilder.AppendLine($"        public override int GetHashCode()");
+            codeBuilder.AppendLine("        {");
+            codeBuilder.AppendLine("            return this.FetchHashCode();");
+            codeBuilder.AppendLine("        }");
+            codeBuilder.AppendLine();
+
+            if (info.Sealed)
+            {
+                codeBuilder.AppendLine(
+                    "        public Guid GetTypeFingerprint() { return _TypeFingerprint; }"
+                );
+            }
+            else
+            {
+                codeBuilder.AppendLine(
+                    "        public virtual Guid GetTypeFingerprint() { return _TypeFingerprint; }"
+                );
+            }
         }
         else
         {
@@ -150,28 +185,81 @@ public sealed class CmpEqGenerator : IIncrementalGenerator
             // CASE B: DERIVED/CHILD CLASS
             // =================================================================
 
+            codeBuilder.AppendLine($"        public bool Equals({fullTypeWithArgs}? obj)");
+            codeBuilder.AppendLine("        {");
+            codeBuilder.AppendLine("            if (obj is null)");
+            codeBuilder.AppendLine("            {");
+            codeBuilder.AppendLine("                return false;");
+            codeBuilder.AppendLine("            }");
+            codeBuilder.AppendLine(
+                "            return base.EqualsNonnull(obj) && this.EqualsNonnull(obj);"
+            );
+            codeBuilder.AppendLine("        }");
+            codeBuilder.AppendLine();
+
+            codeBuilder.AppendLine($"        public int CompareTo({fullTypeWithArgs}? obj)");
+            codeBuilder.AppendLine("        {");
+            codeBuilder.AppendLine("            if (obj is null)");
+            codeBuilder.AppendLine("            {");
+            codeBuilder.AppendLine("                return 1;");
+            codeBuilder.AppendLine("            }");
+            codeBuilder.AppendLine("            int result = base.CompareToNonnull(obj);");
+            codeBuilder.AppendLine("            if (result != 0) { return result; }");
+            codeBuilder.AppendLine("            return this.CompareToNonnull(obj);");
+            codeBuilder.AppendLine("        }");
+            codeBuilder.AppendLine();
+
             codeBuilder.AppendLine(
                 $"        public override int CompareToNonnull({info.BaseClassName} other)"
             );
             codeBuilder.AppendLine("        {");
+            codeBuilder.AppendLine("            int result = base.CompareToNonnull(other);");
+            codeBuilder.AppendLine("            if (result != 0) { return result; }");
             codeBuilder.AppendLine($"            if (other is {fullTypeWithArgs} otherDerived)");
             codeBuilder.AppendLine("            {");
             codeBuilder.AppendLine("                return this.CompareToNonnull(otherDerived);");
             codeBuilder.AppendLine("            }");
-            codeBuilder.AppendLine("            return base.CompareToNonnull(other);");
+            codeBuilder.AppendLine(
+                "            return this.GetTypeFingerprint().CompareTo(other.GetTypeFingerprint());"
+            );
+
             codeBuilder.AppendLine("        }");
             codeBuilder.AppendLine();
             codeBuilder.AppendLine(
                 $"        public override bool EqualsNonnull({info.BaseClassName} other)"
             );
             codeBuilder.AppendLine("        {");
+            codeBuilder.AppendLine("            if (!base.EqualsNonnull(other))");
+            codeBuilder.AppendLine("            {");
+            codeBuilder.AppendLine("                return false;");
+            codeBuilder.AppendLine("            }");
             codeBuilder.AppendLine($"            if (other is {fullTypeWithArgs} otherDerived)");
             codeBuilder.AppendLine("            {");
             codeBuilder.AppendLine("                return this.EqualsNonnull(otherDerived);");
             codeBuilder.AppendLine("            }");
             codeBuilder.AppendLine("            return false;");
             codeBuilder.AppendLine("        }");
+
+            codeBuilder.AppendLine($"        public override int GetHashCode()");
+            codeBuilder.AppendLine("        {");
+            codeBuilder.AppendLine(
+                "            return HashCode.Combine(base.FetchHashCode(), this.FetchHashCode());"
+            );
+            codeBuilder.AppendLine("        }");
+            codeBuilder.AppendLine();
+            codeBuilder.AppendLine(
+                "        public override Guid GetTypeFingerprint() { return _TypeFingerprint; }"
+            );
         }
+
+        string guid = string.Concat(
+            "new byte[] {",
+            string.Join(",", FromHexString(Guid.NewGuid().ToString("N"))),
+            "}"
+        );
+        codeBuilder.AppendLine(
+            string.Format("        private static Guid _TypeFingerprint = new({0});", guid)
+        );
 
         codeBuilder.AppendLine("    }");
 
@@ -193,6 +281,21 @@ public sealed class CmpEqGenerator : IIncrementalGenerator
         context.AddSource(uniqueHintName, SourceText.From(codeBuilder.ToString(), Encoding.UTF8));
     }
 
+    public static byte[] FromHexString(string hexString)
+    {
+        if (hexString.Length % 2 != 0)
+        {
+            throw new ArgumentException("Hex string must have an even length");
+        }
+
+        byte[] bytes = new byte[hexString.Length / 2];
+        for (int i = 0; i < bytes.Length; i++)
+        {
+            bytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
+        }
+        return bytes;
+    }
+
     private sealed class ClassSemanticInfo
     {
         public string ClassName { get; }
@@ -200,17 +303,21 @@ public sealed class CmpEqGenerator : IIncrementalGenerator
         public string? BaseClassName { get; }
         public string GenericParameters { get; }
 
+        public bool Sealed { get; }
+
         public ClassSemanticInfo(
             string className,
             string namespaceName,
             string? baseClassName,
-            string genericParameters
+            string genericParameters,
+            bool markedSealed
         )
         {
             ClassName = className;
             NamespaceName = namespaceName;
             BaseClassName = baseClassName;
             GenericParameters = genericParameters;
+            Sealed = markedSealed;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace FLaG.Core.Data.Grammars
 
         public int CompareToNonnull(TerminalSymbol other) => Symbol.CompareTo(other.Symbol);
 
-        public override int GetHashCode() => Symbol.GetHashCode();
+        public override int FetchHashCode() => Symbol.GetHashCode();
 
         public override Symbol Reorganize(
             IImmutableDictionary<NonTerminalSymbol, NonTerminalSymbol> map

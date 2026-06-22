@@ -30,7 +30,7 @@ namespace FLaG.Core.Data.RegExps
             return expression1.SequenceCompare(expression2);
         }
 
-        public override int GetHashCode() => HashCode.Combine(Left, Right);
+        public override int FetchHashCode() => HashCode.Combine(Left, Right);
 
         internal override IEnumerable<DepthData<Expression>> WalkInternal()
         {

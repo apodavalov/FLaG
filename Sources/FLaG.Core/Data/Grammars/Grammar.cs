@@ -1051,7 +1051,7 @@ namespace FLaG.Core.Data.Grammars
             otherRules = otherRulesInternal.ToImmutable();
         }
 
-        public override int GetHashCode()
+        public int FetchHashCode()
         {
             HashCode hashCode = new();
             hashCode.Add(Target);

@@ -20,7 +20,7 @@ namespace FLaG.Core.Data.Grammars
         public Chain Reorganize(IImmutableDictionary<NonTerminalSymbol, NonTerminalSymbol> map) =>
             new(Sequence.Select(symbol => symbol.Reorganize(map)));
 
-        public override int GetHashCode()
+        public int FetchHashCode()
         {
             HashCode hashCode = new();
             foreach (Symbol symbol in Sequence)

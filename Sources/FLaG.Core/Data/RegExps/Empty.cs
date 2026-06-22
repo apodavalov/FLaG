@@ -12,7 +12,7 @@ namespace FLaG.Core.Data.RegExps
 
         public int CompareToNonnull(Empty unused) => 0;
 
-        public override int GetHashCode() => 1565116477;
+        public override int FetchHashCode() => 1565116477;
 
         internal override IEnumerable<DepthData<Expression>> WalkInternal()
         {

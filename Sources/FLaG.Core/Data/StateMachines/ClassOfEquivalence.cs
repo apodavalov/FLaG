@@ -10,7 +10,7 @@ namespace FLaG.Core.Data.StateMachines
 
         public IImmutableSet<char> Symbols { get; } = symbols.ToImmutableSortedSet();
 
-        public override int GetHashCode()
+        public int FetchHashCode()
         {
             HashCode hashCode = new();
             hashCode.Add(SetNum);

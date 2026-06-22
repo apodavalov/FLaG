@@ -33,7 +33,7 @@ namespace FLaG.Core.Data.Languages
             Number = number;
         }
 
-        public override int GetHashCode() => Name.GetHashCode();
+        public override int FetchHashCode() => Name.GetHashCode();
 
         public bool EqualsNonnull(Variable other) => Name.Equals(other.Name);
 

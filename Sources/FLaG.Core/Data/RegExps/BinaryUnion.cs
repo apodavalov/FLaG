@@ -24,7 +24,7 @@ namespace FLaG.Core.Data.RegExps
             return GetOrderedSet(this).SequenceCompare(GetOrderedSet(other));
         }
 
-        public override int GetHashCode()
+        public override int FetchHashCode()
         {
             return HashCode.Combine(Left, Right);
         }

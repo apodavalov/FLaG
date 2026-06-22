@@ -9,7 +9,7 @@ namespace FLaG.Core.Data
 
         public int? SignIndex { get; } = signIndex;
 
-        public override int GetHashCode() => HashCode.Combine(Sign, SignIndex);
+        public int FetchHashCode() => HashCode.Combine(Sign, SignIndex);
 
         public bool EqualsNonnull(SingleLabel other) =>
             Sign.Equals(other.Sign) && SignIndex.Equals(other.SignIndex);

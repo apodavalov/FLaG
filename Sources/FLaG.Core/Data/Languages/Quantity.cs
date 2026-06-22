@@ -22,7 +22,7 @@ namespace FLaG.Core.Data.Languages
 
         public bool EqualsNonnull(Quantity other) => Count.Equals(other.Count);
 
-        public override int GetHashCode() => Count.GetHashCode();
+        public override int FetchHashCode() => Count.GetHashCode();
 
         public int CompareToNonnull(Quantity other) => Count.CompareTo(other.Count);
 

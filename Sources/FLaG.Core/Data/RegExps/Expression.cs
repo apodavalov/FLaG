@@ -18,7 +18,7 @@ namespace FLaG.Core.Data.RegExps
             _DependencyMap = new Lazy<IImmutableList<DependencyCollection>>(GetDependencyMap);
         }
 
-        public abstract override int GetHashCode();
+        public virtual int FetchHashCode() => ExpressionType.GetHashCode();
 
         public virtual bool EqualsNonnull(Expression other)
         {

@@ -8,7 +8,7 @@ namespace FLaG.Core.Data.StateMachines
     {
         public IImmutableList<SetOfEquivalence> SortedList { get; } = set.Order().ToImmutableList();
 
-        public override int GetHashCode()
+        public int FetchHashCode()
         {
             HashCode hashCode = new();
             foreach (SetOfEquivalence set in SortedList)

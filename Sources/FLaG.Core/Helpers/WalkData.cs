@@ -10,7 +10,7 @@
 
         public T Value { get; } = value;
 
-        public override int GetHashCode() => HashCode.Combine(Status, Index, Value);
+        public int FetchHashCode() => HashCode.Combine(Status, Index, Value);
 
         public bool EqualsNonnull(WalkData<T> other) =>
             Status.Equals(other.Status) && Index.Equals(other.Index) && Value.Equals(other.Value);

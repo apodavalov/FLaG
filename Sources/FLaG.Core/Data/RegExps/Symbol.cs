@@ -14,7 +14,7 @@ namespace FLaG.Core.Data.RegExps
 
         public int CompareToNonnull(Symbol other) => Character.CompareTo(other.Character);
 
-        public override int GetHashCode() => Character.GetHashCode();
+        public override int FetchHashCode() => Character.GetHashCode();
 
         internal override IEnumerable<DepthData<Expression>> WalkInternal()
         {

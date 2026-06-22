@@ -11,7 +11,7 @@ namespace FLaG.Core.Data.StateMachines
 
         public char Symbol { get; } = symbol;
 
-        public override int GetHashCode() => HashCode.Combine(CurrentState, NextState, Symbol);
+        public int FetchHashCode() => HashCode.Combine(CurrentState, NextState, Symbol);
 
         public bool EqualsNonnull(Transition other) =>
             CurrentState.Equals(other.CurrentState)
