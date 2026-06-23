@@ -91,8 +91,7 @@ namespace FLaG.Core.Helpers
                 }
             }
 
-            return _Matrix[row, _Matrix.GetLength(1) - 1]
-                ?? throw new InvalidOperationException("Expected non null expression.");
+            return _Matrix[row, _Matrix.GetLength(1) - 1] ?? new Empty(); // TODO: Temporary
         }
 
         private bool AlphaBetaIterate(int row)

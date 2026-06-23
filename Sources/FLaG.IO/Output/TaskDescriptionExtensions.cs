@@ -28,7 +28,7 @@ namespace FLaG.IO.Output
         public static void Solve(this TaskDescription taskDescription, string baseTexFileName)
         {
             FileInfo baseFileInfo = new(baseTexFileName);
-            string baseFullFileName = baseTexFileName[..^baseFileInfo.Extension.Length].Replace(".", "-");
+            string baseFullFileName = baseTexFileName[..^baseFileInfo.Extension.Length];
             using StreamWriter streamWriter = new(baseTexFileName, false, new UTF8Encoding(false));
             WriteProlog(streamWriter, taskDescription.Author, taskDescription.Variant);
             WriteBody(streamWriter, taskDescription.Language, baseFullFileName);

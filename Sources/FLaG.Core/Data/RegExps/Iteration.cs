@@ -84,7 +84,7 @@ namespace FLaG.Core.Data.RegExps
                 out ImmutableSortedSet<Rule> otherRules
             );
 
-            HashSet<Rule> newRules = [];
+            HashSet<Rule> newRules = otherRules.ToHashSet();
 
             foreach (Rule rule in terminalSymbolsOnlyRules)
             {

@@ -2,7 +2,7 @@
 {
     public static class IEnumerableExtension
     {
-        public static SortedSet<T> ToSortedSet<T>(this IEnumerable<T> obj) => obj.ToSortedSet();
+        public static SortedSet<T> ToSortedSet<T>(this IEnumerable<T> obj) => new(obj);
 
         public static int SequenceCompare<T>(this IEnumerable<T> obj, IEnumerable<T> other)
             where T : IComparable<T>

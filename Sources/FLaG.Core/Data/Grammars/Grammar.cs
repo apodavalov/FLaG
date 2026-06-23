@@ -53,6 +53,8 @@ namespace FLaG.Core.Data.Grammars
         {
             int state = 0;
             Symbol? otherSymbol = null;
+            NonTerminalSymbol? nonTerminalSymbol = null;
+            TerminalSymbol? terminalSymbol = null;
 
             foreach (Symbol symbol in Enumerate(grammarType, chain))
             {
@@ -63,25 +65,22 @@ namespace FLaG.Core.Data.Grammars
                         state = 1;
                         break;
                     case 1:
-                        if (otherSymbol is not NonTerminalSymbol)
-                        {
-                            throw new InvalidOperationException(
+                        nonTerminalSymbol =
+                            otherSymbol as NonTerminalSymbol
+                            ?? throw new InvalidOperationException(
                                 "A non terminal symbol is expected."
                             );
-                        }
-                        if (symbol is not TerminalSymbol)
-                        {
-                            throw new InvalidOperationException("A terminal symbol is expected.");
-                        }
+                        terminalSymbol =
+                            symbol as TerminalSymbol
+                            ?? throw new InvalidOperationException(
+                                "A terminal symbol is expected."
+                            );
                         state = 2;
                         break;
                     default:
                         throw new InvalidOperationException("2 or less symbols are expected.");
                 }
             }
-
-            NonTerminalSymbol? nonTerminalSymbol = null;
-            TerminalSymbol? terminalSymbol = null;
 
             switch (state)
             {
@@ -196,14 +195,13 @@ namespace FLaG.Core.Data.Grammars
         public StateMachine MakeStateMachine(GrammarType grammarType)
         {
             HashSet<Transition> transitions = [];
-            HashSet<Label> finalStates = [];
 
             NonTerminalSymbol additionalState = GetNewNonTerminal(NonTerminals);
 
-            GrammarDispatcher.Dispatch(
+            HashSet<Label> finalStates = GrammarDispatcher.Dispatch<HashSet<Label>>(
                 grammarType,
-                () => finalStates.Add(Target.Label),
-                () => finalStates.Add(additionalState.Label)
+                () => [Target.Label],
+                () => [additionalState.Label]
             );
 
             foreach (Rule rule in Rules)
@@ -219,10 +217,12 @@ namespace FLaG.Core.Data.Grammars
 
                     if (symbolTuple.NonTerminalSymbol is null)
                     {
-                        GrammarDispatcher.Dispatch(
-                            grammarType,
-                            () => finalStates.Add(additionalState.Label),
-                            () => finalStates.Add(Target.Label)
+                        finalStates.Add(
+                            GrammarDispatcher.Dispatch(
+                                grammarType,
+                                () => additionalState.Label,
+                                () => Target.Label
+                            )
                         );
                     }
                     else
@@ -816,7 +816,7 @@ namespace FLaG.Core.Data.Grammars
 
             do
             {
-                i++;
+                ++i;
                 isAddedSomething = false;
                 HashSet<NonTerminalSymbol> nextNonTerminalSet = newNonTerminalSet;
                 newNonTerminalSet = [];
