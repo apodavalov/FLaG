@@ -65,20 +65,27 @@ namespace FLaG.Core.Helpers
         {
             onBegin?.Invoke(this);
 
+            GrammarDispatcher.Dispatch(
+                GrammarType,
+                () =>
+                {
+                    AscendingIteration(onIterate);
+                    DescendingIteration(onIterate);
+                },
+                () =>
+                {
+                    DescendingIteration(onIterate);
+                    AscendingIteration(onIterate);
+                }
+            );
+
+            return _Matrix[row, _Matrix.GetLength(1) - 1]
+                ?? throw new InvalidOperationException("Expected non null expression.");
+        }
+
+        private void AscendingIteration(Action<Matrix>? onIterate)
+        {
             for (int i = 0; i < _Matrix.GetLength(0); ++i)
-            {
-                if (SimpleIterate(i, true))
-                {
-                    onIterate?.Invoke(this);
-                }
-
-                if (AlphaBetaIterate(i))
-                {
-                    onIterate?.Invoke(this);
-                }
-            }
-
-            for (int i = _Matrix.GetLength(0) - 1; i >= 0; --i)
             {
                 if (SimpleIterate(i, false))
                 {
@@ -90,9 +97,22 @@ namespace FLaG.Core.Helpers
                     onIterate?.Invoke(this);
                 }
             }
+        }
 
-            return _Matrix[row, _Matrix.GetLength(1) - 1]
-                ?? throw new InvalidOperationException("Expected non null expression.");
+        private void DescendingIteration(Action<Matrix>? onIterate)
+        {
+            for (int i = _Matrix.GetLength(0) - 1; i >= 0; --i)
+            {
+                if (SimpleIterate(i, true))
+                {
+                    onIterate?.Invoke(this);
+                }
+
+                if (AlphaBetaIterate(i))
+                {
+                    onIterate?.Invoke(this);
+                }
+            }
         }
 
         private bool AlphaBetaIterate(int row)
@@ -109,71 +129,97 @@ namespace FLaG.Core.Helpers
 
             for (int i = 0; i < _Matrix.GetLength(1); ++i)
             {
-                Expression? rowI = _Matrix[row, i];
-                if (rowI is not null)
-                {
-                    _Matrix[row, i] = new Concat(
-                        Enumerate(rowI, new Iteration(expression, false))
-                    ).Optimize();
-                    expressionConsumed = true;
-                }
+                expressionConsumed |= AlphaBeta(row, i, expression);
             }
 
             if (!expressionConsumed)
             {
-                _Matrix[row, _Matrix.GetLength(1) - 1] = new Iteration(expression, true);
+                _Matrix[row, _Matrix.GetLength(1) - 1] = new Iteration(expression, false);
             }
 
+            return true;
+        }
+
+        private bool AlphaBeta(int row, int column, Expression expression)
+        {
+            Expression? rowColumn = _Matrix[row, column];
+            if (rowColumn is null)
+            {
+                return false;
+            }
+            _Matrix[row, column] = new Concat(
+                Enumerate(rowColumn, new Iteration(expression, false))
+            ).Optimize();
             return true;
         }
 
         private IEnumerable<Expression> Enumerate(params Expression[] expressions) =>
             GrammarDispatcher.Dispatch(GrammarType, () => expressions, () => expressions.Reverse());
 
-        private bool SimpleIterate(int row, bool isDirect)
+        private bool SimpleIterate(int row, bool reverse)
         {
             bool result = false;
 
-            int first = isDirect ? 0 : row + 1;
-            int last = isDirect ? row - 1 : _Matrix.GetLength(0) - 1;
-
-            for (int i = first; i <= last; ++i)
+            if (reverse)
             {
-                Expression? rowI = _Matrix[row, i];
-                if (rowI is not null)
+                for (int i = _Matrix.GetLength(1) - 2; i > row; --i)
                 {
-                    result = true;
-                    Expression expression = rowI;
-                    _Matrix[row, i] = null;
-                    bool expressionConsumed = false;
-
-                    for (int j = 0; j < _Matrix.GetLength(1); ++j)
-                    {
-                        Expression? iJ = _Matrix[i, j];
-                        if (iJ is not null)
-                        {
-                            Concat concat = new(Enumerate(iJ, expression));
-                            Expression? rowJ = _Matrix[row, j];
-                            if (rowJ is not null)
-                            {
-                                Union union = new([rowJ, concat]);
-                                _Matrix[row, j] = union.Optimize();
-                            }
-                            else
-                            {
-                                _Matrix[row, j] = concat.Optimize();
-                            }
-                            expressionConsumed = true;
-                        }
-                    }
-                    if (!expressionConsumed)
-                    {
-                        throw new InvalidOperationException("The expression was not consumed.");
-                    }
+                    result |= Simple(row, i);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < row; ++i)
+                {
+                    result |= Simple(row, i);
                 }
             }
 
             return result;
+        }
+
+        private bool Simple(int row, int column)
+        {
+            Expression? rowColumn = _Matrix[row, column];
+
+            if (rowColumn is null)
+            {
+                return false;
+            }
+
+            Expression expression = rowColumn;
+            _Matrix[row, column] = null;
+            bool expressionConsumed = false;
+
+            for (int j = 0; j < _Matrix.GetLength(1); ++j)
+            {
+                Expression? iJ = _Matrix[column, j];
+                if (iJ is null)
+                {
+                    continue;
+                }
+
+                Concat concat = new(Enumerate(iJ, expression));
+                Expression? rowJ = _Matrix[row, j];
+
+                if (rowJ is null)
+                {
+                    _Matrix[row, j] = concat.Optimize();
+                }
+                else
+                {
+                    Union union = new([rowJ, concat]);
+                    _Matrix[row, j] = union.Optimize();
+                }
+                expressionConsumed = true;
+            }
+
+            if (!expressionConsumed)
+            {
+                throw new InvalidOperationException("The expression was not consumed.");
+            }
+
+            return true;
         }
     }
 }
