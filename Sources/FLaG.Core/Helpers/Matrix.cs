@@ -91,7 +91,8 @@ namespace FLaG.Core.Helpers
                 }
             }
 
-            return _Matrix[row, _Matrix.GetLength(1) - 1] ?? new Empty(); // TODO: Temporary
+            return _Matrix[row, _Matrix.GetLength(1) - 1]
+                ?? throw new InvalidOperationException("Expected non null expression.");
         }
 
         private bool AlphaBetaIterate(int row)
@@ -104,6 +105,7 @@ namespace FLaG.Core.Helpers
             }
 
             _Matrix[row, row] = null;
+            bool expressionConsumed = false;
 
             for (int i = 0; i < _Matrix.GetLength(1); ++i)
             {
@@ -113,7 +115,13 @@ namespace FLaG.Core.Helpers
                     _Matrix[row, i] = new Concat(
                         Enumerate(rowI, new Iteration(expression, false))
                     ).Optimize();
+                    expressionConsumed = true;
                 }
+            }
+
+            if (!expressionConsumed)
+            {
+                _Matrix[row, _Matrix.GetLength(1) - 1] = new Iteration(expression, true);
             }
 
             return true;
@@ -137,6 +145,7 @@ namespace FLaG.Core.Helpers
                     result = true;
                     Expression expression = rowI;
                     _Matrix[row, i] = null;
+                    bool expressionConsumed = false;
 
                     for (int j = 0; j < _Matrix.GetLength(1); ++j)
                     {
@@ -154,7 +163,12 @@ namespace FLaG.Core.Helpers
                             {
                                 _Matrix[row, j] = concat.Optimize();
                             }
+                            expressionConsumed = true;
                         }
+                    }
+                    if (!expressionConsumed)
+                    {
+                        throw new InvalidOperationException("The expression was not consumed.");
                     }
                 }
             }
