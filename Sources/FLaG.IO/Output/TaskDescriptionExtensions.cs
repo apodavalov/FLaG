@@ -3058,6 +3058,7 @@ namespace FLaG.IO.Output
             writer.WriteLine(@"\usepackage[english, russian]{babel}");
             writer.WriteLine(@"\usepackage{float}");
             writer.WriteLine(@"\usepackage{svg}");
+            writer.WriteLine(@"\usepackage{caption}");
             writer.WriteLine(@"\makeatletter");
             writer.WriteLine(@"\renewcommand{\@biblabel}[1]{#1.}");
             writer.WriteLine(@"\makeatother");
