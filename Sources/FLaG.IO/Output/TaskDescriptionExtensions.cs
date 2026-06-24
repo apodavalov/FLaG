@@ -3048,17 +3048,14 @@ namespace FLaG.IO.Output
             writer.WriteLine(@"\usepackage{indentfirst}");
             writer.WriteLine(@"\usepackage[a4paper, includefoot, left=1.5cm, right=1.5cm, " +
                 "top=2cm, bottom=2cm, headsep=1cm, footskip=1cm]{geometry}");
-            writer.WriteLine(@"\usepackage{mathtools, mathtext, amssymb}");
-            writer.WriteLine(@"\usepackage[T1,T2A]{fontenc}");
-            writer.WriteLine(@"\usepackage{ucs}");
-            writer.WriteLine(@"\usepackage[utf8]{inputenc}");
+            writer.WriteLine(@"\usepackage{mathtools, amssymb}");
+            writer.WriteLine(@"\usepackage{fontspec}");
+            writer.WriteLine(@"\setmainfont{CMU Serif}");
+            writer.WriteLine(@"\setsansfont{CMU Sans Serif}");
+            writer.WriteLine(@"\setmonofont{CMU Typewriter Text}");
             writer.WriteLine(@"\usepackage[english, russian]{babel}");
-            writer.WriteLine(@"\usepackage{cmap}");
-            writer.WriteLine(@"\usepackage{graphicx}");
-            writer.WriteLine(@"\usepackage{fixltx2e}");
             writer.WriteLine(@"\usepackage{float}");
             writer.WriteLine(@"\usepackage{svg}");
-            writer.WriteLine(@"\usepackage{lmodern}");
             writer.WriteLine(@"\usepackage{capt-of}");
             writer.WriteLine(@"\makeatletter");
             writer.WriteLine(@"\renewcommand{\@biblabel}[1]{#1.}");
