@@ -2202,7 +2202,7 @@ namespace FLaG.IO.Output
 
         private static void WriteImageRef(StreamWriter writer, string uniqueId)
         {
-            writer.Write(@"\ref{img:");
+            writer.Write(@"\ref{fig:");
             writer.WriteLatex(uniqueId);
             writer.Write(@"}");
         }
