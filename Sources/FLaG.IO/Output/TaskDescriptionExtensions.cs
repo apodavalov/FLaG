@@ -3051,7 +3051,7 @@ namespace FLaG.IO.Output
             writer.WriteLine(@"\usepackage{mathtools, mathtext, amssymb}");
             writer.WriteLine(@"\usepackage[T1,T2A]{fontenc}");
             writer.WriteLine(@"\usepackage{ucs}");
-            writer.WriteLine(@"\usepackage[utf8x]{inputenc}");
+            writer.WriteLine(@"\usepackage[utf8]{inputenc}");
             writer.WriteLine(@"\usepackage[english, russian]{babel}");
             writer.WriteLine(@"\usepackage{cmap}");
             writer.WriteLine(@"\usepackage{graphicx}");
