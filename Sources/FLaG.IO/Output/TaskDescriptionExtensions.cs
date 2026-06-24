@@ -992,9 +992,7 @@ namespace FLaG.IO.Output
             writer.WriteLine(".");
             writer.WriteLine();
 
-            byte[] pngImage = stateMachinePostReport.New.StateMachine.DrawDiagram();
-            WriteDiagram(writer, pngImage, baseFullFileName, number, "Диаграмма состояний конечного автомата");
-            writer.WriteLine();
+            WriteAndInjectDiagram(writer, stateMachinePostReport.New.StateMachine, baseFullFileName, number);
 
             return stateMachinePostReport.New.Number;
         }
@@ -1012,37 +1010,34 @@ namespace FLaG.IO.Output
             writer.WriteLine(@").");
             writer.WriteLine();
 
-            byte[] pngImage = stateMachine.Item1.DrawDiagram();
-            WriteDiagram(writer, pngImage, baseFullFileName, imageNumber, "Диаграмма состояний конечного автомата.");
+            WriteAndInjectDiagram(writer, stateMachine.Item1, baseFullFileName, imageNumber );
+        }
 
+        private static void WriteAndInjectDiagram(StreamWriter writer, StateMachine stateMachine, string baseFullFileName, int imageNumber)
+        {
+            string diagramFileNameNoExt = string.Format(CultureInfo.InvariantCulture, "{0}-{1:00}", baseFullFileName, imageNumber);
+            stateMachine.DrawDiagram(diagramFileNameNoExt + ".svg");
+            InjectDiagram(writer, diagramFileNameNoExt, imageNumber, "Диаграмма состояний конечного автомата.");
             writer.WriteLine();
         }
 
-        private static void WriteDiagram(StreamWriter writer, byte[] pngImage, string baseFullFileName, int number, string caption)
+        private static void InjectDiagram(StreamWriter writer, string diagramFileNameNoExt, int number, string caption)
         {
-            WriteImage(writer, pngImage, string.Format(CultureInfo.InvariantCulture, "{0}-{1:00}.png", baseFullFileName, number), string.Format(CultureInfo.InvariantCulture, _DiagramLabel, number), caption);
+            InjectDiagram(writer, diagramFileNameNoExt, string.Format(CultureInfo.InvariantCulture, _DiagramLabel, number), caption);
         }
 
-        private static void WriteImage(StreamWriter writer, byte[] pngImage, string fileName, string label, string caption)
+        private static void InjectDiagram(StreamWriter writer, string fileNameNoExt, string label, string caption)
         {
-            using (FileStream fileStream = new(fileName,FileMode.Create, FileAccess.Write, FileShare.None)) {
-                fileStream.Write(pngImage);
-            }
-
-            int widthInMm = (int)(/*Width*/1 / /*HorizontalResolution*/600 * 25.4f);
-
-            if (widthInMm > 160)
-            {
-                widthInMm = 160;
-            }
-
-            writer.Write(@"\imgh{" + widthInMm + "mm}{");
-            writer.WriteLatex(fileName);
-            writer.Write(@"}{");
+            writer.Write(@"\noindent");
+            writer.Write(@"\begin{center}");
+            writer.Write(@"\includesvg[width=\textwidth]{");
+            writer.WriteLatex(fileNameNoExt);
+            writer.Write(@"}\captionof{figure}{");
             writer.WriteLatex(caption);
-            writer.Write(@"}{img:");
+            writer.Write(@"\label{fig:");
             writer.WriteLatex(label);
             writer.Write(@"}");
+            writer.Write(@"\end{center}");
         }
 
         private static Tuple<StateMachine, int> ConvertToStateMachine(StreamWriter writer, Counter diagramCounter,
@@ -3062,6 +3057,7 @@ namespace FLaG.IO.Output
             writer.WriteLine(@"\usepackage{graphicx}");
             writer.WriteLine(@"\usepackage{fixltx2e}");
             writer.WriteLine(@"\usepackage{float}");
+            writer.WriteLine(@"\usepackage{svg}");
             writer.WriteLine(@"\makeatletter");
             writer.WriteLine(@"\renewcommand{\@biblabel}[1]{#1.}");
             writer.WriteLine(@"\makeatother");

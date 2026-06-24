@@ -1,18 +1,38 @@
-﻿using FLaG.Core.Data.StateMachines;
+﻿using System.Text;
+using System.Xml;
+using FLaG.Core.Data.StateMachines;
 
 namespace FLaG.IO.Output
 {
     public static class StateMachineExtensions
     {
-        public static byte[] DrawDiagram(this StateMachine stateMachine) =>
-        [  
-            0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 
-            0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 
-            0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 
-            0x15, 0xC4, 0x89, 0x00, 0x00, 0x00, 0x0B, 0x49, 0x44, 0x41, 
-            0x54, 0x78, 0x9C, 0x63, 0x60, 0x00, 0x02, 0x00, 0x00, 0x05, 
-            0x00, 0x01, 0x7A, 0x5E, 0xAB, 0x3F, 0x00, 0x00, 0x00, 0x00, 
-            0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82 
-        ];
+        public static void DrawDiagram(this StateMachine stateMachine, string fileName)
+        {
+            using FileStream fileStream = new(fileName,FileMode.Create, FileAccess.Write, FileShare.None);
+            XmlWriterSettings settings = new()
+            {
+                CloseOutput = true,
+                CheckCharacters = true,
+                Encoding = new UTF8Encoding(false),
+                Indent = true,
+
+            };
+            using XmlWriter xmlWriter = XmlWriter.Create(fileStream, settings);
+            xmlWriter.WriteStartDocument();
+            xmlWriter.WriteStartElement("svg", "http://www.w3.org/2000/svg");
+            xmlWriter.WriteAttributeString("width","1000");
+            xmlWriter.WriteAttributeString("height","1000");
+            xmlWriter.WriteAttributeString("viewBox", "0 0 100 100");
+            xmlWriter.WriteStartElement("text");
+            xmlWriter.WriteAttributeString("x","50");
+            xmlWriter.WriteAttributeString("y","50");
+            xmlWriter.WriteAttributeString("text-anchor","middle");
+            xmlWriter.WriteAttributeString("dominant-baseline","middle");
+            xmlWriter.WriteAttributeString("stroke-width","1");
+            xmlWriter.WriteString("Hello, world!");
+            xmlWriter.WriteEndElement(); // text
+            xmlWriter.WriteEndElement(); // svg
+            xmlWriter.WriteEndDocument();
+        }
     }
 }
