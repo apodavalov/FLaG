@@ -1034,7 +1034,7 @@ namespace FLaG.IO.Output
             writer.WriteLatex(fileNameNoExt);
             writer.Write(@"}\captionof{figure}{");
             writer.WriteLatex(caption);
-            writer.Write(@"\label{fig:");
+            writer.Write(@"}\label{fig:");
             writer.WriteLatex(label);
             writer.Write(@"}");
             writer.Write(@"\end{center}");
@@ -3067,7 +3067,6 @@ namespace FLaG.IO.Output
             writer.WriteLine(@"\renewcommand{\labelenumii}{\arabic{enumi}.\arabic{enumii}.}");
             writer.WriteLine(@"\renewcommand{\theenumiii}{.\arabic{enumiii}.}");
             writer.WriteLine(@"\renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}.}");
-            writer.WriteLine(@"\newcommand{\imgh}[4]{\begin{figure}[H]\center{\includegraphics[width=#1]{#2}}\caption{#3}\label{#4}\end{figure}}");
             writer.WriteLine(@"\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}\par}");
             writer.WriteLine(@"\newcommand{\comma}{,\allowbreak}");
             writer.WriteLine(@"\newcommand{\semicolon}{;\allowbreak}");
