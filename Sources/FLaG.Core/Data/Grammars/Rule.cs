@@ -17,6 +17,10 @@ namespace FLaG.Core.Data.Grammars
         public Rule(IEnumerable<Chain> chains, NonTerminalSymbol target)
         {
             Chains = chains.ToImmutableSortedSet();
+            if (Chains.Count == 0)
+            {
+                throw new InvalidOperationException("No chains.");
+            }
             Alphabet = Chains.SelectMany(chain => chain.Alphabet).ToImmutableSortedSet();
             Target = target;
             NonTerminals = Chains

@@ -134,7 +134,7 @@ namespace FLaG.Core.Helpers
 
             if (!expressionConsumed)
             {
-                _Matrix[row, _Matrix.GetLength(1) - 1] = new Iteration(expression, false);
+                throw new InvalidOperationException("The expression was not consumed.");
             }
 
             return true;

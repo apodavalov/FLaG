@@ -109,7 +109,9 @@ namespace FLaG.Core.Data.StateMachines
                 rules.Add(new Rule([chain], stateNonTerminalMap[transition.CurrentState]));
             }
 
-            rules.UnionWith(FinalStates.Select(fs => new Rule([], stateNonTerminalMap[fs])));
+            rules.UnionWith(
+                FinalStates.Select(fs => new Rule([Chain.Empty], stateNonTerminalMap[fs]))
+            );
 
             return new Grammar(rules, target);
         }
