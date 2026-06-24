@@ -3053,6 +3053,8 @@ namespace FLaG.IO.Output
             writer.WriteLine(@"\setmainfont{CMU Serif}");
             writer.WriteLine(@"\setsansfont{CMU Sans Serif}");
             writer.WriteLine(@"\setmonofont{CMU Typewriter Text}");
+            writer.WriteLine(@"\usepackage{unicode-math}");
+            writer.WriteLine(@"\setmathfont{Latin Modern Math}");
             writer.WriteLine(@"\usepackage[english, russian]{babel}");
             writer.WriteLine(@"\usepackage{float}");
             writer.WriteLine(@"\usepackage{svg}");
