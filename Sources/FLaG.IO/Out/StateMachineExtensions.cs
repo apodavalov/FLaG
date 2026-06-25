@@ -48,13 +48,13 @@ namespace FLaG.IO.Out
                 arrows.GetOrAdd(stateTransition, () => []).Add(transition.Symbol);
             }
 
-            double alpha = 360.0 / states.Count;
-            double length =
+            double degreesBetweenStates = 360.0 / states.Count;
+            double distanceFromCenter =
                 states.Count > 1
-                    ? _StateBigCircleRadius / (1 - Math.Cos(alpha * Math.PI / 180))
+                    ? _StateBigCircleRadius / (1 - Math.Cos(degreesBetweenStates * Math.PI / 180))
                         + 2 * _StateBigCircleRadius
                     : 0;
-            double size = 2 * (length + 4 * _StateBigCircleRadius);
+            double size = 2 * (distanceFromCenter + 4 * _StateBigCircleRadius);
 
             using FileStream fileStream = new(
                 fileName,
@@ -83,89 +83,110 @@ namespace FLaG.IO.Out
                 "transform",
                 string.Format(CultureInfo.InvariantCulture, "translate({0},{0})", size / 2)
             );
+            xmlWriter.WriteAttributeString("font-style", "italic");
+            xmlWriter.WriteAttributeString(
+                "font-family",
+                "DejaVu Serif, Cambria Math, Cambria, serif"
+            );
+            xmlWriter.WriteAttributeString(
+                "font-size",
+                _FontSize.ToString(CultureInfo.InvariantCulture)
+            );
             foreach (SingleLabel state in states.Values)
             {
                 int index = stateIndices[state];
-                double center = length - _StateBigCircleRadius;
-                double angle = index * alpha;
-
-                xmlWriter.WriteStartElement("g");
-                xmlWriter.WriteAttributeString(
-                    "transform",
-                    string.Format(CultureInfo.InvariantCulture, "rotate({0})", angle)
+                DrawState(
+                    xmlWriter,
+                    state,
+                    state == initialState,
+                    finalStates.Contains(state),
+                    degreesBetweenStates,
+                    index,
+                    distanceFromCenter
                 );
+            }
+            xmlWriter.WriteEndElement(); // g
+            xmlWriter.WriteEndElement(); // svg
+            xmlWriter.WriteEndDocument();
+        }
 
-                int strokeWidth = finalStates.Contains(state) ? _BoldStrokeWidth : _StrokeWidth;
-                xmlWriter.WriteStartElement("g");
-                xmlWriter.WriteAttributeString("stroke", "black");
-                xmlWriter.WriteAttributeString(
-                    "stroke-width",
-                    strokeWidth.ToString(CultureInfo.InvariantCulture)
-                );
-                xmlWriter.WriteAttributeString("fill", "none");
+        private static void DrawState(
+            XmlWriter xmlWriter,
+            SingleLabel state,
+            bool isInitialState,
+            bool isFinalState,
+            double angleBetweenStates,
+            int stateIndex,
+            double distanceFromCenter
+        )
+        {
+            double angle = stateIndex * angleBetweenStates;
+            double center = distanceFromCenter - _StateBigCircleRadius;
+
+            xmlWriter.WriteStartElement("g");
+            xmlWriter.WriteAttributeString(
+                "transform",
+                string.Format(CultureInfo.InvariantCulture, "rotate({0})", angle)
+            );
+
+            int strokeWidth = isFinalState ? _BoldStrokeWidth : _StrokeWidth;
+            xmlWriter.WriteStartElement("g");
+            xmlWriter.WriteAttributeString("stroke", "black");
+            xmlWriter.WriteAttributeString(
+                "stroke-width",
+                strokeWidth.ToString(CultureInfo.InvariantCulture)
+            );
+            xmlWriter.WriteAttributeString("fill", "none");
+            xmlWriter.WriteStartElement("circle");
+            xmlWriter.WriteAttributeString("cx", center.ToString(CultureInfo.InvariantCulture));
+            xmlWriter.WriteAttributeString("cy", "0");
+            xmlWriter.WriteAttributeString(
+                "r",
+                _StateBigCircleRadius.ToString(CultureInfo.InvariantCulture)
+            );
+            xmlWriter.WriteEndElement(); // circle
+            if (isInitialState)
+            {
                 xmlWriter.WriteStartElement("circle");
                 xmlWriter.WriteAttributeString("cx", center.ToString(CultureInfo.InvariantCulture));
                 xmlWriter.WriteAttributeString("cy", "0");
                 xmlWriter.WriteAttributeString(
                     "r",
-                    _StateBigCircleRadius.ToString(CultureInfo.InvariantCulture)
+                    _InitialStateSmallCircleRadius.ToString(CultureInfo.InvariantCulture)
+                );
+                xmlWriter.WriteAttributeString(
+                    "stroke-width",
+                    _StrokeWidth.ToString(CultureInfo.InvariantCulture)
                 );
                 xmlWriter.WriteEndElement(); // circle
-                if (state == initialState)
-                {
-                    xmlWriter.WriteStartElement("circle");
-                    xmlWriter.WriteAttributeString(
-                        "cx",
-                        center.ToString(CultureInfo.InvariantCulture)
-                    );
-                    xmlWriter.WriteAttributeString("cy", "0");
-                    xmlWriter.WriteAttributeString(
-                        "r",
-                        _InitialStateSmallCircleRadius.ToString(CultureInfo.InvariantCulture)
-                    );
-                    xmlWriter.WriteAttributeString(
-                        "stroke-width",
-                        _StrokeWidth.ToString(CultureInfo.InvariantCulture)
-                    );
-                    xmlWriter.WriteEndElement(); // circle
-                }
-                xmlWriter.WriteStartElement("text");
-                xmlWriter.WriteAttributeString("x", "0");
-                xmlWriter.WriteAttributeString("y", "0");
-                xmlWriter.WriteAttributeString("text-anchor", "middle");
-                xmlWriter.WriteAttributeString("fill", "black");
-                xmlWriter.WriteAttributeString("dominant-baseline", "middle");
-                xmlWriter.WriteAttributeString("stroke-width", "1");
-                xmlWriter.WriteAttributeString("font-style", "italic");
-                xmlWriter.WriteAttributeString(
-                    "font-family",
-                    "DejaVu Serif, Cambria Math, Cambria, serif"
-                );
-                xmlWriter.WriteAttributeString(
-                    "font-size",
-                    _FontSize.ToString(CultureInfo.InvariantCulture)
-                );
-                xmlWriter.WriteAttributeString(
-                    "transform",
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "translate({0},0) rotate({1})",
-                        center,
-                        -angle
-                    )
-                );
-                xmlWriter.WriteString("H");
+            }
+            xmlWriter.WriteStartElement("text");
+            xmlWriter.WriteAttributeString("x", "0");
+            xmlWriter.WriteAttributeString("y", "0");
+            xmlWriter.WriteAttributeString("text-anchor", "middle");
+            xmlWriter.WriteAttributeString("dominant-baseline", "middle");
+            xmlWriter.WriteAttributeString("fill", "black");
+            xmlWriter.WriteAttributeString("stroke-width", "1");
+            xmlWriter.WriteAttributeString(
+                "transform",
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "translate({0},0) rotate({1})",
+                    center,
+                    -angle
+                )
+            );
+            xmlWriter.WriteString(state.Sign.ToString(CultureInfo.InvariantCulture));
+            if (state.SignIndex.HasValue)
+            {
                 xmlWriter.WriteStartElement("tspan");
                 xmlWriter.WriteAttributeString("baseline-shift", "sub");
-                xmlWriter.WriteString("1");
+                xmlWriter.WriteString(state.SignIndex.Value.ToString(CultureInfo.InvariantCulture));
                 xmlWriter.WriteEndElement(); // tspan
-                xmlWriter.WriteEndElement(); // text
-                xmlWriter.WriteEndElement(); // g
-                xmlWriter.WriteEndElement(); // g
             }
+            xmlWriter.WriteEndElement(); // text
             xmlWriter.WriteEndElement(); // g
-            xmlWriter.WriteEndElement(); // svg
-            xmlWriter.WriteEndDocument();
+            xmlWriter.WriteEndElement(); // g
         }
     }
 }
