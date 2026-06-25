@@ -622,7 +622,8 @@ namespace FLaG.Core.Data.Grammars
 
             if (newSymbolSet.Contains(Target))
             {
-                newRules.Add(new([new([Target]), new([])], GetNewNonTerminal(NonTerminals)));
+                newTarget = GetNewNonTerminal(NonTerminals);
+                newRules.Add(new([new([Target]), Chain.Empty], newTarget));
             }
 
             newRules = Normalize(newRules).ToHashSet();
