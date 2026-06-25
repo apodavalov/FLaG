@@ -11,6 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Input\lang.xsd" />
+    <EmbeddedResource Include="In\lang.xsd" />
   </ItemGroup>
 </Project>

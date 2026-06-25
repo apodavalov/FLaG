@@ -1,4 +1,4 @@
-﻿namespace FLaG.IO.Output
+﻿namespace FLaG.IO.Out
 {
     public enum RussianCaseType
     {
@@ -7,6 +7,6 @@
         Dative,
         Accusative,
         Ablative,
-        Prepositional
+        Prepositional,
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace FLaG.IO.Input
+﻿namespace FLaG.IO.In
 {
     public sealed record AuthorDescription(
         string FirstName,

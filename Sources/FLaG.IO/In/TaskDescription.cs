@@ -3,7 +3,7 @@ using System.Xml;
 using System.Xml.Schema;
 using FLaG.Core.Data.Languages;
 
-namespace FLaG.IO.Input
+namespace FLaG.IO.In
 {
     public sealed class TaskDescription(Entity language, AuthorDescription author, string variant)
     {
@@ -37,7 +37,7 @@ namespace FLaG.IO.Input
 
         private const string _ElementIsNotSupportedTemplate = "Element {0} is not supported.";
 
-        private const string _SchemaPath = "FLaG.IO.Input.lang.xsd";
+        private const string _SchemaPath = "FLaG.IO.In.lang.xsd";
 
         public Entity Language { get; } = language;
 

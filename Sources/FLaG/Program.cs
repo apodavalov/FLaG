@@ -1,5 +1,5 @@
-﻿using FLaG.IO.Input;
-using FLaG.IO.Output;
+﻿using FLaG.IO.In;
+using FLaG.IO.Out;
 
 namespace FLaG
 {

@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace FLaG.IO.Output
+namespace FLaG.IO.Out
 {
     public static class StreamWriterExtensions
     {
