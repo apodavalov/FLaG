@@ -1401,15 +1401,16 @@ namespace FLaG.IO.Out
         )
         {
             writer.Write(@"\noindent");
-            writer.Write(@"\begin{center}");
-            writer.Write(@"\includesvg[width=\textwidth]{");
+            writer.Write(@"\begin{figure}[htbp]");
+            writer.Write(@"\centering");
+            writer.Write(@"\includesvg[width=\textwidth, inkscapelatex=false]{");
             writer.WriteLatex(fileNameNoExt);
             writer.Write(@"}\captionof{figure}{");
             writer.WriteLatex(caption);
             writer.Write(@"}\label{fig:");
             writer.WriteLatex(label);
             writer.Write(@"}");
-            writer.Write(@"\end{center}");
+            writer.Write(@"\end{figure}");
         }
 
         private static Tuple<StateMachine, int> ConvertToStateMachine(

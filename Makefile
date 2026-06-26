@@ -18,7 +18,7 @@ $(OUTPUT)/%.tex: $(SAMPLES)/%.xml $(OUTPUT)
 	$(FLAG) $< $@
 
 $(OUTPUT)/%.pdf: $(OUTPUT)/%.tex
-	export buf_size=1000000; $(LATEXMK) -lualatex -pdf -shell-escape --output-directory=$(OUTPUT) $<
+	export buf_size=1000000; $(LATEXMK) -pdflua -lualatex="lualatex --shell-escape %O %S" --output-directory=$(OUTPUT) $<
 
 %.tex: $(OUTPUT)/%.tex
 
