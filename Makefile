@@ -17,8 +17,11 @@ $(OUTPUT):
 $(OUTPUT)/%.tex: $(SAMPLES)/%.xml $(OUTPUT)
 	$(FLAG) $< $@
 
-$(OUTPUT)/%.pdf: $(OUTPUT)/%.tex
-	export buf_size=1000000; $(LATEXMK) -pdflua -lualatex="lualatex --shell-escape %O %S" --output-directory=$(OUTPUT) $<
+$(OUTPUT)/%.pdf: $(OUTPUT)/%.tex | $(OUTPUT)/svg-inkscape
+	export buf_size=1000000; $(LATEXMK) -pdflua -lualatex="lualatex --shell-escape %O '\PassOptionsToPackage{inkscapepath=$(OUTPUT)/svg-inkscape/}{svg}\input{%S}'" --output-directory=$(OUTPUT) $<
+
+$(OUTPUT)/svg-inkscape:
+	mkdir -p $(OUTPUT)/svg-inkscape
 
 %.tex: $(OUTPUT)/%.tex
 

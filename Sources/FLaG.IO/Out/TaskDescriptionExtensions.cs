@@ -3942,9 +3942,10 @@ namespace FLaG.IO.Out
             writer.WriteLine(@"\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}\par}");
             writer.WriteLine(@"\newcommand{\comma}{,\allowbreak}");
             writer.WriteLine(@"\newcommand{\semicolon}{;\allowbreak}");
-            writer.WriteLine(@"\tolerance=10000");
-            writer.WriteLine(@"\relpenalty=10000");
-            writer.WriteLine(@"\binoppenalty=10000");
+            writer.WriteLine(@"\tolerance=2000");
+            writer.WriteLine(@"\relpenalty=5000");
+            writer.WriteLine(@"\binoppenalty=7000");
+            writer.WriteLine(@"\emergencystretch=3em");
             writer.WriteLine(@"\begin{document}");
             writer.WriteLine(@"\begin{titlepage}");
             writer.WriteLine();
