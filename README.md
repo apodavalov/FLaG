@@ -5,10 +5,10 @@
 # Prerequisites (Ubuntu/Debian only)
 
 1. Install dotnet SDK 10.0. Follow the [instructions](https://dotnet.microsoft.com/en-us/download).
-1. Install *texlive-full* with the following command.
+1. Install *texlive-full* and *inkscape* with the following command.
 
 ```shell
-sudo apt install texlive-full
+sudo apt install texlive-full inkscape
 ```
 
 # Installation (Ubuntu/Debian only)
