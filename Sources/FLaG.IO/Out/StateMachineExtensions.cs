@@ -255,8 +255,8 @@ namespace FLaG.IO.Out
                 double distance =
                     distanceFromCenter * Math.Cos(phiRad)
                     + (hasReversedTransition ? 15.0 * Math.Sign(phiRad) : 0);
-                double x1 = distanceFromCenter * Math.Sin(phiRad);
-                double x2 = -x1;
+                double x2 = distanceFromCenter * Math.Sin(phiRad);
+                double x1 = -x2;
                 x1 -= Math.Sign(x1) * _StateBigCircleRadiusWithGap;
                 x2 -= Math.Sign(x2) * _StateBigCircleRadiusWithGap;
                 xmlWriter.WriteStartElement("g");
@@ -321,7 +321,7 @@ namespace FLaG.IO.Out
             double distanceFromCenter
         )
         {
-            double angle = -stateIndex * angleBetweenStates;
+            double angle = stateIndex * angleBetweenStates;
 
             xmlWriter.WriteStartElement("g");
             xmlWriter.WriteAttributeString(
