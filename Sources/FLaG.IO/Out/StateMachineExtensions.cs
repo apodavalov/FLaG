@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Data;
 using System.Globalization;
 using System.Text;
 using System.Xml;
@@ -11,6 +12,10 @@ namespace FLaG.IO.Out
     public static class StateMachineExtensions
     {
         private const double _StateBigCircleRadius = 100;
+
+        private const double _StateBigCircleRadiusWithGap = 1.25 * _StateBigCircleRadius;
+
+        private const double _TextLineGap = 15;
 
         private const int _StrokeWidth = 2;
 
@@ -48,12 +53,7 @@ namespace FLaG.IO.Out
                 arrows.GetOrAdd(stateTransition, () => []).Add(transition.Symbol);
             }
 
-            double degreesBetweenStates = 360.0 / states.Count;
-            double distanceFromCenter =
-                states.Count > 1
-                    ? _StateBigCircleRadius / (1 - Math.Cos(degreesBetweenStates * Math.PI / 180))
-                        + 2 * _StateBigCircleRadius
-                    : 0;
+            (double distanceFromCenter, double degreesBetweenStates) = GetParams(states);
             double size = 2 * (distanceFromCenter + 4 * _StateBigCircleRadius);
 
             using FileStream fileStream = new(
@@ -78,6 +78,7 @@ namespace FLaG.IO.Out
                 "viewBox",
                 string.Format(CultureInfo.InvariantCulture, "0 0 {0} {0}", size)
             );
+            WriteDefs(xmlWriter);
             xmlWriter.WriteStartElement("g");
             xmlWriter.WriteAttributeString(
                 "transform",
@@ -102,12 +103,212 @@ namespace FLaG.IO.Out
                     finalStates.Contains(state),
                     degreesBetweenStates,
                     index,
-                    distanceFromCenter
+                    distanceFromCenter - _StateBigCircleRadius
+                );
+            }
+            foreach (KeyValuePair<Tuple<SingleLabel, SingleLabel>, HashSet<char>> arrow in arrows)
+            {
+                DrawTransition(
+                    xmlWriter,
+                    stateIndices[arrow.Key.Item1],
+                    stateIndices[arrow.Key.Item2],
+                    distanceFromCenter - _StateBigCircleRadius,
+                    degreesBetweenStates,
+                    arrows.ContainsKey(
+                        new Tuple<SingleLabel, SingleLabel>(arrow.Key.Item2, arrow.Key.Item1)
+                    ),
+                    string.Join(',', arrow.Value)
                 );
             }
             xmlWriter.WriteEndElement(); // g
             xmlWriter.WriteEndElement(); // svg
             xmlWriter.WriteEndDocument();
+        }
+
+        private static (double distanceFromCenter, double degreesBetweenStates) GetParams(
+            ImmutableSortedDictionary<Label, SingleLabel> states
+        )
+        {
+            double degreesBetweenStates = 360.0 / states.Count;
+
+            if (states.Count < 2)
+            {
+                return (0, degreesBetweenStates);
+            }
+
+            return (
+                Math.Max(2, 9 - states.Count)
+                    * _StateBigCircleRadius
+                    / (1 - Math.Cos(degreesBetweenStates * Math.PI / 180)),
+                degreesBetweenStates
+            );
+        }
+
+        private static void WriteDefs(XmlWriter xmlWriter)
+        {
+            xmlWriter.WriteStartElement("defs");
+            xmlWriter.WriteStartElement("marker");
+            xmlWriter.WriteAttributeString("id", "arrow");
+            xmlWriter.WriteAttributeString("viewBox", "0 0 10 10");
+            xmlWriter.WriteAttributeString("refX", "5");
+            xmlWriter.WriteAttributeString("refY", "5");
+            xmlWriter.WriteAttributeString("markerWidth", "6");
+            xmlWriter.WriteAttributeString("markerHeight", "6");
+            xmlWriter.WriteAttributeString("orient", "auto-start-reverse");
+            xmlWriter.WriteStartElement("path");
+            xmlWriter.WriteAttributeString("d", "M 0 0 L 10 5 L 0 10 z");
+            xmlWriter.WriteAttributeString("fill", "black");
+            xmlWriter.WriteEndElement(); // path
+            xmlWriter.WriteEndElement(); // marker
+            xmlWriter.WriteEndElement(); // defs
+        }
+
+        private static void DrawTransition(
+            XmlWriter xmlWriter,
+            int currentStateIndex,
+            int nextStateIndex,
+            double distanceFromCenter,
+            double degreesBetweenStates,
+            bool hasReversedTransition,
+            string text
+        )
+        {
+            double alphaDegree = currentStateIndex * degreesBetweenStates;
+            if (currentStateIndex == nextStateIndex)
+            {
+                xmlWriter.WriteStartElement("g");
+                xmlWriter.WriteAttributeString(
+                    "transform",
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "rotate({0}) translate({1},0)",
+                        alphaDegree,
+                        distanceFromCenter
+                    )
+                );
+                xmlWriter.WriteAttributeString("stroke", "black");
+                xmlWriter.WriteAttributeString(
+                    "stroke-width",
+                    _StrokeWidth.ToString(CultureInfo.InvariantCulture)
+                );
+                xmlWriter.WriteAttributeString("fill", "none");
+                xmlWriter.WriteStartElement("path");
+                double distance = _StateBigCircleRadius * Math.Sqrt(2) / 2;
+                xmlWriter.WriteAttributeString(
+                    "d",
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "M {0},{1} A {2},{2} 0 1,1 {3},{4}",
+                        distance,
+                        -distance,
+                        _StateBigCircleRadius,
+                        distance,
+                        distance
+                    )
+                );
+                xmlWriter.WriteAttributeString(
+                    "transform",
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "translate({0},0)",
+                        _StateBigCircleRadiusWithGap - _StateBigCircleRadius
+                    )
+                );
+                xmlWriter.WriteAttributeString("marker-end", "url(#arrow)");
+                xmlWriter.WriteEndElement(); // path
+                xmlWriter.WriteStartElement("g");
+                xmlWriter.WriteAttributeString(
+                    "transform",
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "translate({0},0)",
+                        _StateBigCircleRadius * Math.Sqrt(2)
+                            + _StateBigCircleRadiusWithGap
+                            + _TextLineGap
+                    )
+                );
+                bool rotate = alphaDegree > 180;
+                xmlWriter.WriteStartElement("text");
+                xmlWriter.WriteAttributeString("x", "0");
+                xmlWriter.WriteAttributeString("y", "0");
+                xmlWriter.WriteAttributeString("text-anchor", "middle");
+                xmlWriter.WriteAttributeString(
+                    "dominant-baseline",
+                    rotate ? "alphabetic" : "hanging"
+                );
+                xmlWriter.WriteAttributeString("fill", "black");
+                xmlWriter.WriteAttributeString("stroke-width", "1");
+                xmlWriter.WriteAttributeString(
+                    "transform",
+                    string.Format(CultureInfo.InvariantCulture, "rotate({0})", rotate ? 90 : 270)
+                );
+                xmlWriter.WriteString(text);
+                xmlWriter.WriteEndElement(); // text);
+                xmlWriter.WriteEndElement(); // g);
+                xmlWriter.WriteEndElement(); // g
+            }
+            else
+            {
+                double betaDegree = nextStateIndex * degreesBetweenStates;
+                double thetaDegree = (alphaDegree + betaDegree) / 2 - 90;
+                double phiRad = (alphaDegree - betaDegree) * Math.PI / 360;
+                double distance =
+                    distanceFromCenter * Math.Cos(phiRad)
+                    + (hasReversedTransition ? 15.0 * Math.Sign(phiRad) : 0);
+                double x1 = distanceFromCenter * Math.Sin(phiRad);
+                double x2 = -x1;
+                x1 -= Math.Sign(x1) * _StateBigCircleRadiusWithGap;
+                x2 -= Math.Sign(x2) * _StateBigCircleRadiusWithGap;
+                xmlWriter.WriteStartElement("g");
+                xmlWriter.WriteAttributeString(
+                    "transform",
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "rotate({0}) translate(0,{1})",
+                        thetaDegree,
+                        distance
+                    )
+                );
+                xmlWriter.WriteAttributeString("stroke", "black");
+                xmlWriter.WriteAttributeString(
+                    "stroke-width",
+                    _StrokeWidth.ToString(CultureInfo.InvariantCulture)
+                );
+                xmlWriter.WriteAttributeString("fill", "none");
+                xmlWriter.WriteStartElement("line");
+                xmlWriter.WriteAttributeString("x1", x1.ToString(CultureInfo.InvariantCulture));
+                xmlWriter.WriteAttributeString("y1", "0");
+                xmlWriter.WriteAttributeString("x2", x2.ToString(CultureInfo.InvariantCulture));
+                xmlWriter.WriteAttributeString("y2", "0");
+                xmlWriter.WriteAttributeString("marker-end", "url(#arrow)");
+                xmlWriter.WriteEndElement(); // line
+                bool rotate180 = Math.Cos(thetaDegree * Math.PI / 180) < 0;
+                bool textEndAnchor = (x2 - x1 > 0) != rotate180;
+                bool alphabetic = Math.Sign(phiRad) > 0 == rotate180;
+                xmlWriter.WriteStartElement("text");
+                xmlWriter.WriteAttributeString("x", "0");
+                xmlWriter.WriteAttributeString("y", "0");
+                xmlWriter.WriteAttributeString("text-anchor", textEndAnchor ? "end" : "start");
+                xmlWriter.WriteAttributeString(
+                    "dominant-baseline",
+                    alphabetic ? "alphabetic" : "hanging"
+                );
+                xmlWriter.WriteAttributeString("fill", "black");
+                xmlWriter.WriteAttributeString("stroke-width", "1");
+                xmlWriter.WriteAttributeString(
+                    "transform",
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "translate({0}, {1}) rotate({2})",
+                        x1 + (x2 - x1) * 3 / 4,
+                        Math.Sign(phiRad) * _TextLineGap,
+                        rotate180 ? 180 : 0
+                    )
+                );
+                xmlWriter.WriteString(text);
+                xmlWriter.WriteEndElement(); // text
+                xmlWriter.WriteEndElement(); // g
+            }
         }
 
         private static void DrawState(
@@ -120,8 +321,7 @@ namespace FLaG.IO.Out
             double distanceFromCenter
         )
         {
-            double angle = stateIndex * angleBetweenStates;
-            double center = distanceFromCenter - _StateBigCircleRadius;
+            double angle = -stateIndex * angleBetweenStates;
 
             xmlWriter.WriteStartElement("g");
             xmlWriter.WriteAttributeString(
@@ -138,7 +338,10 @@ namespace FLaG.IO.Out
             );
             xmlWriter.WriteAttributeString("fill", "none");
             xmlWriter.WriteStartElement("circle");
-            xmlWriter.WriteAttributeString("cx", center.ToString(CultureInfo.InvariantCulture));
+            xmlWriter.WriteAttributeString(
+                "cx",
+                distanceFromCenter.ToString(CultureInfo.InvariantCulture)
+            );
             xmlWriter.WriteAttributeString("cy", "0");
             xmlWriter.WriteAttributeString(
                 "r",
@@ -148,7 +351,10 @@ namespace FLaG.IO.Out
             if (isInitialState)
             {
                 xmlWriter.WriteStartElement("circle");
-                xmlWriter.WriteAttributeString("cx", center.ToString(CultureInfo.InvariantCulture));
+                xmlWriter.WriteAttributeString(
+                    "cx",
+                    distanceFromCenter.ToString(CultureInfo.InvariantCulture)
+                );
                 xmlWriter.WriteAttributeString("cy", "0");
                 xmlWriter.WriteAttributeString(
                     "r",
@@ -172,7 +378,7 @@ namespace FLaG.IO.Out
                 string.Format(
                     CultureInfo.InvariantCulture,
                     "translate({0},0) rotate({1})",
-                    center,
+                    distanceFromCenter,
                     -angle
                 )
             );
