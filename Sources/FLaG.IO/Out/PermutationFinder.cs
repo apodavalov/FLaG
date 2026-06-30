@@ -72,7 +72,6 @@ namespace FLaG.IO.Out
             }
 
             population.Sort();
-            Console.WriteLine("Fitness: {0}", population.FirstOrDefault()?.Fitness ?? -1);
             return population.FirstOrDefault()?.Chromosome.ToList() ?? [];
         }
 
