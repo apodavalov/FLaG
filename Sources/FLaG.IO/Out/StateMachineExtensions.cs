@@ -43,8 +43,15 @@ namespace FLaG.IO.Out
 
             Dictionary<Tuple<SingleLabel, SingleLabel>, HashSet<char>> arrows = [];
 
+            GraphMatrix graph = new(states.Count);
+
             foreach (Transition transition in stateMachine.Transitions)
             {
+                graph.Set(
+                    stateIndices[states[transition.CurrentState]],
+                    stateIndices[states[transition.NextState]],
+                    true
+                );
                 Tuple<SingleLabel, SingleLabel> stateTransition = new(
                     states[transition.CurrentState],
                     states[transition.NextState]
@@ -52,6 +59,9 @@ namespace FLaG.IO.Out
 
                 arrows.GetOrAdd(stateTransition, () => []).Add(transition.Symbol);
             }
+
+            List<int> stateReindex = PermutationFinder.Find(new(graph));
+            stateIndices = stateIndices.ToDictionary(kv => kv.Key, kv => stateReindex[kv.Value]);
 
             (double distanceFromCenter, double degreesBetweenStates) = GetParams(states);
             double size = 2 * (distanceFromCenter + 4 * _StateBigCircleRadius);
